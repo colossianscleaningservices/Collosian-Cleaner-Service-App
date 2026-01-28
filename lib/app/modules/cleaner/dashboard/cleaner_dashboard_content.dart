@@ -45,7 +45,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CommonText.semiBold('Upcoming jobs', size: 17, color: scheme.onPrimary),
+                          CommonText.semiBold('Upcoming jobs', size: 16, color: scheme.onPrimary),
                           if (hasJobs)
                             CommonText.regular(
                               '$jobCount ${jobCount == 1 ? 'job' : 'jobs'} scheduled',
@@ -130,7 +130,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                         const SizedBox(height: 12),
                         CommonText.medium(
                           'No upcoming jobs',
-                          size: 15,
+                          size: 16,
                           color: scheme.onPrimary.withValues(alpha: 0.6),
                         ),
                         const SizedBox(height: 6),
@@ -218,7 +218,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CommonText.semiBold('Action needed', size: 15, color: scheme.onSurface),
+                        CommonText.semiBold('Action needed', size: 16, color: scheme.onSurface),
                         const SizedBox(height: 4),
                         CommonText.regular(
                           '${controller.actionNeededCount} ${controller.actionNeededCount == 1 ? 'item requires' : 'items require'} your attention',
@@ -262,7 +262,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CommonText.semiBold('Complete your profile', size: 15, color: scheme.onSurface),
+                        CommonText.semiBold('Complete your profile', size: 16, color: scheme.onSurface),
                         const SizedBox(height: 4),
                         CommonText.regular(
                           'Add missing documents and bank details to start earning',
@@ -276,9 +276,9 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                           type: ButtonType.tonal,
                           icon: IconsaxPlusLinear.arrow_right_2,
                           onPressed: () => controller.setTab(4),
-                          btnVerticalPadding: 11,
+                          btnVerticalPadding: 12,
                           btnHorizontalPadding: 14,
-                          textSize: 13,
+                          textSize: 12,
                         ),
                       ],
                     ),
@@ -291,7 +291,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
           // Enhanced quick actions section
           Row(
             children: [
-              CommonText.semiBold('Quick actions', size: 15, color: scheme.onSurface),
+              CommonText.semiBold('Quick actions', size: 16, color: scheme.onSurface),
               const Spacer(),
               if (hasJobs)
                 CommonText.regular(

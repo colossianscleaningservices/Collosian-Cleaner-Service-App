@@ -32,7 +32,7 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                 Tab(text: 'List'),
               ],
             ),
-          ).marginOnly(bottom: 16),
+          ).marginOnly(bottom: 16,left: 24,right: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -42,11 +42,11 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
               ),
               Obx(() => CommonText.bold(controller.periodLabel, size: 16, color: scheme.onSurface)),
               IconButton(
-                icon: Icon(IconsaxPlusLinear.arrow_right_2, color: scheme.secondary,),
+                icon: Icon(IconsaxPlusLinear.arrow_right_3, color: scheme.secondary,),
                 onPressed: controller.onCalendarNext,
               ),
             ],
-          ),
+          ).marginSymmetric(horizontal: 24),
           Expanded(
             child: TabBarView(
               controller: controller.tabController,
@@ -82,7 +82,7 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
             ),
           ),
         ],
-      ).paddingSymmetric(horizontal: 24, vertical: 16),
+      ).paddingSymmetric(horizontal: 0, vertical: 16),
     );
   }
 }
@@ -154,9 +154,9 @@ class _CalendarSection extends StatelessWidget {
               weekendStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
             ),
           ).marginSymmetric(vertical: 16),
-        ).marginOnly(top: 16, left: 4, right: 4),
+        ).marginOnly(top: 16, left: 4, right: 4).marginSymmetric(horizontal: 24),
         SizedBox(height: UiConstants.gap),
-        CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface),
+        CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface).marginSymmetric(horizontal: 24),
         const SizedBox(height: 8),
         _EmptyStateCard(scheme: scheme, ctrl: ctrl),
       ],
@@ -203,7 +203,7 @@ class _ListContentView extends StatelessWidget {
               ),
             ),
       ],
-    );
+    ).marginSymmetric(horizontal: 14);
   }
 }
 
@@ -220,48 +220,38 @@ class _ListJobCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isApproved = status == 'Approved';
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => Notifier.info('Job details (coming soon)'),
-        borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-        child: Card(
-          color: context.colorScheme.onPrimary,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
+    return AppCard(
+      onTap: () => Notifier.info('Job details (coming soon)'),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 48,
+            decoration: BoxDecoration(color: isApproved ? scheme.primary : scheme.outline, borderRadius: BorderRadius.circular(2)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 4,
-                  height: 48,
-                  decoration: BoxDecoration(color: isApproved ? scheme.primary : scheme.outline, borderRadius: BorderRadius.circular(2)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CommonText.semiBold(property, size: 14),
-                      const SizedBox(height: 2),
-                      CommonText.regular('$date · $time', size: 12, color: scheme.onSurfaceVariant),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: (isApproved ? scheme.primaryContainer : scheme.surfaceContainerHighest).withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: CommonText.medium(status, size: 11, color: isApproved ? scheme.onPrimaryContainer : scheme.onSurfaceVariant),
-                ),
-                const SizedBox(width: 4),
-                Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
+                CommonText.semiBold(property, size: 14),
+                const SizedBox(height: 2),
+                CommonText.regular('$date · $time', size: 12, color: scheme.onSurfaceVariant),
               ],
             ),
           ),
-        ),
-      ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: (isApproved ? scheme.primaryContainer : scheme.surfaceContainerHighest).withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: CommonText.medium(status, size: 11, color: isApproved ? scheme.onPrimaryContainer : scheme.onSurfaceVariant),
+          ),
+          const SizedBox(width: 4),
+          Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
+        ],
+      ).paddingAll(14),
     );
   }
 }
@@ -276,35 +266,31 @@ class _EmptyStateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = ctrl ?? Get.find<CleanerDashboardController>();
 
-    return Card(
-      color: context.colorScheme.onPrimary,
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          children: [
-            Icon(IconsaxPlusLinear.calendar, color: scheme.onSurfaceVariant, size: 20),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CommonText.regular('No jobs this month.', size: 13, color: scheme.onSurfaceVariant),
-                  const SizedBox(height: 2),
-                  CommonText.regular('Your assigned jobs will appear here.', size: 12, color: scheme.onSurfaceVariant),
-                ],
-              ),
+    return AppCard(
+      child: Row(
+        children: [
+          Icon(IconsaxPlusLinear.calendar, color: scheme.onSurfaceVariant, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CommonText.regular('No jobs this month.', size: 13, color: scheme.onSurfaceVariant),
+                const SizedBox(height: 2),
+                CommonText.regular('Your assigned jobs will appear here.', size: 12, color: scheme.onSurfaceVariant),
+              ],
             ),
-            AppButton(
-              label: 'My Jobs',
-              type: ButtonType.outline,
-              onPressed: () => c.setTab(2),
-              btnVerticalPadding: 8,
-              btnHorizontalPadding: 12,
-              textSize: 12,
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+          AppButton(
+            label: 'My Jobs',
+            type: ButtonType.outline,
+            onPressed: () => c.setTab(2),
+            btnVerticalPadding: 8,
+            btnHorizontalPadding: 12,
+            textSize: 12,
+          ),
+        ],
+      ).paddingAll(14),
+    ).marginSymmetric(horizontal: 24);
   }
 }
