@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/gen/assets.gen.dart';
 import 'package:ccs_app/app/widget/layout/keyboard_dismissible_wrapper.dart';
 import 'package:ccs_app/export.dart';
 import 'package:flutter/gestures.dart';
@@ -384,32 +385,40 @@ class AppScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardDismissibleWrapper(
-      child: Scaffold(
-        key: key,
-        appBar: appBar,
-        body: body,
-        backgroundColor: backgroundColor,
-        floatingActionButton: floatingActionButton,
-        floatingActionButtonLocation: floatingActionButtonLocation,
-        floatingActionButtonAnimator: floatingActionButtonAnimator,
-        persistentFooterButtons: persistentFooterButtons,
-        drawer: drawer,
-        onDrawerChanged: onDrawerChanged,
-        endDrawer: endDrawer,
-        onEndDrawerChanged: onEndDrawerChanged,
-        bottomNavigationBar: bottomNavigationBar,
-        bottomSheet: bottomSheet,
-        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-        primary: primary,
-        drawerDragStartBehavior: drawerDragStartBehavior,
-        extendBody: extendBody,
-        extendBodyBehindAppBar: extendBodyBehindAppBar,
-        drawerScrimColor: drawerScrimColor,
-        drawerEdgeDragWidth: drawerEdgeDragWidth,
-        drawerEnableOpenDragGesture: drawerEnableOpenDragGesture,
-        endDrawerEnableOpenDragGesture: endDrawerEnableOpenDragGesture,
-        restorationId: restorationId,
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: Assets.imagesBg.provider(),
+          fit: BoxFit.cover,
+        )
+      ),
+      child: KeyboardDismissibleWrapper(
+        child: Scaffold(
+          key: key,
+          appBar: appBar,
+          body: body,
+          backgroundColor: Colors.transparent,
+          floatingActionButton: floatingActionButton,
+          floatingActionButtonLocation: floatingActionButtonLocation,
+          floatingActionButtonAnimator: floatingActionButtonAnimator,
+          persistentFooterButtons: persistentFooterButtons,
+          drawer: drawer,
+          onDrawerChanged: onDrawerChanged,
+          endDrawer: endDrawer,
+          onEndDrawerChanged: onEndDrawerChanged,
+          bottomNavigationBar: bottomNavigationBar,
+          bottomSheet: bottomSheet,
+          resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+          primary: primary,
+          drawerDragStartBehavior: drawerDragStartBehavior,
+          extendBody: extendBody,
+          extendBodyBehindAppBar: extendBodyBehindAppBar,
+          drawerScrimColor: drawerScrimColor,
+          drawerEdgeDragWidth: drawerEdgeDragWidth,
+          drawerEnableOpenDragGesture: drawerEnableOpenDragGesture,
+          endDrawerEnableOpenDragGesture: endDrawerEnableOpenDragGesture,
+          restorationId: restorationId,
+        ),
       ),
     );
   }

@@ -24,28 +24,53 @@ class Notifier {
     }
   }
 
-  static void openSheet(
-      BuildContext context, {
-        String title = "Alert!",
-        String? message,
-        Widget? iconWidget,
-        Widget? body,
-        SvgGenImage icon = Assets.imagesAppLogo,
-        String primaryButtonLabel = "Confirm",
-        String secondaryButtonLabel = "Cancel",
-        bool isDismissable = true,
-        bool showPrimaryButton = true,
-        bool showSecondaryButton = true,
-        void Function()? onPrimaryPressed,
-        void Function()? onSecondaryPressed,
-      }) {
+  static void openSheet(BuildContext context, {
+    String title = "Alert!",
+    String? message,
+    Widget? iconWidget,
+    Widget? body,
+    IconData? icon,
+    SheetType? type = SheetType.info,
+    String primaryButtonLabel = "Confirm",
+    String secondaryButtonLabel = "Cancel",
+    bool isDismissable = true,
+    bool showPrimaryButton = true,
+    bool showSecondaryButton = true,
+    void Function()? onPrimaryPressed,
+    void Function()? onSecondaryPressed,
+  }) {
+    var scheme = context.colorScheme;
+
+    Color bg;
+    Color fg;
+
+    switch (type) {
+      case SheetType.success:
+        bg = Colors.green.shade100.withValues(alpha: 0.4);  // Background color for success
+        fg = Colors.green.shade400;  // Foreground color (text) for success
+        break;
+      case SheetType.error:
+        bg = scheme.errorContainer;   // Background color for info
+        fg = scheme.error;   // Foreground color (text) for info
+        break;
+      case SheetType.info:
+        bg = scheme.secondaryContainer;   // Background color for info
+        fg = scheme.secondary;   // Foreground color (text) for info
+        break;
+      case SheetType.warning:
+        bg = Colors.yellow.shade100.withValues(alpha: 0.6); // Background color for warning
+        fg = Colors.yellow.shade800; // Foreground color (text) for warning
+        break;
+      case null:
+        bg = scheme.secondaryContainer;   // Background color for info
+        fg = scheme.secondary;   // Foreground color (text) for info
+    }
+
     void closeSheet() {
       if (Get.isBottomSheetOpen ?? false) {
         Get.back();
       }
     }
-
-    var scheme = context.colorScheme;
 
     var content = SafeArea(
       top: false,
@@ -56,7 +81,7 @@ class Notifier {
           children: [
             Row(
               children: [
-                iconWidget ?? icon.svg(width: 120, colorFilter: ColorFilter.mode(scheme.secondary, BlendMode.srcATop)),
+                Assets.imagesAppLogo.svg(width: 120, colorFilter: ColorFilter.mode(scheme.secondary, BlendMode.srcATop)),
                 Spacer(),
                 Align(
                   alignment: Alignment.topRight,
@@ -65,7 +90,12 @@ class Notifier {
               ],
             ),
 
-            AppCard(color: scheme.outline, radius: 100, child: Icon(IconsaxPlusLinear.check, size: 48).marginAll(16)).marginSymmetric(vertical: 16),
+            AppCard(
+              enableShadows: false,
+              color: bg,
+              radius: 100,
+              child: iconWidget ?? Icon(icon ?? IconsaxPlusLinear.check, size: 56, color: fg,).marginAll(16),
+            ).marginOnly(top: 16),
 
             if (body == null)
               Column(
@@ -135,3 +165,5 @@ class Notifier {
     );
   }
 }
+
+enum SheetType { success, error, info, warning }

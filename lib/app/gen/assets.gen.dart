@@ -22,13 +22,16 @@ class Assets {
     'assets/images/app_logo.svg',
   );
 
+  /// File path: assets/images/bg.jpg
+  static const AssetGenImage imagesBg = AssetGenImage('assets/images/bg.jpg');
+
   /// File path: assets/images/dummy.jpg
   static const AssetGenImage imagesDummy = AssetGenImage(
     'assets/images/dummy.jpg',
   );
 
   /// List of all assets
-  static List<dynamic> get values => [imagesAppLogo, imagesDummy];
+  static List<dynamic> get values => [imagesAppLogo, imagesBg, imagesDummy];
 }
 
 class AssetGenImage {

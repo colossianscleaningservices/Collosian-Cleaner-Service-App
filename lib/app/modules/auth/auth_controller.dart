@@ -47,17 +47,16 @@ class AuthController extends GetxController {
       showSecondaryButton: true,
       title: "Continue as ",
       message: "Choose how you want to use Colossians Cleaning Services",
+      icon: IconsaxPlusLinear.profile_2user,
       primaryButtonLabel: "I am a Client",
       secondaryButtonLabel: "I am a Cleaner",
       onPrimaryPressed: () {
-        print(":ASDAsaS");
         selectRole(AppRole.client);
-        Get.toNamed(Routes.SIGN_UP);
+        Get.toNamed(Routes.CLIENT_DASHBOARD);
       },
       onSecondaryPressed: () {
-        print(":CZXCZXCXZ");
         selectRole(AppRole.cleaner);
-        Get.toNamed(Routes.SIGN_UP);
+        Get.toNamed(Routes.CLEANER_DASHBOARD);
       },
     );
   }

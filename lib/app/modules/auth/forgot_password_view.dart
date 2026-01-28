@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
 import 'auth_controller.dart';
@@ -7,8 +8,8 @@ class ForgotPasswordView extends GetView<AuthController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Forgot password')),
+    return AppScaffold(
+      appBar: Header(title:'Forgot password'),
       body: Padding(
         padding: UiConstants.padding,
         child: Column(

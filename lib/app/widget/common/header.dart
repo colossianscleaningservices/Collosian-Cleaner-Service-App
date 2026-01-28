@@ -43,7 +43,8 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) => AppBar(
         toolbarHeight: 68,
         actionsIconTheme: IconThemeData(color: context.colorScheme.primary),
-        backgroundColor: bgColor ?? Colors.transparent,
+        backgroundColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
         automaticallyImplyLeading: hasBackIcon,
         leading: hasBackIcon
             ? IconButton(
@@ -54,7 +55,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
                 icon: const Icon(IconsaxPlusLinear.arrow_left_1),
               ).paddingOnly(left: 12, top: 8, bottom: 8)
             : null,
-        title: CommonText.extraBold(title, color: context.colorScheme.primary, fontWeight: FontWeight.w700, size: size)
+        title: widget?? CommonText.extraBold(title, color: context.colorScheme.primary, fontWeight: FontWeight.w700, size: size)
         /*Column(
           spacing: subtitle?.isNullOrEmpty == false ? 4 : 0,
           crossAxisAlignment: CrossAxisAlignment.start,

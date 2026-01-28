@@ -18,7 +18,7 @@ class AppCard extends StatefulWidget {
     this.elevation = 0,
     this.enableHover = true,
     this.enableScale = true,
-    this.enableShadows = false,
+    this.enableShadows = true,
     this.blurRadius,
     this.margin,
     this.padding,
@@ -164,7 +164,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final effectiveRadius = widget.radius ?? UiConstants.radiusLarge;
-    final effectiveColor = widget.color ?? context.colorScheme.surfaceBright;
+    final effectiveColor = widget.color ?? context.colorScheme.surfaceContainerHighest;
     final effectiveBorderColor = widget.borderColor ?? context.colorScheme.outline.withValues(alpha: 0.1);
 
     Widget cardContent = AnimatedBuilder(
@@ -182,13 +182,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
               width: widget.borderWidth ?? 0,
             ),
             boxShadow: widget.enableShadows
-                ? [
-                    BoxShadow(
-                      color: widget.shadowColor ?? Colors.black.withValues(alpha: 0.05),
-                      blurRadius: widget.blurRadius ?? 10,
-                      offset: widget.offset ?? const Offset(0, 4),
-                    ),
-                  ]
+                ? context.effectiveShadows()
                 : null,
           ),
           child: Material(

@@ -1,3 +1,5 @@
+import 'package:ccs_app/app/modules/client/dashboard/view/client_notifications_view.dart';
+import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 import 'client_dashboard_controller.dart';
 
@@ -7,7 +9,7 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => Scaffold(
+      () => AppScaffold(
         appBar: Header(
           title: Constants.clientTopHeading[controller.tabIndex.value].$1,
           subtitle: Constants.clientTopHeading[controller.tabIndex.value].$2,

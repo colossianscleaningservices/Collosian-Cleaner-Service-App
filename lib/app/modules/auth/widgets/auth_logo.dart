@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/gen/assets.gen.dart';
 import 'package:ccs_app/export.dart';
 
 /// Asset path for the auth logo. Place your app logo at assets/images/logo.png.
@@ -15,21 +16,7 @@ class AuthLogo extends StatelessWidget {
     final scheme = context.colorScheme;
     return SizedBox(
       height: height,
-      child: Center(
-        child: Image.asset(
-          kAuthLogoAsset,
-          height: imageHeight,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(IconsaxPlusLinear.home_hashtag, size: 64, color: scheme.primary),
-              const SizedBox(height: 8),
-              CommonText.bold('CCS', size: 24, color: scheme.primary),
-            ],
-          ),
-        ),
-      ),
+      child: Center(child: Assets.imagesAppLogo.svg(colorFilter: ColorFilter.mode(scheme.secondary, BlendMode.srcATop))),
     );
   }
 }

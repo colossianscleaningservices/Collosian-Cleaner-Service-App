@@ -52,8 +52,8 @@ class AppButton extends StatelessWidget {
         fg = txtClr ?? scheme.onPrimary;
         break;
       case ButtonType.tonal:
-        bg = bgColor ?? scheme.secondaryContainer;
-        fg = txtClr ?? scheme.onSecondaryContainer;
+        bg = bgColor ?? scheme.primaryContainer;
+        fg = txtClr ?? scheme.onPrimaryContainer;
         break;
       case ButtonType.outline:
         bg = Colors.transparent;

@@ -12,6 +12,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
     final scheme = context.colorScheme;
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

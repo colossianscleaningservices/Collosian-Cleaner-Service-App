@@ -1,4 +1,6 @@
+import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
+import '../../../gen/assets.gen.dart';
 import 'cleaner_dashboard_controller.dart';
 
 /// Cleaner dashboard (root with bottom nav).
@@ -9,8 +11,9 @@ class CleanerDashboardView extends GetView<CleanerDashboardController> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => Scaffold(
+      () => AppScaffold(
         appBar: Header(
+          widget: Assets.imagesAppLogo.svg(width: 120, colorFilter: ColorFilter.mode(context.colorScheme.secondary, BlendMode.srcATop)),
           title: Constants.cleanerTopHeading[controller.tabIndex.value].$1,
           subtitle: Constants.cleanerTopHeading[controller.tabIndex.value].$2,
           actions: [

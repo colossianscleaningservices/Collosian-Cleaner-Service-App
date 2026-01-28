@@ -7,12 +7,12 @@ final TextTheme textTheme = GoogleFonts.manropeTextTheme(
 );
 
 ButtonStyle filledIconButtonStyle(BuildContext context) => ButtonStyle(
-  backgroundColor: WidgetStateProperty.all(
-    context.colorScheme.surfaceContainerHighest,
-  ),
-  iconColor: WidgetStateProperty.all(context.colorScheme.primary),
-  shape: WidgetStateProperty.all(
-    RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-  ),
-  padding: WidgetStateProperty.all(const EdgeInsets.all(8)),
-);
+      backgroundColor: WidgetStateProperty.all(
+        context.colorScheme.secondaryContainer.withValues(alpha: 0.6),
+      ),
+      iconColor: WidgetStateProperty.all(context.colorScheme.secondary),
+      shape: WidgetStateProperty.all(
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(UiConstants.radiusLarge)),
+      ),
+      padding: WidgetStateProperty.all(const EdgeInsets.all(8)),
+    );

@@ -56,8 +56,8 @@ extension CcsContextX on BuildContext {
       [
         BoxShadow(
           color: theme.brightness == Brightness.dark
-              ? Colors.white.withValues(alpha: 0.05)
-              : Colors.white.withValues(alpha: 0.8),
+              ? Colors.grey.withValues(alpha: 0.05)
+              : Colors.grey.withValues(alpha: 0.03),
           offset: offset ?? const Offset(-2, -2),
           blurRadius: blurRadius ?? 8,
         ),
@@ -65,7 +65,7 @@ extension CcsContextX on BuildContext {
           color: shadowColor ??
               (theme.brightness == Brightness.dark
                   ? Colors.black.withValues(alpha: 0.3)
-                  : Colors.black.withValues(alpha: 0.1)),
+                  : Colors.black.withValues(alpha: 0.08)),
           offset: offset ?? const Offset(2, 2),
           blurRadius: blurRadius ?? 8,
         ),

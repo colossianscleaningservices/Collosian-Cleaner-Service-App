@@ -13,12 +13,18 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
     final scheme = context.colorScheme;
 
     return SafeArea(
-      child: Padding(
-        padding: UiConstants.padding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TabBar(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppCard(
+            child: TabBar(
+              unselectedLabelStyle: context.textTheme.bodyLarge,
+              labelStyle: context.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
+              labelColor: scheme.secondary,
+              unselectedLabelColor: scheme.onSurfaceVariant,
+              indicatorSize: TabBarIndicatorSize.label,
+              indicatorWeight: 2,
+              indicatorColor: scheme.secondary,
               controller: controller.tabController,
               tabs: const [
                 Tab(text: 'Week'),
@@ -26,59 +32,57 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                 Tab(text: 'List'),
               ],
             ),
-            SizedBox(height: UiConstants.gap),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          ).marginOnly(bottom: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: Icon(IconsaxPlusLinear.arrow_left_1, color: scheme.secondary,),
+                onPressed: controller.onCalendarPrev,
+              ),
+              Obx(() => CommonText.bold(controller.periodLabel, size: 16, color: scheme.onSurface)),
+              IconButton(
+                icon: Icon(IconsaxPlusLinear.arrow_right_2, color: scheme.secondary,),
+                onPressed: controller.onCalendarNext,
+              ),
+            ],
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: controller.tabController,
               children: [
-                IconButton(
-                  icon: const Icon(IconsaxPlusLinear.arrow_left_2),
-                  onPressed: controller.onCalendarPrev,
+                SingleChildScrollView(
+                  child: Obx(() => _CalendarSection(
+                        scheme: scheme,
+                        mode: CalendarViewMode.week,
+                        focusedDay: controller.focusedDay.value,
+                        selectedDay: controller.selectedDay.value,
+                        eventsMap: controller.eventsMap,
+                        onDaySelected: controller.onCalendarDaySelected,
+                        onPageChanged: controller.onCalendarPageChanged,
+                        ctrl: controller,
+                      )),
                 ),
-                Obx(() => CommonText.semiBold(controller.periodLabel, size: 16, color: scheme.onSurface)),
-                IconButton(
-                  icon: const Icon(IconsaxPlusLinear.arrow_right_2),
-                  onPressed: controller.onCalendarNext,
+                SingleChildScrollView(
+                  child: Obx(() => _CalendarSection(
+                        scheme: scheme,
+                        mode: CalendarViewMode.month,
+                        focusedDay: controller.focusedDay.value,
+                        selectedDay: controller.selectedDay.value,
+                        eventsMap: controller.eventsMap,
+                        onDaySelected: controller.onCalendarDaySelected,
+                        onPageChanged: controller.onCalendarPageChanged,
+                        ctrl: controller,
+                      )),
+                ),
+                SingleChildScrollView(
+                  child: _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap),
                 ),
               ],
             ),
-            SizedBox(height: UiConstants.gap),
-            Expanded(
-              child: TabBarView(
-                controller: controller.tabController,
-                children: [
-                  SingleChildScrollView(
-                    child: Obx(() => _CalendarSection(
-                          scheme: scheme,
-                          mode: CalendarViewMode.week,
-                          focusedDay: controller.focusedDay.value,
-                          selectedDay: controller.selectedDay.value,
-                          eventsMap: controller.eventsMap,
-                          onDaySelected: controller.onCalendarDaySelected,
-                          onPageChanged: controller.onCalendarPageChanged,
-                          ctrl: controller,
-                        )),
-                  ),
-                  SingleChildScrollView(
-                    child: Obx(() => _CalendarSection(
-                          scheme: scheme,
-                          mode: CalendarViewMode.month,
-                          focusedDay: controller.focusedDay.value,
-                          selectedDay: controller.selectedDay.value,
-                          eventsMap: controller.eventsMap,
-                          onDaySelected: controller.onCalendarDaySelected,
-                          onPageChanged: controller.onCalendarPageChanged,
-                          ctrl: controller,
-                        )),
-                  ),
-                  SingleChildScrollView(
-                    child: _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        ],
+      ).paddingSymmetric(horizontal: 24, vertical: 16),
     );
   }
 }
@@ -109,45 +113,48 @@ class _CalendarSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TableCalendar<CalendarEvent>(
-          firstDay: kCalendarFirstDay,
-          lastDay: kCalendarLastDay,
-          focusedDay: focusedDay,
-          currentDay: DateTime.now(),
-          selectedDayPredicate: (d) => selectedDay != null && isSameDay(d, selectedDay!),
-          calendarFormat: mode == CalendarViewMode.week ? CalendarFormat.week : CalendarFormat.month,
-          eventLoader: (day) => eventsMap?[DateTime(day.year, day.month, day.day)] ?? [],
-          onDaySelected: onDaySelected,
-          onPageChanged: onPageChanged,
-          headerVisible: false,
-          startingDayOfWeek: StartingDayOfWeek.monday,
-          calendarBuilders: CalendarBuilders<CalendarEvent>(
-            markerBuilder: (context, date, events) {
-              if (events.isEmpty) return null;
-              final n = events.length > 3 ? 3 : events.length;
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(
-                  n,
-                  (_) => Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 0.5),
-                    width: 4,
-                    height: 4,
-                    decoration: BoxDecoration(shape: BoxShape.circle, color: scheme.primary),
+        AppCard(
+          child: TableCalendar<CalendarEvent>(
+            firstDay: kCalendarFirstDay,
+            lastDay: kCalendarLastDay,
+            focusedDay: focusedDay,
+            currentDay: DateTime.now(),
+            selectedDayPredicate: (d) => selectedDay != null && isSameDay(d, selectedDay!),
+            calendarFormat: mode == CalendarViewMode.week ? CalendarFormat.week : CalendarFormat.month,
+            eventLoader: (day) => eventsMap?[DateTime(day.year, day.month, day.day)] ?? [],
+            onDaySelected: onDaySelected,
+            onPageChanged: onPageChanged,
+            headerVisible: false,
+            startingDayOfWeek: StartingDayOfWeek.monday,
+            calendarBuilders: CalendarBuilders<CalendarEvent>(
+              markerBuilder: (context, date, events) {
+                if (events.isEmpty) return null;
+                final n = events.length > 3 ? 3 : events.length;
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(
+                    n,
+                    (_) => Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 0.5),
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: scheme.primary),
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-          calendarStyle: CalendarStyle(
-            todayDecoration: BoxDecoration(color: scheme.primaryContainer.withValues(alpha: 0.5), shape: BoxShape.circle),
-            selectedDecoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
-          ),
-          daysOfWeekStyle: DaysOfWeekStyle(
-            weekdayStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
-            weekendStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
-          ),
-        ),
+                );
+              },
+            ),
+            calendarStyle: CalendarStyle(
+              todayDecoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
+              selectedDecoration: BoxDecoration(color: scheme.secondaryContainer, shape: BoxShape.circle, border: Border.all(color: scheme.secondary, width: 2)),
+              selectedTextStyle: context.textTheme.bodyLarge!.copyWith(color: scheme.secondary)
+            ),
+            daysOfWeekStyle: DaysOfWeekStyle(
+              weekdayStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+              weekendStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+            ),
+          ).marginSymmetric(vertical: 16),
+        ).marginOnly(top: 16, left: 4, right: 4),
         SizedBox(height: UiConstants.gap),
         CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface),
         const SizedBox(height: 8),

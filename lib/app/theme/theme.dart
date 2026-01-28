@@ -143,6 +143,7 @@ ThemeData getTheme(ColorScheme colorScheme) {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: colorScheme.primary,
         indicatorColor: colorScheme.primaryContainer.withValues(alpha: 0.2),
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
         labelTextStyle: WidgetStateTextStyle.resolveWith((states) {
           final baseStyle = textTheme.labelLarge ?? const TextStyle();
           if (states.contains(WidgetState.selected)) {
