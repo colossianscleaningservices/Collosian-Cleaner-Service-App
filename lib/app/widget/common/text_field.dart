@@ -274,13 +274,11 @@ class CommonTypeAheadField<T> extends StatelessWidget {
     return TypeAheadField<T>(
       controller: controller,
       focusNode: focusNode,
-
       hideOnEmpty: true,
       autoFlipDirection: false,
       direction: VerticalDirection.down,
       suggestionsController: suggestionsController,
       constraints: BoxConstraints(maxHeight: maxHeight),
-
       decorationBuilder: (context, child) => Material(
         borderRadius: BorderRadius.circular(borderRadius ?? 12),
         shadowColor: Colors.black.withValues(alpha: .08),
@@ -290,7 +288,6 @@ class CommonTypeAheadField<T> extends StatelessWidget {
         clipBehavior: Clip.hardEdge,
         child: child,
       ),
-
       builder: (context, textCtrl, node) => CommonTextField(
         controller: textCtrl,
         focus: node,
@@ -308,7 +305,6 @@ class CommonTypeAheadField<T> extends StatelessWidget {
         color: colorScheme.onPrimary,
         child: Text(item.toString(), style: const TextStyle(fontSize: 14)),
       ),
-
       onSelected: (selected) {
         FocusScope.of(context).unfocus();
         onSelected(selected);

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:ccs_app/export.dart';
 import '../../../model/availability.dart';
 import '../../../model/calendar_event.dart';
+import '../../../model/menu_model.dart';
 import 'cleaner_availability_view.dart';
 import 'cleaner_calendar_view.dart';
 import 'cleaner_dashboard_content.dart';
@@ -78,6 +79,16 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     }
     return DateFormat('MMMM yyyy').format(focusedDay.value);
   }
+
+  List<MenuModel> profileItems = [
+    MenuModel(icon: IconsaxPlusLinear.lock_1, title: 'Change password', subtitle: "Change password to protect your account"),
+    MenuModel(icon: IconsaxPlusLinear.home_hashtag, title: 'Properties', subtitle: "Manage your properties"),
+    MenuModel(icon: IconsaxPlusLinear.people, title: 'Preferred Staff', subtitle: "Manage your preferred staff members"),
+    MenuModel(icon: IconsaxPlusLinear.notification, title: 'Notifications', subtitle: "View and manage notifications"),
+    MenuModel(icon: IconsaxPlusLinear.trade, title: 'Training & Resources', subtitle: "View Training Resources & FAQs"),
+    MenuModel(icon: IconsaxPlusLinear.message_question, title: 'Help & support', subtitle: "Get help and support"),
+  ];
+
 
   @override
   void onInit() {

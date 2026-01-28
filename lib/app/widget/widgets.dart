@@ -90,8 +90,7 @@ class AppCard extends StatefulWidget {
       borderColor: colorScheme.outline.withValues(alpha: 0.1),
       enableShadows: true,
       padding: padding ?? const EdgeInsets.all(24),
-      margin:
-          margin ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      margin: margin ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: child,
     );
   }
@@ -111,9 +110,7 @@ class AppCard extends StatefulWidget {
       color: colorScheme.primary.withValues(alpha: 0.1),
       padding: padding ?? const EdgeInsets.all(12),
       enableShadows: false,
-      child: size != null
-          ? SizedBox(width: size, height: size, child: child)
-          : child,
+      child: size != null ? SizedBox(width: size, height: size, child: child) : child,
     );
   }
 
@@ -168,9 +165,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final effectiveRadius = widget.radius ?? UiConstants.radiusLarge;
     final effectiveColor = widget.color ?? context.colorScheme.surfaceBright;
-    final effectiveBorderColor =
-        widget.borderColor ??
-        context.colorScheme.outline.withValues(alpha: 0.1);
+    final effectiveBorderColor = widget.borderColor ?? context.colorScheme.outline.withValues(alpha: 0.1);
 
     Widget cardContent = AnimatedBuilder(
       animation: _scaleAnimation,
@@ -183,17 +178,13 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
             gradient: widget.gradient,
             borderRadius: BorderRadius.circular(effectiveRadius),
             border: Border.all(
-              color: (widget.borderWidth ?? 0) <= 0
-                  ? Colors.transparent
-                  : effectiveBorderColor,
+              color: (widget.borderWidth ?? 0) <= 0 ? Colors.transparent : effectiveBorderColor,
               width: widget.borderWidth ?? 0,
             ),
             boxShadow: widget.enableShadows
                 ? [
                     BoxShadow(
-                      color:
-                          widget.shadowColor ??
-                          Colors.black.withValues(alpha: 0.05),
+                      color: widget.shadowColor ?? Colors.black.withValues(alpha: 0.05),
                       blurRadius: widget.blurRadius ?? 10,
                       offset: widget.offset ?? const Offset(0, 4),
                     ),
@@ -220,9 +211,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
                 highlightColor: context.colorScheme.onPrimary.withValues(
                   alpha: 0.05,
                 ),
-                child: widget.padding != null
-                    ? Padding(padding: widget.padding!, child: widget.child)
-                    : widget.child,
+                child: widget.padding != null ? Padding(padding: widget.padding!, child: widget.child) : widget.child,
               ),
             ),
           ),
@@ -267,8 +256,8 @@ class AppGrid extends StatelessWidget {
     final crossAxisCount = context.isPhone
         ? phoneCount
         : context.mediaQuerySize.width >= 1200
-        ? landscapeCount
-        : tabletCount;
+            ? landscapeCount
+            : tabletCount;
 
     return GridView(
       controller: controller,
@@ -315,8 +304,8 @@ class AppSliverGrid extends StatelessWidget {
     final crossAxisCount = context.isPhone
         ? phoneCount
         : context.mediaQuerySize.width >= 900
-        ? landscapeCount
-        : tabletCount;
+            ? landscapeCount
+            : tabletCount;
 
     return SliverPadding(
       padding: padding ?? EdgeInsets.zero,
@@ -337,21 +326,18 @@ class AppSliverGrid extends StatelessWidget {
 }
 
 class MenuItem extends StatelessWidget {
-  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive});
+  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive,this.padding});
 
   final MenuModel item;
   final VoidCallback? onTap;
   final bool? isDestructive;
+  final double? padding;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
-    final textColor = (isDestructive ?? false)
-        ? colorScheme.error
-        : colorScheme.onSurface;
-    final iconColor = (isDestructive ?? false)
-        ? colorScheme.error
-        : colorScheme.secondary;
+    final textColor = (isDestructive ?? false) ? colorScheme.error : colorScheme.onSurface;
+    final iconColor = (isDestructive ?? false) ? colorScheme.error : colorScheme.secondary;
 
     return AppCard(
       radius: UiConstants.radiusLarge,
@@ -393,7 +379,7 @@ class MenuItem extends StatelessWidget {
             color: colorScheme.onSurfaceVariant,
           ),
         ],
-      ),
+      ).paddingAll(padding ?? 0),
     );
   }
 }
@@ -405,10 +391,10 @@ class AppDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Divider(
-    thickness: 1,
-    height: 1,
-    color: context.colorScheme.outlineVariant,
-  ).marginOnly(left: marginLeft).marginSymmetric(vertical: 16);
+        thickness: 1,
+        height: 1,
+        color: context.colorScheme.outlineVariant,
+      ).marginOnly(left: marginLeft).marginSymmetric(vertical: 16);
 }
 
 class PageLoader extends StatelessWidget {
@@ -416,25 +402,25 @@ class PageLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-    child: Container(
-      padding: const EdgeInsets.all(4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 12,
-            height: 12,
-            child: CircularProgressIndicator.adaptive(
-              strokeWidth: 1.5,
-              backgroundColor: context.colorScheme.tertiary,
-            ),
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator.adaptive(
+                  strokeWidth: 1.5,
+                  backgroundColor: context.colorScheme.tertiary,
+                ),
+              ),
+              const SizedBox(width: 16),
+              CommonText.medium('Loading...', color: context.colorScheme.onPrimary),
+            ],
           ),
-          const SizedBox(width: 16),
-          CommonText.medium('Loading...', color: context.colorScheme.onPrimary),
-        ],
-      ),
-    ).paddingOnly(bottom: MediaQuery.of(context).padding.bottom, top: 4),
-  );
+        ).paddingOnly(bottom: MediaQuery.of(context).padding.bottom, top: 4),
+      );
 }
 
 class SwipeRefresh extends StatelessWidget {
@@ -445,11 +431,11 @@ class SwipeRefresh extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => RefreshIndicator(
-    onRefresh: onRefresh,
-    color: context.colorScheme.primary,
-    backgroundColor: context.colorScheme.tertiary,
-    child: child,
-  );
+        onRefresh: onRefresh,
+        color: context.colorScheme.primary,
+        backgroundColor: context.colorScheme.tertiary,
+        child: child,
+      );
 }
 
 void showPicker({
@@ -483,7 +469,8 @@ void showPicker({
               Get.back();
               galleryPicker?.call();
             },
-          ),
+            padding: 12,
+          ).marginOnly(left: 16, right: 16),
           if (isShowCameraOption ?? true) ...[
             MenuItem(
               MenuModel(
@@ -495,14 +482,18 @@ void showPicker({
                 Get.back();
                 cameraPicker?.call();
               },
-            ),
+              padding: 12,
+            ).marginOnly(left: 16, right: 16,top: 16),
           ],
           const SizedBox(height: 16),
-          AppButton(
-            label: 'Cancel',
-            type: ButtonType.primary,
-            onPressed: Get.back,
-          ).paddingSymmetric(horizontal: 16, vertical: 8),
+          SizedBox(
+            width: double.infinity,
+            child: AppButton(
+              label: 'Cancel',
+              type: ButtonType.outline,
+              onPressed: Get.back,
+            ).paddingSymmetric(horizontal: 16, vertical: 8),
+          ),
         ],
       ),
     ),

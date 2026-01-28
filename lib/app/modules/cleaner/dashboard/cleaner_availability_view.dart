@@ -1,6 +1,6 @@
+import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
 
-import 'package:ccs_app/export.dart';
 import '../../../model/availability.dart';
 import 'cleaner_dashboard_controller.dart';
 
@@ -27,7 +27,7 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
             const SizedBox(height: 16),
 
             // Date range: From | To with calendar icon
-            Obx(
+            /*Obx(
               () => Row(
                 children: [
                   Expanded(
@@ -48,7 +48,7 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 20),*/
 
             // Day cards: Monday–Sunday, toggle + Add + slots (From–To, red minus, alternating green/pink)
             Obx(() {
@@ -71,7 +71,7 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
               );
             }),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             CommonText.semiBold('Blocked days', size: 16, color: scheme.onSurface),
             CommonText.regular(
               'Add specific dates when you won\'t be available (e.g. vacation, appointments).',
@@ -93,6 +93,8 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
               final days = controller.blockedDays;
               if (days.isEmpty) {
                 return Card(
+                  margin: EdgeInsets.zero,
+                  color: context.colorScheme.onPrimary,
                   child: Padding(
                     padding: const EdgeInsets.all(14),
                     child: Row(
@@ -195,7 +197,7 @@ class _DateField extends StatelessWidget {
 }
 
 Color _slotRowColor(ColorScheme scheme, int index) {
-  return index.isEven ? scheme.primary.withValues(alpha: 0.18) : const Color(0xFFFCE4EC);
+  return index.isEven ? scheme.primary.withValues(alpha: 0.1) : const Color(0xFFFCE4EC);
 }
 
 class _DayCard extends StatelessWidget {
@@ -224,6 +226,7 @@ class _DayCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Card(
+        color: context.colorScheme.onPrimary,
         elevation: 1,
         shadowColor: Colors.black.withValues(alpha: 0.08),
         child: Padding(
@@ -238,8 +241,8 @@ class _DayCard extends StatelessWidget {
                   Switch.adaptive(
                     value: day.enabled,
                     onChanged: onEnabledChanged,
-                    activeTrackColor: scheme.primary.withValues(alpha: 0.5),
-                    thumbColor: WidgetStateProperty.resolveWith((_) => day.enabled ? scheme.primary : null),
+                    activeTrackColor: scheme.primary.withValues(alpha: 0.2),
+                    thumbColor: WidgetStateProperty.resolveWith((_) => day.enabled ? scheme.primary.withValues(alpha: 0.6) : null),
                   ),
                   const SizedBox(width: 4),
                   TextButton(

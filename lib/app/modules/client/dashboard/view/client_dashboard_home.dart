@@ -1,5 +1,4 @@
 import 'package:ccs_app/export.dart';
-import 'package:ccs_app/app/routes/app_pages.dart';
 
 /// Dashboard content (the actual dashboard UI, not the shell).
 class ClientDashboardContent extends StatelessWidget {

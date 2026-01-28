@@ -1,7 +1,5 @@
-import 'package:ccs_app/app/widget/common/header.dart';
 import 'package:ccs_app/export.dart';
 import 'cleaner_dashboard_controller.dart';
-import 'cleaner_notifications_view.dart';
 
 /// Cleaner dashboard (root with bottom nav).
 /// Any "detail" pages opened via Get.toNamed() will NOT show this bottom bar.

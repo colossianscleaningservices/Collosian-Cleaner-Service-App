@@ -128,7 +128,7 @@ class Notifier {
       style: ToastificationStyle.flat,
       alignment: Alignment.topCenter,
       autoCloseDuration: _duration,
-      margin: const EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
       title: Text(title),
       description: Text(message),
       closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),

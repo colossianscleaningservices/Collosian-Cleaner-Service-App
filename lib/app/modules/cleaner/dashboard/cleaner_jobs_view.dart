@@ -18,8 +18,8 @@ class CleanerJobsView extends GetView<CleanerJobsController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CommonText.semiBold('Jobs', size: 22),
-            const SizedBox(height: 12),
+            /*CommonText.semiBold('Jobs', size: 22),
+            const SizedBox(height: 12),*/
             Expanded(
               child: Obx(() {
                 final list = controller.jobs;
@@ -73,6 +73,7 @@ class _JobListTile extends StatelessWidget {
 
     return Card(
       clipBehavior: Clip.antiAlias,
+      color: context.colorScheme.onPrimary,
       child: InkWell(
         onTap: onTap,
         child: Padding(

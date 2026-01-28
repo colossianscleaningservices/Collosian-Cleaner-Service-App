@@ -1,4 +1,3 @@
-import 'package:ccs_app/app/modules/client/dashboard/view/client_notifications_view.dart';
 import 'package:ccs_app/export.dart';
 import 'client_dashboard_controller.dart';
 

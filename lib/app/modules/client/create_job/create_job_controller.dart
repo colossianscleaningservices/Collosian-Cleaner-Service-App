@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
 
 import 'package:ccs_app/export.dart';
 import '../../../model/create_job_request.dart';
-import '../../../utils/notifier.dart';
 
 class CreateJobController extends GetxController {
   final formKey = GlobalKey<FormState>();

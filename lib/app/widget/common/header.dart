@@ -41,31 +41,35 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) => AppBar(
-    toolbarHeight: 68,
-    actionsIconTheme: IconThemeData(color: context.colorScheme.primary),
-    backgroundColor: bgColor ?? Get.context?.colorScheme.surface,
-    automaticallyImplyLeading: hasBackIcon,
-    leading: hasBackIcon
-        ? IconButton(
-            style: filledIconButtonStyle(context),
-            onPressed: onBackTap ?? () => Get.back(),
-            icon: const Icon(IconsaxPlusLinear.arrow_left_1),
-          ).paddingOnly(left: 12, top: 8, bottom: 8)
-        : null,
-    title: Column(
-      spacing: 4,
-      crossAxisAlignment: .start,
-      children: [
-        CommonText.extraBold(title, color: context.colorScheme.primary, fontWeight: FontWeight.w700, size: size),
-        subtitle != null
-            ? CommonText.regular(subtitle!, color: context.colorScheme.primary, fontWeight: FontWeight.w400, size: 16)
-            : const SizedBox(),
-      ],
-    ),
-    centerTitle: false,
-    actions: _buildActions(context),
-    scrolledUnderElevation: 0,
-  );
+        toolbarHeight: 68,
+        actionsIconTheme: IconThemeData(color: context.colorScheme.primary),
+        backgroundColor: bgColor ?? Colors.transparent,
+        automaticallyImplyLeading: hasBackIcon,
+        leading: hasBackIcon
+            ? IconButton(
+                style: filledIconButtonStyle(context).copyWith(
+                  backgroundColor: WidgetStatePropertyAll(Colors.transparent),
+                ),
+                onPressed: onBackTap ?? () => Get.back(),
+                icon: const Icon(IconsaxPlusLinear.arrow_left_1),
+              ).paddingOnly(left: 12, top: 8, bottom: 8)
+            : null,
+        title: CommonText.extraBold(title, color: context.colorScheme.primary, fontWeight: FontWeight.w700, size: size)
+        /*Column(
+          spacing: subtitle?.isNullOrEmpty == false ? 4 : 0,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CommonText.extraBold(title, color: context.colorScheme.onPrimary, fontWeight: FontWeight.w700, size: size),
+            subtitle?.isNullOrEmpty == false
+                ? CommonText.regular(subtitle!, color: context.colorScheme.primary, fontWeight: FontWeight.w400, size: 16)
+                : const SizedBox(),
+          ],
+        )*/
+        ,
+        centerTitle: false,
+        actions: _buildActions(context),
+        scrolledUnderElevation: 0,
+      );
 
   List<Widget>? _buildActions(BuildContext context) {
     if (actions?.isEmpty ?? true) return actions;
@@ -74,32 +78,32 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
           (action) => switch (action) {
             SizedBox _ => action,
             final IconButton button => IconButton(
-              key: button.key,
-              onPressed: button.onPressed,
-              onHover: button.onHover,
-              onLongPress: button.onLongPress,
-              tooltip: button.tooltip,
-              icon: button.icon,
-              selectedIcon: button.selectedIcon,
-              isSelected: button.isSelected,
-              style: filledIconButtonStyle(context).merge(button.style),
-              iconSize: button.iconSize,
-              visualDensity: button.visualDensity,
-              padding: button.padding,
-              alignment: button.alignment,
-              splashRadius: button.splashRadius,
-              color: button.color,
-              focusColor: button.focusColor,
-              hoverColor: button.hoverColor,
-              highlightColor: button.highlightColor,
-              splashColor: button.splashColor,
-              disabledColor: button.disabledColor,
-              mouseCursor: button.mouseCursor,
-              focusNode: button.focusNode,
-              autofocus: button.autofocus,
-              enableFeedback: button.enableFeedback,
-              constraints: button.constraints,
-            ).paddingOnly(right: 12, top: 8, bottom: 8),
+                key: button.key,
+                onPressed: button.onPressed,
+                onHover: button.onHover,
+                onLongPress: button.onLongPress,
+                tooltip: button.tooltip,
+                icon: button.icon,
+                selectedIcon: button.selectedIcon,
+                isSelected: button.isSelected,
+                style: filledIconButtonStyle(context).merge(button.style),
+                iconSize: button.iconSize,
+                visualDensity: button.visualDensity,
+                padding: button.padding,
+                alignment: button.alignment,
+                splashRadius: button.splashRadius,
+                color: button.color,
+                focusColor: button.focusColor,
+                hoverColor: button.hoverColor,
+                highlightColor: button.highlightColor,
+                splashColor: button.splashColor,
+                disabledColor: button.disabledColor,
+                mouseCursor: button.mouseCursor,
+                focusNode: button.focusNode,
+                autofocus: button.autofocus,
+                enableFeedback: button.enableFeedback,
+                constraints: button.constraints,
+              ).paddingOnly(right: 12, top: 8, bottom: 8),
             _ => action.paddingOnly(right: 12, top: 8, bottom: 8),
           },
         )

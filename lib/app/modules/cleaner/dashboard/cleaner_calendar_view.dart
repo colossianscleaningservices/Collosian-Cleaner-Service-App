@@ -219,6 +219,7 @@ class _ListJobCard extends StatelessWidget {
         onTap: () => Notifier.info('Job details (coming soon)'),
         borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
         child: Card(
+          color: context.colorScheme.onPrimary,
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -269,6 +270,7 @@ class _EmptyStateCard extends StatelessWidget {
     final c = ctrl ?? Get.find<CleanerDashboardController>();
 
     return Card(
+      color: context.colorScheme.onPrimary,
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Row(
