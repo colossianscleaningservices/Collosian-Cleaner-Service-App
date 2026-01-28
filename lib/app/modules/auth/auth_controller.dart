@@ -8,17 +8,21 @@ class AuthController extends GetxController {
   void selectRole(AppRole role) => selectedRole.value = role;
 
   // Login
+  final loginFormKey = GlobalKey<FormState>();
   final loginEmailCtrl = TextEditingController();
   final loginPasswordCtrl = TextEditingController();
   final loginObscure = true.obs;
+  final isLoggingIn = false.obs;
 
   // Sign-up (shared)
+  final signupFormKey = GlobalKey<FormState>();
   final signupFirstNameCtrl = TextEditingController();
   final signupLastNameCtrl = TextEditingController();
   final signupEmailCtrl = TextEditingController();
   final signupPhoneCtrl = TextEditingController();
   final signupPasswordCtrl = TextEditingController();
   final signupObscure = true.obs;
+  final isSigningUp = false.obs;
 
   // Cleaner-only
   final signupNiNumberCtrl = TextEditingController();
@@ -34,7 +38,29 @@ class AuthController extends GetxController {
 
   void backToLogin() => Get.until((route) => Get.currentRoute == Routes.LOGIN);
 
-  void goToRoleSelection() => Get.toNamed(Routes.ROLE_SELECTION);
+  void goToRoleSelection(BuildContext context) {
+    // Get.toNamed(Routes.ROLE_SELECTION);
+
+    Notifier.openSheet(
+      context,
+      showPrimaryButton: true,
+      showSecondaryButton: true,
+      title: "Continue as ",
+      message: "Choose how you want to use Colossians Cleaning Services",
+      primaryButtonLabel: "I am a Client",
+      secondaryButtonLabel: "I am a Cleaner",
+      onPrimaryPressed: () {
+        print(":ASDAsaS");
+        selectRole(AppRole.client);
+        Get.toNamed(Routes.SIGN_UP);
+      },
+      onSecondaryPressed: () {
+        print(":CZXCZXCXZ");
+        selectRole(AppRole.cleaner);
+        Get.toNamed(Routes.SIGN_UP);
+      },
+    );
+  }
 
   void goToSignup() => Get.toNamed(Routes.SIGN_UP);
 
@@ -44,15 +70,29 @@ class AuthController extends GetxController {
 
   // Stubs for now (API wiring comes next)
   Future<void> login() async {
-    // TODO: call login API, read role from response, route to correct dashboard.
+    if (isLoggingIn.value) return;
+    isLoggingIn.value = true;
+    try {
+      // TODO: call login API, read role from response, route to correct dashboard.
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+    } finally {
+      isLoggingIn.value = false;
+    }
   }
 
   Future<void> signup() async {
-    // TODO: call signup API based on selectedRole.
-    if (selectedRole.value == AppRole.client) {
-      Get.offAllNamed(Routes.CLIENT_DASHBOARD);
-    } else {
-      Get.offAllNamed(Routes.CLEANER_DASHBOARD);
+    if (isSigningUp.value) return;
+    isSigningUp.value = true;
+    try {
+      // TODO: call signup API based on selectedRole.
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+      if (selectedRole.value == AppRole.client) {
+        Get.offAllNamed(Routes.CLIENT_DASHBOARD);
+      } else {
+        Get.offAllNamed(Routes.CLEANER_DASHBOARD);
+      }
+    } finally {
+      isSigningUp.value = false;
     }
   }
 
