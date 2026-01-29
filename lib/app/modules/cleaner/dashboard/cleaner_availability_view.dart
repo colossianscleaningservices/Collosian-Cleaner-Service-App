@@ -223,94 +223,85 @@ class _DayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Card(
-        color: context.colorScheme.onPrimary,
-        elevation: 1,
-        shadowColor: Colors.black.withValues(alpha: 0.08),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Row: Day name | Toggle | Add (per screenshot)
+          Row(
             children: [
-              // Row: Day name | Toggle | Add (per screenshot)
-              Row(
-                children: [
-                  Expanded(child: CommonText.semiBold(dayName, size: 14, color: scheme.onSurface)),
-                  Switch.adaptive(
-                    value: day.enabled,
-                    onChanged: onEnabledChanged,
-                    activeTrackColor: scheme.primary.withValues(alpha: 0.2),
-                    thumbColor: WidgetStateProperty.resolveWith((_) => day.enabled ? scheme.primary.withValues(alpha: 0.6) : null),
-                  ),
-                  const SizedBox(width: 4),
-                  TextButton(
-                    onPressed: day.enabled ? onAdd : null,
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: CommonText.medium('Add', size: 14, color: day.enabled ? scheme.primary : scheme.onSurfaceVariant),
-                  ),
-                ],
+              Expanded(child: CommonText.semiBold(dayName, size: 14, color: scheme.onSurface)),
+              Switch.adaptive(
+                value: day.enabled,
+                onChanged: onEnabledChanged,
+                activeTrackColor: scheme.primary.withValues(alpha: 0.2),
+                thumbColor: WidgetStateProperty.resolveWith((_) => day.enabled ? scheme.primary.withValues(alpha: 0.6) : null),
               ),
-
-              // Slots: [From] To [To] [red minus] — alternating light green / light pink
-              if (day.enabled) ...[
-                if (day.slots.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: CommonText.regular('Tap Add to set your hours.', size: 12, color: scheme.onSurfaceVariant),
-                  )
-                else
-                  ...day.slots.asMap().entries.map((e) {
-                    final i = e.key;
-                    final slot = e.value;
-                    final rowColor = _slotRowColor(scheme, i);
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Row(
-                        children: [
-                          _TimeChip(
-                            time: CleanerAvailabilityView._formatTime(slot.start),
-                            onTap: () => onStartTap(i),
-                            backgroundColor: rowColor,
-                            scheme: scheme,
-                          ),
-                          const SizedBox(width: 8),
-                          CommonText.regular('To', size: 13, color: scheme.onSurfaceVariant),
-                          const SizedBox(width: 8),
-                          _TimeChip(
-                            time: CleanerAvailabilityView._formatTime(slot.end),
-                            onTap: () => onEndTap(i),
-                            backgroundColor: rowColor,
-                            scheme: scheme,
-                          ),
-                          const SizedBox(width: 10),
-                          Material(
-                            color: scheme.error,
-                            shape: const CircleBorder(),
-                            child: InkWell(
-                              onTap: () => onRemoveSlot(i),
-                              customBorder: const CircleBorder(),
-                              child: const Padding(
-                                padding: EdgeInsets.all(8),
-                                child: Icon(Icons.remove, size: 18, color: Colors.white),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-              ],
+              const SizedBox(width: 4),
+              TextButton(
+                onPressed: day.enabled ? onAdd : null,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: CommonText.medium('Add', size: 14, color: day.enabled ? scheme.primary : scheme.onSurfaceVariant),
+              ),
             ],
           ),
-        ),
-      ),
-    );
+
+          // Slots: [From] To [To] [red minus] — alternating light green / light pink
+          if (day.enabled) ...[
+            if (day.slots.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: CommonText.regular('Tap Add to set your hours.', size: 12, color: scheme.onSurfaceVariant),
+              )
+            else
+              ...day.slots.asMap().entries.map((e) {
+                final i = e.key;
+                final slot = e.value;
+                final rowColor = _slotRowColor(scheme, i);
+                return Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: Row(
+                    children: [
+                      _TimeChip(
+                        time: CleanerAvailabilityView._formatTime(slot.start),
+                        onTap: () => onStartTap(i),
+                        backgroundColor: rowColor,
+                        scheme: scheme,
+                      ),
+                      const SizedBox(width: 8),
+                      CommonText.regular('To', size: 13, color: scheme.onSurfaceVariant),
+                      const SizedBox(width: 8),
+                      _TimeChip(
+                        time: CleanerAvailabilityView._formatTime(slot.end),
+                        onTap: () => onEndTap(i),
+                        backgroundColor: rowColor,
+                        scheme: scheme,
+                      ),
+                      const SizedBox(width: 10),
+                      Material(
+                        color: scheme.error,
+                        shape: const CircleBorder(),
+                        child: InkWell(
+                          onTap: () => onRemoveSlot(i),
+                          customBorder: const CircleBorder(),
+                          child: const Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Icon(Icons.remove, size: 18, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+          ],
+        ],
+      ).paddingSymmetric(horizontal: 14,vertical: 12),
+    ).marginOnly(bottom: 12);
   }
 }
 
