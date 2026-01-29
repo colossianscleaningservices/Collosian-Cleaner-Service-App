@@ -28,6 +28,10 @@ abstract class Routes {
   static const ADD_PROPERTY = _Paths.ADD_PROPERTY;
   static const CLEANER_EDIT_PROFILE = _Paths.CLEANER_EDIT_PROFILE;
   static const TRAINING_AND_RESOURCES = _Paths.TRAINING_AND_RESOURCES;
+  static const CLEANER_REFERENCES = _Paths.CLEANER_REFERENCES;
+  static const ADD_REFERENCES = _Paths.ADD_REFERENCES;
+  static const SUPPORT_DOCUMENT = _Paths.SUPPORT_DOCUMENT;
+  static const ADD_DOCUMENT = _Paths.ADD_DOCUMENT;
 }
 
 abstract class _Paths {
@@ -55,4 +59,8 @@ abstract class _Paths {
   static const CLEANER_JOB_DETAIL = '/cleaner/job/';
   static const CLEANER_EDIT_PROFILE = '/cleaner-edit-profile';
   static const TRAINING_AND_RESOURCES = '/training-and-resources';
+  static const CLEANER_REFERENCES = '/cleaner/cleaner-references';
+  static const ADD_REFERENCES = '/cleaner/add-references';
+  static const SUPPORT_DOCUMENT = '/cleaner/support-document';
+  static const ADD_DOCUMENT = '/cleaner/add-document';
 }

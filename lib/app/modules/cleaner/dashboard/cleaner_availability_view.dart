@@ -20,37 +20,34 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // SET SCHEDULE with underline (per screenshot)
-            CommonText.semiBold('SET SCHEDULE', size: 16, color: scheme.onSurface),
-            const SizedBox(height: 4),
-            Container(height: 2, width: 160, color: scheme.onSurface.withValues(alpha: 0.5)),
-            const SizedBox(height: 16),
-
-            // Date range: From | To with calendar icon
-            /*Obx(
-              () => Row(
-                children: [
-                  Expanded(
-                    child: _DateField(
-                      value: controller.scheduleValidFrom.value,
-                      onTap: () => _pickDate(context, controller, isFrom: true),
-                      scheme: scheme,
-                    ),
+            // SET SCHEDULE — section header with accent bar and subtitle
+            Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: scheme.primary,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _DateField(
-                      value: controller.scheduleValidTo.value,
-                      onTap: () => _pickDate(context, controller, isFrom: false),
-                      scheme: scheme,
-                    ),
+                ).marginOnly(right: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CommonText.semiBold('Set schedule', size: 18, color: scheme.onSurface).marginOnly(bottom: 2),
+                      CommonText.regular(
+                        'Set your weekly working hours',
+                        size: 12,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),*/
+                ),
+              ],
+            ).marginOnly(bottom: 20),
 
-            // Day cards: Monday–Sunday, toggle + Add + slots (From–To, red minus, alternating green/pink)
+            // Day cards: Monday–Sunday, toggle + Add slot + slots (From–To, remove)
             Obx(() {
               final list = controller.weeklySchedule;
               if (list.isEmpty) return const SizedBox.shrink();
@@ -71,14 +68,33 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
               );
             }),
 
-            const SizedBox(height: 16),
-            CommonText.semiBold('Blocked days', size: 16, color: scheme.onSurface),
-            CommonText.regular(
-              'Add specific dates when you won\'t be available (e.g. vacation, appointments).',
-              size: 13,
-              color: scheme.onSurfaceVariant,
+            const SizedBox(height: 28),
+            Row(
+              children: [
+                Container(
+                  width: 4,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: scheme.error.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ).marginOnly(right: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CommonText.semiBold('Blocked days', size: 16, color: scheme.onSurface).marginOnly(bottom: 2),
+                      CommonText.regular(
+                        'Add dates when you won\'t be available (e.g. vacation, appointments).',
+                        size: 12,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             AppButton(
               label: 'Add blocked day',
               type: ButtonType.outline,
@@ -86,25 +102,43 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
               onPressed: () => _pickBlockedDate(context, controller),
               btnVerticalPadding: 10,
               btnHorizontalPadding: 14,
-              textSize: 13,
+              textSize: 12,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
             Obx(() {
               final days = controller.blockedDays;
               if (days.isEmpty) {
-                return Card(
-                  margin: EdgeInsets.zero,
-                  color: context.colorScheme.onPrimary,
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Row(
-                      children: [
-                        Icon(IconsaxPlusLinear.calendar_remove, color: scheme.onSurfaceVariant, size: 20),
-                        const SizedBox(width: 12),
-                        CommonText.regular('No blocked days.', size: 13, color: scheme.onSurfaceVariant),
-                      ],
-                    ),
-                  ),
+                return AppCard(
+                  color: scheme.surfaceContainerLow.withValues(alpha: 0.6),
+                  borderWidth: 1,
+                  borderColor: scheme.outline.withValues(alpha: 0.25),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(UiConstants.radiusMedium),
+                        ),
+                        child: Icon(IconsaxPlusLinear.calendar_remove, color: scheme.onSurfaceVariant, size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CommonText.medium('No blocked days', size: 14, color: scheme.onSurface),
+                            const SizedBox(height: 2),
+                            CommonText.regular(
+                              'Add dates when you\'re away to avoid bookings.',
+                              size: 12,
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ).paddingSymmetric(horizontal: 16, vertical: 18),
                 );
               }
               final sorted = List<DateTime>.from(days)..sort();
@@ -123,7 +157,7 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
                 type: ButtonType.primary,
                 onPressed: () => Notifier.info('Schedule updated (API coming soon)'),
                 btnVerticalPadding: 14,
-                textSize: 15,
+                textSize: 16,
               ),
             ),
             const SizedBox(height: UiConstants.gap),
@@ -131,17 +165,6 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
         ),
       ),
     );
-  }
-}
-
-Future<void> _pickDate(BuildContext context, CleanerDashboardController ctrl, {required bool isFrom}) async {
-  final initial = isFrom ? ctrl.scheduleValidFrom.value : ctrl.scheduleValidTo.value;
-  final d = await showDatePicker(context: context, initialDate: initial, firstDate: DateTime(2020, 1, 1), lastDate: DateTime(2030, 12, 31));
-  if (d == null || !context.mounted) return;
-  if (isFrom) {
-    ctrl.setScheduleValidFrom(d);
-  } else {
-    ctrl.setScheduleValidTo(d);
   }
 }
 
@@ -163,41 +186,8 @@ Future<void> _pickBlockedDate(BuildContext context, CleanerDashboardController c
   ctrl.addBlockedDay(d);
 }
 
-class _DateField extends StatelessWidget {
-  const _DateField({required this.value, required this.onTap, required this.scheme});
-
-  final DateTime value;
-  final VoidCallback onTap;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          child: Row(
-            children: [
-              Expanded(child: CommonText.medium(DateFormat('yyyy-MM-dd').format(value), size: 14, color: scheme.onSurface)),
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(color: scheme.primary.withValues(alpha: 0.25), shape: BoxShape.circle),
-                child: Icon(IconsaxPlusLinear.calendar_1, size: 18, color: scheme.primary),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 Color _slotRowColor(ColorScheme scheme, int index) {
-  return index.isEven ? scheme.primary.withValues(alpha: 0.1) : const Color(0xFFFCE4EC);
+  return index.isEven ? scheme.primaryContainer.withValues(alpha: 0.5) : scheme.tertiaryContainer.withValues(alpha: 0.5);
 }
 
 class _DayCard extends StatelessWidget {
@@ -224,73 +214,111 @@ class _DayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppCard(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      borderWidth: 1,
+      borderColor: scheme.outline.withValues(alpha: 0.12),
+      color: scheme.surfaceContainerHighest,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row: Day name | Toggle | Add (per screenshot)
           Row(
             children: [
-              Expanded(child: CommonText.semiBold(dayName, size: 14, color: scheme.onSurface)),
+              Expanded(child: CommonText.semiBold(dayName, size: 16, color: scheme.onSurface)),
               Switch.adaptive(
                 value: day.enabled,
                 onChanged: onEnabledChanged,
-                activeTrackColor: scheme.primary.withValues(alpha: 0.2),
-                thumbColor: WidgetStateProperty.resolveWith((_) => day.enabled ? scheme.primary.withValues(alpha: 0.6) : null),
-              ),
-              const SizedBox(width: 4),
-              TextButton(
-                onPressed: day.enabled ? onAdd : null,
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                activeTrackColor: scheme.primary.withValues(alpha: 0.3),
+                thumbColor: WidgetStateProperty.resolveWith((_) => day.enabled ? scheme.primary : null),
+              ).marginOnly(right: 6),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: day.enabled ? onAdd : null,
+                  borderRadius: BorderRadius.circular(UiConstants.radiusMedium),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          IconsaxPlusLinear.add,
+                          size: 16,
+                          color: day.enabled ? scheme.primary : scheme.onSurfaceVariant.withValues(alpha: 0.5),
+                        ).marginOnly(right: 6),
+                        CommonText.medium('Add slot', size: 12, color: day.enabled ? scheme.primary : scheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                      ],
+                    ),
+                  ),
                 ),
-                child: CommonText.medium('Add', size: 14, color: day.enabled ? scheme.primary : scheme.onSurfaceVariant),
               ),
             ],
           ),
-
-          // Slots: [From] To [To] [red minus] — alternating light green / light pink
           if (day.enabled) ...[
             if (day.slots.isEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: CommonText.regular('Tap Add to set your hours.', size: 12, color: scheme.onSurfaceVariant),
-              )
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+                decoration: BoxDecoration(
+                  color: scheme.surfaceContainerLow.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+                  border: Border.all(
+                    color: scheme.outline.withValues(alpha: 0.3),
+                    width: 1.5,
+                    strokeAlign: BorderSide.strokeAlignInside,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(IconsaxPlusLinear.clock, size: 18, color: scheme.onSurfaceVariant).marginOnly(right: 10),
+                    CommonText.regular('Tap Add slot to set your hours.', size: 12, color: scheme.onSurfaceVariant),
+                  ],
+                ),
+              ).marginOnly(top: 12)
             else
               ...day.slots.asMap().entries.map((e) {
                 final i = e.key;
                 final slot = e.value;
                 final rowColor = _slotRowColor(scheme, i);
                 return Padding(
-                  padding: const EdgeInsets.only(top: 10),
+                  padding: const EdgeInsets.only(top: 12),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      _TimeChip(
-                        time: CleanerAvailabilityView._formatTime(slot.start),
-                        onTap: () => onStartTap(i),
-                        backgroundColor: rowColor,
-                        scheme: scheme,
+                      Expanded(
+                        child: _TimeChip(
+                          time: CleanerAvailabilityView._formatTime(slot.start),
+                          onTap: () => onStartTap(i),
+                          backgroundColor: rowColor,
+                          scheme: scheme,
+                          label: 'From',
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: CommonText.regular('–', size: 14, color: scheme.onSurfaceVariant),
+                      ),
+                      Expanded(
+                        child: _TimeChip(
+                          time: CleanerAvailabilityView._formatTime(slot.end),
+                          onTap: () => onEndTap(i),
+                          backgroundColor: rowColor,
+                          scheme: scheme,
+                          label: 'To',
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      CommonText.regular('To', size: 13, color: scheme.onSurfaceVariant),
-                      const SizedBox(width: 8),
-                      _TimeChip(
-                        time: CleanerAvailabilityView._formatTime(slot.end),
-                        onTap: () => onEndTap(i),
-                        backgroundColor: rowColor,
-                        scheme: scheme,
-                      ),
-                      const SizedBox(width: 10),
-                      Material(
-                        color: scheme.error,
-                        shape: const CircleBorder(),
-                        child: InkWell(
-                          onTap: () => onRemoveSlot(i),
-                          customBorder: const CircleBorder(),
-                          child: const Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Icon(Icons.remove, size: 18, color: Colors.white),
+                      Semantics(
+                        label: 'Remove slot',
+                        button: true,
+                        child: Material(
+                          color: scheme.error,
+                          elevation: 0,
+                          shape: const CircleBorder(),
+                          child: InkWell(
+                            onTap: () => onRemoveSlot(i),
+                            customBorder: const CircleBorder(),
+                            child: SizedBox(width: 36, height: 36, child: Center(child: Icon(Icons.remove, size: 20, color: scheme.onError))),
                           ),
                         ),
                       ),
@@ -300,18 +328,25 @@ class _DayCard extends StatelessWidget {
               }),
           ],
         ],
-      ).paddingSymmetric(horizontal: 14, vertical: 12),
-    ).marginOnly(bottom: 12);
+      ),
+    );
   }
 }
 
 class _TimeChip extends StatelessWidget {
-  const _TimeChip({required this.time, required this.onTap, required this.backgroundColor, required this.scheme});
+  const _TimeChip({
+    required this.time,
+    required this.onTap,
+    required this.backgroundColor,
+    required this.scheme,
+    this.label,
+  });
 
   final String time;
   final VoidCallback onTap;
   final Color backgroundColor;
   final ColorScheme scheme;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +358,16 @@ class _TimeChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: CommonText.semiBold(time, size: 14, color: scheme.onSurface),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (label != null) ...[
+                CommonText.regular(label!, size: 12, color: scheme.onSurfaceVariant).marginOnly(right: 8),
+              ],
+              CommonText.semiBold(time, size: 14, color: scheme.onSurface),
+            ],
+          ),
         ),
       ),
     );
@@ -339,25 +383,34 @@ class _BlockedChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: scheme.errorContainer.withValues(alpha: 0.4),
-      borderRadius: BorderRadius.circular(999),
-      child: InkWell(
-        onTap: onRemove,
-        borderRadius: BorderRadius.circular(999),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
+    return AppCard(
+      borderWidth: 1,
+      borderColor: scheme.error.withValues(alpha: 0.2),
+      color: scheme.errorContainer.withValues(alpha: 0.35),
+      borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(IconsaxPlusLinear.calendar_remove, size: 16, color: scheme.onErrorContainer),
-              const SizedBox(width: 6),
-              CommonText.medium(DateFormat('EEE d MMM yyyy').format(date), size: 13, color: scheme.onErrorContainer),
-              const SizedBox(width: 6),
-              Icon(IconsaxPlusLinear.close_circle, size: 18, color: scheme.onErrorContainer),
+              AppCard(
+                color: scheme.error.withValues(alpha: 0.04),
+                radius: UiConstants.radiusSmall,
+                child: Icon(IconsaxPlusLinear.calendar_remove, size: 16, color: scheme.error).paddingAll(6),
+              ).marginOnly(right: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CommonText.regular('Blocked', size: 12, color: scheme.onErrorContainer.withValues(alpha: 0.9)).marginOnly(bottom: 1),
+                  CommonText.semiBold(DateFormat('EEE, d MMM yyyy').format(date), size: 12, color: scheme.onErrorContainer),
+                ],
+              ),
             ],
-          ),
-        ),
+          ).paddingOnly(left: 12, top: 10, bottom: 10),
+          IconButton(onPressed: onRemove, icon: Icon(IconsaxPlusLinear.close_circle, size: 20, color: scheme.onErrorContainer)),
+        ],
       ),
     );
   }

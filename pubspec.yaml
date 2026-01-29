@@ -20,6 +20,7 @@ dependencies:
   flutter_dotenv: ^6.0.0
   dropdown_button2: ^2.3.9
   flutter_typeahead: ^5.2.0
+  file_picker: ^10.1.9
 
   # Platform + utilities
   connectivity_plus: ^7.0.0

@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/modules/cleaner/support_document/views/add_document_view.dart';
 import 'package:get/get.dart';
 
 import '../modules/auth/auth_binding.dart';
@@ -9,10 +10,15 @@ import '../modules/auth/role_selection_view.dart';
 import '../modules/auth/signup_view.dart';
 import '../modules/cleaner/cleaner_edit_profile/cleaner_edit_profile_binding.dart';
 import '../modules/cleaner/cleaner_edit_profile/cleaner_edit_profile_view.dart';
+import '../modules/cleaner/cleaner_references/cleaner_references_binding.dart';
+import '../modules/cleaner/cleaner_references/cleaner_references_view.dart';
+import '../modules/cleaner/cleaner_references/views/add_reference_view.dart';
 import '../modules/cleaner/dashboard/cleaner_dashboard_binding.dart';
 import '../modules/cleaner/dashboard/cleaner_dashboard_view.dart';
 import '../modules/cleaner/dashboard/cleaner_job_detail_binding.dart';
 import '../modules/cleaner/dashboard/cleaner_job_detail_view.dart';
+import '../modules/cleaner/support_document/support_document_binding.dart';
+import '../modules/cleaner/support_document/support_document_view.dart';
 import '../modules/cleaner/training_and_resources/training_and_resources_binding.dart';
 import '../modules/cleaner/training_and_resources/training_and_resources_view.dart';
 import '../modules/client/create_job/create_job_binding.dart';
@@ -89,6 +95,26 @@ class AppPages {
       name: _Paths.TRAINING_AND_RESOURCES,
       page: () => const TrainingAndResourcesView(),
       binding: TrainingAndResourcesBinding(),
+    ),
+    GetPage(
+      name: _Paths.CLEANER_REFERENCES,
+      page: () => const CleanerReferencesView(),
+      binding: CleanerRefrencesBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_REFERENCES,
+      page: () => const AddReferenceView(),
+      binding: CleanerRefrencesBinding(),
+    ),
+    GetPage(
+      name: _Paths.SUPPORT_DOCUMENT,
+      page: () => const SupportDocumentView(),
+      binding: SupportDocumentBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_DOCUMENT,
+      page: () => const AddDocumentView(),
+      binding: SupportDocumentBinding(),
     ),
   ];
 }

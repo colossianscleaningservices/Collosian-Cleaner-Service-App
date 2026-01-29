@@ -47,26 +47,25 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
               child: AppGrid(
                 physics: NeverScrollableScrollPhysics(),
                 maxExtent: 60,
-                child: List.generate(controller.profileItems.length, (index) {
-                  return MenuItem(controller.profileItems[index], onTap: () {
+                child: List.generate(controller.cleanerProfileItems.length, (index) {
+                  return MenuItem(controller.cleanerProfileItems[index], onTap: () {
                     switch (index) {
                       case 0:
                         // Get.toNamed(Routes.CHANGE_PASSWORD);
                         break;
                       case 1:
-                        Get.toNamed(Routes.PROPERTY);
+                        Get.toNamed(Routes.CLEANER_REFERENCES);
                         break;
                       case 2:
-                        // Get.toNamed(Routes.PREFERRED_STAFF);
+                        Get.toNamed(Routes.SUPPORT_DOCUMENT);
                         break;
                       case 3:
                         // Get.toNamed(Routes.NOTIFICATIONS);
                         break;
                       case 4:
-                        Get.toNamed(Routes.TRAINING_AND_RESOURCES);
                         break;
                       case 5:
-                        // Get.toNamed(Routes.HELP);
+                        Get.toNamed(Routes.TRAINING_AND_RESOURCES);
                         break;
                     }
                   });

@@ -435,18 +435,19 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                   contentPadding: EdgeInsets.zero,
                 );
               }),
-
-              const SizedBox(height: 32),
-              Obx(
-                () => SizedBox(
-                  width: double.infinity,
-                  child: AppButton(
-                    label: controller.isSaving.value ? 'Saving...' : 'Save changes',
-                    onPressed: controller.isSaving.value ? null : controller.saveProfile,
-                  ),
-                ),
-              ),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        color: context.colorScheme.onPrimary,
+        child: Obx(
+          () => SizedBox(
+            width: double.infinity,
+            child: AppButton(
+              label: controller.isSaving.value ? 'Saving...' : 'Save changes',
+              onPressed: controller.isSaving.value ? null : controller.saveProfile,
+            ),
           ),
         ),
       ),

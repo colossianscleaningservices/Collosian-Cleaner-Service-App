@@ -408,7 +408,7 @@ class PageLoader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              CommonText.medium('Loading...', color: context.colorScheme.onPrimary),
+              CommonText.medium('Loading...', color: context.colorScheme.primary),
             ],
           ),
         ).paddingOnly(bottom: MediaQuery.of(context).padding.bottom, top: 4),
@@ -434,6 +434,7 @@ void showPicker({
   required VoidCallback? galleryPicker,
   VoidCallback? cameraPicker,
   bool? isShowCameraOption,
+  String? primaryText,primarySubtitle
 }) {
   final context = Get.context!;
   showModalBottomSheet(
@@ -453,8 +454,8 @@ void showPicker({
         children: [
           MenuItem(
             MenuModel(
-              title: 'Choose from Gallery',
-              subtitle: 'Select from your photo library',
+              title: primaryText ?? 'Choose from Gallery',
+              subtitle: primarySubtitle ?? 'Select from your photo library',
               icon: IconsaxPlusLinear.gallery,
             ),
             onTap: () {
