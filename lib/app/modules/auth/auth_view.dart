@@ -14,4 +14,3 @@ class AuthView extends StatelessWidget {
     return const SizedBox.shrink();
   }
 }
-

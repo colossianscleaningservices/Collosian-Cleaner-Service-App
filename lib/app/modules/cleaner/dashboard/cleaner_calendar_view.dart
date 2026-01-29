@@ -1,7 +1,7 @@
+import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import 'package:ccs_app/export.dart';
 import '../../../model/calendar_event.dart';
 import 'cleaner_dashboard_controller.dart';
 
@@ -32,17 +32,23 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                 Tab(text: 'List'),
               ],
             ),
-          ).marginOnly(bottom: 16,left: 24,right: 24),
+          ).marginOnly(bottom: 16, left: 24, right: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: Icon(IconsaxPlusLinear.arrow_left_1, color: scheme.secondary,),
+                icon: Icon(
+                  IconsaxPlusLinear.arrow_left_1,
+                  color: scheme.secondary,
+                ),
                 onPressed: controller.onCalendarPrev,
               ),
               Obx(() => CommonText.bold(controller.periodLabel, size: 16, color: scheme.onSurface)),
               IconButton(
-                icon: Icon(IconsaxPlusLinear.arrow_right_3, color: scheme.secondary,),
+                icon: Icon(
+                  IconsaxPlusLinear.arrow_right_3,
+                  color: scheme.secondary,
+                ),
                 onPressed: controller.onCalendarNext,
               ),
             ],
@@ -145,10 +151,10 @@ class _CalendarSection extends StatelessWidget {
               },
             ),
             calendarStyle: CalendarStyle(
-              todayDecoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
-              selectedDecoration: BoxDecoration(color: scheme.secondaryContainer, shape: BoxShape.circle, border: Border.all(color: scheme.secondary, width: 2)),
-              selectedTextStyle: context.textTheme.bodyLarge!.copyWith(color: scheme.secondary)
-            ),
+                todayDecoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
+                selectedDecoration:
+                    BoxDecoration(color: scheme.secondaryContainer, shape: BoxShape.circle, border: Border.all(color: scheme.secondary, width: 2)),
+                selectedTextStyle: context.textTheme.bodyLarge!.copyWith(color: scheme.secondary)),
             daysOfWeekStyle: DaysOfWeekStyle(
               weekdayStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
               weekendStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),

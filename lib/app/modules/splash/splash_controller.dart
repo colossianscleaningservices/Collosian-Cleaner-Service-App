@@ -1,4 +1,5 @@
 import 'package:ccs_app/export.dart';
+
 import '../../services/auth_service.dart';
 
 class SplashController extends GetxController {
@@ -22,4 +23,3 @@ class SplashController extends GetxController {
     Get.offAllNamed(Routes.LOGIN);
   }
 }
-

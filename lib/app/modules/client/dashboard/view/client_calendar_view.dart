@@ -1,9 +1,8 @@
+import 'package:ccs_app/app/model/calendar_event.dart';
 import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
+import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
-
-import 'package:ccs_app/export.dart';
-import 'package:ccs_app/app/model/calendar_event.dart';
 
 class ClientCalendarView extends GetView<ClientDashboardController> {
   const ClientCalendarView({super.key});
@@ -37,12 +36,18 @@ class ClientCalendarView extends GetView<ClientDashboardController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: Icon(IconsaxPlusLinear.arrow_left_1, color: scheme.secondary,),
+                icon: Icon(
+                  IconsaxPlusLinear.arrow_left_1,
+                  color: scheme.secondary,
+                ),
                 onPressed: controller.onCalendarPrev,
               ),
               Obx(() => CommonText.bold(controller.periodLabel, size: 16, color: scheme.onSurface)),
               IconButton(
-                icon: Icon(IconsaxPlusLinear.arrow_right_2, color: scheme.secondary,),
+                icon: Icon(
+                  IconsaxPlusLinear.arrow_right_2,
+                  color: scheme.secondary,
+                ),
                 onPressed: controller.onCalendarNext,
               ),
             ],
@@ -53,27 +58,27 @@ class ClientCalendarView extends GetView<ClientDashboardController> {
               children: [
                 SingleChildScrollView(
                   child: Obx(() => _CalendarSection(
-                    scheme: scheme,
-                    mode: CalendarViewMode.week,
-                    focusedDay: controller.focusedDay.value,
-                    selectedDay: controller.selectedDay.value,
-                    eventsMap: controller.eventsMap,
-                    onDaySelected: controller.onCalendarDaySelected,
-                    onPageChanged: controller.onCalendarPageChanged,
-                    ctrl: controller,
-                  )),
+                        scheme: scheme,
+                        mode: CalendarViewMode.week,
+                        focusedDay: controller.focusedDay.value,
+                        selectedDay: controller.selectedDay.value,
+                        eventsMap: controller.eventsMap,
+                        onDaySelected: controller.onCalendarDaySelected,
+                        onPageChanged: controller.onCalendarPageChanged,
+                        ctrl: controller,
+                      )),
                 ),
                 SingleChildScrollView(
                   child: Obx(() => _CalendarSection(
-                    scheme: scheme,
-                    mode: CalendarViewMode.month,
-                    focusedDay: controller.focusedDay.value,
-                    selectedDay: controller.selectedDay.value,
-                    eventsMap: controller.eventsMap,
-                    onDaySelected: controller.onCalendarDaySelected,
-                    onPageChanged: controller.onCalendarPageChanged,
-                    ctrl: controller,
-                  )),
+                        scheme: scheme,
+                        mode: CalendarViewMode.month,
+                        focusedDay: controller.focusedDay.value,
+                        selectedDay: controller.selectedDay.value,
+                        eventsMap: controller.eventsMap,
+                        onDaySelected: controller.onCalendarDaySelected,
+                        onPageChanged: controller.onCalendarPageChanged,
+                        ctrl: controller,
+                      )),
                 ),
                 SingleChildScrollView(
                   child: _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap),
@@ -134,7 +139,7 @@ class _CalendarSection extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: List.generate(
                     n,
-                        (_) => Container(
+                    (_) => Container(
                       margin: const EdgeInsets.symmetric(horizontal: 0.5),
                       width: 4,
                       height: 4,
@@ -146,9 +151,9 @@ class _CalendarSection extends StatelessWidget {
             ),
             calendarStyle: CalendarStyle(
                 todayDecoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
-                selectedDecoration: BoxDecoration(color: scheme.secondaryContainer, shape: BoxShape.circle, border: Border.all(color: scheme.secondary, width: 2)),
-                selectedTextStyle: context.textTheme.bodyLarge!.copyWith(color: scheme.secondary)
-            ),
+                selectedDecoration:
+                    BoxDecoration(color: scheme.secondaryContainer, shape: BoxShape.circle, border: Border.all(color: scheme.secondary, width: 2)),
+                selectedTextStyle: context.textTheme.bodyLarge!.copyWith(color: scheme.secondary)),
             daysOfWeekStyle: DaysOfWeekStyle(
               weekdayStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
               weekendStyle: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),

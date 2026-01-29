@@ -2,6 +2,7 @@ import 'package:get_storage/get_storage.dart';
 
 class Prefs {
   Prefs._();
+
   static final Prefs instance = Prefs._();
 
   factory Prefs() => instance;
@@ -17,6 +18,7 @@ class Prefs {
   }
 
   String? get token => _box.read<String>(_kToken);
+
   Future<void> setToken(String? token) async {
     if (token == null) {
       await _box.remove(_kToken);
@@ -29,4 +31,3 @@ class Prefs {
     await _box.erase();
   }
 }
-

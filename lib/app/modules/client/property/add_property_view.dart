@@ -150,9 +150,7 @@ class AddPropertyView extends GetView<PropertyController> {
                     onChanged: (v) => v != null ? controller.animals.value = v : null,
                   ),
                   AppButton(
-                    label: controller.isSaving.value
-                        ? (isEditing ? 'Saving...' : 'Adding...')
-                        : (isEditing ? 'Save changes' : 'Add Property'),
+                    label: controller.isSaving.value ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save changes' : 'Add Property'),
                     onPressed: controller.isSaving.value ? null : controller.addProperty,
                   ),
                 ],

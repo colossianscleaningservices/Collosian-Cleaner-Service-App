@@ -9,6 +9,7 @@ class BaseRepository {
   final ApiHandler _apiHandler = Get.find<ApiHandler>(tag: 'handler');
 
   Dio get dio => _dio;
+
   ApiHandler get apiHandler => _apiHandler;
 
   Future<NetworkResult<T>> get<T>({
@@ -55,4 +56,3 @@ class BaseRepository {
     }
   }
 }
-

@@ -1,4 +1,5 @@
 import 'package:ccs_app/export.dart';
+
 import '../../../services/session_service.dart';
 import 'cleaner_dashboard_controller.dart';
 
@@ -42,7 +43,6 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
               ).paddingAll(UiConstants.defaultPadding),
             ),
             const SizedBox(height: 24),
-
             AppCard(
               child: AppGrid(
                 physics: NeverScrollableScrollPhysics(),
@@ -51,22 +51,22 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                   return MenuItem(controller.profileItems[index], onTap: () {
                     switch (index) {
                       case 0:
-                      // Get.toNamed(Routes.CHANGE_PASSWORD);
+                        // Get.toNamed(Routes.CHANGE_PASSWORD);
                         break;
                       case 1:
                         Get.toNamed(Routes.PROPERTY);
                         break;
                       case 2:
-                      // Get.toNamed(Routes.PREFERRED_STAFF);
+                        // Get.toNamed(Routes.PREFERRED_STAFF);
                         break;
                       case 3:
-                      // Get.toNamed(Routes.NOTIFICATIONS);
+                        // Get.toNamed(Routes.NOTIFICATIONS);
                         break;
                       case 4:
-                      Get.toNamed(Routes.TRAINING_AND_RESOURCES);
+                        Get.toNamed(Routes.TRAINING_AND_RESOURCES);
                         break;
                       case 5:
-                      // Get.toNamed(Routes.HELP);
+                        // Get.toNamed(Routes.HELP);
                         break;
                     }
                   });
@@ -74,7 +74,6 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
               ).paddingSymmetric(horizontal: 16, vertical: 8),
             ),
             const SizedBox(height: 24),
-
             AppButton(
               label: 'Log out',
               type: ButtonType.outline,
@@ -88,4 +87,3 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
     );
   }
 }
-

@@ -34,7 +34,6 @@ class TrainingAndResourcesController extends GetxController {
     training.add(CommonModel());
     training.add(CommonModel());
     training.add(CommonModel());
-
   }
 
   @override

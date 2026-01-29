@@ -36,14 +36,13 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                     ),
                   ),
                   IconButton(
-                  icon: const Icon(IconsaxPlusLinear.edit_2),
-                  onPressed: () => Get.toNamed(Routes.CLIENT_EDIT_PROFILE),
-                ),
+                    icon: const Icon(IconsaxPlusLinear.edit_2),
+                    onPressed: () => Get.toNamed(Routes.CLIENT_EDIT_PROFILE),
+                  ),
                 ],
               ).paddingAll(UiConstants.defaultPadding),
             ),
             const SizedBox(height: 24),
-
             AppCard(
               child: AppGrid(
                 physics: NeverScrollableScrollPhysics(),
@@ -75,7 +74,6 @@ class ClientProfileView extends GetView<ClientDashboardController> {
               ).paddingSymmetric(horizontal: 16, vertical: 8),
             ),
             const SizedBox(height: 24),
-
             AppButton(
               label: 'Log out',
               type: ButtonType.outline,

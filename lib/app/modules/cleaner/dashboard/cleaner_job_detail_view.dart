@@ -1,7 +1,7 @@
+import 'package:ccs_app/app/model/client_job.dart';
+import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
 
-import 'package:ccs_app/export.dart';
-import 'package:ccs_app/app/model/client_job.dart';
 import 'cleaner_job_detail_controller.dart';
 
 /// Cleaner job detail: same full fields as client (status, dates, client, property, access, preferences, equipment, cleaners).

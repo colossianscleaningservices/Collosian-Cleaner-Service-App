@@ -75,10 +75,9 @@ class CreateJobView extends GetView<CreateJobController> {
                       hint: 'Please select',
                       items: const ['Please select', 'Residential', 'Commercial'],
                       onChanged: (v) => controller.invoicePaymentSource.value = v ?? '',
-                      validator: (_) =>
-                          (controller.invoicePaymentSource.value.isEmpty || controller.invoicePaymentSource.value == 'Please select')
-                              ? 'Payment source is required'
-                              : null,
+                      validator: (_) => (controller.invoicePaymentSource.value.isEmpty || controller.invoicePaymentSource.value == 'Please select')
+                          ? 'Payment source is required'
+                          : null,
                     )),
                 const SizedBox(height: 12),
                 Obx(() => _NumberField(

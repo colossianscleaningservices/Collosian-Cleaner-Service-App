@@ -1,6 +1,6 @@
+import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
 import 'package:ccs_app/export.dart';
-import 'package:ccs_app/app/model/client_job.dart';
 import 'package:intl/intl.dart';
 
 class ClientJobsView extends GetView<ClientDashboardController> {

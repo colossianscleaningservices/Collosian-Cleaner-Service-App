@@ -1,8 +1,8 @@
 import 'package:ccs_app/export.dart';
 
 class QuickActionChip extends StatelessWidget {
-
-  const QuickActionChip({super.key,
+  const QuickActionChip({
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,

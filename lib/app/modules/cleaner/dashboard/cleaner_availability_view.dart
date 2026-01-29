@@ -300,7 +300,7 @@ class _DayCard extends StatelessWidget {
               }),
           ],
         ],
-      ).paddingSymmetric(horizontal: 14,vertical: 12),
+      ).paddingSymmetric(horizontal: 14, vertical: 12),
     ).marginOnly(bottom: 12);
   }
 }

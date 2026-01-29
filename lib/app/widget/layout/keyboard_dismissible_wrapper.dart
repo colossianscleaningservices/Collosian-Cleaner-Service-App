@@ -14,10 +14,10 @@ class KeyboardDismissibleWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: () => context.hideKeyboard(),
-    behavior: behavior,
-    child: child,
-  );
+        onTap: () => context.hideKeyboard(),
+        behavior: behavior,
+        child: child,
+      );
 }
 
 /// A specialized wrapper for scrollable content with keyboard dismissal
@@ -37,13 +37,13 @@ class ScrollableKeyboardDismissible extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => KeyboardDismissibleWrapper(
-    child: SafeArea(
-      child: SingleChildScrollView(
-        controller: controller,
-        physics: physics ?? const AlwaysScrollableScrollPhysics(),
-        padding: padding,
-        child: child,
-      ),
-    ),
-  );
+        child: SafeArea(
+          child: SingleChildScrollView(
+            controller: controller,
+            physics: physics ?? const AlwaysScrollableScrollPhysics(),
+            padding: padding,
+            child: child,
+          ),
+        ),
+      );
 }

@@ -10,6 +10,6 @@ class AuthService {
   String? get token => _prefs.token;
 
   Future<void> saveToken(String token) => _prefs.setToken(token);
+
   Future<void> clearToken() => _prefs.setToken(null);
 }
-

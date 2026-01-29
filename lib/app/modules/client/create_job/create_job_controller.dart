@@ -1,5 +1,5 @@
-
 import 'package:ccs_app/export.dart';
+
 import '../../../model/create_job_request.dart';
 
 class CreateJobController extends GetxController {
@@ -50,7 +50,9 @@ class CreateJobController extends GetxController {
   }
 
   void setJobStartDate(DateTime? d) => jobStartDate.value = d;
+
   void setStartTime(TimeOfDay? t) => startTime.value = t;
+
   void setEndTime(TimeOfDay? t) => endTime.value = t;
 
   void submit() {

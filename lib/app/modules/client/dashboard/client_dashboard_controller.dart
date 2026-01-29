@@ -7,16 +7,17 @@ import '../../../model/calendar_event.dart';
 import 'view/client_calendar_view.dart';
 import 'view/client_dashboard_home.dart';
 import 'view/client_jobs_view.dart';
-import 'view/client_notifications_view.dart';
 import 'view/client_profile_view.dart';
 
 class ClientDashboardController extends GetxController with GetSingleTickerProviderStateMixin {
   final tabIndex = 0.obs;
   final jobs = <ClientJob>[].obs;
 
-  List<Widget> get pages => const [ClientDashboardContent(), ClientCalendarView(), ClientJobsView(),
-    // ClientNotificationsView(),
-    ClientProfileView()];
+  List<Widget> get pages => const [
+        ClientDashboardContent(), ClientCalendarView(), ClientJobsView(),
+        // ClientNotificationsView(),
+        ClientProfileView()
+      ];
 
   List<MenuModel> profileItems = [
     MenuModel(icon: IconsaxPlusLinear.lock_1, title: 'Change password', subtitle: "Change password to protect your account"),
@@ -33,7 +34,6 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
 
   static const modes = [CalendarViewMode.week, CalendarViewMode.month, CalendarViewMode.list];
   final mode = CalendarViewMode.month.obs;
-
 
   @override
   void onInit() {
@@ -113,5 +113,4 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   void openDetail(ClientJob job) {
     Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: job);
   }
-
 }

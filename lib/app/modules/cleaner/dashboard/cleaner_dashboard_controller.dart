@@ -1,6 +1,6 @@
+import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
 
-import 'package:ccs_app/export.dart';
 import '../../../model/availability.dart';
 import '../../../model/calendar_event.dart';
 import '../../../model/menu_model.dart';
@@ -31,12 +31,12 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   final blockedDays = <DateTime>[].obs;
 
   List<Widget> get pages => const [
-    CleanerDashboardContent(),
-    CleanerCalendarView(),
-    CleanerJobsView(),
-    CleanerAvailabilityView(),
-    CleanerProfileView(),
-  ];
+        CleanerDashboardContent(),
+        CleanerCalendarView(),
+        CleanerJobsView(),
+        CleanerAvailabilityView(),
+        CleanerProfileView(),
+      ];
 
   /// Placeholder events. Replace with API-backed source.
   Map<DateTime, List<CalendarEvent>> get eventsMap {
@@ -88,7 +88,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     MenuModel(icon: IconsaxPlusLinear.trade, title: 'Training & Resources', subtitle: "View Training Resources & FAQs"),
     MenuModel(icon: IconsaxPlusLinear.message_question, title: 'Help & support', subtitle: "Get help and support"),
   ];
-
 
   @override
   void onInit() {

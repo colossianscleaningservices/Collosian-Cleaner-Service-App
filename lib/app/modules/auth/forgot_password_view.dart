@@ -9,7 +9,7 @@ class ForgotPasswordView extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: Header(title:'Forgot password'),
+      appBar: Header(title: 'Forgot password'),
       body: Padding(
         padding: UiConstants.padding,
         child: Column(
@@ -37,4 +37,3 @@ class ForgotPasswordView extends GetView<AuthController> {
     );
   }
 }
-

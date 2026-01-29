@@ -1,6 +1,6 @@
+import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
 
-import 'package:ccs_app/export.dart';
 import 'cleaner_dashboard_controller.dart';
 
 /// Earnings detail: Total, History, Payout. Opened from dashboard earnings block.
@@ -51,7 +51,11 @@ class CleanerEarningsView extends GetView<CleanerDashboardController> {
                       CommonText.regular('Transaction history (coming soon)', size: 13, color: scheme.onSurfaceVariant),
                       const SizedBox(height: 8),
                       _HistoryRow(date: 'Today', desc: 'Residential clean', amount: '£0.00', scheme: scheme),
-                      _HistoryRow(date: DateFormat('d MMM').format(DateTime.now().subtract(const Duration(days: 2))), desc: 'Office – Clerkenwell Road', amount: '£0.00', scheme: scheme),
+                      _HistoryRow(
+                          date: DateFormat('d MMM').format(DateTime.now().subtract(const Duration(days: 2))),
+                          desc: 'Office – Clerkenwell Road',
+                          amount: '£0.00',
+                          scheme: scheme),
                     ],
                   ),
                 ),

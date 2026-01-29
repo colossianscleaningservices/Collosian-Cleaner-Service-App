@@ -11,4 +11,3 @@ class DioClient {
     return dio;
   }
 }
-

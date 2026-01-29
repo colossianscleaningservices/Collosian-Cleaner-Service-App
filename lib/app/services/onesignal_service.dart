@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:onesignal_flutter/onesignal_flutter.dart';
-
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 /// OneSignal push notifications (mirror WAVTech pattern, adapted for CCS routes).
 class OneSignalService {
@@ -15,8 +14,7 @@ class OneSignalService {
   static Timer? _navigationDebouncer;
   static DateTime? _lastNavigationTime;
 
-  static OneSignalService get instance =>
-      _instance ??= OneSignalService._internal();
+  static OneSignalService get instance => _instance ??= OneSignalService._internal();
 
   static Future<void> initialize(String appId) async {
     if (_isInitialized) return;
@@ -83,9 +81,7 @@ class OneSignalService {
       if (type == 'job' && data != null) {
         final jobId = data['job_id'];
         if (jobId != null) {
-          final id = jobId is int
-              ? jobId
-              : (jobId is String ? int.tryParse(jobId) : null);
+          final id = jobId is int ? jobId : (jobId is String ? int.tryParse(jobId) : null);
           if (id != null) {
             log(_tag, 'Navigating to client job detail: $id');
             Get.offAllNamed(
@@ -117,8 +113,7 @@ class OneSignalService {
   static void _debounceNavigation(VoidCallback navigationCallback) {
     final now = DateTime.now();
     _navigationDebouncer?.cancel();
-    if (_lastNavigationTime != null &&
-        now.difference(_lastNavigationTime!).inMilliseconds < 1000) {
+    if (_lastNavigationTime != null && now.difference(_lastNavigationTime!).inMilliseconds < 1000) {
       return;
     }
     _navigationDebouncer = Timer(const Duration(milliseconds: 300), () {

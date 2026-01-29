@@ -388,5 +388,3 @@ class _GreetingSection extends StatelessWidget {
     );
   }
 }
-
-

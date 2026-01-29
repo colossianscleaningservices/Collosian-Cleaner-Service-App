@@ -51,7 +51,7 @@ Future<void> main() async {
         light: getTheme(lightColorScheme),
         dark: getTheme(darkColorScheme),
         initial: savedThemeMode ?? AdaptiveThemeMode.light,
-        builder:  (theme, darkTheme) {
+        builder: (theme, darkTheme) {
           return GetMaterialApp(
             debugShowCheckedModeBanner: false,
             initialRoute: AppPages.INITIAL,

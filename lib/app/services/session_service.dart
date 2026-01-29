@@ -16,4 +16,3 @@ class SessionService extends GetxService {
     Get.offAllNamed(Routes.LOGIN);
   }
 }
-

@@ -56,4 +56,3 @@ class ApiHandler {
     return NetworkResult.error(NetworkException.fromDio(error));
   }
 }
-

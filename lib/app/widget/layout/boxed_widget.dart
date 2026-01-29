@@ -8,9 +8,9 @@ class BoxedWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-    child: ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: kIsWeb ? (maxWidth ?? 1200.0) : double.infinity),
-      child: child,
-    ),
-  );
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: kIsWeb ? (maxWidth ?? 1200.0) : double.infinity),
+          child: child,
+        ),
+      );
 }

@@ -45,9 +45,7 @@ DateTime parseUtcToLocal(String? dateString) {
 
   try {
     // ISO formats with timezone markers.
-    if (dateString.contains('Z') ||
-        dateString.contains('+') ||
-        (dateString.length > 19 && dateString[10] == 'T')) {
+    if (dateString.contains('Z') || dateString.contains('+') || (dateString.length > 19 && dateString[10] == 'T')) {
       final parsed = DateTime.tryParse(dateString);
       if (parsed != null) return parsed.toLocal();
     }
@@ -73,8 +71,7 @@ String formatDateString(String? dateString) {
   }
 }
 
-String formatDateWithTime(DateTime date) =>
-    DateFormat('MM-dd-yyyy hh:mm a').format(date);
+String formatDateWithTime(DateTime date) => DateFormat('MM-dd-yyyy hh:mm a').format(date);
 
 String formatDateOnly(DateTime date) => DateFormat('MM-dd-yyyy').format(date);
 
@@ -86,15 +83,11 @@ extension CcsDateTimeX on DateTime {
     return day == now.day && month == now.month && year == now.year;
   }
 
-  bool isSameDay(DateTime other) =>
-      day == other.day && month == other.month && year == other.year;
+  bool isSameDay(DateTime other) => day == other.day && month == other.month && year == other.year;
 
-  String toLocalString([String format = 'yyyy-MM-dd HH:mm:ss']) =>
-      DateFormat(format).format(toLocal());
+  String toLocalString([String format = 'yyyy-MM-dd HH:mm:ss']) => DateFormat(format).format(toLocal());
 
-  String toUtcString([String format = 'yyyy-MM-dd HH:mm:ss']) =>
-      DateFormat(format).format(toUtc());
+  String toUtcString([String format = 'yyyy-MM-dd HH:mm:ss']) => DateFormat(format).format(toUtc());
 
-  String toDisplayDate([String format = 'MMM yyyy, hh:mm a']) =>
-      DateFormat(format).format(toLocal());
+  String toDisplayDate([String format = 'MMM yyyy, hh:mm a']) => DateFormat(format).format(toLocal());
 }

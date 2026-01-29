@@ -30,4 +30,3 @@ class Validator {
     return null;
   }
 }
-

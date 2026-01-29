@@ -387,11 +387,10 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        image: DecorationImage(
-          image: Assets.imagesBg.provider(),
-          fit: BoxFit.cover,
-        )
-      ),
+          image: DecorationImage(
+        image: Assets.imagesBg.provider(),
+        fit: BoxFit.cover,
+      )),
       child: KeyboardDismissibleWrapper(
         child: Scaffold(
           key: key,

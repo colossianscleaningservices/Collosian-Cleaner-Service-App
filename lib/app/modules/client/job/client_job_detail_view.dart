@@ -1,8 +1,7 @@
-import 'package:intl/intl.dart';
-
+import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
-import 'package:ccs_app/app/model/client_job.dart';
+import 'package:intl/intl.dart';
 
 import 'client_job_detail_controller.dart';
 
@@ -54,15 +53,13 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                       runSpacing: 8,
                       children: [
                         _chip(j.status, scheme.primaryContainer, scheme.primary),
-                        if (j.recurrence != null)
-                          _chip(j.recurrence!, scheme.secondaryContainer, scheme.secondary),
+                        if (j.recurrence != null) _chip(j.recurrence!, scheme.secondaryContainer, scheme.secondary),
                       ],
                     ),
                     const SizedBox(height: 12),
                     _row('Date', DateFormat('EEE d MMM yyyy').format(j.date), scheme),
                     _row('Time', '${j.startTime} – ${j.endTime}', scheme),
-                    if (j.jobEndDate != null)
-                      _row('End date', DateFormat('EEE d MMM yyyy').format(j.jobEndDate!), scheme),
+                    if (j.jobEndDate != null) _row('End date', DateFormat('EEE d MMM yyyy').format(j.jobEndDate!), scheme),
                     if (j.status == 'Scheduled') ...[
                       const SizedBox(height: 12),
                       TextButton(
@@ -124,8 +121,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                   children: [
                     CommonText.semiBold('Payment & staff', size: 16, color: scheme.onSurface),
                     const SizedBox(height: 12),
-                    if (j.invoicePaymentSource != null)
-                      _row('Payment source', j.invoicePaymentSource!, scheme),
+                    if (j.invoicePaymentSource != null) _row('Payment source', j.invoicePaymentSource!, scheme),
                     _row('Cleaners needed', '${j.cleanersNeeded}', scheme),
                   ],
                 ).paddingAll(UiConstants.defaultPadding),

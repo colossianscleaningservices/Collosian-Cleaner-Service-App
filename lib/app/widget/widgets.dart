@@ -181,9 +181,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
               color: (widget.borderWidth ?? 0) <= 0 ? Colors.transparent : effectiveBorderColor,
               width: widget.borderWidth ?? 0,
             ),
-            boxShadow: widget.enableShadows
-                ? context.effectiveShadows()
-                : null,
+            boxShadow: widget.enableShadows ? context.effectiveShadows() : null,
           ),
           child: Material(
             color: Colors.transparent,
@@ -320,7 +318,7 @@ class AppSliverGrid extends StatelessWidget {
 }
 
 class MenuItem extends StatelessWidget {
-  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive,this.padding});
+  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive, this.padding});
 
   final MenuModel item;
   final VoidCallback? onTap;
@@ -477,7 +475,7 @@ void showPicker({
                 cameraPicker?.call();
               },
               padding: 12,
-            ).marginOnly(left: 16, right: 16,top: 16),
+            ).marginOnly(left: 16, right: 16, top: 16),
           ],
           const SizedBox(height: 16),
           SizedBox(
