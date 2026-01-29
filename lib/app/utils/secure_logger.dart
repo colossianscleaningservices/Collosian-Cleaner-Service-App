@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/foundation.dart';
 
 class SecureLogger {
@@ -10,8 +12,19 @@ class SecureLogger {
         .replaceAll(RegExp(r'Bearer\s+[A-Za-z0-9\-\._]+'), 'Bearer [REDACTED]')
         .replaceAll(RegExp(r'\b[A-Z]{2}\d{6}[A-Z]\b'), '[REDACTED_NIN]')
         .replaceAll(RegExp(r'\b\d{10,}\b'), '[REDACTED_NUMBER]');
-    // ignore: avoid_print
-    print('[$tag] $safe');
+    dev.log(safe, name: tag.toUpperCase());
+  }
+
+  /// Log error (debug only). Use from error_handler; Crashlytics is reported separately in release.
+  static void logError(String tag, Object error, [StackTrace? stackTrace]) {
+    if (kDebugMode) {
+      dev.log(
+        error.toString(),
+        name: tag.toUpperCase(),
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
   }
 }
 

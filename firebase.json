@@ -1,0 +1,22 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "collosian-cleaner-service-app",
+          "appId": "1:514524285235:android:9c7af02e424c95d8791646",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "collosian-cleaner-service-app",
+          "configurations": {
+            "android": "1:514524285235:android:9c7af02e424c95d8791646",
+            "ios": "1:514524285235:ios:9b3f2524ece9e2b0791646"
+          }
+        }
+      }
+    }
+  }
+}

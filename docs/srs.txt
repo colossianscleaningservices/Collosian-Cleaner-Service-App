@@ -1,0 +1,3746 @@
+﻿Software Requirements Specification (SRS): Colossians Cleaning Services
+1. Objective
+The objective of this Software Requirements Specification (SRS) is to define the functional and non-functional requirements for extending the existing web-based CRM portal into a mobile application ecosystem for Customers (Clients) and Staff (Cleaners), while retaining a web-based Admin Portal built using Laravel.
+The current system is a web CRM that manages end-to-end cleaning operations, including bookings, job scheduling, staff assignment, payments, reviews, and notifications. While the web portal effectively serves administrative and desktop use cases, there is a strong opportunity to enhance usability, accessibility, and operational efficiency by introducing dedicated mobile applications.
+Primary Goals
+* Convert the existing web CRM experience into mobile-first applications for:
+   * Customers (booking, tracking, reviews, notifications)
+   * Staff/Cleaners (job management, check-in/out, availability, payouts)
+* Maintain a centralized Admin Web Portal (Laravel-based) for:
+   * Operational control
+   * Job assignment and monitoring
+   * Staff and customer management
+   * Payments, reports, and audits
+* Ensure real-time synchronization between web and mobile platforms using shared APIs
+* Improve user experience, response time, and on-the-go accessibility without changing core business workflows
+2. Platform Scope
+User Type
+	Platform
+	Admin
+	Web Portal (Laravel)
+	Customer/ Cleaner
+	Mobile App (iOS & Android)
+	 
+3. Proposed System Architecture
+3.1 Architecture Overview
+The platform will use a centralized, API-driven architecture with:
+* One backend system (Laravel)
+* One mobile application for both Clients and Cleaners
+* One web-based Admin Portal
+Instead of building two separate mobile applications, a single mobile app will be developed, and users will select their role (Client or Cleaner) during onboarding or login.
+This approach:
+* Reduces development and maintenance cost
+* Ensures consistent user experience
+* Allows easy role switching (if approved)
+* Keeps all business logic centralized
+3.2 High-Level System Components
+1. Backend System (Central Platform)
+Technology: Laravel (Web + REST APIs)
+The Laravel backend will act as the single source of truth for the entire ecosystem.
+Responsibilities:
+* User authentication and role assignment
+* Role-based access control (Admin / Client / Cleaner)
+* Job lifecycle management
+* Scheduling and conflict detection
+* Payments and payouts calculation
+* Notifications (email, SMS, in-app)
+* Compliance, audit logs, and security rules
+The backend exposes secure APIs consumed by the mobile app.
+2. Admin Web Portal
+Platform: Web (Laravel)
+Used only by system administrators.
+Functions:
+* Manage jobs, schedules, and assignments
+* Approve and monitor cleaners
+* Manage customers and properties
+* Review documents, eligibility, and training
+* Monitor job execution and payouts
+* Generate reports and audit logs
+Admins do not use the mobile app.
+3. Single Mobile Application (Client + Cleaner)
+Platform: Mobile App (Android & iOS – cross-platform)
+This is one application, shared by both user types.
+Role Selection Flow
+* On first launch or registration, user selects:
+   * I am a Client
+   * I am a Cleaner
+* Based on the selected role:
+   * Relevant onboarding flow is shown
+   * Only role-specific features are enabled
+* Backend rules enforce role permissions
+A user can never access features outside their assigned role.
+3.3 Mobile App – Role-Based Experience
+Client Role (within same app)
+After login as Client, the app displays:
+* Client dashboard
+* Property management
+* Job creation and calendar
+* Job tracking and notifications
+* Preferred staff and profile management
+Cleaner Role (within same app)
+After login as Cleaner, the app displays:
+* Cleaner dashboard
+* Job assignments and acceptance
+* Check-in / check-out
+* Availability management
+* Work hours and payment view
+* Training, documents, and reviews
+Each role has:
+* Separate navigation
+* Separate permissions
+* Separate workflows
+But shares:
+* Same app binary
+* Same backend
+* Same notification system
+3.4 Authentication & Role Management
+* Single authentication system
+* Role stored at backend level
+* Token-based authentication for mobile app
+* Role checked on every API request
+* Backend decides:
+   * What data is accessible
+   * What actions are allowed
+This prevents role misuse or privilege escalation.
+3.5 Data Synchronization & Real-Time Updates
+* All data is stored in one centralized database
+* Actions by one role reflect instantly across others:
+   * Client creates job → Admin sees it
+   * Admin assigns cleaner → Cleaner receives notification
+   * Cleaner checks out → Client sees job completed
+No duplication or manual syncing required.
+3.6 Advantages of Single Mobile App Approach
+* Lower development cost than two separate apps
+* Faster deployment and updates
+* Unified notification and authentication system
+* Easier future enhancements
+* Reduced app store management overhead
+3.7 Architecture Summary (Simplified)
+* Laravel Backend → Core business logic & APIs
+* Admin Web Portal → Full operational control
+* Single Mobile App → Client & Cleaner access via role selection
+* Role-Based UI & APIs → Secure and isolated experiences
+* Central Database → Real-time consistenc
+Features: For each user
+A. Admin Portal (Web – Laravel)
+1. Admin Dashboard (Main Control Panel)
+Purpose
+The Admin Dashboard is the central command screen for the entire platform.
+It is the first screen displayed after admin login and provides a real-time operational overview of customers, cleaners, and jobs.
+The dashboard is designed to allow the admin to:
+* Monitor daily operations at a glance
+* Quickly identify pending or problematic jobs
+* Navigate directly to calendars, customers, cleaners, or job details
+* Take immediate actions without unnecessary navigation
+1.1 Dashboard Navigation Structure (Top / Sidebar)
+The following navigation items must be visible and accessible at all times:
+* Dashboard (Home)
+* Calendar
+* Customer(s)
+* Cleaner(s)
+* Add Job
+* Today’s Jobs
+The logged-in role is displayed as:
+* Super Admin
+This confirms the user has full system privileges.
+1.2 Dashboard Layout Overview
+The dashboard consists of three primary sections:
+1. Summary & Navigation Section
+2. Jobs Listing (Primary Focus Area)
+3. Quick Access & Drill-Down Actions
+1.3 Key Summary Information (Implicit on Dashboard)
+Even if shown visually as counts, the dashboard must internally calculate and support:
+* Total customers
+* Total cleaners
+* Total jobs created
+* Jobs scheduled for today
+* Pending jobs
+* Approved jobs
+* Cancelled jobs
+Each metric must be:
+* Clickable
+* Redirect the admin to a filtered job or user list
+1.4 Jobs Listing Section (Core Dashboard Content)
+This is the most important part of the dashboard.
+Job List Display
+The dashboard displays a chronological list of jobs, showing both upcoming and recent jobs.
+Each job entry must display the following columns clearly:
+Job Information Displayed per Row
+1. Client
+   * Client full name
+   * Property label (example: “Nellie – 8 The Grove”)
+2. Status
+   * Pending
+   * Approved
+   * (Other statuses handled elsewhere: Completed, Cancelled)
+Status must be visually distinguishable (color or badge).
+3. Time
+   * Job start time – job end time
+Example: 09:30 – 11:30
+   4. Cleaner(s)
+   * One or more cleaner names
+   * Displayed as a comma-separated list
+   * If no cleaner assigned yet, this must be clearly indicated
+   5. Created Date
+   * Date the job was created in the system
+Example: 15/01/202
+Example Job Entry (Conceptual)
+      * Client: Nellie Ogbonna
+      * Property: Nellie – 8 The Grove
+      * Status: Pending
+      * Time: 09:30 – 11:30
+      * Cleaner(s): Liudmyla Ivanova
+      * Created: 02/01/2026
+1.5 Dashboard Behavior & Interactions
+Click Behavior
+      * Clicking any job row opens the Job Details screen
+      * Clicking Calendar opens the scheduling calendar
+      * Clicking Customer(s) opens the customer list
+      * Clicking Cleaner(s) opens the cleaner list
+      * Clicking Add Job opens the job creation form
+Refresh Behavior
+      * Dashboard data should:
+      * Auto-refresh at regular intervals or
+      * Provide a manual refresh option
+Alerts & Attention Indicators
+      * Pending jobs must be visually noticeable
+      * Jobs without assigned cleaners must be highlighted
+      * Any scheduling conflicts (if detected) must show warnings
+2. Job Details Screen (Admin View)
+Purpose
+The Job Details screen provides a complete, read-only + action-enabled view of a single job.
+This screen is used by the admin to:
+      * Review all job information
+      * Assign or change cleaners
+      * Monitor job readiness
+      * Ensure compliance before execution
+2.1 Job Scheduling Information
+Displayed at the top:
+      * Job Scheduled: Yes / No
+      * Job Start Date
+      * Job Start Time
+      * Job End Date
+      * Job End Time
+      * Job Status (Pending / Approved)
+This section immediately tells the admin:
+      * Whether the job is ready
+      * Whether action is required
+2.2 Client & Property Information
+Client Details
+      * Client name (example: Nellie Ogbonna)
+Property Details
+      * Property label
+      * Full address:
+      * Address line
+      * City
+      * Postal code
+      * Property type:
+      * Private Home / Commercial
+      * Property subtype:
+      * Example: End of Terrace
+Property Layout Details
+      * Number of bedrooms
+      * Bathrooms
+      * Guest/Separate toilets
+      * Living rooms
+      * Dining rooms
+This information helps cleaners understand workload and scope.
+2.3 Cleaning & Service Details
+Displayed clearly:
+      * Cleaning type
+Example: Residential Surface Cleaning
+      * Animals on property: Yes / No
+      * Staff preference: Specific cleaner or “No Preference”
+      * Equipment availability:
+         * Hoover (example: Miele)
+         * Cleaning products (Provided / Not provided)
+         * Washing machine (Provided / Not provided)
+         * Dryer (Provided / Not provided)
+2.4 Payment & Job Configuration
+         * Payment Source
+         * Residential
+         * Commercial
+         * Number of Cleaners Needed
+         * Additional Instructions / Notes
+         * Example: HMO communal area cleaning
+This section directly impacts cleaner assignment and payout.
+2.5 Cleaner Assignment Section
+Cleaner Table
+Displayed as a structured list:
+Columns:
+         * Cleaner name
+         * Status (Pending / Assigned / Accepted)
+         * Share profile option
+Example:
+         * Liudmyla Ivanova – Pending
+Actions Available to Admin
+         * Assign Cleaner
+         * Choose cleaner from eligible list
+         * System must validate:
+         * Availability
+         * Eligibility
+         * No conflicts
+         * Required number of cleaners
+Admin cannot assign:
+         * Suspended cleaners
+         * Ineligible cleaners
+         * Unavailable cleaners
+2.6 Action Controls
+Available actions on Job Details page:
+         * Assign cleaner
+         * Change assigned cleaner
+         * Review job readiness
+         * Monitor acceptance status
+Once job is completed:
+         * Job becomes locked
+         * No edits allowed
+         * Used for audit and reporting
+2. Calendar Module (Admin Scheduling System)
+The Calendar Module is the core operational dashboard used by administrators to plan, monitor, and control all cleaning jobs across clients, cleaners, properties, and dates.
+It provides a calendar-based view of all jobs, supports advanced filtering, and allows full job lifecycle management directly from the calendar.
+2.1 Calendar Views
+The admin can switch between multiple calendar views depending on planning needs:
+         * Daily View
+         * Hour-by-hour breakdown of jobs
+         * Useful for same-day conflict resolution and urgent scheduling
+         * Weekly View
+         * Cleaner workload distribution across the week
+         * Helps balance assignments and availability
+         * Monthly View (Default)
+         * High-level overview of all jobs
+         * Displays multiple jobs per day with “+ more” expansion
+2.2 Calendar Header & Filters
+At the top of the calendar, the admin has real-time filtering controls to narrow down jobs:
+Filters Available
+         * Client Name – Select a specific client
+         * Cleaner Name – View jobs assigned to a specific cleaner
+         * Property Name – Filter by service location
+         * Job Status – All / Created / Pending / Approved / In Process / Finished / Cancelled
+         * Month & Year Selector – Navigate between months (e.g., January 2026)
+These filters update the calendar dynamically without page reload.
+2.3 Job Display on Calendar (Monthly View)
+Each calendar date displays multiple job cards. If jobs exceed visible space, a “+X more” indicator appears.
+Each Job Card Displays:
+         * Client Name
+         * Service Time Slot
+         * Start time – End time (e.g., 🕒 08:00 – 10:30)
+         * Cleaner Name
+         * Or “Cleaner yet to be assigned”
+         * Property Address
+         * Job Status
+         * Visually distinguishable (e.g., Finished, Approved, Pending, In Process)
+Status-Based Visual Indicators
+         * Jobs are color-coded by status to allow instant recognition:
+         * Created
+         * Pending
+         * Approved
+         * In Process
+         * Finished
+         * Cancelled
+2.4 Job Status Lifecycle
+Jobs move through a clearly defined lifecycle:
+         1. Created
+         * Job created but cleaner not assigned
+         2. Pending
+         * Awaiting approval or confirmation
+         3. Approved
+         * Confirmed and scheduled
+         4. In Process
+         * Cleaner has started the job
+         5. Finished
+         * Job completed successfully
+         6. Cancelled
+         * Job cancelled by admin or system
+Each status change is logged and reflected instantly on the calendar.
+2.5 Job Detail View (On Click)
+When the admin clicks on any job in the calendar, a Job Detail Panel / Page opens.
+Job Detail Information Includes:
+Basic Information
+         * Client Name
+         * Property Name & Full Address
+         * Job Date
+         * Start Time & End Time
+         * Total Duration
+Assignment Details
+         * Assigned Cleaner(s)
+         * Supports single or multiple cleaners
+         * Cleaner availability status
+         * Option to assign / reassign cleaner
+Job Status Controls
+         * Change job status (Created → Pending → Approved → etc.)
+         * Cancel job with reason
+         * Mark job as completed (manual override if needed)
+Operational Notes
+         * Internal admin notes
+         * Cleaner notes (if applicable)
+2.6 Admin Actions from Calendar
+Directly from the calendar or job detail view, admin can:
+         * Create a new job on any selected date
+         * Assign or change cleaner(s)
+         * Modify job time slots
+         * Cancel or reschedule jobs
+         * View full job history
+         * Resolve scheduling conflicts
+2.7 Cleaner Availability & Workload Visibility
+The system displays cleaner availability blocks directly within the scheduling logic.
+Admin can see:
+         * Cleaner working hours
+         * Unavailable days
+         * Existing job assignments
+         * Daily workload per cleaner
+This ensures realistic and fair scheduling.
+2.8 Conflict Detection & Validation (Critical Logic)
+The system automatically validates scheduling actions and prevents conflicts.
+System Warnings Triggered When:
+         * A cleaner is double-booked for overlapping times
+         * A cleaner exceeds maximum daily working hours
+         * A job overlaps another job for the same cleaner
+         * A cleaner is marked unavailable on that date
+Admin receives:
+         * Immediate visual warnings
+         * Clear error messages explaining the conflict
+         * Option to adjust time or cleaner before saving
+3. Job Management
+The Job Management module allows the Super Admin / Admin to create, schedule, edit, copy, and manage all cleaning jobs across residential and commercial clients.
+This module is tightly integrated with the Calendar Module, Cleaner Availability, and Notification System.
+3.1 Jobs Listing (Admin Jobs Dashboard)
+The Jobs Dashboard displays all jobs in a tabular, searchable, and actionable format.
+Core Features
+         * Global search across jobs
+         * Sortable columns
+         * Pagination
+         * Bulk actions (delete, status update)
+         * Quick access to job details
+         * Copy job details for repeat bookings
+Jobs Table Columns
+Each job row includes the following data:
+Client & Service Information
+         * Client Name
+         * Cleaning Type
+         * Standard Cleaning
+         * End of Tenancy Cleaning
+         * Office Cleaning
+         * Serviced Accommodation
+         * Communal / Others
+         * Property Type
+         * Private Home
+         * Office
+         * Serviced Accommodation
+         * Commercial
+Date & Time
+         * Job Date
+         * Start Time
+         * End Time
+         * Expected Duration (calculated)
+Property Details
+         * Full Address
+         * Postal Code
+         * Access to Property
+         * Client Will Open
+         * Will Get a Set of Keys
+         * Venue Address (for commercial / events)
+Job Configuration
+         * Job Status
+         * Created
+         * Pending
+         * Approved
+         * In Process
+         * Finished
+         * Cancelled
+         * Job Type
+         * Residential / Commercial
+         * Number of Cleaners
+         * Assigned Cleaner(s) (supports multiple cleaners)
+Equipment & Supplies
+         * Provide Cleaning Products (Yes / No)
+         * Washing Machine Available (Yes / No)
+         * Dryer Available (Yes / No)
+         * Hoover Type (None / Henry / Dyson / Other)
+Preferences & Notes
+         * Staff Preference
+         * Male / Female / No Preference
+         * Additional Details / Instructions
+         * Number of Guests (if applicable)
+         * Celebration Type (if applicable)
+Recurrence & Rules
+         * RRULE / Recurrence Type
+         * One-time
+         * Weekly
+         * Multiple days per week
+         * Job Start Date
+         * Job End Date
+         * Recurring schedule details (e.g., every Tuesday, every Monday & Wednesday)
+________________
+
+
+Job Actions (Per Row)
+Admin can:
+         * Edit Job
+         * Delete Job
+         * Copy Job Details (for fast re-creation)
+         * View Full Job Details
+         * Change Job Status
+3.2 Add Job (Manual Job Creation)
+Admin can manually create a new job for any client.
+Create Cleaning Job Form
+Client & Property
+         * Select existing client or add new client
+         * Select property or add new property
+         * Property address & postal code
+Payment
+         * Select payment method for invoice
+         * Price auto-calculated or manually overridden
+Scheduling
+         * Job Start Date
+         * Start Time
+         * End Time
+         * Number of cleaners required
+Cleaning Configuration
+         * Cleaning Type
+         * Job Type (Residential / Commercial)
+         * Staff Preference (Male / Female / No Preference)
+Equipment & Access
+         * Access to Property (Client Will Open / Keys)
+         * Hoover availability
+         * Washing machine availability
+         * Dryer availability
+         * Cleaning products provided (Yes / No)
+Notes
+         * Additional instructions (up to 100 characters)
+         * Internal admin notes (optional)
+System Actions on Job Creation
+         * Validate all mandatory fields
+         * Calculate duration
+         * Check cleaner availability
+         * Save job to database
+         * Generate unique Job ID
+         * Set default status (Created or Pending)
+         * Send confirmation SMS / Email to client
+         * Notify cleaner(s) if assigned
+3.3 Schedule Job (From Job Requests)
+Used when a job request exists but is not yet scheduled.
+Features
+         * View list of unscheduled job requests
+         * Open request details
+         * Assign date & time
+         * Assign cleaner manually or auto-assign
+         * Convert request → scheduled job
+         * Apply recurrence rules (weekly, multi-day)
+         * Send notifications to client & cleaner
+3.4 Job Detail View (View / Copy / Edit)
+When admin clicks any job, a detailed job view opens.
+Job Detail Sections
+Overview
+         * Job ID
+         * Status
+         * Client name
+         * Cleaning type
+         * Job type
+         * Date & time
+         * Duration
+Property Details
+         * Full address
+         * Postal code
+         * Access method
+Assignment
+         * Assigned cleaner(s)
+         * Cleaner availability
+         * Staff preference
+Equipment & Supplies
+         * Cleaning products
+         * Washing machine
+         * Dryer
+         * Hoover type
+Recurrence
+         * Recurrence rule (RRULE)
+         * Job start & end dates
+         * Weekly pattern
+Notes
+         * Client instructions
+         * Admin notes
+Additional Admin Actions
+         * Copy job details to create a new job instantly
+         * Change job status
+         * Reassign cleaners
+         * Modify time or recurrence
+         * Cancel job with reason
+4. Scheduled Jobs (Recurring Job Management)
+The Scheduled Jobs module is used when a customer requires recurring cleaning services (weekly, bi-weekly, or custom schedules).
+Instead of creating individual jobs manually each time, the system manages them using recurrence rules (RRULE) and automatically generates future jobs.
+4.1 Purpose of Scheduled Jobs
+This module allows Admin to:
+         * Manage long-term recurring clients
+         * Automatically generate future jobs
+         * Assign fixed or rotating cleaners
+         * Pause or resume services when required
+         * Maintain consistency for commercial and residential clients
+Typical use cases:
+         * Weekly office cleaning
+         * Bi-weekly residential cleaning
+         * Multi-day recurring commercial contracts
+4.2 Scheduled Jobs Listing (Admin View)
+This screen shows all recurring job templates, not individual daily jobs.
+Search & Filters
+Admin can search scheduled jobs using:
+         * Property name
+         * Client name
+         * Cleaner name
+         * Job type (Residential / Commercial)
+         * Active / Inactive status
+Scheduled Jobs Table Fields
+Each row represents one recurring job configuration.
+Client & Property
+         * Client name
+         * Property name
+         * Full address
+         * Postal code
+Scheduling & Frequency
+         * Frequency
+         * Weekly
+         * Every 2 weeks
+         * Custom recurrence
+         * RRULE description
+         * e.g. “Every single week on Tuesday”
+         * Start date
+         * End date (optional)
+         * Next job date (auto-calculated)
+         * Occurrence count (if limited)
+Time & Assignment
+         * Start time
+         * End time
+         * Assigned cleaner(s)
+         * Copy cleaners option (reuse same cleaners across occurrences)
+Job Classification
+         * Job type (Residential / Commercial)
+         * Cleaning category
+Status & Control
+         * Active (true / false)
+         * Inactive start date
+         * Inactive end date
+         * Is deleted (soft delete)
+4.3 Creating a Recurring Job (Scheduling Flow)
+When a customer requests recurring cleaning:
+Step 1: Create Base Job
+Admin creates a job using Add Job flow:
+         * Client & property selected
+         * Cleaning type defined
+         * Equipment & access preferences set
+         * Preferred cleaner assigned (optional)
+Step 2: Enable Recurrence
+Admin selects:
+         * Frequency (weekly / bi-weekly / custom)
+         * Days of week (e.g. Monday, Wednesday)
+         * Start date
+         * Optional end date or number of occurrences
+System generates an RRULE internally.
+Step 3: Assign Cleaners
+Admin can:
+         * Assign fixed cleaner(s) for all occurrences
+         * Assign multiple cleaners
+         * Allow future reassignment if neede
+4.4 Automatic Job Generation Logic
+The system will:
+         * Calculate next job date
+         * Auto-create individual jobs based on RRULE
+         * Maintain link between scheduled job and generated jobs
+         * Prevent overlaps or double booking
+         * Respect cleaner availability and daily limits
+Each generated job:
+         * Appears in Jobs table
+         * Appears in Calendar
+         * Inherits all base settings
+         * Can still be edited individually if required
+4.5 Pause / Hold / Resume Scheduled Job
+Pause Job
+Admin can pause a scheduled job:
+         * No future jobs are generated
+         * Existing generated jobs can remain or be cancelled (admin choice)
+Hold Period
+Admin can define:
+         * Inactive start date
+         * Inactive end date
+Use cases:
+         * Client on holiday
+         * Temporary property closure
+Resume Job
+         * Recurrence resumes automatically after inactive end date
+         * Next job date recalculated
+4.6 Updating Scheduled Jobs
+Admin can:
+         * Update billing type
+         * Update assigned cleaner(s)
+         * Change schedule time
+         * Change recurrence rule
+         * Copy cleaner assignments
+         * Delete scheduled job (soft delete)
+System behavior:
+         * Future jobs reflect updates
+         * Past jobs remain unchanged
+4.7 Conflict Detection (Critical)
+System must automatically warn admin if:
+         * Cleaner is already booked
+         * Cleaner exceeds daily working hours
+         * Job overlaps another scheduled job
+         * Cleaner is marked unavailable
+Admin can:
+         * Override with confirmation
+         * Change cleaner
+         * Change time
+4.8 Notifications
+When scheduled jobs are:
+         * Created
+         * Updated
+         * Paused
+         * Resumed
+System sends notifications to:
+         * Client (email / SMS)
+         * Cleaner(s) (app notification)
+5. Customer Management
+The Customer Management module enables the Super Admin / Admin to manage all clients (residential and commercial) from a single, centralised panel.
+This module is tightly connected to Jobs, Billing, and Scheduled (Recurring) Jobs.
+5.1 Customers Listing (Admin View)
+This screen displays all customers in a searchable and manageable table.
+Core Features
+         * Global search
+         * Sorting by name, city, or status
+         * Pagination
+         * Bulk deletes
+         * Quick access to customer profiles
+         * Login-as-customer (if permitted)
+Customers Table Fields
+Each row contains:
+Basic Information
+         * First Name
+         * Last Name
+         * Email
+         * Phone Number
+         * Date of Birth (if provided)
+Address Details
+         * Address
+         * City
+         * Postal Code
+Business Information
+         * Company name (if applicable)
+         * Residential / Commercial indicator
+Account Status
+         * Email subscriptions (Enabled / Disabled)
+         * Account verification status (Verified / Not verified)
+         * Account active state
+Admin Actions per Customer
+         * View customer profile
+         * Edit customer details
+         * Delete customer (soft delete)
+         * Login as customer (support/debug use only
+5.2 Customer Profile When admin clicks on any customer, a full customer profile page opens.
+Customer Profile Sections
+1. Personal & Contact Information
+         * First name
+         * Last name
+         * Email
+         * Phone number
+         * Date of birth
+         * Email subscription status
+         * Account verification status
+2. Address & Property Information
+         * Primary address
+         * City
+         * Postal code
+         * Linked properties (multiple allowed)
+         * Property labels (e.g. “Office – Clerkenwell Road”)
+3. Job History
+         * List of all past jobs
+         * Current active jobs
+         * Upcoming scheduled jobs
+         * Job status per entry (Finished, Pending, Approved, Cancelled)
+Admin can:
+         * Click any job to open job details
+         * Copy job details to create a new job
+         * Schedule a new job for this customer
+4. Recurring / Scheduled Jobs
+         * List of all active recurring jobs
+         * Frequency details
+         * Next job date
+         * Assigned cleaner(s)
+         * Pause / resume recurring service
+5. Billing & Payment Overview
+         * Billing type (Residential / Commercial)
+         * Payment method history
+         * Invoices (if enabled in later phase
+6. Communication & Notes
+         * Internal admin notes
+         * Special client instructions
+         * Access preferences (keys, opening)
+5.3 Create / Update Customer
+Admin can:
+         * Add new customer manually
+         * Edit existing customer details
+Fields Supported
+         * Personal details
+         * Contact information
+         * Company name (optional)
+         * Email preferences
+         * Verification status
+System behavior:
+         * Validate email and phone number
+         * Prevent duplicate email accounts
+         * Link customer automatically to jobs and properties
+5.4 Customer Deletion Rules
+         * Soft delete only
+         * Historical jobs remain intact
+         * Scheduled jobs must be paused or reassigned
+         * Customer can be restored if needed
+6. Cleaner Management
+The Cleaner Management module allows the Super Admin / Admin to manage all cleaning staff, their profiles, verification status, availability, and job assignments from a single centralized system.
+This module is tightly integrated with:
+         * Job Management
+         * Calendar & Scheduling
+         * Recurring Jobs
+         * Cleaner Mobile App
+6.1 Cleaners Listing (Admin View)
+This screen displays all cleaners in a searchable and filterable table.
+Core Features
+         * Global search
+         * Filter by cleaner status
+         * Pagination
+         * Bulk delete (soft delete)
+         * Quick access to cleaner profiles
+         * Login as cleaner (support/debug only)
+Cleaners Table Fields
+Each row represents one cleaner account and includes:
+Personal Information
+         * First name
+         * Last name
+         * Date of birth
+         * Phone number
+         * Email address
+Address Information
+         * Address
+         * City
+         * Postal code
+Employment & Compliance
+         * National Insurance Number
+         * Company name (if applicable)
+         * Student status (Yes / No)
+         * Share code (if applicable)
+         * Email subscription status
+         * Verification status
+Account & Work Status
+         * Approval status
+         * Unapproved
+         * Approved
+         * Suspended
+         * Active status (Yes / No)
+         * Cleaner availability flag
+Admin Actions per Cleaner
+         * View cleaner profile
+         * Edit cleaner details
+         * Approve / unapproved cleaner
+         * Update email
+         * Update NI number
+         * Activate/deactivate cleaner
+         * Delete cleaner (soft delete)
+         * Login as cleaner (optional)
+6.2 Cleaner Profile (Detail View)
+When admin clicks on any cleaner, a full cleaner profile page opens.
+Cleaner Profile Sections
+1. Personal & Contact Details
+         * Full name
+         * Email
+         * Phone number
+         * Date of birth
+         * Address
+         * City & postal code
+2. Employment & Verification
+         * Approval status
+         * Verification status
+         * National Insurance number
+         * Share code
+         * Student status
+         * Company name (if any)
+3. Availability & Scheduling
+         * Weekly availability calendar
+         * Unavailable dates
+         * Daily working hour limits
+Admin can:
+         * Mark cleaner unavailable
+         * Set recurring unavailability
+         * Override availability if needed
+4. Job Assignment History
+         * Upcoming assigned jobs
+         * Past completed jobs
+         * Cancelled jobs
+         * Recurring job assignments
+Admin can:
+         * Reassign jobs
+         * Remove cleaner from future jobs
+         * View job details directly
+5. Performance & Notes
+         * Internal admin notes
+         * Flags or warnings
+         * Job completion history
+6.3 Cleaner Approval Workflow
+Registration
+         * Cleaner registers via mobile app or admin panel
+         * Account status = Unapproved
+Admin Review
+Admin verifies:
+         * Identity details
+         * NI number / Share code
+         * Contact information
+Approval
+         * Cleaner status updated to Approved
+         * Cleaner becomes assignable to jobs
+         * Cleaner gains access to job listings in app
+6.4 Cleaner Deactivation & Deletion Rules
+         * Deactivation hides cleaner from assignment list
+         * Existing assigned jobs trigger warning
+         * Soft delete only (historical data preserved)
+6.5 Integration With Mobile App
+Single App – Role-Based Login
+         * Cleaner selects Staff role at login
+         * Access limited to:
+         * Assigned jobs
+         * Job details
+         * Status updates (In Process / Finished)
+         * Notifications
+Cleaner cannot:
+         * See other cleaners
+         * Access admin data
+7. Requested Jobs & Cleaner Assignment
+The Requested Jobs module is where all newly created jobs (either by customers or admin) appear before a cleaner is assigned. This module allows the Super Admin / Admin to manage allocation efficiently and ensures jobs are matched to available, qualified cleaners.
+7.1 Requested Jobs Listing (Admin View)
+Table Columns / Fields:
+         * Job Type (Residential / Commercial)
+         * Date
+         * Start Time & End Time
+         * Number of Cleaners Required
+         * Customer Name
+         * Property Name
+         * Allocation Status (Allocated / Not Allocated)
+Actions Available:
+         * Assign Job → Opens the assignment panel
+         * Delete Job(s) → Remove unwanted or cancelled jobs
+         * Search & Filter → By customer name, property, job type, or allocation status
+Example Display:
+Job Type
+	Date
+	Start
+	End
+	Cleaners
+	Customer
+	Property Name
+	Allocation Status
+	Residential
+	17-01-2026
+	09:00
+	14:00
+	2
+	Rayane Saidi
+	Rayane - 30 Marylebone High St
+	Not Allocated
+	Commercial
+	25-01-2026
+	11:00
+	14:00
+	1
+	Michael Andrews
+	Michael - 43 Kings Cross Road
+	Not Allocated
+	Residential
+	20-01-2026
+	10:30
+	13:30
+	1
+	Hester Wax
+	Hester - 8 Henson Avenue
+	Not Allocated
+	Residential
+	22-01-2026
+	09:00
+	11:00
+	1
+	Hira Razzaque
+	Hira - 47 Woodyates Road
+	Not Allocated
+	 
+7.2 Cleaner Assignment Panel
+When the admin clicks Assign Job for a specific Job ID:
+Panel Highlights:
+         * Warning: ⚠️ Once cleaners are assigned, this action cannot be revoked.
+         * Job Details Displayed:
+         * Job Type
+         * Job Date & Time
+         * Customer Name & Property
+         * Number of cleaners required
+List of Available Cleaners:
+ All active cleaners who have applied appear as a selectable list:
+         * Rwinkle Rwinkle
+         * Manju Bala
+         * Emmanuella OGHENEKEVWE EJITAGHA
+         * Laxmi Kumari Chaudhary
+         * SHEUN OROSUN MICHAEL
+         * Elvis Gemnwi George
+Admin Actions:
+         1. Select one or multiple cleaners for assignment
+         2. Confirm assignment
+         3. System updates:
+         * Job Allocation Status → Allocated
+         * Assigned cleaner(s) receive notification via email / app
+         * Job appears in Scheduled Jobs for cleaner & admin
+         * Job details page updates with assigned cleaner info
+Notes / Business Logic:
+         * Number of cleaners assigned cannot exceed job requirement
+         * System prevents assigning cleaners who are already double-booked or marked unavailable
+         * Admin can view cleaner profiles before assignment
+         * Once assigned, assignment cannot be revoked; changes require creating a new job or admin overrid
+7.3 Workflow Diagram (Conceptual)
+         1. Job Creation:
+         * Created by admin or cleaner
+         * Status = Not Allocated
+         2. Cleaner Notification:
+         * Active cleaners notified via email / app
+         * Cleaners click Apply if interested
+         3. Admin Review:
+         * Admin views Requested Jobs list
+         * Sees list of applicants
+         4. Assign Cleaner:
+         * Select cleaner(s)
+         * Confirm assignment
+         5. Post-Assignment:
+         * Job status updates → Allocated
+         * Assigned cleaner receives confirmation
+         * Job appears in Scheduled Jobs / Calendar module
+This ensures real-time visibility for the admin, prevents overbooking, and creates a clear workflow from requested → assigned → scheduled.8. Cleaner Character References Module
+This module allows the Super Admin / Admin to view and manage character references submitted for cleaners. These references help verify a cleaner’s background and suitability before assignment to jobs. Each reference includes both evaluation details and referee information
+8.1 Cleaner Reference Listing
+Table / List View:
+         * Cleaner Name
+         * Cleaner Company / Affiliation (if any)
+         * Reference Status (Reviewed / Not Reviewed)
+         * Character Recommendation (Employable / Not Employable)
+Actions Available:
+         * View Details → Opens full reference record
+         * Search / Filter → By Cleaner Name, Status, or Recommendation
+Example Display:
+Cleaner Name
+	Affiliation
+	Reference Status
+	Character Recommendation
+	Salina Begum
+	Jamtech Cleaner
+	Reviewed
+	Employable
+	Myra Baker
+	NewJTPL Cleaner
+	Reviewed
+	Not Employable
+	 
+8.2 Reference Detail View (Cleaner Profile)
+When admin clicks on a cleaner’s reference, a full detail page is displayed.
+Reference Details Include:
+Character Review
+         * Recommendation: Character OK / Not Employable
+         * Reason (if applicable): e.g., “Sometimes might be home and stay”
+         * Other Comments: Any additional notes from the referee
+Referee Information
+         * Name: e.g., Salina
+         * Occupation: e.g., G.C.H
+         * Relationship to Cleaner: e.g., Husband / Friend / Employer
+         * Known Since: e.g., 18/02/2002
+         * Address: e.g., Flat 6, 14 Trobridge Parade, Graham Park Way, London NW9 4AL
+         * Mobile / Contact: e.g., 078 566 89752
+Signature Details
+         * Signed By: Referee’s name (e.g., Salina)
+         * Signed At: Date of signing (e.g., 17 Dec 2025)
+         * Signature Image / File: Display scanned signature or uploaded image
+8.3 Admin Actions / Functionalities
+         1. View Reference
+         * Open any cleaner’s reference to verify background and suitability
+         * Display all relevant details in a readable format
+         2. Approve / Flag Cleaner
+         * Based on character reference, admin can mark cleaner as:
+         * Employable
+         * Not Employable
+         3. Search / Filter
+         * By Cleaner Name, Reference Status, Character Recommendation
+8.4 Workflow
+         1. Cleaner submits a character reference form
+         2. System saves the reference under the cleaner’s profile
+         3. Super Admin can search and review all references
+         4. Admin can approve / flag based on the information
+         5. Approved cleaners are eligible for jobs, flagged cleaners can be restricted
+9. SMS Module
+This module allows the Super Admin / Admin to send text messages (SMS) directly from the admin panel to cleaners, customers, or any other relevant contact. It can be used for job notifications, reminders, alerts, or general communication.
+9.1 SMS Sending Form
+Fields & Inputs:
+         1. User (Optional)
+         * Dropdown to select a registered user (Customer or Cleaner)
+         * Multi-select enabled for sending to multiple users at once
+         * If no user is selected, admin can manually enter phone numbers
+         2. Phone Number
+         * Input field for one or multiple numbers
+         * Supports international format
+         * Validates numbers before sending
+         3. Message
+         * Text area to type the SMS content
+         * Character counter to ensure it meets SMS length limits (e.g., 160 characters per SMS)
+         * Optional support for dynamic placeholders (e.g., {CustomerName}, {JobID})
+9.2 Admin Actions / Functionalities
+         1. Send SMS
+         * Admin clicks Send button to deliver message immediately
+         * System confirms successful delivery or displays error
+         2. Preview
+         * Admin can preview message before sending
+         * Ensures correct formatting and placeholders
+         3. History / Logs
+         * Optional: System logs all sent messages for audit purposes
+         * Columns may include:
+         * Recipient Name / Number
+         * Date & Time Sent
+         * Message Content
+         * Status (Sent / Failed)
+         4. Notifications
+         * System can trigger SMS automatically for certain events, such as:
+         * Job assignment
+         * Job rescheduling
+         * Cleaner confirmation of requested jobs
+10. Assistants Module
+Overview
+The Assistants Module allows the Super Admin / Admin to manage assistant accounts. Assistants are staff members who support the admin in operations, communications, and monitoring the system. The module allows adding, editing, and managing assistants, including their access and activity status.
+10.1 Assistants List / Management
+Search / Filter
+         * By first name, last name, email, city, or status
+         * Quick search bar for real-time filtering
+Actions Available
+         * Edit: Open assistant profile to update details
+         * Delete / Restore: Soft delete assistants or restore deleted accounts
+         * Status Toggle: Activate / deactivate assistants
+         * Hide: Hide assistant from certain views if needed
+10.2 Add Assistant Form
+Fields to be Entered:
+         1. First Name – Text input, required
+         2. Last Name – Text input, required
+         3. Email – Email input, required, unique
+         4. Address – Text input, optional
+         5. City – Text input, optional
+         6. Postal Code – Text input, optional
+         7. Date of Birth – Date picker, optional
+         8. Phone Number – Text input, optional
+         9. Company / Organization – Optional
+         10. Extra Fields – Optional (for any custom info)
+         11. Email Subscriptions – Checkbox, whether assistant receives system emails
+         12. Verified – Checkbox / toggle for verified accounts
+         13. Student – Checkbox if the assistant is a student
+         14. Active – Checkbox / toggle to mark account active
+         15. Hide – Checkbox to hide assistant from certain views
+Actions
+         * Save: Create new assistant account
+         * Cancel: Discard changes
+10.3 Workflow
+         1. Admin opens Assistants Module
+         2. Admin clicks Add Assistant → fills form → clicks Save
+         3. System validates inputs (e.g., email uniqueness) → creates account
+         4. Admin can edit details anytime or deactivate/delete if needed
+         5. The account can be linked to notifications, tasks, or other modules if required
+11. Newsletters Module
+Overview
+The Newsletters Module allows the Super Admin / Admin to create and distribute newsletters to customers, staff, or cleaners. This feature is useful for sharing updates, promotions, announcements, or general communication with selected user.
+11.1 Newsletter Creation Form
+Fields & Inputs:
+         1. Select Newsletter
+         * Dropdown to choose an existing newsletter or create a New Newsletter
+         2. Title
+         * Text input for the newsletter subject or headline
+         * Required field
+         3. Content
+         * Rich text editor to enter the newsletter body
+         * Supports basic formatting (bold, italics, links, lists)
+         * Can include images or attachments if needed
+         4. Assign to Customers
+         * Multi-select dropdown of registered customers
+         * Allows sending newsletter to one, multiple, or all customers
+         5. Assign to Staff / Cleaners
+         * Multi-select dropdown of staff/cleaners
+         * Allows sending newsletter to one, multiple, or all staff
+11.2 Admin Actions / Functionalities
+         1. Save Draft
+         * Admin can save newsletter as draft to edit later
+         2. Send Newsletter
+         * Distributes the newsletter to the selected recipients
+         * System validates email addresses before sending
+         3. Edit / Update
+         * Modify title, content, or assigned users before sending
+         4. View Sent History
+         * Optional log showing:
+         * Newsletter title
+         * Recipients
+         * Sent date & time
+         * Delivery status (Sent / Failed)
+11.3 Workflow Example
+         1. Admin clicks New Newsletter
+         2. Enters Title and Content
+         3. Selects recipients from Customers and/or Staff / Cleaners
+         4. Clicks Send → system sends newsletter via email
+         5. Admin can track delivery and view newsletter history
+12. Work Eligibility & Permits Module
+Overview
+This module allows the Super Admin / Admin to manage staff work eligibility, permits, and essential documents. It ensures compliance by tracking document validity and alerting the admin when documents are nearing expiry.
+12.1 Work Permits / Eligibility Table
+Fields Displayed:
+         1. Name – Full name of the staff/cleaner
+         2. Document Type – Type of identification or permit (e.g., Passport, Driver License, Visa, Adhar Card)
+         3. Document Number – Unique number of the document
+         4. Expiry Date – Date the document expires
+         5. Status – Current validity:
+         * Valid
+         * Expired
+         6. File / Upload – Link to view or download the uploaded document
+12.2 Admin Actions / Functionalities
+         1. Search / Filter
+         * Search by staff name
+         * Filter by Status (Valid, Expired, Expiring Soon)
+         * Filter by Document Type
+         2. View Document
+         * Admin can click to view/download the uploaded document
+         3. Notifications
+         * Automatic alerts to admin when:
+         * Document is expiring soon (e.g., 30 days before expiry)
+         * Document has expired
+         * Notifications can be displayed in the Dashboard and/or sent via email/SMS
+         4. Add / Edit Document
+         * Optional: Admin can upload or update staff documents
+         * Edit document type, number, and expiry date
+12.3 Workflow Example
+         1. Staff uploads a new document (e.g., Passport) to the system
+         2. Admin sees the uploaded document in the Work Permits Table
+         3. System automatically flags any documents expiring within X days
+         4. Admin can click on the document to review details and take necessary actions
+         5. System sends notification/email to admin regarding expiring/expired documents
+13. Payout Computation & Work Hours Module
+Overview
+This module enables Super Admin / Admin to calculate, view, and manage staff/cleaner payouts based on hours worked, service type, and billing period. The system allows filtering by date range, staff, and service type to make payouts simple, transparent, and accurate.
+13.1 Hourly Rates
+Admin can define rates for different job types:
+         * Residential Rate (£) – e.g., £12.5/hour
+         * Commercial Rate (£) – e.g., £12.5/hour
+These rates are used to calculate total earnings per staff member automatically.
+13.2 Staff Payout Summary Table
+Fields Displayed:
+Field
+	Description
+	Staff Name
+	Name of the cleaner/staff
+	Residential Rate
+	Hourly rate for residential jobs
+	Commercial Rate
+	Hourly rate for commercial jobs
+	Total Hours
+	Total hours worked during selected date range
+	Total Payout
+	Total earnings calculated based on hours & rates
+	Paid Amount
+	Amount already paid
+	Unpaid Amount
+	Outstanding amount to be paid
+	Action
+	Option to pay, view work details, or download report
+	Example Table:
+Staff Name
+	Residential Rate
+	Commercial Rate
+	Total Hours
+	Total Payout
+	Paid Amount
+	Unpaid Amount
+	Action
+	Anca Plesanu
+	£12.5
+	£12.5
+	9.25 hrs
+	£115.62
+	£0.00
+	£115.62
+	Pay/View
+	Maria Santana
+	£12.5
+	£12.5
+	5.97 hrs
+	£74.58
+	£0.00
+	£74.58
+	Pay/View
+	Parminder
+	£12.5
+	£12.5
+	0 hrs
+	£0.00
+	£0.00
+	£0.00
+	-
+	 
+13.3 Work Entries Detail
+Admin can filter by date range and staff to view each work entry:
+Fields:
+Paid For
+	Staff Name
+	Hours Worked
+	Residential Rate
+	Commercial Rate
+	Amount
+	Residential Earnings
+	Commercial Earnings
+	Status
+	Paid Date
+	Actions:
+         * Mark Paid – Admin can mark selected work entries as paid
+         * Download Report – Export CSV/PDF of work entries for payroll
+         * Filter by Billing Type – Residential / Commercial / All
+         * Search Staff – Quickly locate a specific staff member
+Example:
+| 01/10/2025 - 13/10/2025 | Jamtech Cleaner | 6.22 hrs | £0.00 | £12.50 | £77.71 | £0.00 | £77.71 | Paid | 13/10/2025 |
+ 
+13.4 Key Functionalities
+         1. Date Range Selection
+         * Admin selects a start date and end date to view and compute payouts
+         * System automatically sums hours worked and calculates earnings for the range
+         2. Automated Calculations
+         * Calculates total residential & commercial earnings per staff
+         * Displays total payout, paid, and unpaid amounts
+         3. Clear Payment Interface
+         * Admin can pay cleaners directly from the module
+         * Paid entries are automatically updated and reflected in totals
+         4. Sorting / Filtering
+         * Sort by staff name, total payout, unpaid amount
+         * Filter by billing type or individual staff
+         5. Transparency
+         * Each work entry shows hours worked, rate applied, total earned, and status
+         * Admin can view full details before marking payment
+13.5 Workflow Example
+         1. Admin selects date range: 01/01/2026 – 31/01/2026
+         2. System calculates total hours & payouts for all staff
+         3. Admin clicks View Work Entries to verify individual job records
+         4. Admin clicks Pay for selected staff or entries
+         5. System updates Paid Amount / Unpaid Amount and records paid date
+14. Training & Resources Module
+The Training & Resources Module allows Super Admin to manage and provide training materials for staff, cleaners, and clients. This module centralizes training videos, images, documents, and related details, making it easy to assign, track, and access resources for different user roles.
+14.1 Features
+         1. Search & Filtering
+         * Search by Title / Description – Quickly locate specific training resources
+         * Target Audience Filter – Filter by:
+         * All
+         * Staff / Cleaners
+         * Clients
+         * Media Type Filter – Filter by type of content:
+         * Video
+         * Image
+         * PDF / Document
+         * Other formats
+         2. Training & Resources Library
+         * Displays a list of all training resources with key information
+         * Fields Displayed:
+         * Title – Name of the training resource
+         * Target Audience – Who the resource is for
+         * Media Type – Video, Image, Document, etc.
+         * Upload Date – Date added to the system
+         * Actions – Edit / Delete / View
+         3. Add New Training Resource
+         * Admin can add new resources via a structured form
+Fields for Adding Resource:
+Field
+	Description
+	Title *
+	Name of the training resource (required)
+	Target Audience *
+	Dropdown to select intended audience: Staff / Cleaners / Clients (required)
+	Media Type *
+	Dropdown to select type: Video / Image / PDF / Other (required)
+	File *
+	Upload the actual file (required)
+	Description / Content
+	Optional detailed description or notes about the resource
+	Actions:
+         * Upload / Save – Validates required fields, stores the file, and adds record to the library
+         * Edit Resource – Update title, audience, media type, file, or description
+         * Delete Resource – Remove the resource from the library
+14.2 Workflow
+         1. Admin clicks Add Training & Resources Data
+         2. Admin enters Title, selects Target Audience, chooses Media Type, uploads the file, and optionally adds a description
+         3. System validates the fields and saves the resource
+         4. Resource appears in the Training & Resources Library table
+         5. Staff / Cleaners / Clients can access relevant resources based on their role
+14.3 Benefits
+         * Centralized Training Content – All resources in one place for easy access
+         * Role-Specific Access – Ensures staff, cleaners, and clients only see relevant materials
+         * Media Flexibility – Supports multiple types of training media (videos, images, PDFs, etc.)
+         * Searchable & Filterable – Quickly find resources without manual lookup
+         * Editable & Updatable – Keep training content current and relevant
+15. Reviews Module
+The Reviews Module allows the Super Admin to view and manage all customer feedback about cleaners. This module provides insights into performance, punctuality, professionalism, and overall satisfaction, helping the admin identify top-performing staff and areas for improvement.
+15.1 Features
+         1. Search & Filtering
+         * Search by Cleaner Name – Quickly locate reviews for a specific cleaner
+         * Filter by Rating – Optional filter to see reviews by star rating (1–5)
+         * Filter by Date Range – View reviews submitted within a specific timeframe
+         2. Reviews Table
+         * Displays a list of all reviews with key details:
+Field
+	Description
+	Property / Location
+	Name of the client property or job location
+	Cleaner
+	Cleaner assigned to the job
+	Client
+	Name of the client who submitted the review
+	Rating
+	Star rating given by the client (1–5 stars)
+	Arrived On Time
+	Yes / No
+	Wore Uniform
+	Yes / No
+	Completed On Time
+	Yes / No
+	Would Rehire
+	Yes / No
+	Comments
+	Optional text feedback submitted by the client
+	Submitted
+	Date the review was submitted
+	         3. View Review Details
+         * Clicking a review opens a detailed view showing all fields above for easy reading
+         * Admin can see comments, punctuality, uniform compliance, and overall performance
+15.2 Workflow
+         1. Customer completes a job and submits a review in the system
+         2. System stores the review and associates it with the Cleaner, Job, and Client
+         3. Admin can access All Reviews via the dashboard
+         4. Admin can:
+         * Search reviews by cleaner name
+         * Filter reviews by rating or date range
+         * Open individual review details to see full client comments
+15.3 Benefits
+         * Performance Monitoring – Allows admin to monitor cleaner performance objectively
+         * Quality Assurance – Quickly identify issues (late arrivals, incomplete jobs, etc.)
+         * Client Feedback Tracking – Maintains a record of client satisfaction for internal reports
+         * Actionable Insights – Helps in assigning jobs, rewarding top performers, or scheduling training
+16. Customer Job Summary Module
+This module provides the Super Admin / Admin with a complete view of each customer’s job history, work entries, and associated payouts. It helps the admin track jobs, payments, and hours worked per customer, enabling accurate billing and reporting.
+16.1 Customer Search & Filtering
+         * Search by Customer Name – Quickly locate a specific customer
+         * Filter by Date Range – View jobs completed within a specific timeframe
+         * Filter by Job Status – Paid / Unpaid / Pending
+16.2 Customer Totals Table
+This table gives a summary for each customer:
+Field
+	Description
+	Customer Name
+	Full name of the customer
+	Total Jobs
+	Total number of jobs booked by the customer
+	Total Hours
+	Total number of hours worked across all jobs
+	Total Payout
+	Total amount owed or paid to staff for this customer
+	Action
+	Click to view detailed job list for the customer
+	Example:
+Customer Name
+	Total Jobs
+	Total Hours
+	Total Payout
+	Action
+	Irmine Mason
+	15
+	45.0 hrs
+	£0.00
+	View Jobs
+	Julian Fraser
+	4
+	12.0 hrs
+	£0.00
+	View Jobs
+	Kevin Lawrence
+	16
+	32.0 hrs
+	£0.00
+	View Jobs
+	 
+16.3 Jobs List (Per Customer)
+Once the admin clicks View Jobs for a customer, a detailed table shows all work entries:
+Field
+	Description
+	Customer Name
+	Name of the customer
+	Property
+	Address or property where the job took place
+	Start / End
+	Job start and end dates
+	Worked (hrs)
+	Total hours worked for this job
+	Hourly Rate
+	Rate applied (Residential or Commercial)
+	Payment Source
+	Indicates if the job was Residential or Commercial
+	Total Payout
+	Total payment due for the job
+	Status
+	Job payment status: Paid / Unpaid / Pending
+	Action
+	Admin can edit, mark as paid, or view full job details
+	Features:
+         1. Pagination – Jobs list can span multiple pages (Previous / Next)
+         2. Date Range Selection – Admin can filter job history by custom date ranges
+         3. Job Status Update – Admin can update payment status directly in the table
+         4. Detailed Job Drill-Down – Clicking a job opens a full job detail view including:
+         * Assigned cleaners
+         * Cleaning type
+         * Special instructions
+         * Equipment / products provided
+         * Work hours logged
+Example Job Table (Customer: Irmine Mason):
+Property
+	Start
+	End
+	Worked (hrs)
+	Hourly Rate
+	Payment Source
+	Total Payout
+	Status
+	Action
+	48 Deacons Hill Road
+	09/09/2025
+	09/09/2025
+	3.00
+	£0.00
+	N/A
+	£0.00
+	Unpaid
+	View
+	48 Deacons Hill Road
+	02/09/2025
+	02/09/2025
+	3.00
+	£0.00
+	N/A
+	£0.00
+	Unpaid
+	View
+	48 Deacons Hill Road
+	16/09/2025
+	16/09/2025
+	3.00
+	£0.00
+	N/A
+	£0.00
+	Unpaid
+	View
+	 
+16.4 Workflow
+         1. Admin searches for a customer or selects from Customer Totals Table
+         2. Admin views the summary including total jobs, hours, and payout
+         3. Admin clicks View Jobs to see detailed job entries
+         4. Admin can filter by date range or job status to narrow results
+         5. Admin can update payment status or view full details for each job
+16.5 Benefits
+         * Centralized Customer Records – All job and payout info in one place
+         * Billing Transparency – Easy tracking of unpaid / paid jobs
+         * Performance Tracking – See customer usage patterns (number of jobs, hours)
+         * Quick Action – Mark jobs as paid, adjust hours, or review job details without leaving the panel
+17. Notifications Module
+The Notifications Module provides real-time alerts to the admin about important events in the system. This ensures that the admin is always aware of job updates, staff activity, scheduling conflicts, approvals, and completions.
+17.1 Notifications List
+         * Display: A chronological list of notifications
+         * Status: Each notification is marked as Read or Unread
+         * Content: Each notification includes:
+         * Event type (Job approved, Job started, Job completed, Job conflict, etc.)
+         * Job property or customer name
+         * Cleaner assigned (if applicable)
+         * Timestamp of the event
+17.2 Types of Notifications
+         1. Job Approvals
+         * Triggered when a cleaner approves a job assignment
+         * Example: “Job at 'Mohamed - 180-182 Tottenham Court Road' approved by Cleaner”
+         2. Job Status Updates
+         * Triggered when a job is started, in progress, or completed
+         * Example: “Job at 'Rajvar- 20 Grosvenor Gardens' is now in progress”
+         * Example: “Job at '77a St Marks Road' has been completed”
+         3. Scheduling Conflicts
+         * Triggered when a cleaner cannot take a job due to overlapping schedule
+         * Example: “Cleaner 'Prabhdeep' already has jobs scheduled at the same time and cannot take Job. Please assign another cleaner.”
+         4. Administrative Alerts
+         * Can include system warnings, user verification issues, document expirations, or other urgent items
+         * Example: Notification for expired work permit or visa uploaded by staff
+17.3 Functional Features
+         1. Mark as Read / Unread
+         * Admin can mark notifications as read after reviewing them
+         * Unread notifications appear highlighted
+         2. Real-Time Updates
+         * Notifications should appear automatically without page refresh (via WebSocket or polling)
+         3. Filtering and Searching
+         * Filter notifications by type: Job Status, Approval, Conflict
+         * Search by Cleaner name, Customer name, or Property
+         4. Notification Details
+         * Clicking on a notification should open relevant job or staff detail view for quick action
+         * Example: Clicking “Job approved by Cleaner” opens the job assignment and allows admin to reassign or confirm
+         5. Email / Push Notifications (Optional)
+         * Admin can receive key notifications via email or mobile push for urgent alerts
+17.4 Workflow
+         1. A job is created or updated by the admin or a cleaner.
+         2. System triggers notifications based on the action type (approval, start, completion, conflict).
+         3. Admin sees the notification in real time in the panel.
+         4. Admin can click the notification to act or mark it as read.
+         5. System maintains history of notifications for auditing.
+17.5 Benefits
+         * Instant Visibility: Admin is always informed of system events
+         * Conflict Prevention: Quickly resolves scheduling conflicts
+         * Audit Trail: Maintains a history of all events for accountability
+         * Actionable: Direct access to jobs, customers, and staff profiles from notifications
+18. Admin Profile Module
+The Profile Module allows the admin to view and manage their personal information, security settings, and notification preferences. This ensures that the admin’s account is up-to-date, secure, and personalized.
+18.1 Profile Information
+         * Profile Completion: Displays a percentage indicating how complete the profile is (e.g., 100%)
+         * Personal Details:
+         * First Name / Last Name – Admin can edit their name
+         * Email Address – Primary contact email
+         * Phone Number – Contact number with country code
+         * Address / City / Postal Code – Physical location
+         * Date of Birth – Admin’s birthdate
+         * Gender – Male / Female / Other
+18.2 Security Settings
+         * Change Password: Admin can update their password securely.
+         * Requires current password verification
+         * Password strength validation (minimum 8 characters, mix of letters, numbers, and symbols)
+18.3 Notification Preferences
+         * Enable reminders via Email / SMS:
+         * Admin can toggle notifications for system alerts, job reminders, or other important updates.
+         * Settings are saved per admin account and reflected in the Notifications Module.
+18.4 Functional Features
+         1. Edit Personal Details
+         * Admin can update profile fields and save changes
+         * Changes immediately reflect in system communication (emails, SMS, job assignments)
+         2. Password Management
+         * Change password form with confirm password field
+         * Security validation ensures strong password policies
+         3. Profile Completion Indicator
+         * Dynamic progress bar showing percentage completion
+         * Encourages admin to complete all optional fields for better system integration
+         4. Integration with Notifications
+         * Notification reminders are linked to email and SMS preferences
+         * Admin receives only the selected type of notifications
+18.5 Benefits
+         * Ensures accurate admin contact information
+         * Enhances account security with password management
+         * Provides clear control over how the admin receives notifications
+         * Profile completion tracker encourages full setup for optimal system usage
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+B. CLEANER MOBILE APP
+Role: Cleaner / Service Provider
+Platform: Mobile App (Android / iOS)
+Entry Point: “Want to Become a Cleaner” CTA
+1. Cleaner App – Step 1: Onboarding & Verification
+1.1 Entry Point – Become a Cleaner
+         * Landing Screen:
+         * New users see a “Want to Become a Cleaner” button
+         * Clicking this button starts the Cleaner onboarding flow
+         * Purpose:
+         * Filter serious applicants
+         * Ensure legal compliance
+         * Collect verified identity before platform access
+         * System Behavior:
+         * Redirects user to the onboarding module
+         * Displays a brief introduction explaining the steps: Assessment → Government Verification → Verification Code
+1.2. Assessment Step
+         * Mandatory Assessment:
+         * Every new cleaner must complete this step
+         * Purpose: Ensure quality, eligibility, and basic knowledge
+         * Assessment Content:
+1.                   Basic Cleaning Knowledge: Tools, procedures, and techniques
+2.                   Safety Awareness: Handling chemicals, equipment safety, hygiene
+3.                   Service Expectations: Punctuality, client interaction, professionalism
+         * System Behavior:
+         * Timer optional
+         * Results determine if the cleaner can proceed
+         * Failure shows feedback; retry allowed after cooldown
+         * Outcome:
+         * Pass: Moves to government verification
+         * Fail: Cannot proceed until passing
+1. 3. Government Verification
+         * Purpose:
+         * Validate identity and work eligibility
+         * Prevent fraud and ensure compliance
+         * Process:
+1.                   Cleaner redirected to an official government verification site
+2.                   Fills required personal/legal details (ID, passport, work permit, etc.)
+3.                   Government system generates a verification code
+         * System Behavior:
+         * App shows instructions and link to government site
+         * Progress indicator marks step as “Verification Pending”
+1.4. Verification Code Submission
+         * Process:
+         1. Cleaner returns to the app after completing government verification
+         2. Enters the government-issued verification code in the app
+         3. System validates the code against backend or government API
+         * Success Result:
+         * Cleaner is verified
+         * Allowed to continue to full registration
+         * Failure Handling:
+         * Invalid or expired codes trigger retry option
+         * Admin notified if repeated failures occur
+2. Cleaner Registration & Authentication
+This module handles the cleaner’s full registration, identity verification, and first-time login. The system ensures that only verified and qualified cleaners can access the platform.
+2.1 Sign-Up Form
+         * Collect verified personal, work, and banking information for platform use
+         * Enable future payroll, scheduling, and communications
+         * Ensure compliance with legal and operational requirements
+Form Sections
+         1. Personal Information
+         * First Name: Text input, required
+         * Last Name: Text input, required
+         * Email: Valid email input, required
+         * Phone Number: Valid mobile number, required
+         * Address: Text input, required
+         * City: Text input, required
+         * Postal Code: Text input, required
+         * Date of Birth: Date picker, required
+         * National Insurance Number: Text input, format AA123456C, required
+         2. Next of Kin Details
+         * Full Name: Text input, required
+         * Relationship: Dropdown (e.g., Parent, Sibling, Aunt, Friend)
+         * Contact / Mobile Number: Valid phone number, required
+         3. Work Information
+         * Preferred Start Date: Date picker, required
+         * Do you drive? Radio button (Yes/No)
+         * Local Areas Willing to Work: Multi-select input
+         * Do you have children? Radio button (Yes/No)
+         * Cleaning Services Capability: Checklist for areas of expertise
+         * Kitchen Area: Remove cobwebs, wipe fridge inside/outside, clear rubbish, wash dishes, disinfect surfaces/floor, clean cupboards, wash sink, vacuum/mop floor
+         * Bathroom / Toilet: Remove cobwebs, wash tiles, wipe shelves/mirrors, clear rubbish, descale W/C, vacuum/mop floor, wash sink, clean doors
+         * Bedroom / Living Room: Remove cobwebs, clear rubbish, wipe TV stand, clean doors/windows/furniture, wipe skirting boards/radiators, vacuum/mop carpet/floor
+         * Ironing Services: Shirts, bed linens, clothing items
+         4. Banking Details
+         * Bank Name: Text input, required
+         * Account Holder Name: Text input, required
+         * Account Number: Text input, required
+         * Sort Code: Text input, required
+         5. Account & Security
+         * Gender: Dropdown (Male / Female / Other)
+         * Password: Password input, required
+         * Verification Code: Pre-validated government-issued code from Step 1
+2.2 OTP Verification
+Purpose
+         * Prevent fake accounts
+         * Confirm cleaner has a reachable and valid mobile number
+Flow
+         1. OTP sent automatically to the registered mobile number
+         2. Cleaner enters OTP in the app
+         3. System validates the OTP against backend
+         * Success: Cleaner proceeds to first login
+         * Failure: Retry allowed up to a specified limit
+         * Timeout / Expired OTP: Request new OTP
+2.3 First Login → Dashboard Access
+Purpose
+         * Seamless transition from registration to active platform use
+Flow
+         1. After OTP verification, cleaner is automatically logged in
+         2. Cleaner is redirected to the Cleaner Dashboard
+         * Dashboard shows upcoming jobs, schedules, notifications, and earnings summary
+         3. Cleaner can update profile, add services, and manage availability
+3. Cleaner First Login & Profile Setup (App)
+3.1 Welcome Popup (First-Time Login Only)
+When it appears
+         * Displayed immediately after a cleaner logs in for the first time
+         * Shown only once, until all required setup steps are completed
+Popup Content
+         * Title: Welcome, [Cleaner Name] 🚀
+         * Message: Follow these quick steps to get started with Colossians Cleaning Services
+         * Action Buttons / Links:
+         1. Complete Profile (highlighted if incomplete or email not verified)
+         2. Add Available Slots
+         3. Upload Documents
+         4. View Calendar
+Behavior
+         * Clicking Complete Profile redirects to the cleaner’s profile page
+         * Popup may include “Remind Me Later”, but system continues to show reminders until setup is finished
+         * Admin can see profile completion status from admin panel
+3.2 Complete Profile (Cleaner Profile Management)
+This section allows cleaners to manage personal, legal, work, and payment details.
+Profile completion is mandatory before receiving jobs.
+3.2.1 Personal Information
+         * First Name
+         * Last Name
+         * Phone Number
+         * Email (read-only; message shown: “To update your email, contact support@colossianscleaningservices.com or 07368914755”)
+         * Address
+         * City
+         * Postal Code
+         * Date of Birth
+         * Gender
+         * Enable reminders via Email / SMS (toggle)
+         * Change Password option
+3.2.2 Immigration & Legal Details
+         * Immigration Status (dropdown)
+         * National Insurance Number OR Share Code (one required)
+         * NIN format: 2 letters + 6 digits + 1 letter (e.g. AB123456C)
+         * Are you a student? (Yes / No)
+3.2.3 Next of Kin Details
+         * Full Name
+         * Relationship
+         * Contact / Mobile Number
+3.2.4 Work Details
+         * Do you drive? (Yes / No)
+         * Local working areas (multi-select)
+         * Do you have children? (Yes / No)
+         * Employment Start Date (date picker)
+3.2.5 Cleaning Services Selection
+Cleaner selects services they are willing and trained to perform.
+Kitchen Area
+         * Remove cobwebs
+         * Wipe fridge inside / outside
+         * Wipe working surfaces
+         * Clear rubbish (containers, expired food)
+         * Wash dishes
+         * Disinfect surfaces and floors
+         * Wash cupboards inside / outside
+         * Wash sink
+         * Vacuum and mop floor
+Bathroom / Toilet
+         * Remove cobwebs
+         * Wash tiled walls
+         * Wipe shelving units / mirror cabinet
+         * Clear rubbish
+         * Descale WC
+         * Wash sink
+         * Vacuum and mop floor
+         * Wash doors (front & back with frames)
+Bedroom / Living Room
+         * Remove cobwebs
+         * Clear rubbish
+         * Wipe TV and stands
+         * Wash doors with frames
+         * Clean windows inside with frames
+         * Wipe furniture and window sills
+         * Wipe skirting boards
+         * Wipe radiators
+         * Vacuum or mop floors
+Ironing Services
+         * Iron shirts
+         * Iron bed linens
+         * Iron clothing items
+3.2.6 Bank Details
+         * Bank Name
+         * Account Holder Name
+         * Account Number
+         * Sort Code
+3.2.7 Account Actions
+         * Delete My Account option
+3.3 Availability, Documents & Final Setup
+3.3.1 Available Slots (Working Hours)
+         * Weekly schedule (Monday–Sunday)
+         * Each day includes:
+         * From time
+         * To time
+         * Cleaners can block unavailable days/hours
+         * Blocked times prevent job assignment automatically
+Unavailable Days & Hours
+         * Initially empty
+         * Cleaner can add/edit anytime
+3.3.2 Document Upload & Verification
+Cleaner uploads all required supporting documents.
+Document Upload Fields
+         * Document Type (Passport, Visa, DBS, Proof of Address, etc.)
+         * Document Number
+         * Expiry Date
+         * Upload File (PDF / JPG / PNG)
+Uploaded Documents List
+         * Displays:
+         * Document name
+         * Document number
+         * Expiry date
+         * View file option
+System Behavior
+         * Admin is notified when documents are uploaded
+         * Expiry reminders sent to cleaner and admin
+         * Expired documents flagged automatically
+3.3.3 Completion Rules
+         * Cleaner cannot receive or accept jobs until:
+         * Profile is completed
+         * Availability is added
+         * Mandatory documents are uploaded and valid
+         * Once completed:
+         * Cleaner gains full dashboard access
+         * Jobs can be viewed, accepted, and managed
+4. Cleaner Dashboard – Calendar (Default Landing Screen)
+4.1 Calendar as Default Landing Page
+         * After successful login, the cleaner is automatically redirected to the Calendar screen
+         * The calendar serves as the primary dashboard for the cleaner
+         * No intermediate home screen is shown to avoid confusion and speed up access to work schedules
+Purpose
+         * Give cleaners immediate visibility of:
+         * Today’s jobs
+         * Upcoming assignments
+         * Job status (Approved / Pending)
+         * Ensure cleaners always know when and where they are working
+4.2 Profile Completion Status Indicator
+         * A profile completion progress bar is displayed at the top (e.g. 96% Complete)
+         * Missing mandatory information is clearly highlighted (e.g. Immigration Status)
+         * Clicking the warning redirects the cleaner directly to the required profile section
+System Behavior
+         * Cleaner can view the calendar even if the profile is incomplete
+         * Certain actions (job acceptance or payouts) may be restricted until required fields are completed
+4.3 Calendar View & Job Display
+         * Default view loads the current month
+         * Calendar displays jobs on their assigned dates
+         * Each job entry shows:
+         * Job / Property name
+         * Time slot (start – end)
+         * Client name
+         * Short address
+         * Job status badge (Approved / Pending)
+4.4 Job Status & Interaction
+         * Approved jobs are clearly marked as confirmed
+         * Pending jobs indicate admin or system approval is required
+         * Cleaner can tap on any job to:
+         * View full job details
+         * See location and instructions
+         * Perform allowed actions (accept, start, complete)
+4.5 Filters & Navigation Controls
+         * Cleaner can filter calendar jobs by:
+         * Property name
+         * Job status
+         * Filters apply instantly without leaving the calendar
+         * Cleaner can navigate between months using swipe or arrows
+4.6 Availability & Scheduling Logic
+         * Calendar respects:
+         * Cleaner’s available working hours
+         * Blocked/unavailable slots
+         * System prevents:
+         * Double booking
+         * Jobs outside declared availability
+4.7 Real-Time Updates
+         * Calendar updates in real time when:
+         * New jobs are assigned
+         * Job status changes
+         * Jobs are rescheduled or cancelled
+         * Recurring jobs appear as separate calendar entries
+5. My Jobs & Job Execution Flow (Cleaner App)
+This module defines how cleaners view assigned jobs, manage job execution, and track working time accurately, ensuring transparent payouts and operational control.
+5.1 My Jobs Listing (Cleaner View)
+Provide cleaners with a clear, chronological list of all assigned jobs and their current status.
+Access
+         * Cleaner Dashboard → My Jobs
+Displayed Job Information
+Each job row displays:
+         * Property name / address
+         * Job date
+         * Job status:
+         * Pending
+         * Approved
+         * In Progress
+         * Completed
+         * Start time & end time (scheduled)
+         * Review status (Reviewed / Not Reviewed)
+         * Check-in date & time
+         * Check-out date & time
+Filtering Options
+         * All Jobs (default)
+         * Upcoming Jobs
+         * Completed Jobs
+         * Pending Approval
+Interaction
+         * Cleaner taps/clicks a job → redirected to Job Detail & Execution Screen
+5.2 Job Detail Screen (Pre-Execution View)
+Purpose
+Give cleaners full clarity about the job before starting work.
+Job Information Displayed
+         * Client name
+         * Property address, city, postal code
+         * Job date
+         * Scheduled start and end time
+         * Property type (Residential / Commercial)
+         * Property subtype (e.g., Office communal area)
+         * Cleaning type (if applicable)
+         * Animals on property (Yes / No)
+         * Staff preference (if any)
+         * Equipment availability:
+         * Hoover
+         * Cleaning products
+         * Washing machine
+         * Dryer
+         * Access instructions (e.g., keys, reception, code)
+         * Additional notes from admin/client
+         * Payment source (Residential or Commercial)
+5.3 Job Check-In Process
+Eligibility Rules
+         * Cleaner can check in only up to 15 minutes before scheduled start time
+         * Example:
+         * Job start: 18:00
+         * Earliest check-in allowed: 17:45
+System Behaviour
+         * If cleaner attempts early check-in:
+         * System blocks action
+         * Shows validation message
+         * Check-in button becomes active only within allowed time window
+Check-In Requirements
+         * Cleaner must:
+         * Upload “Before Job” photos
+         * Confirm check-in action
+Data Captured
+         * Server-generated check-in timestamp
+         * Uploaded images (stored securely)
+         * Job status updated to In Progress
+5.4 Job Check-Out Process
+Eligibility Rules
+         * Cleaner cannot check out before scheduled job end time
+         * Check-out is enabled:
+         * Only after end time has passed
+         * Only if check-in was completed
+Check-Out Requirements
+         * Upload “After Job” photos
+         * Confirm job completion
+Data Captured
+         * Server-generated check-out timestamp
+         * Uploaded completion images
+         * Job status updated to Completed
+5.5 Worked Time & Overtime Tracking
+Automatic Time Calculation
+The system calculates:
+         * Scheduled duration = Scheduled End − Scheduled Start
+         * Actual worked duration = Check-Out Time − Check-In Time
+Extra Time Detection
+         * If actual worked time exceeds scheduled time:
+         * Extra minutes are recorded as Additional Worked Time
+Stored Time Data
+         * Scheduled start & end time
+         * Actual check-in & check-out timestamps
+         * Total worked hours
+         * Extra time (if any)
+5.6 Admin Payout & Reporting Integration
+Admin Visibility
+For every job, admin can view:
+         * Scheduled hours
+         * Actual worked hours
+         * Extra time worked
+         * Check-in / check-out timestamps
+         * Before & after photos
+Payout Accuracy
+         * Base payout calculated using scheduled hours
+         * Extra worked time:
+         * Automatically added or
+         * Flagged for admin approval (configurable)
+         * Ensures:
+         * Accurate payroll
+         * No manual correction
+         * Full transparency
+6. Availability & Working Hours Management (Cleaner App)
+This feature allows cleaners to define their regular working availability and temporarily block specific hours or days, ensuring accurate job assignment and preventing scheduling conflicts.
+6.1 Available Slots (Weekly Working Schedule)
+Purpose
+Enable cleaners to set their standard weekly working hours, which the system uses to:
+         * Match jobs correctly
+         * Prevent assigning jobs outside availability
+         * Improve scheduling efficiency
+Access
+Cleaner Dashboard → Available Slots
+Weekly Availability Setup
+Cleaner can define availability for each day:
+         * Monday
+         * Tuesday
+         * Wednesday
+         * Thursday
+         * Friday
+         * Saturday
+         * Sunday
+For each day:
+         * From time
+         * To time
+Behaviour Rules
+         * Time fields are optional per day
+         * If a day is left empty:
+         * Cleaner is considered unavailable that day
+         * Multiple days can share the same working hours
+         * Changes are saved immediately or via explicit “Save” action (implementation choice)
+System Usage of Availability
+         * Jobs are assigned only within defined time slots
+         * Cleaner cannot be assigned overlapping jobs
+         * Availability is referenced during:
+         * Manual admin assignment
+         * Automated scheduling (future-ready)
+6.2 Manage Working Hours – Block Hours / Days
+Purpose
+Allow cleaners to temporarily mark themselves unavailable without changing their regular weekly schedule.
+Used for:
+         * Personal leave
+         * Medical appointments
+         * Travel
+         * Emergencies
+Blocked Time Configuration
+Cleaner can add blocked periods using Add Block Hours/Days form:
+Fields:
+         * Start Date
+         * End Date
+         * Start Time
+         * End Time
+         * Reason (optional but recommended)
+Blocking Logic
+         * Can block:
+         * A few hours on a single day
+         * Multiple full days
+         * A date range with specific time windows
+         * Blocked periods override weekly availability
+Unavailable Days & Hours List
+         * Displays all upcoming blocked periods
+         * Shows:
+         * Date range
+         * Time range
+         * Reason (if provided)
+         * Default state:
+         * “No unavailable times yet”
+Cleaner can:
+         * View blocked entries
+         * Remove or edit future blocks
+6.3 Scheduling & Conflict Prevention Logic
+System Behaviour
+         * No jobs can be assigned during blocked times
+         * If a job overlaps:
+         * System blocks assignment
+         * Admin is prompted to choose another cleaner
+Edge Case Handling
+         * If cleaner blocks time after job is assigned:
+         * Admin is notified
+         * Job flagged for reassignment (policy-based)
+6.4 Admin Visibility & Control
+Admin Access
+Admin can view:
+         * Cleaner’s weekly availability
+         * All blocked hours/days
+         * Reason for unavailability (if provided)
+Operational Benefits
+         * Prevents last-minute cancellations
+         * Improves workforce planning
+         * Reduces scheduling conflicts
+ 
+7. References Management (Cleaner App)
+This feature allows cleaners to add personal or professional references, which can be reviewed by the admin team for background verification and trust assessment.
+7.1 References Overview
+Purpose
+         * Collect character or work references from cleaners
+         * Support cleaner verification and quality assurance
+         * Provide admin with verifiable third-party information
+Cleaner View
+Cleaner Dashboard → User References
+Default state:
+         * Displays message: “No references added yet.”
+Cleaner can:
+         * View existing references
+         * Add new references
+         * Edit or remove references (before admin approval, if enabled)
+7.2 Add Reference Form
+Cleaner clicks “Add Reference” and is presented with a structured form.
+Reference Information Fields
+Personal Details
+         * First Name *
+         * Last Name *
+         * Email *
+         * Phone Number *
+         * Company Name (optional)
+Relationship
+         * Relationship *
+         * Dropdown selection (e.g.):
+         * Employer
+         * Supervisor
+         * Colleague
+         * Client
+         * Family Member
+         * Friend
+         * Other
+Form Validation Rules
+         * Mandatory fields must be completed
+         * Email format validation
+         * Phone number format validation
+         * Relationship selection required
+7.3 Reference Submission Flow
+         1. Cleaner fills in reference details
+         2. Cleaner submits the form
+         3. Reference is saved with status:
+         * Pending Review
+         4. Reference appears in cleaner’s list view
+Optional (future-ready):
+         * Automated email sent to reference for confirmation
+7.4 Admin Review & Verification
+Admin Panel Capabilities
+Admin can:
+         * View all references linked to a cleaner
+         * See:
+         * Full reference details
+         * Relationship type
+         * Submission date
+         * Approve or reject references
+         * Add internal notes (optional)
+Admin Use Cases
+         * Character verification
+         * Employment history confirmation
+         * Risk reduction before job assignment
+7.5 Security & Privacy Considerations
+         * Reference data visible only to:
+         * Cleaner (own references)
+         * Admin users
+         * No public exposure of reference information
+         * Data stored securely and access-controlled
+8. Document Upload & Verification (Cleaner App)
+This feature allows cleaners to upload, manage, and maintain mandatory legal and identity documents, ensuring compliance and eligibility to work on the platform.
+8.1 Document Upload Overview
+Purpose
+         * Verify cleaner identity and legal work eligibility
+         * Maintain compliance with local regulations
+         * Enable admin monitoring and expiry tracking
+         * Prevent job allocation to unverified or expired cleaners
+Cleaner View
+Cleaner Dashboard → Your Supporting Documents
+Displayed elements:
+         * List of uploaded documents
+         * Document status (Valid / Expired / Pending Review)
+         * Expiry dates
+         * “View file” option
+         * Button to Add New Document
+8.2 Add New Document Flow
+Cleaner clicks “Add New Document” and completes the upload form.
+Document Upload Form Fields
+         * Document Type* (Dropdown)
+         * Passport
+         * Visa
+         * DBS
+         * Proof of Address
+         * Driver License
+         * Other (configurable)
+         * Document Number*
+(e.g. Passport number, Visa number, DBS reference)
+         * Expiry Date*
+            * Date picker
+            * Mandatory for time-bound documents
+            * Optional or disabled for non-expiring documents (configurable)
+            * File Upload*
+            * Accepted formats: PDF, JPG, PNG
+            * Size limits enforced
+            * Single or multi-page upload (as required)
+Validation Rules
+            * All required fields must be completed
+            * Expiry date must be a future date
+            * File must meet format and size constraints
+            * Duplicate document type rules enforced if required (e.g. only one active passport)
+8.3 Uploaded Documents List
+After submission, documents appear in the list view:
+Example entries:
+            * Passport
+            * Document No: A13176177
+            * Expiry: 04/05/2028
+            * Status: Valid
+            * Action: View file
+            * Proof of Address
+            * Accepted documents:
+            * Bank statements
+            * Tenancy agreement
+            * Telephone bill
+            * Council tax bill
+            * Status: Pending / Approved
+            * Visa
+            * Document No: WC4 889 5NB
+            * Expiry: 17/09/2026
+            * DBS
+            * Document No: 001942917792
+            * Expiry: 04/10/2026
+8.4 Admin Review & Compliance Controls
+Admin Panel Capabilities
+Admin can:
+            * View all documents per cleaner
+            * Download or preview files
+            * Approve or reject documents
+            * See expiry dates clearly
+            * Add internal notes if needed
+Expiry Monitoring
+            * System tracks expiry dates automatically
+            * Admin receives notifications when:
+            * A document is near expiry
+            * A document has expired
+Optional:
+            * Cleaner receives reminders via email / SMS before expiry
+8.5 Job Eligibility Enforcement
+System behavior:
+            * Cleaners with:
+            * Missing mandatory documents
+            * Expired documents
+            * Rejected documents
+→ Cannot be assigned or accept jobs
+Visual indicators:
+               * Profile completion percentage reduced
+               * Warning banners shown in cleaner dashboard
+8.6 Security & Data Handling
+               * Documents stored securely (private storage)
+               * Access restricted to:
+               * The cleaner (own documents)
+               * Authorized admin users only
+               * No public or cross-cleaner access
+               * Audit log maintained for uploads and approvals
+9. Reviews & Feedback Management
+This feature enables customers to review cleaners after job completion, while allowing admins and cleaners to view structured feedback for quality control, performance tracking, and service improvement.
+9.1 Review Submission (Customer Side)
+Trigger
+               * Review is enabled only after a job is completed
+               * One review per job (no duplicates)
+Review Form Fields
+Customer submits the following:
+               * Cleaner Name (Auto-filled)
+               * Job / Property Name (Auto-filled)
+               * Rating
+               * 1 to 5 stars
+               * Operational Checks (Yes / No)
+               * Arrived on time
+               * Wore uniform
+               * Completed on time
+               * Would rehire
+               * Comments (Optional)
+               * Free-text feedback
+               * Supports partial or full comments
+Validation Rules
+               * Rating is mandatory
+               * Job must be completed
+               * Review can be edited only within a limited time window (optional)
+9.2 Admin Review Dashboard
+Admin View: All Reviews
+Admin panel displays reviews in a searchable list:
+Displayed Data
+               * Property / Job Name
+               * Cleaner Name
+               * Client Name
+               * Star Rating
+               * Yes / No indicators:
+               * On-time arrival
+               * Uniform worn
+               * Job completed on time
+               * Rehire preference
+               * Customer comments
+               * Review submission date
+Admin Capabilities
+               * Search reviews by:
+               * Cleaner name
+               * Property
+               * Client
+               * Monitor low ratings (1–2 stars)
+               * Identify repeated issues per cleaner
+               * Use reviews for:
+               * Quality audits
+               * Cleaner approval decisions
+               * Dispute resolution
+9.3 Cleaner Review Visibility
+Cleaner Dashboard
+               * Cleaner can view only their own reviews
+               * Reviews are read-only for cleaners
+Displayed information:
+               * Job / Property name
+               * Rating
+               * Customer comments
+               * Submission date
+Restrictions:
+               * Cleaner cannot edit or delete reviews
+               * No visibility of other cleaners’ reviews
+10. Payout Computation & Work Hour Calculation
+This feature calculates accurate cleaner payouts based on actual worked hours, job type, and approved time records. It ensures transparency for cleaners and precise payroll control for admins.
+10.1 Purpose & Scope
+The payout system is designed to:
+               * Track actual working hours (not just scheduled hours)
+               * Separate Residential and Commercial earnings
+               * Prevent manual calculation errors
+               * Support date-based payroll cycles
+               * Ensure admin-approved payments only
+10.2 Date Range Selection
+Cleaner View
+               * Cleaner selects a date range:
+               * From Date
+               * To Date
+               * System fetches only completed jobs within the selected period
+Rules
+               * Only jobs with successful check-in and check-out are counted
+               * Pending or cancelled jobs are excluded
+               * Future jobs are never included
+10.3 Work Hour Calculation Logic
+Source of Truth
+               * Hours are calculated using:
+               * Actual Check-In Time
+               * Actual Check-Out Time
+Rules
+               * Cleaner can:
+               * Check in only 15 minutes before job start time
+               * Check out only after scheduled end time
+               * If cleaner works extra:
+               * Extra time is automatically calculated
+               * Extra hours are included in payout
+               * Manual time entry is not allowed
+10.4 Rate Application
+Each job is classified as one of the following:
+               * Residential Job
+               * Uses Residential hourly rate
+               * Commercial Job
+               * Uses Commercial hourly rate
+Rates are:
+               * Defined by admin
+               * Stored per cleaner (if applicable)
+               * Locked at job completion to prevent retroactive changes
+10.5 Work Entries Detail Table
+Displayed per cleaner after date selection:
+Columns
+               * Paid For (Date Range)
+               * Hours Worked
+               * Residential Rate
+               * Commercial Rate
+               * Total Amount
+               * Residential Earnings
+               * Commercial Earnings
+               * Payment Status (Paid / Unpaid)
+               * Paid Date (if paid)
+If no data exists:
+“No records found”
+10.6 Earnings Summary (Auto-Calculated)
+System shows real-time totals:
+               * Total Residential Earnings
+               * Total Commercial Earnings
+               * Total Payout
+These values are:
+               * Calculated automatically
+               * Read-only for cleaners
+               * Updated instantly when date range changes
+10.7 Payment Status Flow
+Statuses
+               * Unpaid
+               * Default after job completion
+               * Paid
+               * Set by admin after payout is processed
+Important Rules
+               * Cleaner cannot mark jobs as paid
+               * Admin action is mandatory to update payment status
+               * Once marked Paid:
+               * Status is locked
+               * Paid date is recorded
+               * Entry becomes non-editable
+10.8 Admin Controls (Backend Logic)
+Admin can:
+               * View cleaner-wise payout summaries
+               * Filter by:
+               * Cleaner
+               * Date range
+               * Job type
+               * Verify:
+               * Worked hours
+               * Extra time
+               * Overlapping jobs
+               * Process payouts
+               * Mark records as Paid
+10.9 Accuracy & Compliance Safeguards
+               * Overlapping jobs are blocked automatically
+               * Time manipulation is prevented via:
+               * Time window restrictions
+               * Server-side validation
+               * All payout data is audit-ready
+               * Historical payouts remain immutable.
+10. Notifications Management (Cleaner App)
+10.1 Purpose & Overview
+The Notifications module ensures that cleaners are instantly informed about all job-related activities, assignments, and system updates. This feature acts as a centralized communication layer between the admin system and the cleaner, improving reliability, responsiveness, and accountability.
+Notifications are displayed in real time and stored for future reference.
+10.2 Notification Types
+The system will generate notifications for the following scenarios:
+               * Job assignment to a cleaner (Residential / Commercial)
+               * Job reassignment or update
+               * Schedule changes (date, time, or location)
+               * Check-in / check-out confirmations or issues
+               * Payout-related updates (calculated, approved, paid)
+               * System alerts or important announcements from admin
+Each notification clearly mentions:
+               * Job name or location
+               * Customer name
+               * Notification message content
+               * Date & time of notification
+10.3 Notification List View
+Cleaners can view all notifications in a dedicated “All Notifications” screen with:
+               * Chronological listing (latest first)
+               * Status indicator:
+               * Unread
+               * Read
+               * Timestamp (date & exact time)
+               * Repeated notifications allowed for multiple assignments or retries
+Example format:
+Cleaner notification: You have been assigned to a job at ‘XC02 office cleaning’ (Customer: Wesley)
+10.4 Read / Unread Tracking
+               * Newly received notifications are marked as Unread by default
+               * Once the cleaner opens or taps a notification, it is marked as Read
+               * Unread notifications should be visually highlighted
+               * Backend must store read/unread state per cleaner
+10.5 Real-Time Delivery
+               * Notifications should be delivered instantly using:
+               * Push notifications (mobile)
+               * In-app notification updates
+               * If the cleaner is offline, notifications must sync when they come back online
+               * Duplicate notifications may occur for repeated assignments and should not overwrite previous records
+10.6 Admin Control & Logging
+               * Admin system triggers notifications automatically based on events
+               * All notifications must be logged in the backend for auditing
+               * Admin should be able to see whether a notification was delivered and read
+10.7 Developer Notes
+               * Notifications must be tied to:
+               * Cleaner ID
+               * Job ID (if applicable)
+               * Timezone handling should be consistent with system settings
+               * Notification data should be reusable for reports and activity logs
+11. Training & Resources (Cleaner App)
+11.1 Purpose & Overview
+The Training & Resources module provides cleaners with access to essential learning materials, guidelines, and reference content required to perform their duties correctly and consistently. This feature helps ensure service quality, compliance, and onboarding readiness without requiring direct admin intervention each time.
+All materials are centrally managed by the admin and consumed by cleaners within the app.
+11.2 Content Types
+The system should support multiple training and resource formats, including:
+               * Documents (PDF, DOC)
+               * Images
+               * Video tutorials
+               * Instructional guides
+               * Policy or compliance documents
+Each resource will contain:
+               * Title
+               * Description
+               * Media type
+               * Upload date
+               * Status (Seen / Unseen)
+11.3 Resource Listing Screen
+Cleaners can access all learning materials from the Training & Resources screen, which displays:
+               * Total resources count
+               * Seen resources count
+               * Unseen resources count
+               * List of all available materials
+Resources should be displayed in a structured list or card layout with clear labels.
+11.4 Seen / Unseen Tracking
+               * Newly added resources are marked as Unseen by default
+               * Once a cleaner opens or views a resource, it is marked as Seen
+               * Seen / Unseen status must be stored per cleaner
+               * Counters (Unseen / Seen / Total) should update dynamically
+11.5 Search Functionality
+Cleaners can search resources using:
+               * Title
+               * Description keywords
+Search should be real-time and work across all resource types.
+11.6 Media Type Filter
+A Media Type Filter allows cleaners to refine content by:
+               * All
+               * Video
+               * Document
+               * Image
+               * Other supported formats
+Filter selection should instantly update the resource list.
+11.7 Admin Management (Backend Scope)
+               * Admin can upload, update, or remove training materials
+               * Admin can define visibility (global or cleaner-specific if required)
+               * Admin can track which cleaners have viewed specific resources
+12. Profile Management (Cleaner App)
+12.1 Purpose & Overview
+The Profile module allows cleaners to view and manage their personal, professional, and financial information within the app. This data is critical for identity verification, compliance, job allocation, payroll processing, and communication.
+Some sensitive fields are editable directly by the cleaner, while others require admin or support intervention.
+12.2 Basic Profile Information
+Displayed at the top of the profile screen:
+               * Profile initials/avatar (auto-generated from name)
+               * Full name
+               * Registered email address
+               * Support message:
+               * “To update your email, contact support@colossianscleaningservices.com or 07368914755.”
+Editable fields:
+               * First Name
+               * Last Name
+               * Phone Number
+               * City
+               * Postal Code
+               * Full Address
+               * Date of Birth (date picker)
+               * Gender (dropdown)
+Non-editable field:
+               * Email (read-only)
+12.3 Communication Preferences
+               * Toggle to enable/disable reminders via Email and/or SMS
+               * Preference stored per cleaner and used by the notification system
+12.4 Security Settings
+               * Change Password option
+               * Requires:
+               * Current password
+               * New password
+               * Confirm new password
+               * Password updates must invalidate active sessions if required by admin policy
+12.5 Personal & Legal Information
+Immigration & Eligibility
+Cleaner must provide one of the following:
+               * National Insurance Number (preferred)
+               * Validation: 2 letters + 6 digits + 1 letter (e.g., AB123456C)
+               * OR Share Code (if NIN not available)
+Rules:
+               * Only one of the two fields is submitted
+               * At least one is mandatory
+               * Stored securely and visible only to admin and the cleaner
+Additional personal info:
+               * Hobbies (text field)
+               * Student status (Yes / No)
+12.6 Next of Kin Details
+Used for emergency contact purposes.
+Fields:
+               * Full Name
+               * Relationship (dropdown)
+               * Contact / Mobile Number
+All fields are mandatory once the section is filled.
+12.7 Work Details
+Includes operational data used for job allocation:
+               * Do you drive? (Yes / No)
+               * Local working areas (multi-value text or selectable zones)
+               * Do you have children? (Yes / No)
+               * Employment Start Date (date picker)
+This information is referenced by the admin system when assigning jobs.
+12.8 Cleaning Services Capabilities
+The cleaner profile displays supported service categories and tasks. These are typically admin-assigned and read-only for cleaners.
+Categories include:
+               * Kitchen Area
+               * Bathroom / Toilet
+               * Bedroom / Living Room
+               * Ironing Services
+               * Other (custom tasks)
+Each category contains a checklist of supported tasks (e.g., vacuuming, mopping, washing surfaces, ironing items, etc.).
+Purpose:
+               * Used to match cleaners with suitable jobs
+               * Visible to admin during job assignment
+12.9 Bank Details (Payout Information)
+Used for salary and payout processing.
+Fields:
+               * Bank Name
+               * Account Holder Name
+               * Account Number
+               * Sort Code
+Rules:
+               * Editable by cleaner
+               * Changes may require admin approval (configurable)
+               * Data must be encrypted at rest
+12.10 Account Deletion
+               * Delete My Account option available at the bottom of the profile
+               * On selection:
+               * Confirmation modal shown
+               * Warning about data loss and job access
+               * Actual deletion behavior:
+               * Soft delete recommended (account deactivated)
+               * Admin retains historical job, payout, and compliance records
+C. Client Application:
+1. Customer / Client Onboarding
+1.1 Purpose & Overview
+The Customer onboarding module allows new clients to register on the Colossians Cleaning Service platform. This collects essential contact, address, and account information to enable booking jobs, payments, and communication with assigned cleaners.
+The flow ensures that all required information is captured for creating a functional and secure client account.
+1.2 Registration Form
+When a new client selects “Sign Up” or “Register”, they are presented with a structured form:
+Form Fields:
+               * First Name* – Text input, mandatory
+               * Last Name* – Text input, mandatory
+               * Email* – Text input, mandatory, must be unique
+               * Gender – Dropdown (Male / Female / Other), optional
+               * Date of Birth – Date picker (DD/MM/YYYY), optional
+               * Phone Number* – Text input, mandatory, validated format
+               * Address* – Text input, mandatory
+               * City* – Text input, mandatory
+               * Postal Code* – Text input, mandatory
+               * Company Name – Text input, optional
+               * Password* – Password input, mandatory, must meet security policy (e.g., min 8 characters, alphanumeric, one special character)
+Form Actions / Notes:
+               * Submit button – Creates the account upon validation
+               * Already have an account? Sign in – Redirects to login screen
+               * Validation errors are displayed inline for each field
+               * Password stored securely (hashed) in the database
+               * Email verification may be triggered upon registration (optional, depending on system policy)
+1.3 Security & Validation
+               * Email must be unique; duplicate emails are rejected
+               * Phone number must be validated for proper format
+               * Password must meet security standards
+               * Optional fields (Company, Gender, DOB) are stored for profile completeness but not mandatory
+               * Client account cannot proceed to booking jobs until required fields are validated
+1.4 Success Flow
+               * On successful submission:
+               * Account is created
+               * Client is redirected to Dashboard / Home screen
+               * Optionally, a welcome email is sent
+               * Client can immediately start booking services
+2. Customer Dashboard & Onboarding Pop-up
+2.1 Welcome Pop-up
+When a customer logs in for the first time or has an incomplete profile, they land on the Dashboard and see the following pop-up:
+Pop-up Content:
+               * Welcome message:
+ Welcome, (Customer) 🚀
+               * Quick action steps:
+                  1. Complete Profile (Verify Email if Pending)
+                  2. Create Property
+                  3. Create Jobs
+Purpose:
+                  * Guide new users through essential steps
+                  * Ensure profile completeness
+                  * Encourage adding properties and scheduling jobs
+Actions:
+                  * Clicking Complete Profile → redirects to My Profile
+                  * Clicking Create Property → redirects to Property Management
+                  * Clicking Create Jobs → redirects to Job Creation
+2.2 My Profile
+The Profile section allows customers to update their personal and company information:
+Form Fields:
+                  * First Name* – Text input
+                  * Last Name* – Text input
+                  * Email* – Text input, unique
+                  * Phone Number* – Text input, validated format
+                  * Address* – Text input
+                  * City* – Text input
+                  * Postal Code* – Text input
+                  * Date of Birth – Date picker (DD/MM/YYYY), required for completion
+                  * Gender – Dropdown (Male / Female / Other)
+                  * Company Name – Text input
+                  * Enable reminders via email / SMS – Checkbox
+                  * Password – Change password functionality
+System behavior:
+                  * Profile Completion Progress displayed (e.g., 75%)
+                  * Required fields (Address, DOB) highlighted until completed
+                  * Email update instructions: contact support if change needed
+Actions:
+                  * Save profile updates → updates database
+                  * Delete My Account → permanently deletes user data
+2.3 Property Management
+Customers can add and manage properties where cleaning services are needed:
+Property List:
+                  * Displays all properties added by the customer
+                  * Columns: Property Name, Business Type, Address, City, Postal Code, Property Type
+Add Property Form:
+Fields:
+                  * Property Name* – Text input
+                  * Business Type* – Dropdown: Residential / Commercial
+                  * Address* – Text input
+                  * City* – Text input
+                  * Postal Code* – Text input
+                  * Type of Property* – Dropdown (Office, Flat, House, etc.)
+                  * Do you have a Hoover? – Yes/No toggle
+                  * Do you have a Washing Machine? – Yes/No toggle
+                  * Cleaning Products Provided? – Checkbox
+                  * Do you have a Dryer? – Yes/No toggle
+                  * Staff Preference – Dropdown: Male / Female / No Preference
+                  * Access to Property – Dropdown: Client Will Open / Provide Keys / Other
+                  * Do you have animals? – Yes/No toggle
+Actions:
+                  * Save → property is added to customer’s account
+                  * Edit / Delete → modify or remove existing properties
+Purpose:
+                  * Ensure cleaners have all necessary details before job scheduling
+                  * Customize property-specific requirements for cleaning tasks
+3. Customer Dashboard
+The Customer Dashboard is the central place where customers can view all their properties, ongoing jobs, and upcoming bookings. It is designed for quick access to job statuses, cleaner assignments, and scheduled times.
+3.1 Properties Overview
+Purpose:
+                  * Shows all properties registered by the customer.
+                  * Allows quick selection to view jobs associated with each property.
+Properties Displayed Example:
+                  * 5 Coopers Lane, EN6 5AG
+                  * 70 K Fellows Road
+                  * 2 Floor 17 Swan Yard
+                  * 51 College Cross
+Features:
+                  * Click on a property → view all jobs related to that property.
+                  * Property names are clickable and highlight the associated job schedule below.
+3.2 Today’s Jobs
+Purpose:
+                  * Displays all jobs scheduled for the current day across all properties.
+                  * Provides quick status update and cleaner assignment for each job.
+Fields & Details:
+Client
+	Property
+	Status
+	Time
+	Cleaner(s)
+	Created
+	Wesley Robinson
+	Wesley - 56-58 Clerkenwell Road
+	Approved
+	18:30 - 21:30
+	SHEUN OROSUN MICHAEL
+	05/01/2026
+	Wesley Robinson
+	Wesley - Nancy Spains (Curtain)
+	In Process
+	08:00 - 10:30
+	Rwinkle Rwinkle
+	17/12/2025
+	Wesley Robinson
+	51 College Cross
+	In Process
+	09:30 - 13:30
+	Prabhdeep Kaur, Laxmi Kumari Chaudhary
+	17/12/2025
+	Functional Notes:
+                  * Status can be Pending / In Process / Approved / Completed.
+                  * Clicking a job → expands detailed view (check-in/out, client instructions, property info).
+3.3 Upcoming Pre-Bookings
+Purpose:
+                  * Shows all future scheduled jobs with assigned cleaners.
+                  * Helps customers plan ahead and track upcoming services.
+Fields & Details:
+Cleaner
+	Status
+	Scheduled Time
+	Service
+	Prabhdeep Kaur
+	In Process
+	Jan 16, 2026 - 09:30 AM
+	Cleaning
+	Laxmi Kumari Chaudhary
+	In Process
+	Jan 16, 2026 - 09:30 AM
+	Cleaning
+	Rwinkle Rwinkle
+	In Process
+	Jan 16, 2026 - 08:00 AM
+	Cleaning
+	Functional Notes:
+                  * Status Indicators: Pending, Approved, In Process
+                  * Cleaner Assignments: clearly listed for each job
+                  * Clicking a pre-booking → opens job details (start/end times, cleaners, instructions)
+                  * Dashboard updates dynamically to reflect changes in job status or cleaner availability
+Notes:
+                  * Dashboard should allow filtering by property, status, and date.
+                  * Display must highlight today’s jobs for quick access.
+                  * Upcoming jobs list should auto-update when cleaners confirm or jobs are completed.
+                  * Each job card should expand to show full details including access instructions, property type, and special notes.
+4. Customer Calendar & Job Details
+The Customer Calendar allows clients to view scheduled jobs, filter them, and access detailed information about each job. This feature provides complete visibility of assigned cleaners, property details, and job statuses.
+4.1 Calendar View
+Purpose:
+                  * Display all jobs for the month in a calendar layout.
+                  * Allow filtering by cleaner, property, or status.
+                  * Provide quick access to individual job details by clicking on a date/job.
+Filters Available:
+                  * Cleaner Name: Select a specific cleaner to view their assigned jobs.
+                  * Property Name: Select a property to view all jobs associated with it.
+                  * Status: Filter jobs by Pending / Approved / In Process / Finished.
+                  * Date Navigation: View jobs by month and day.
+Calendar Entries:
+                  * Each calendar cell shows job summary: property name, cleaner name(s), and scheduled time.
+                  * Clicking on a job opens the Job Details View for that entry.
+4.2 Job Details View
+Purpose:
+                  * Show comprehensive information for a selected job.
+                  * Allow clients to review job status, assigned cleaners, and property-specific details.
+Job Fields & Details:
+Field
+	Example / Notes
+	Job Scheduled
+	Yes / No
+	Repeat Frequency
+	Weekly / One-time
+	Job Start Date & Time
+	11-01-2026, 07:00
+	Job End Date & Time
+	11-01-2026, 09:30
+	Status
+	Pending / Approved / In Process / Finished
+	Client
+	Wesley Robinson
+	Property Label
+	Wesley - Nancy Spains (Curtain)
+	Access to Property
+	Client Will Provide Keys / Client Will Open
+	Address
+	128-130 Curtain Road
+	City
+	London
+	Postal Code
+	EC2A 3AQ
+	Property Type
+	Pub / Residential / Office
+	Property Subtype
+	Cleaning Type
+	Cleaning Type
+	Commercial Deep Cleaning
+	Animals on Property
+	Yes / No
+	Staff Preference
+	Male / Female / No Preference
+	Equipment Provided
+	Hoover, Washing Machine, Dryer, Cleaning Products
+	Payment Source
+	Residential / Commercial
+	Cleaners Needed
+	Number of cleaners
+	Additional Instructions
+	Notes provided by client
+	Cleaners Assignment Table:
+Cleaner
+	Status
+	Review
+	Rwinkle Rwinkle
+	Approved
+	-
+	Functional Notes:
+                  * Jobs can repeat weekly or be one-off.
+                  * Each job card should display all assigned cleaners, start/end time, property details, and instructions.
+                  * Job status must dynamically update: Pending → Approved → In Process → Finished.
+                  * Clicking a job on the calendar opens this Job Details View.
+4.3 Multi-Day & Historical Jobs
+Purpose:
+                  * Allow clients to review past jobs and their outcomes.
+                  * Track recurring schedules and cleaners assigned over time.
+Functional Notes:
+                  * Calendar shows historical jobs with their status (Finished / Approved / Pending).
+                  * Jobs for the same property across multiple days show repeated entries.
+                  * Each job can expand to view cleaner details, start/end times, and completion notes.
+                  * Pagination or “+1 more” feature for days with multiple jobs.
+Notes:
+                  * Calendar UI must be interactive, mobile-friendly, and show day/week/month view.
+                  * Filters must dynamically update visible jobs without reloading the page.
+                  * Job Details View should be a modal or separate page for clarity.
+                  * Status updates must sync in real-time with cleaner app updates.
+                  * Handle multiple cleaners per job and display their names clearly.
+ 
+ 
+ 
+5. Customer Jobs Management
+This module allows clients to view, manage, and create cleaning jobs for their properties. Clients can see all job details, assign cleaners, set schedules, specify property access, and manage cleaning preferences.
+5.1 Jobs List / Overview
+Purpose:
+                  * Display all cleaning jobs in a structured table with key details.
+                  * Allow clients to search, filter, edit, or delete jobs.
+                  * Provide clear visibility on job status and scheduling.
+Columns / Fields to Display:
+Column
+	Description
+	Edit / Delete
+	Options to edit or remove the job
+	Cleaning Type
+	Office, Standard Cleaning, Office Surface Cleaning, Private Home, etc.
+	Date
+	Job scheduled date (e.g., 19-02-2026)
+	Start Time
+	Job start time (e.g., 18:00)
+	End Time
+	Job end time (e.g., 20:30)
+	Property
+	Name of the property (e.g., 56-58 Clerkenwell Road)
+	Status
+	Pending / Approved / In Process / Finished
+	Access to Property
+	Client Will Open / Will Get Keys
+	Cleaning Products Provided
+	Boolean: true / false
+	Washing Machine Provided
+	Boolean: true / false
+	Dryer Provided
+	Boolean: true / false
+	Hoover Provided
+	Boolean: true / false
+	Staff Preference
+	Male / Female / No Preference
+	Additional Details
+	Notes or instructions from client
+	Assigned Cleaner(s)
+	Names of assigned cleaner(s)
+	RRule / Repeat
+	Recurrence pattern (weekly, monthly, one-time)
+	Job Start Date
+	Recurring job start date
+	Job End Date
+	Recurring job end date
+	Job Type
+	Residential / Commercial
+	Number of Cleaners
+	Number of cleaners required
+	Number of Guests
+	Optional, for special instructions or celebrations
+	Celebration Type
+	Optional field for events (if applicable)
+	Venue Address
+	Optional, for event-based jobs
+	Functional Notes:
+                  * Jobs support recurrence rules (e.g., weekly, every Thursday).
+                  * Status should automatically update according to admin/cleaner workflow.
+                  * Multiple cleaners can be assigned per job.
+                  * Filtering and search must allow by property, cleaner, status, or date.
+5.2 Add Job / Create Cleaning Job
+Purpose:
+                  * Allow clients to create a new cleaning job with all necessary details.
+                  * Ensure clients can select property, assign cleaners, and provide job-specific instructions.
+Form Fields / Options:
+Field
+	Description
+	Property
+	Select property for cleaning job
+	Payment Method
+	Select invoice payment type (Residential / Commercial)
+	Job Start Date
+	Date picker
+	Start Time
+	Time picker
+	End Time
+	Time picker
+	Cleaners Needed
+	Number of cleaners required
+	Cleaning Type
+	Select type of cleaning (Office, Standard, Deep Clean, etc.)
+	Additional Instructions
+	Optional notes (max 100 characters)
+	Hoover Provided
+	Checkbox to indicate if hoover is available
+	Washing Machine Provided
+	Checkbox to indicate if washing machine is available
+	Cleaning Products Provided
+	Checkbox to indicate if client provides cleaning products
+	Dryer Provided
+	Checkbox to indicate if dryer is available
+	Staff Preference
+	Male / Female / No Preference
+	Access to Property
+	Client Will Open / Will Get Keys
+	Functional Notes:
+                  * Validations: start time < end time, required fields must be filled, cleaners needed > 0.
+                  * Upon submission, job appears in Jobs List and Calendar view.
+                  * Recurring jobs can be set with a start date and weekly/monthly repeat pattern.
+                  * Newly created jobs default to Pending status.
+                  * Clients can assign cleaners from the available pool or leave unassigned.
+5.3 Edit / Delete Job
+Purpose:
+                  * Allow clients to update job details or remove jobs if necessary.
+                  * Changes should reflect immediately in the dashboard and calendar.
+Functional Notes:
+                  * Editing includes updating cleaners, time, date, job type, and instructions.
+                  * Deleting requires a confirmation modal to prevent accidental deletion.
+                  * Status changes dynamically if job details are edited.
+Notes
+                  * Jobs table must support sorting, filtering, and search.
+                  * Recurring jobs should appear correctly in calendar views.
+                  * Multiple cleaner assignment must allow selecting multiple cleaners.
+                  * Form validations are critical for proper scheduling and payments.
+                  * Dashboard should clearly differentiate Pending / Approved / In Process / Finished jobs.
+6. Customer Properties Management
+This module allows clients to view, manage, and add properties for cleaning services. Each property stores detailed information about location, type, equipment, and preferences for cleaning staff.
+6.1 Properties List / Overview
+Purpose:
+                  * Display all properties belonging to the client.
+                  * Allow clients to search, filter, edit, or delete properties.
+                  * Provide clear details for cleaning scheduling and job creation.
+ 
+ 
+ 
+Columns / Fields to Display:
+Column
+	Description
+	Edit / Delete
+	Options to edit or remove the property
+	Name
+	Name of the property (e.g., 5 Coopers Lane)
+	Address
+	Full address (street, city, postal code)
+	City
+	City of property
+	Postal Code
+	Postal code
+	Type
+	Property type (Private Home / Office / Commercial)
+	Subtype
+	Flat, End of Terrace, House, etc.
+	Property Type
+	Residential / Commercial
+	Hoover
+	Brand or Yes/No
+	Animal Property
+	Yes / No
+	Additional Details
+	Number of bedrooms, bathrooms, guest toilets, living rooms, office, conservatory, dining room, etc.
+	Access to Property
+	Client Will Open / Will Get Keys
+	Provide Cleaning Products
+	Yes / No
+	Provide Washing Machine
+	Yes / No
+	Provide Dryer
+	Yes / No
+	Staff Preference
+	Male / Female / No Preference
+	Functional Notes:
+                  * Each property is tied to all cleaning jobs associated with it.
+                  * Properties can have multiple features, such as appliances, animal presence, and access type.
+                  * Search and filter must support property name, city, type, or subtype.
+6.2 Add Property / Create New Property
+Purpose:
+                  * Allow clients to add a new property to the system.
+                  * Collect all necessary information for scheduling jobs and assigning cleaners.
+Form Fields / Options:
+Field
+	Description
+	Property Name
+	Name of the property (required)
+	Business Type
+	Residential / Commercial
+	Address
+	Street address (required)
+	City
+	City of property (required)
+	Postal Code
+	Postal code (required)
+	Type of Property
+	Flat, House, Office, etc.
+	Hoover
+	Brand or Yes/No
+	Washing Machine
+	Checkbox: indicate if client has a washing machine
+	Dryer
+	Checkbox: indicate if client has a dryer
+	Cleaning Products
+	Checkbox: indicate if client provides cleaning products
+	Staff Preference
+	Male / Female / No Preference
+	Access to Property
+	Client Will Open / Will Get Keys
+	Animals Present
+	Yes / No
+	Additional Details
+	Optional: bedrooms, bathrooms, living room, office, dining room, conservatory, guest toilets
+	Functional Notes:
+                  * Form validation: all required fields must be completed.
+                  * On submission, property is added to Property List and becomes available for job assignment.
+                  * Optional details like appliances, animal presence, and staff preference should be stored for scheduling logic.
+                  * Properties can be edited or removed later with confirmation.
+6.3 Notes
+                  * Properties module must integrate with Jobs module, so each job can select a property and auto-fill related info.
+                  * Multi-field search and filters improve usability for clients with multiple properties.
+                  * Ensure checkboxes (Hoover, appliances, cleaning products) store boolean values correctly in the database.
+                  * Staff preference and access type should influence scheduling and cleaner assignment logic.
+ 
+7. Customer Job Summary
+This module allows clients to view all completed, ongoing, and pending jobs in a summarized form, along with work hours, payout details, and payment status. It helps clients track job history, payments, and performance.
+7.1 Jobs Summary Table
+Purpose:
+                  * Display all jobs associated with the client.
+                  * Include work hours, hourly rates, total payout, and status for quick review.
+                  * Support filtering by property, date, or status.
+Columns / Fields to Display:
+Column
+	Description
+	Property
+	Name or address of the property where the job was performed
+	Start Date
+	Job start date
+	End Date
+	Job end date
+	Worked Hours
+	Total hours worked for the job
+	Hourly Rate
+	Rate per hour (can be £0 if not set)
+	Payment Source
+	Residential or Commercial
+	Total Payout
+	Calculated based on worked hours × hourly rate
+	Status
+	Paid / Unpaid / Pending
+	 
+7.2 Functional Notes
+                  * Jobs should be sortable by date, property, or status.
+                  * Work entries should reflect actual hours worked, pulled from cleaner check-in/check-out times or validated time logs.
+                  * Total payout calculation:
+                  * Total Payout = Worked Hours × Hourly Rate
+                  * Payment source affects accounting and reporting (Residential vs Commercial).
+                  * Status updates: automatically mark as paid once payment is processed.
+7.3 Considerations
+                  * Integrate with Payout Computation module so that totals are accurate and dynamic.
+                  * Ensure real-time updates if a job’s hours, rate, or status changes.
+                  * Provide filters and search functionality for easier client navigation, especially for clients with multiple properties and recurring jobs.
+                  * Optional: export job summary to CSV or PDF for client records.
+8. Customer Notifications
+This module provides real-time alerts and updates to clients about the status of their jobs. It ensures the client is always informed about progress, approvals, and completions.
+8.1 Notification Types
+Notifications can include:
+                  1. Job status changes
+                  * Example: “Job at ‘51 College Cross’ is now in progress”
+                  2. Cleaner actions
+                  * Example: “Job at ‘Wesley - 56-58 Clerkenwell Road’ approved by Cleaner”
+                  3. Job completion updates
+                  * Example: “Job at ‘Wesley - 1 Gerrard Road’ has been completed”
+Optional future enhancements:
+                  * Payment reminders
+                  * Feedback requests after job completion
+8.2 Notification Table Structure
+Field
+	Description
+	Notification Type
+	Category of notification (Job Status, Cleaner Approval, Job Completed, etc.)
+	Message
+	Text describing the notification (dynamic)
+	Status
+	Unread / Read
+	Date & Time
+	Timestamp when notification was generated
+	Related Job / Property
+	Reference to the job or property for context
+	 
+8.3 Features & Functionality
+                  1. Real-Time Updates:
+                  * Push notifications triggered automatically whenever a job status changes, cleaner approves a job, or job is completed.
+                  2. Read/Unread Status:
+                  * All new notifications are marked Unread.
+                  * Users can mark as Read individually or clear all notifications.
+                  3. Sorting & Filtering:
+                  * Sort notifications by date or status.
+                  * Filter by job, property, or type for quick access.
+                  4. Notification History:
+                  * Maintain a historical log of all notifications for reference.
+                  * Paginate if notifications are large in number for better UI performance.
+                  5. Clickable Links (Optional):
+                  * Clicking a notification can take the user directly to the job details page.
+8.4 Notes
+                  * Integrate this module with the Jobs module to automatically fetch updates on job actions.
+                  * Ensure notifications are synchronized in real-time across multiple devices if the client logs in from web or mobile.
+                  * Use database fields: notification_id, user_id, job_id, type, message, status, created_at.
+                  * Consider WebSocket / Push notifications for instant updates.
+9. Preferred Staff
+This module allows customers to select preferred cleaners for their bookings, see their availability, and schedule jobs accordingly. It ensures that clients can prioritize trusted staff while making bookings and provides visibility into staff schedules.
+9.1 Key Features
+                  1. Preferred Staff Selection:
+                  * Customers can mark certain staff as preferred.
+                  * Preferred staff appear at the top of staff lists when creating a job.
+                  * If a customer previously booked a cleaner, that cleaner is automatically suggested for future jobs.
+                  2. Work Shifts Display:
+                  * For each staff, display daily work shifts (start and end times) and weekly schedule.
+                  * Only future available slots are shown for booking; past or fully booked slots are hidden.
+                  3. Slot Selection for Jobs:
+                  * Customers pick a time slot from the available hours of preferred staff.
+                  * Once selected, the job can be created and automatically assigned to that staff member if available.
+                  * Multiple slots per staff can be shown for flexibility.
+                  4. Availability Status:
+                  * Indicate available, partially available, or no slots available for each staff.
+                  * Slots already assigned to other jobs are disabled to prevent double booking.
+                  5. Priority Assignment:
+                  * If a customer marks staff as preferred and creates a job:
+                  1. Preferred staff are automatically suggested first for assignment.
+                  2. Customers can manually assign any preferred staff based on availability.
+                  3. Non-preferred staff can still be assigned if preferred staff are unavailable.
+                  6. Dynamic Updates:
+                  * Staff availability updates in real-time as other jobs are assigned or canceled.
+                  * Any changes in work shifts reflect immediately on the customer’s booking screen.
+9.2 Example Data Structure
+Field
+	Description
+	Staff ID
+	Unique identifier for the staff member
+	Name
+	Staff full name
+	Preferred
+	Boolean flag indicating if the customer prefers this staff
+	Work Shifts
+	Array of weekly shifts with start and end times
+	Available Slots
+	Array of available time slots for the selected date
+	Job Assignments
+	List of jobs already assigned to this staff
+	Status
+	Availability: Available / Partially Available / Fully Booked
+	 
+9.3 Booking Flow Using Preferred Staff
+                  1. Customer navigates to Preferred Staff page.
+                  2. Customer selects a staff member marked as preferred.
+                  3. System shows all available time slots for the selected date(s).
+                  4. Customer selects the slot and creates a job.
+                  5. Job is auto-assigned to that staff if available, otherwise system suggests alternatives.
+                  6. Notifications are triggered to the staff and customer (integrates with the Notifications module).
+9.4 Notes
+                  * Ensure slot selection prevents overlapping bookings.
+                  * Preferred staff should be highlighted visually for the customer.
+                  * Use real-time updates via WebSocket or API polling for availability.
+                  * Integrate with Jobs module to auto-update assigned slots and staff workload.
+                  * Future enhancement: allow auto-prioritization for weekly recurring jobs with preferred staff.
+10. Training & Resources
+This module provides learning materials, guides, and resources to staff and customers (if needed), helping them understand processes, procedures, and platform usage. It also tracks content visibility and interaction.
+10.1 Key Features
+                  1. Content Listing:
+                  * Display all available training materials in a list format.
+                  * Each item includes:
+                  * Title
+                  * Description
+                  * Media Type (video, PDF, image, link, etc.)
+                  * Status (Unseen, Seen)
+                  2. Search & Filter:
+                  * Search by title or description.
+                  * Filter by media type for easier navigation.
+                  3. Content Interaction:
+                  * Users can open or view content directly in the platform.
+                  * System marks content as Seen once opened.
+                  * Unseen content is highlighted to attract attention.
+                  4. Content Management (Admin Side):
+                  * Admin can add, edit, or remove content.
+                  * Assign content to specific roles (cleaner, customer, manager).
+                  * Upload media in various formats (video, PDF, image, link).
+                  5. Usage Metrics:
+                  * Track total content, seen vs unseen, and optionally, time spent on each resource.
+                  * Allow admin to generate reports to assess engagement and staff training completion.
+10.2 Example Data Structure
+Field
+	Description
+	Resource ID
+	Unique identifier
+	Title
+	Resource name
+	Description
+	Brief overview
+	Media Type
+	Video / PDF / Image / Link
+	URL/Attachment
+	Link to content or uploaded file
+	Status
+	Seen / Unseen
+	Assigned To
+	Roles or users who can access
+	 
+10.3 Notes
+                  * Integrate with user profiles to track seen/unseen status per user.
+                  * Provide responsive UI for content display (desktop, mobile).
+                  * Ensure search and filter functionality is efficient with large datasets.
+                  * Allow future expansion for quizzes, certifications, or progress tracking.
+11. User Profile
+The Profile module allows users (customers, staff, or admin) to view and manage their personal and professional information. It ensures users have up-to-date details, controls over notifications, and access to security settings.
+11.1 Key Features
+                  1. Profile Overview:
+                  * Display user’s basic information:
+                  * Full Name
+                  * Email Address
+                  * Phone Number
+                  * Profile Completion Percentage (e.g., 100%)
+                  * Option to contact support if email update is required.
+                  2. Personal Information:
+                  * Users can view their personal details:
+                  * First Name
+                  * Last Name
+                  * Date of Birth
+                  * Gender
+                  * Address (Street, City, Postal Code)
+                  * Company information (if applicable):
+                  * Company Name
+                  3. Account Settings:
+                  * Email and Password Management:
+                  * Display email (with support contact for changes).
+                  * Option to change password securely.
+                  * Notifications:
+                  * Enable or disable reminders via Email and/or SMS.
+                  4. Profile Completion Tracker:
+                  * Visual indicator (e.g., progress bar) showing profile completion percentage.
+                  * Encourages users to fill in missing information for a 100% complete profile.
+                  5. Action Buttons:
+                  * Change My Password – Opens secure password change flow.
+                  * Delete My Account – User can permanently remove their account.
+11.2 Example Data Structure
+Field
+	Description
+	User ID
+	Unique identifier
+	First Name
+	User’s first name
+	Last Name
+	User’s last name
+	Email
+	User’s primary email
+	Phone Number
+	Contact number
+	Address
+	Street, City, Postal Code
+	Date of Birth
+	DOB (DD/MM/YYYY)
+	Gender
+	Male / Female / Other
+	Company Name
+	Optional for business users
+	Profile Completion
+	Numeric value (0–100%)
+	Notifications
+	Email / SMS reminders enabled
+	Account Actions
+	Change password, Delete account
+	Support Contact
+	Email & phone for assistance
+	 
+11.3 Notes
+                  * Validation: Ensure phone number and email are validated on entry.
+                  * Security: Password changes must follow secure protocols (hashing, OTP verification if needed).
+                  * Responsive UI: Layout adapts to desktop and mobile screens.
+                  * Profile Completion Logic: Calculate completion percentage based on required fields (first name, last name, phone, address, DOB, company).
+ 
+ 
+ 
+ 
+End-to-End Platform Flow
+(Client → Cleaner → Admin → Job Completion)
+1. CLIENT (CUSTOMER) – COMPLETE FLOW
+1.1 Client Registration & Secure Access
+                  * Sign-up: Client registers via mobile app or web portal using email or phone number with a secure password.
+                  * Verification: OTP verification (SMS/email) is mandatory to confirm authenticity.
+                  * Role-Based Authentication: Ensures client cannot log in as a cleaner or admin.
+                  * Post-Login: After verification, the client lands on the Client Dashboard, showing:
+                  * Profile completion percentage
+                  * Quick action buttons for creating jobs, viewing properties, and preferred staff selection
+1.2 Property Setup (Residential / Commercial)
+Before booking a job, the client must add at least one property.
+Property Details Captured:
+                  * Property Name
+                  * Full Address (Street, City, Postal Code)
+                  * Access Instructions (e.g., keys provided, client opens property)
+                  * Property Type: Residential / Commercial
+                  * Subtype / Additional Details: Number of bedrooms, bathrooms, guest toilets, living rooms, office, dining room, conservatory
+                  * Equipment Available: Hoover, washing machine, dryer, cleaning products
+                  * Staff Preference: Male / Female / No Preference
+                  * Animal Presence: Yes / No
+System Behavior Based on Property Type:
+                  * Determines payment routing (residential vs commercial)
+                  * Sets cleaner payout source
+                  * Controls reporting, invoices, and analytics
+1.3 Job Creation (Core Workflow Start)
+The client initiates the workflow by creating a job:
+Steps for Job Creation:
+                  1. Select Property
+                  2. Choose Job Type (Residential / Commercial)
+                  3. Select Date & Start Time
+                  4. Enter Expected Duration
+                  5. Add Job Instructions / Special Notes
+                  6. Select Number of Cleaners Required
+                  7. Submit Job
+System Behavior After Job Creation:
+                  * Job status = Pending
+                  * Job appears on:
+                  * Client calendar (Day / Week / Month view)
+                  * Admin dashboard
+                  * Client receives confirmation email
+                  * Only available & active cleaners receive job notification emails
+1.4 Job Visibility & Client Controls
+                  * Client can track jobs in calendar view or list view.
+                  * Editing rules: Jobs editable up to 24 hours before start.
+                  * Cancellations: Trigger warnings and may restrict future bookings.
+                  * Notifications Sent To Client:
+                  * Job Created
+                  * Job Assigned
+                  * Job Accepted
+                  * Job Completed
+Client Role Ends Here:
+                  * Cannot assign cleaners
+                  * Cannot approve cleaners
+                  * Only tracks job status and receives real-time updates
+2. CLEANER (STAFF) – COMPLETE FLOW
+2.1 Cleaner Onboarding & Eligibility
+To join the platform, cleaner must complete:
+                  * Registration + OTP verification
+                  * Government ID verification / Share Code / NIN
+                  * Document uploads (passport, DBS, other compliance)
+                  * References & background checks
+                  * Availability setup (time slots)
+System Restriction: Only active and eligible cleaners receive jobs.
+2.2 Job Notification & Interest (Apply Job Flow)
+When a client creates a job:
+                  1. System checks cleaner availability & eligibility.
+                  2. Only active, available cleaners receive email notifications.
+Notification Includes:
+                  * Property location & type
+                  * Job date & time
+                  * Duration
+                  * Button: “Request to allocate this job”
+Cleaner Action:
+                  * Click to show interest → Job marked as Requested in Admin Panel
+2.3 Job Assignment (Admin-Controlled)
+                  * Cleaners cannot self-assign jobs.
+                  * Admin assigns cleaners based on:
+                  * Availability
+                  * Job duration
+                  * Staff preference (if specified)
+                  * After assignment:
+                  * Job appears in Cleaner My Jobs dashboard
+                  * Status = Assigned
+                  * Cleaner receives assignment notification
+2.4 Job Acceptance by Cleaner
+                  * Cleaner reviews job details:
+                  * Property details, access instructions, and equipment
+                  * Client information
+                  * Date, time, and special instructions
+                  * Cleaner Accepts Job
+                  * Status = Accepted
+                  * Email sent to client and admin confirming acceptance
+2.5 Pre-Job Notifications & Reminders
+                  * Cleaner receives automated reminders:
+                  * 24 hours before job
+                  * 3 hours before job
+                  * Cleaner dashboard popups display:
+                  * Today’s jobs only
+                  * Only accepted jobs
+2.6 Check-In / Check-Out (Time Tracking)
+                  * Check-In: Allowed at job start or 15 minutes before
+                  * Check-Out: At job end or after completion
+                  * System Behavior:
+                  * Future jobs are locked until their date
+                  * Only today’s job accessible
+                  * Check-in/out timestamps support overnight and midnight shifts
+2.7 Job Completion
+                  * After check-out:
+                  * Job status = Completed
+                  * Hours automatically logged
+                  * Cleaner cannot edit or delete job
+                  * Feedback request email sent to client
+2.8 Cleaner Payment & Records
+                  * Hours & pay calculated based on:
+                  * Job type (Residential / Commercial)
+                  * Actual hours worked
+                  * Cleaner dashboard shows:
+                  * Daily / weekly / monthly hours
+                  * Residential vs Commercial earnings
+                  * Payment status (Pending / Paid)
+3. ADMIN – COMPLETE FLOW (CONTROL & GOVERNANCE)
+3.1 Admin Dashboard (Central Command)
+Admin has visibility over:
+                  * All jobs: pending, assigned, completed
+                  * Cleaner availability & schedule
+                  * Client activity & bookings
+                  * Notifications / alerts: document expiry, cancellations
+3.2 Job Requests Review & Assignment
+                  * Admin reviews job requests (cleaners who applied)
+                  * Admin assigns exact number of cleaners requested by client
+                  * Checks include:
+                  * Availability conflicts
+                  * Hour limits
+                  * Eligibility (document, share code, training completion)
+3.3 Multi-Cleaner Assignment Logic
+                  * If client requested 3 cleaners:
+                  * Admin assigns exactly 3
+                  * Each cleaner must accept independently
+                  * If one declines → Admin notified → replacement assigned
+3.4 Monitoring During Job Execution
+                  * Admin can track:
+                  * Cleaner check-in/out times
+                  * Total hours worked
+                  * Live job status
+3.5 Compliance & Workforce Control
+Admin ensures platform compliance:
+                  * Document expiry reminders (visa, DBS, passport)
+                  * Removal of inactive staff
+                  * Blocking assignments if:
+                  * Documents expired
+                  * Share code invalid
+                  * Training incomplete
+                  * Staff account inactive
+3.6 Job Closure & Financial Oversight
+                  * After completion:
+                  * Admin reviews job summary
+                  * Confirms hours and payouts
+                  * Job becomes audit-locked
+                  * Client feedback stored
+                  * Reports updated for accounting & compliance
+4. TRAINING & RESOURCES MODULE
+                  * Cleaners can access training materials and resources via their dashboard.
+                  * Status tracking: Seen / Unseen content
+                  * Completion may be required to qualify for certain job assignments
+5. NOTIFICATIONS MODULE
+For Clients, Cleaners, and Admin:
+                  * Job created, assigned, accepted, in-progress, completed
+                  * Cleaner reminders (24h / 3h)
+                  * Document expiry / compliance alerts
+                  * Real-time push/email notifications for all job lifecycle events
+6. PREFERRED STAFF MODULE
+                  * Clients can mark preferred cleaners for future bookings
+                  * Preferred cleaners’ availability is highlighted
+                  * When creating jobs, system can suggest preferred staff
+                  * Cleaner assignments respect preferences but still follow admin verification
+7. USER PROFILE MODULE
+User can view and manage:
+                  * Personal information: Name, DOB, Gender, Address, Phone, Email
+                  * Company details (if business)
+                  * Notification preferences (Email / SMS)
+                  * Password changes
+                  * Profile completion indicator (encourages filling all fields to 100%)
+                  * Delete account option
+8. END-TO-END JOB LIFECYCLE SUMMARY
+                  1. Client adds property (Residential / Commercial)
+                  2. Client creates job + selects number of cleaners
+                  3. System notifies eligible and available cleaners
+                  4. Cleaners show interest / apply
+                  5. Admin reviews applications
+                  6. Admin assigns required cleaners
+                  7. Cleaners accept job
+                  8. Automated reminders sent
+                  9. Cleaners check-in / check-out
+                  10. Hours tracked accurately
+                  11. Job marked as Completed
+                  12. Payment processed
+                  13. Feedback collected from client
+                  14. Job audit-locked for records
+ 
+Admin Invoicing System – Detailed Workflow
+Purpose:
+ Enable admin to create, manage, and send professional invoices for any client (residential or commercial) while reflecting completed jobs, hours, staff assignments, and payments. This system must comply with industry standards, including VAT, itemization, and audit-ready records.
+________________
+
+
+1. INVOICE CREATION – CORE FLOW
+1.1 Invoice Initiation
+Admin can create invoices manually or automatically based on completed jobs:
+                  * Automatic generation: System generates invoices based on completed jobs for a selected period (daily, weekly, monthly).
+                  * Manual creation: Admin can create invoice for a specific client and select which jobs to include.
+Invoice Start Inputs:
+                  * Client selection (from registered clients)
+                  * Invoice period / date range
+                  * Property (optional if client has multiple properties)
+                  * Job type filter: Residential / Commercial
+                  * Job status filter: Completed only
+________________
+
+
+1.2 Invoice Details Captured
+Mandatory Fields:
+                  * Invoice Number: Auto-generated, sequential, or customizable format
+                  * Invoice Date: Default = current date
+                  * Due Date: Admin can set (standard: 7, 14, 30 days)
+                  * Client Name & Contact Info: Pulled from profile
+                  * Client Address: Pulled from property details
+                  * Company Name / Business Details: Pulled from client profile (if commercial)
+                  * Payment Terms: e.g., Bank Transfer, Card, PayPal
+                  * Currency: GBP (default), with option for multi-currency
+Optional Fields:
+                  * PO Number / Reference Number (for commercial clients)
+                  * Tax Identification Number (for VAT)
+                  * Notes / Terms and Conditions (e.g., late payment fee, refund policy)
+________________
+
+
+1.3 Job Line Itemization
+Each job included in the invoice is displayed as a line item:
+Field
+	Description
+	Job Date
+	Date when service was performed
+	Property Name
+	Residential / Commercial property
+	Job Type
+	Residential / Commercial
+	Cleaner(s) Assigned
+	Names of staff who completed the job
+	Hours Worked
+	Exact hours from check-in/check-out logs
+	Rate
+	Hourly rate (from client’s agreed plan)
+	Total
+	Hours × Rate
+	Additional Charges
+	e.g., equipment use, cleaning products, overtime
+	Discount
+	Optional percentage or fixed discount
+	Tax / VAT
+	Calculated per line or on total amount
+	Subtotal
+	Sum of all line items before tax
+	Total Amount
+	Total payable including tax
+	Example:
+                  * 02/09/2025 | 5 Coopers Lane | Residential | Joicy Sebastian | 4 hrs | £15/hr | £60 | – | £12 VAT | £72
+________________
+
+
+1.4 Taxes & Compliance
+                  * VAT Handling: Automatic calculation at standard rate (e.g., 20%)
+                  * Tax Summary Section: Shows subtotal, tax, and total amount
+                  * Compliance: Invoice includes:
+                  * Invoice number
+                  * Issue date
+                  * Client details
+                  * Business registration / VAT number (if applicable)
+                  * Payment terms
+                  * Audit-Ready: All invoices stored in system with immutable records
+________________
+
+
+1.5 Discounts & Adjustments
+Admin can add:
+                  * Fixed or percentage discount
+                  * Promotional codes (if applicable)
+                  * Adjustments for refunds or prior overpayment
+System Behavior:
+                  * Automatically recalculates subtotal, tax, and total
+                  * Reflects adjustments in line-item history
+________________
+
+
+1.6 Payment Tracking
+Invoice Statuses:
+                  * Draft (editable before sending)
+                  * Sent (invoice sent to client email)
+                  * Partially Paid
+                  * Paid in Full
+                  * Overdue (automatic after due date)
+Payment Methods:
+                  * Bank Transfer
+                  * Card / Stripe / PayPal integration
+                  * Cash (admin entry)
+Automated Reminders:
+                  * Sent 7 days before due date
+                  * On due date
+                  * After overdue period (optional late fee notice)
+Reconciliation:
+                  * Payments logged automatically against invoices
+                  * Partial payments split across line items
+                  * System shows outstanding balance
+________________
+
+
+1.7 Invoice Preview & PDF Generation
+                  * Admin can preview invoice before sending
+                  * PDF format meets industry standards:
+                  * Client and business info
+                  * Job line items with breakdown
+                  * Total, tax, discounts, adjustments
+                  * Payment terms & methods
+                  * Notes / terms (customizable)
+                  * PDF can be emailed directly or downloaded for print
+________________
+
+
+1.8 Email Integration & Notifications
+                  * System sends invoice via client email
+                  * Optional SMS notification with invoice link
+                  * Admin receives confirmation of delivery
+                  * Reminders sent automatically based on due date
+1.9 Invoice History & Reporting
+Invoice Dashboard Shows:
+                  * All invoices (filterable by client, date range, status)
+                  * Total invoiced amount vs. total received
+                  * Payment overdue alerts
+                  * Ability to resend invoice, download PDF, or export CSV
+Reports Generated:
+                  * Revenue reports by client, property, or job type
+                  * Tax reports (VAT summary, compliance-ready)
+                  * Cleaner payroll reports based on hours billed
+1.10 Audit & Compliance
+                  * All invoices are immutable after sending (cannot edit after marking sent/paid)
+                  * Full audit trail maintained:
+                  * Who generated the invoice
+                  * Timestamp
+                  * Job details included
+                  * Payment history
+                  * Complies with UK accounting standards and VAT regulations
+1.11 Automation & Integration
+                  * Recurring invoices: For regular commercial clients
+                  * Bulk invoice generation: Generate multiple client invoices at once
+                  * Integration: With accounting software (Xero, QuickBooks) for automated sync
+                  * Job-Driven: Automatically pulls job details for invoice to reduce admin errors
+1.12 Optional Enhancements
+                  * Invoice Notes / Client Messages: Custom instructions or thank you message
+                  * Early Payment Incentives: Apply discount if paid before due date
+                  * Multi-Property Invoice: Combine multiple properties for one client
+                  * Multi-Cleaner Pay Breakdown: Show which cleaners contributed to total hours
+2. END-TO-END INVOICE FLOW SUMMARY
+                  1. Admin selects client & date range
+                  2. System fetches completed jobs
+                  3. Admin reviews line items, adds discounts/adjustments if needed
+                  4. Taxes / VAT calculated automatically
+                  5. Invoice previewed & approved
+                  6. Invoice sent to client via email / SMS
+                  7. Payment tracked against invoice
+                  8. Reminders sent automatically until paid
+                  9. Invoice recorded in history for audit and reporting
+                  10. Reports available for revenue, tax, and payroll reconciliation
+This setup ensures the admin can create professional, compliant, and detailed invoices, manage payments efficiently, and maintain full audit trails. It also ties directly into the job management system, so every completed job automatically contributes to invoicing.

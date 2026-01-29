@@ -1,6 +1,7 @@
 import 'package:ccs_app/app/modules/client/dashboard/view/client_notifications_view.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
+import '../../../gen/assets.gen.dart';
 import 'client_dashboard_controller.dart';
 
 class ClientDashboardView extends GetView<ClientDashboardController> {
@@ -11,8 +12,8 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
     return Obx(
       () => AppScaffold(
         appBar: Header(
-          title: Constants.clientTopHeading[controller.tabIndex.value].$1,
-          subtitle: Constants.clientTopHeading[controller.tabIndex.value].$2,
+          widget: Assets.imagesAppLogo.svg(width: 120, colorFilter: ColorFilter.mode(context.colorScheme.secondary, BlendMode.srcATop)),
+          title: "",
           actions: [
             IconButton(
               icon: const Icon(IconsaxPlusLinear.notification),

@@ -1,6 +1,7 @@
 import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
 
+import '../../../widget/quick_action.dart';
 import 'cleaner_dashboard_controller.dart';
 import 'cleaner_earnings_view.dart';
 import 'cleaner_notifications_view.dart';
@@ -45,7 +46,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CommonText.semiBold('Upcoming jobs', size: 17, color: scheme.onPrimary),
+                          CommonText.semiBold('Upcoming jobs', size: 16, color: scheme.onPrimary),
                           if (hasJobs)
                             CommonText.regular(
                               '$jobCount ${jobCount == 1 ? 'job' : 'jobs'} scheduled',
@@ -304,7 +305,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
           Row(
             children: [
               Expanded(
-                child: _QuickActionChip(
+                child: QuickActionChip(
                   icon: IconsaxPlusLinear.clock,
                   label: 'Availability',
                   subtitle: 'Set your schedule',
@@ -314,7 +315,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _QuickActionChip(
+                child: QuickActionChip(
                   icon: IconsaxPlusLinear.user,
                   label: controller.isProfileComplete ? 'Profile' : 'Complete',
                   subtitle: controller.isProfileComplete ? 'View profile' : 'Finish setup',
@@ -388,116 +389,4 @@ class _GreetingSection extends StatelessWidget {
   }
 }
 
-class _DashboardBlock extends StatelessWidget {
-  const _DashboardBlock({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.onTap,
-    required this.scheme,
-    this.subtitle,
-  });
 
-  final IconData icon;
-  final String title;
-  final String value;
-  final String? subtitle;
-  final VoidCallback onTap;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      radius: UiConstants.radiusLarge,
-      enableShadows: true,
-      shadowOpacity: 0.06,
-      onTap: onTap,
-      padding: const EdgeInsets.all(18),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  scheme.primaryContainer.withValues(alpha: 0.4),
-                  scheme.primaryContainer.withValues(alpha: 0.2),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-            ),
-            child: Icon(icon, size: 24, color: scheme.primary),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CommonText.regular(title, size: 13, color: scheme.onSurfaceVariant),
-                const SizedBox(height: 6),
-                CommonText.bold(value, size: 22, color: scheme.onSurface),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 4),
-                  CommonText.regular(subtitle!, size: 12, color: scheme.onSurfaceVariant),
-                ],
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-            ),
-            child: Icon(IconsaxPlusLinear.arrow_right_2, size: 20, color: scheme.primary),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickActionChip extends StatelessWidget {
-  const _QuickActionChip({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    required this.scheme,
-    this.subtitle,
-  });
-
-  final IconData icon;
-  final String label;
-  final String? subtitle;
-  final VoidCallback onTap;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      radius: UiConstants.radiusDefault,
-      onTap: onTap,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppCard(
-            enableShadows: false,
-            color: scheme.secondaryContainer,
-            padding: const EdgeInsets.all(12),
-            child: Icon(icon, size: 24, color: scheme.secondary),
-          ).marginOnly(bottom: 12),
-          CommonText.semiBold(label, size: 14, color: scheme.onSurface, textAlign: TextAlign.center),
-          if (subtitle != null) ...[
-            CommonText.regular(
-              subtitle!,
-              size: 11,
-              color: scheme.onSurfaceVariant,
-              textAlign: TextAlign.center,
-            ).marginOnly(top: 4),
-          ],
-        ],
-      ),
-    );
-  }
-}

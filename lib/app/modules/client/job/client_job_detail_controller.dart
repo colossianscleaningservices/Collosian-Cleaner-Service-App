@@ -24,15 +24,30 @@ class ClientJobDetailController extends GetxController {
     }
   }
 
-
   void onEdit() {
     // TODO: navigate to edit screen
     Notifier.info('Edit job (coming soon)');
   }
 
+  void confirmDeleteJob(BuildContext context) {
+    Notifier.openSheet(
+      context,
+      type: SheetType.info,
+      title: 'Delete job?',
+      message: 'This will remove this "${job.jobType}" job. This action cannot be undone.',
+      primaryButtonLabel: 'Delete',
+      secondaryButtonLabel: 'Cancel',
+      showPrimaryButton: true,
+      showSecondaryButton: true,
+      onPrimaryPressed: deleteJob,
+      onSecondaryPressed: () {},
+    );
+  }
+
   void deleteJob() {
-    // TODO: confirm + API
-    Notifier.info('Delete job (coming soon)');
+    // TODO: call API to delete job
+    Notifier.info('Job deleted');
+    Get.back();
   }
 
   void onCancelJob() {

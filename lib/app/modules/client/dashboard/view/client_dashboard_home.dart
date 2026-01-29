@@ -1,7 +1,9 @@
+import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
+import 'package:ccs_app/app/widget/quick_action.dart';
 import 'package:ccs_app/export.dart';
 
 /// Dashboard content (the actual dashboard UI, not the shell).
-class ClientDashboardContent extends StatelessWidget {
+class ClientDashboardContent extends GetView<ClientDashboardController> {
   const ClientDashboardContent({super.key});
 
   @override
@@ -12,44 +14,68 @@ class ClientDashboardContent extends StatelessWidget {
         padding: UiConstants.padding,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 16,
           children: [
-            _CardSection(
-              title: 'Today',
-              child: Row(
+            AppCard(
+              color: scheme.primary,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 16,
                 children: [
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: scheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                    ),
-                    child: Icon(IconsaxPlusLinear.calendar, color: scheme.secondary),
+                  Row(
+                    children: [
+                      CommonText.semiBold(
+                        "Today",
+                        size: 16,
+                        color: scheme.onPrimary,
+                      ),
+                      Spacer(),
+                      AppCard(
+                        color: scheme.primaryContainer.withValues(alpha: 0.2),
+                        onTap: () => controller.setTab(2),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CommonText.medium('View all', size: 13, color: scheme.onPrimary),
+                            const SizedBox(width: 4),
+                            Icon(IconsaxPlusLinear.arrow_right_2, size: 14, color: scheme.onPrimary),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CommonText.semiBold(
-                          'No jobs found for today.',
-                          size: 14,
-                          color: scheme.onSurface,
+                  Row(
+                    children: [
+                      AppCard(
+                        color: scheme.primaryContainer.withValues(alpha: 0.2),
+                        padding: const EdgeInsets.all(12),
+                        child: Icon(IconsaxPlusLinear.calendar, size: 24, color: scheme.onPrimary),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CommonText.semiBold(
+                              'No jobs found for today.',
+                              size: 14,
+                              color: scheme.onPrimary,
+                            ),
+                            const SizedBox(height: 2),
+                            CommonText.regular(
+                              'Your next booking will appear here.',
+                              size: 12,
+                              color: scheme.onPrimary.withValues(alpha: 0.6),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 2),
-                        CommonText.regular(
-                          'Your next booking will appear here.',
-                          size: 12,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
-              ),
+              ).paddingAll(18),
             ),
-            const SizedBox(height: 12),
-
             _CardSection(
               title: 'Upcoming Pre-Bookings',
               trailing: CommonText.medium(
@@ -66,49 +92,29 @@ class ClientDashboardContent extends StatelessWidget {
                 color: scheme.onSurfaceVariant,
               ),
             ),
-            const SizedBox(height: 16),
-
             CommonText.semiBold('Quick Actions', size: 16, color: scheme.onSurface),
-            const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
-                  child: AppButton(
-                    label: 'Create job',
-                    icon: IconsaxPlusLinear.add,
-                    onPressed: () => Get.toNamed(Routes.CLIENT_CREATE_JOB),
+                  child: QuickActionChip(
+                    icon: IconsaxPlusLinear.additem,
+                    label: 'Create Job',
+                    subtitle: 'Add a new Job',
+                    onTap: () => controller.setTab(3),
+                    scheme: scheme,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: AppButton(
-                    label: 'Add Property',
-                    type: ButtonType.tonal,
+                  child: QuickActionChip(
                     icon: IconsaxPlusLinear.home_hashtag,
-                    onPressed: () {
-                      Notifier.info('Add Property (coming soon)');
-                    },
+                    label: 'Property',
+                    subtitle: 'Add a new property',
+                    onTap: () => controller.setTab(4),
+                    scheme: scheme,
                   ),
                 ),
               ],
-            ),
-            const SizedBox(height: 12),
-
-            _CardSection(
-              title: 'Notifications',
-              trailing: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: scheme.primaryContainer.withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: CommonText.semiBold('0', size: 12, color: scheme.primary),
-              ),
-              child: CommonText.regular(
-                'No new notifications.',
-                size: 13,
-                color: scheme.onSurfaceVariant,
-              ),
             ),
           ],
         ),
@@ -157,4 +163,3 @@ class _CardSection extends StatelessWidget {
     );
   }
 }
-

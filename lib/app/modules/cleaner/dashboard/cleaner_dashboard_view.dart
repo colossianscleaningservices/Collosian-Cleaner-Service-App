@@ -14,8 +14,7 @@ class CleanerDashboardView extends GetView<CleanerDashboardController> {
       () => AppScaffold(
         appBar: Header(
           widget: Assets.imagesAppLogo.svg(width: 120, colorFilter: ColorFilter.mode(context.colorScheme.secondary, BlendMode.srcATop)),
-          title: Constants.cleanerTopHeading[controller.tabIndex.value].$1,
-          subtitle: Constants.cleanerTopHeading[controller.tabIndex.value].$2,
+          title: "",
           actions: [
             IconButton(
               icon: const Icon(IconsaxPlusLinear.notification),

@@ -24,7 +24,6 @@ import '../modules/client/edit_profile/client_edit_profile_view.dart';
 import '../modules/client/job/client_job_detail_binding.dart';
 import '../modules/client/job/client_job_detail_view.dart';
 import '../modules/client/property/add_property_view.dart';
-import '../modules/client/property/detail_property_view.dart';
 import '../modules/client/property/property_binding.dart';
 import '../modules/client/property/property_view.dart';
 import '../modules/splash/splash_binding.dart';
@@ -79,11 +78,6 @@ class AppPages {
     GetPage(
       name: _Paths.ADD_PROPERTY,
       page: () => const AddPropertyView(),
-      binding: PropertyBinding(),
-    ),
-    GetPage(
-      name: _Paths.DETAIL_PROPERTY,
-      page: () => const DetailPropertyView(),
       binding: PropertyBinding(),
     ),
     GetPage(

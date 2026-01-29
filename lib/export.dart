@@ -34,6 +34,7 @@ export 'app/utils/notifier.dart';
 export 'app/utils/custom_loader.dart';
 export 'app/utils/date_utils.dart';
 export 'app/utils/secure_logger.dart';
+export 'app/utils/error_handler.dart';
 
 // Network helpers (result + unified exception mapper)
 export 'app/network/utils/network_result.dart';

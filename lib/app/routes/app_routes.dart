@@ -26,7 +26,6 @@ abstract class Routes {
   static const CLEANER_JOB_DETAIL = _Paths.CLEANER_JOB_DETAIL;
   static const PROPERTY = _Paths.PROPERTY;
   static const ADD_PROPERTY = _Paths.ADD_PROPERTY;
-  static const DETAIL_PROPERTY = _Paths.DETAIL_PROPERTY;
   static const CLEANER_EDIT_PROFILE = _Paths.CLEANER_EDIT_PROFILE;
   static const TRAINING_AND_RESOURCES = _Paths.TRAINING_AND_RESOURCES;
 }
@@ -50,7 +49,6 @@ abstract class _Paths {
   static const CLIENT_EDIT_PROFILE = '/client/edit-profile';
   static const PROPERTY = '/property';
   static const ADD_PROPERTY = '/add-property';
-  static const DETAIL_PROPERTY = '/detail-property';
 
   // Cleaner module
   static const CLEANER_DASHBOARD = '/cleaner';

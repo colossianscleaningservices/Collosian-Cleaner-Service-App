@@ -1,4 +1,5 @@
 import 'package:ccs_app/export.dart';
+import 'package:ccs_app/app/services/onesignal_service.dart';
 
 enum AppRole { client, cleaner }
 
@@ -74,8 +75,16 @@ class AuthController extends GetxController {
     try {
       // TODO: call login API, read role from response, route to correct dashboard.
       await Future<void>.delayed(const Duration(milliseconds: 800));
+      // When API returns user id: setPushUserId(response.userId.toString());
     } finally {
       isLoggingIn.value = false;
+    }
+  }
+
+  /// Call after successful login when backend provides user id (for push targeting).
+  void setPushUserId(String? userId) {
+    if (userId != null && userId.isNotEmpty) {
+      OneSignalService.login(userId);
     }
   }
 
@@ -83,7 +92,7 @@ class AuthController extends GetxController {
     if (isSigningUp.value) return;
     isSigningUp.value = true;
     try {
-      // TODO: call signup API based on selectedRole.
+      // TODO: call signup API based on selectedRole; then OneSignalService.login(userId.toString());
       await Future<void>.delayed(const Duration(milliseconds: 800));
       if (selectedRole.value == AppRole.client) {
         Get.offAllNamed(Routes.CLIENT_DASHBOARD);
