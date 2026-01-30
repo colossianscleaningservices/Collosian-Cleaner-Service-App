@@ -9,11 +9,12 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
+
     return SafeArea(
       child: SingleChildScrollView(
         padding: UiConstants.padding,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             AppCard(
               child: Row(
@@ -51,7 +52,7 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                   return MenuItem(controller.cleanerProfileItems[index], onTap: () {
                     switch (index) {
                       case 0:
-                        // Get.toNamed(Routes.CHANGE_PASSWORD);
+                        Get.toNamed(Routes.CHANGE_PASSWORD);
                         break;
                       case 1:
                         Get.toNamed(Routes.CLEANER_REFERENCES);
@@ -60,12 +61,19 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                         Get.toNamed(Routes.SUPPORT_DOCUMENT);
                         break;
                       case 3:
-                        // Get.toNamed(Routes.NOTIFICATIONS);
+                        Get.toNamed(Routes.CLEANER_REVIEW);
                         break;
                       case 4:
+                        Get.toNamed(Routes.CLEANER_PAYOUT_COMPUTATION);
                         break;
                       case 5:
+                        Get.toNamed(Routes.NOTIFICATION);
+                        break;
+                      case 6:
                         Get.toNamed(Routes.TRAINING_AND_RESOURCES);
+                        break;
+                      case 7:
+                        Get.toNamed(Routes.HELP_SUPPORT);
                         break;
                     }
                   });
@@ -73,12 +81,22 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
               ).paddingSymmetric(horizontal: 16, vertical: 8),
             ),
             const SizedBox(height: 24),
-            AppButton(
-              label: 'Log out',
-              type: ButtonType.outline,
-              icon: IconsaxPlusLinear.logout,
-              onPressed: () => Get.find<SessionService>().logout(),
-            ),
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                label: 'Log out',
+                type: ButtonType.outline,
+                icon: IconsaxPlusLinear.logout,
+                onPressed: () => Get.find<SessionService>().logout(),
+              ),
+            ).marginOnly(bottom: 16),
+            Obx(() {
+              return CommonText.medium(
+                "Version ${controller.appVersion.value}",
+                size: 16,
+                color: context.colorScheme.primary,
+              );
+            }),
             const SizedBox(height: 24),
           ],
         ),

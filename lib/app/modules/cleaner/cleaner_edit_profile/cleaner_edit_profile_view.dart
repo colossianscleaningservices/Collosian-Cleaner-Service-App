@@ -99,34 +99,7 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                   onChanged: (v) => controller.enableReminders.value = v ?? false,
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
-                ),
-              ),
-              Obx(
-                () => CheckboxListTile(
-                  dense: true,
-                  visualDensity: VisualDensity.compact,
-                  title: CommonText.regular('Change my password', size: 14, color: colorScheme.onSurface),
-                  value: controller.changePassword.value,
-                  onChanged: (v) => controller.changePassword.value = v ?? false,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                ).marginOnly(bottom: 18),
-              ),
-
-              Obx(
-                () => controller.changePassword.value
-                    ? CommonTextField(
-                        controller: controller.changePasswordCtrl,
-                        hint: 'Enter Password',
-                        obscure: controller.changeObscure.value,
-                        suffixIcon: IconButton(
-                          onPressed: () => controller.changeObscure.value = !controller.changeObscure.value,
-                          icon: Icon(
-                            controller.changeObscure.value ? Icons.visibility_off : Icons.visibility,
-                          ),
-                        ),
-                      ).marginOnly(bottom: 18)
-                    : SizedBox.shrink(),
+                ).marginOnly(bottom: 16),
               ),
 
               CommonTextField(controller: controller.companyCtrl, label: 'Company', hint: 'Enter your company').marginOnly(bottom: 24),
@@ -415,10 +388,7 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
               CommonTextField(controller: controller.bankNameCtrl, label: 'Bank Name', hint: 'Enter your bank name').marginOnly(bottom: 18),
               CommonTextField(controller: controller.yourNameCtrl, label: 'Your Name', hint: 'Enter your name').marginOnly(bottom: 18),
               CommonTextField(
-                      controller: controller.accountNumberCtrl,
-                      label: 'Account Number',
-                      hint: 'Enter your account Number',
-                      keyboardType: TextInputType.number)
+                      controller: controller.accountNumberCtrl, label: 'Account Number', hint: 'Enter your account Number', keyboardType: TextInputType.number)
                   .marginOnly(bottom: 18),
               CommonTextField(controller: controller.sortCodeCtrl, label: 'Sort Code', hint: 'Enter your sort Code').marginOnly(bottom: 18),
 

@@ -1,5 +1,6 @@
 import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../model/availability.dart';
 import '../../../model/calendar_event.dart';
@@ -94,11 +95,13 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     MenuModel(icon: IconsaxPlusLinear.home_hashtag, title: 'References', subtitle: "Manage your references"),
     MenuModel(icon: IconsaxPlusLinear.people, title: 'Supporting Documents', subtitle: "Manage your supporting documents"),
     MenuModel(icon: IconsaxPlusLinear.people, title: 'My Reviews', subtitle: "Manage your reviews"),
+    MenuModel(icon: IconsaxPlusLinear.alarm, title: 'Work Hours & Pay', subtitle: "Manage your work hour & pay"),
     MenuModel(icon: IconsaxPlusLinear.notification, title: 'Notifications', subtitle: "View and manage notifications"),
     MenuModel(icon: IconsaxPlusLinear.trade, title: 'Training & Resources', subtitle: "View Training Resources & FAQs"),
     MenuModel(icon: IconsaxPlusLinear.message_question, title: 'Help & support', subtitle: "Get help and support"),
   ];
 
+  var appVersion = "".obs;
 
   @override
   void onInit() {
@@ -113,6 +116,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     }
     tabController = TabController(length: 3, vsync: this, initialIndex: 1);
     tabController.addListener(_syncModeFromTab);
+
+    getAppVersion();
   }
 
   @override
@@ -120,6 +125,12 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     tabController.removeListener(_syncModeFromTab);
     tabController.dispose();
     super.onClose();
+  }
+
+  // Fetches the app version from the platform and updates the appVersion observable
+  Future<void> getAppVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    appVersion.value = packageInfo.version;
   }
 
   void _syncModeFromTab() {

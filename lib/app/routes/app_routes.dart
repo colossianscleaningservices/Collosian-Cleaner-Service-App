@@ -32,6 +32,11 @@ abstract class Routes {
   static const ADD_REFERENCES = _Paths.ADD_REFERENCES;
   static const SUPPORT_DOCUMENT = _Paths.SUPPORT_DOCUMENT;
   static const ADD_DOCUMENT = _Paths.ADD_DOCUMENT;
+  static const NOTIFICATION = _Paths.NOTIFICATION;
+  static const CLEANER_PAYOUT_COMPUTATION = _Paths.CLEANER_PAYOUT_COMPUTATION;
+  static const HELP_SUPPORT = _Paths.HELP_SUPPORT;
+  static const CHANGE_PASSWORD = _Paths.CHANGE_PASSWORD;
+  static const CLEANER_REVIEW = _Paths.CLEANER_REVIEW;
 }
 
 abstract class _Paths {
@@ -63,4 +68,9 @@ abstract class _Paths {
   static const ADD_REFERENCES = '/cleaner/add-references';
   static const SUPPORT_DOCUMENT = '/cleaner/support-document';
   static const ADD_DOCUMENT = '/cleaner/add-document';
+  static const NOTIFICATION = '/cleaner/notification';
+  static const CLEANER_PAYOUT_COMPUTATION = '/cleaner/cleaner-payout-computation';
+  static const HELP_SUPPORT = '/common/help-support';
+  static const CHANGE_PASSWORD = '/common/change-password';
+  static const CLEANER_REVIEW = '/cleaner/cleaner-review';
 }

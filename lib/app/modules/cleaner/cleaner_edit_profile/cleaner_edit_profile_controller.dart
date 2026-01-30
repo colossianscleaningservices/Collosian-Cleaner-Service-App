@@ -32,9 +32,6 @@ class CleanerEditProfileController extends GetxController {
   final children = Rxn<String>();
   final immigrationStatus = Rxn<String>();
   final enableReminders = false.obs;
-  final changePassword = false.obs;
-  final changePasswordCtrl = TextEditingController();
-  final changeObscure = true.obs;
   final scheduleValidFrom = Rx<DateTime>(DateTime.now());
 
   List<String> genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
