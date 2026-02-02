@@ -83,6 +83,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/launcher/
 
 flutter_native_splash:
   ios: true

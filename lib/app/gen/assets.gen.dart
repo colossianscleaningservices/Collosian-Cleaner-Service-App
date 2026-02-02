@@ -18,24 +18,42 @@ class Assets {
   const Assets._();
 
   /// File path: assets/images/app_logo.svg
-  static const SvgGenImage imagesAppLogo = SvgGenImage(
-    'assets/images/app_logo.svg',
-  );
+  static const SvgGenImage imagesAppLogo =
+      SvgGenImage('assets/images/app_logo.svg');
 
   /// File path: assets/images/bg.jpg
   static const AssetGenImage imagesBg = AssetGenImage('assets/images/bg.jpg');
 
   /// File path: assets/images/dummy.jpg
-  static const AssetGenImage imagesDummy = AssetGenImage(
-    'assets/images/dummy.jpg',
-  );
+  static const AssetGenImage imagesDummy =
+      AssetGenImage('assets/images/dummy.jpg');
+
+  /// File path: assets/launcher/app_icon.png
+  static const AssetGenImage launcherAppIcon =
+      AssetGenImage('assets/launcher/app_icon.png');
+
+  /// File path: assets/launcher/app_icon_fg.png
+  static const AssetGenImage launcherAppIconFg =
+      AssetGenImage('assets/launcher/app_icon_fg.png');
+
+  /// File path: assets/launcher/splash_icon.png
+  static const AssetGenImage launcherSplashIcon =
+      AssetGenImage('assets/launcher/splash_icon.png');
 
   /// List of all assets
-  static List<dynamic> get values => [imagesAppLogo, imagesBg, imagesDummy];
+  static List<dynamic> get values => [
+        imagesAppLogo,
+        imagesBg,
+        imagesDummy,
+        launcherAppIcon,
+        launcherAppIconFg,
+        launcherSplashIcon
+      ];
 }
 
 class AssetGenImage {
-  const AssetGenImage(this._assetName, {
+  const AssetGenImage(
+    this._assetName, {
     this.size,
     this.flavors = const {},
     this.animation,
@@ -100,8 +118,15 @@ class AssetGenImage {
     );
   }
 
-  ImageProvider provider({AssetBundle? bundle, String? package}) {
-    return AssetImage(_assetName, bundle: bundle, package: package);
+  ImageProvider provider({
+    AssetBundle? bundle,
+    String? package,
+  }) {
+    return AssetImage(
+      _assetName,
+      bundle: bundle,
+      package: package,
+    );
   }
 
   String get path => _assetName;
@@ -122,11 +147,17 @@ class AssetGenImageAnimation {
 }
 
 class SvgGenImage {
-  const SvgGenImage(this._assetName, {this.size, this.flavors = const {}})
-      : _isVecFormat = false;
+  const SvgGenImage(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+  }) : _isVecFormat = false;
 
-  const SvgGenImage.vec(this._assetName, {this.size, this.flavors = const {}})
-      : _isVecFormat = true;
+  const SvgGenImage.vec(
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+  }) : _isVecFormat = true;
 
   final String _assetName;
   final Size? size;
@@ -182,8 +213,7 @@ class SvgGenImage {
       placeholderBuilder: placeholderBuilder,
       semanticsLabel: semanticsLabel,
       excludeFromSemantics: excludeFromSemantics,
-      colorFilter:
-      colorFilter ??
+      colorFilter: colorFilter ??
           (color == null ? null : ColorFilter.mode(color, colorBlendMode)),
       clipBehavior: clipBehavior,
       cacheColorFilter: cacheColorFilter,

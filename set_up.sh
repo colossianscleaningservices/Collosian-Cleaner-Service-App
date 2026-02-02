@@ -36,8 +36,8 @@ echo -e "${CYAN}Starting WAVTech app configuration...${RESET}\n"
 # Run commands for WAVTech setup
 run_command "dart run change_app_package_name:main 'io.ccs.app'"
 run_command "dart run rename_app:main all='CCS App'"
-#run_command "dart run flutter_native_splash:create"
-#run_command "dart run flutter_launcher_icons"
+run_command "dart run flutter_native_splash:create"
+run_command "dart run flutter_launcher_icons"
 # run_command "flutterfire configure -p collosian-cleaner-service-app"
 
 # Additional setup commands for WAVTech
