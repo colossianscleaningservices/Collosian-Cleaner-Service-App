@@ -13,7 +13,7 @@ class CleanerDashboardView extends GetView<CleanerDashboardController> {
     return Obx(
       () => AppScaffold(
         appBar: Header(
-          widget: Assets.imagesAppLogo.svg(width: 120, colorFilter: ColorFilter.mode(context.colorScheme.secondary, BlendMode.srcATop)),
+          widget: Assets.imagesAppLogo.image(width: 120),
           title: "",
           actions: [
             IconButton(

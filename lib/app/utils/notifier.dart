@@ -81,7 +81,7 @@ class Notifier {
           children: [
             Row(
               children: [
-                Assets.imagesAppLogo.svg(width: 120, colorFilter: ColorFilter.mode(scheme.secondary, BlendMode.srcATop)),
+                Assets.imagesAppLogo.image(width: 120,),
                 Spacer(),
                 Align(
                   alignment: Alignment.topRight,

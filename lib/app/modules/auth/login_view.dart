@@ -1,8 +1,8 @@
+import 'package:ccs_app/app/gen/assets.gen.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
 import 'auth_controller.dart';
-import 'widgets/auth_logo.dart';
 
 class LoginView extends GetView<AuthController> {
   const LoginView({super.key});
@@ -21,9 +21,9 @@ class LoginView extends GetView<AuthController> {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    const AuthLogo().paddingOnly(top: 32, bottom: 24),
+                    Assets.imagesAppLogo.image().paddingSymmetric(horizontal: 24, vertical: 32),
                     AppCard(
                       child: Form(
                         key: controller.loginFormKey,
@@ -90,7 +90,7 @@ class LoginView extends GetView<AuthController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 CommonText.regular("Don't have an account? ", color: scheme.onSurfaceVariant),
-                                CommonText.regular('Sign up', color: scheme.primary, onTap:()=> controller.goToRoleSelection(context)),
+                                CommonText.regular('Sign up', color: scheme.primary, onTap: () => controller.goToRoleSelection(context)),
                               ],
                             ),
                           ],

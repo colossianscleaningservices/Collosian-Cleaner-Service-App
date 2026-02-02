@@ -1,8 +1,8 @@
+import 'package:ccs_app/app/gen/assets.gen.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
 import 'auth_controller.dart';
-import 'widgets/auth_logo.dart';
 
 class SignupView extends GetView<AuthController> {
   const SignupView({super.key});
@@ -23,21 +23,15 @@ class SignupView extends GetView<AuthController> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 32, bottom: 24),
-                      child: const AuthLogo(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 32),
-                      child: AppCard(
-                        child: Obx(() {
-                          final role = controller.selectedRole.value;
-                          if (role == null) {
-                            return _buildSelectRoleContent(context);
-                          }
-                          return _buildSignupForm(context, role);
-                        }),
-                      ),
+                    Assets.imagesAppLogo.image().paddingSymmetric(horizontal: 24, vertical: 32),
+                    AppCard(
+                      child: Obx(() {
+                        final role = controller.selectedRole.value;
+                        if (role == null) {
+                          return _buildSelectRoleContent(context);
+                        }
+                        return _buildSignupForm(context, role);
+                      }),
                     ),
                   ],
                 ),
@@ -62,10 +56,7 @@ class SignupView extends GetView<AuthController> {
           size: 18,
         ),
         const SizedBox(height: 32),
-        AppButton(
-          label: 'Select role',
-          onPressed:()=> controller.goToRoleSelection(context)
-        ),
+        AppButton(label: 'Select role', onPressed: () => controller.goToRoleSelection(context)),
         const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -81,9 +72,7 @@ class SignupView extends GetView<AuthController> {
   Widget _buildSignupForm(BuildContext context, AppRole role) {
     final scheme = context.colorScheme;
     final isClient = role == AppRole.client;
-    final subtitle = isClient
-        ? 'Create your client account'
-        : 'Create your cleaner account';
+    final subtitle = isClient ? 'Create your client account' : 'Create your cleaner account';
 
     return Form(
       key: controller.signupFormKey,

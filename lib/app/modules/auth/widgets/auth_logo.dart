@@ -13,10 +13,8 @@ class AuthLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = context.colorScheme;
-    return SizedBox(
-      height: height,
-      child: Center(child: Assets.imagesAppLogo.svg(colorFilter: ColorFilter.mode(scheme.secondary, BlendMode.srcATop))),
-    );
+    return Assets.imagesAppLogo.image(
+          height: height,
+        );
   }
 }
