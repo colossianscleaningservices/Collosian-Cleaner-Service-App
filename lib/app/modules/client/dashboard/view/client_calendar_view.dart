@@ -1,7 +1,7 @@
 import 'package:ccs_app/app/model/calendar_event.dart';
 import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
+import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
-import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class ClientCalendarView extends GetView<ClientDashboardController> {
@@ -200,7 +200,7 @@ class _ListContentView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: _ListJobCard(
-                date: DateFormat('EEE d MMM').format(list[i].$1),
+                date: CcsDateUtils.shortDateNoYear(list[i].$1),
                 time: list[i].$2.timeRange,
                 property: list[i].$2.title,
                 status: list[i].$2.status,

@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 import '../../../../../export.dart';
 import '../../../../widget/layout/app_scaffold.dart';
 import '../support_document_controller.dart';
@@ -167,7 +165,7 @@ class _DateField extends StatelessWidget {
   Widget build(BuildContext context) {
     return FormField<String>(
       validator: validator,
-      initialValue: value != null ? DateFormat('MM/dd/yyyy').format(value!) : null,
+      initialValue: value != null ? CcsDateUtils.forInput(value!) : null,
       builder: (ff) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,7 +197,7 @@ class _DateField extends StatelessWidget {
                     ),
                   ),
                   isEmpty: value == null,
-                  child: Text(value != null ? DateFormat('MM/dd/yyyy').format(value!) : '', style: TextStyle(fontSize: 14, color: scheme.onSurface)),
+                  child: Text(value != null ? CcsDateUtils.forInput(value!) : '', style: TextStyle(fontSize: 14, color: scheme.onSurface)),
                 ),
               ),
             ),

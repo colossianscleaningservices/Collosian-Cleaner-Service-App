@@ -14,3 +14,4 @@ class NetworkMonitorService extends GetxService {
     });
   }
 }
+

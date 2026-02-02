@@ -1,5 +1,4 @@
 import 'package:ccs_app/export.dart';
-import 'package:intl/intl.dart';
 
 import '../../../widget/layout/app_scaffold.dart';
 import 'cleaner_edit_profile_controller.dart';
@@ -444,7 +443,7 @@ class _DateField extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           child: Row(
             children: [
-              Expanded(child: CommonText.medium(DateFormat('dd/MM/yyyy').format(value), size: 14, color: scheme.onSurface)),
+              Expanded(child: CommonText.medium(CcsDateUtils.forInput(value), size: 14, color: scheme.onSurface)),
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(color: scheme.surfaceTint.withValues(alpha: 0.04), shape: BoxShape.circle),

@@ -1,13 +1,14 @@
+import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
-import 'package:ccs_app/app/model/client_job.dart';
 
-import 'client_job_detail_controller.dart';
+import 'cleaner_job_detail_controller.dart';
 
-/// Client job detail: status, schedule, property, preferences, cleaners.
-class ClientJobDetailView extends GetView<ClientJobDetailController> {
-  const ClientJobDetailView({super.key});
+/// Cleaner job detail: same layout as client (AppScaffold, Header, AppCard sections).
+/// App bar: Directions, Contact. Status area: Accept/Decline when Pending.
+class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
+  const CleanerJobDetailView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +24,14 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
         titleCentered: false,
         actions: [
           IconButton(
-            icon: Icon(IconsaxPlusLinear.edit_2, size: 22, color: scheme.primary),
-            tooltip: 'Edit job',
-            onPressed: c.onEdit,
+            icon: Icon(IconsaxPlusLinear.map_1, size: 22, color: scheme.primary),
+            tooltip: 'Directions',
+            onPressed: c.onDirections,
           ),
           IconButton(
-            icon: Icon(IconsaxPlusLinear.trash, size: 22, color: scheme.error),
-            tooltip: 'Delete job',
-            onPressed: () => c.confirmDeleteJob(context),
+            icon: Icon(IconsaxPlusLinear.message_text, size: 22, color: scheme.primary),
+            tooltip: 'Contact',
+            onPressed: c.onContactClient,
           ),
         ],
       ),
@@ -62,11 +63,19 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                     _row('Time', '${j.startTime} – ${j.endTime}', scheme),
                     if (j.jobEndDate != null)
                       _row('End date', CcsDateUtils.fullDate(j.jobEndDate!), scheme),
-                    if (j.status == 'Scheduled') ...[
+                    if (j.status == 'Pending' || j.status.toLowerCase() == 'pending') ...[
                       const SizedBox(height: 12),
-                      TextButton(
-                        onPressed: c.onCancelJob,
-                        child: CommonText.regular('Cancel job', size: 14, color: scheme.error),
+                      Row(
+                        children: [
+                          TextButton(
+                            onPressed: c.onAccept,
+                            child: CommonText.regular('Accept', size: 14, color: scheme.primary),
+                          ),
+                          TextButton(
+                            onPressed: c.onDecline,
+                            child: CommonText.regular('Decline', size: 14, color: scheme.error),
+                          ),
+                        ],
                       ),
                     ],
                   ],

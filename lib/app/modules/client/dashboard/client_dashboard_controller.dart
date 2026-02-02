@@ -1,7 +1,7 @@
 import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/app/model/menu_model.dart';
+import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
-import 'package:intl/intl.dart';
 
 import '../../../model/calendar_event.dart';
 import 'view/client_calendar_view.dart';
@@ -59,9 +59,9 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       final d = focusedDay.value;
       final start = d.subtract(Duration(days: d.weekday - 1));
       final end = start.add(const Duration(days: 6));
-      return '${start.day}–${end.day} ${DateFormat('MMM yyyy').format(start)}';
+      return CcsDateUtils.dateRange(start, end);
     }
-    return DateFormat('MMMM yyyy').format(focusedDay.value);
+    return CcsDateUtils.fullMonthYear(focusedDay.value);
   }
 
   /// Placeholder events. Replace with API-backed source.

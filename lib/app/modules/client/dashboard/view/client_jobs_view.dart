@@ -1,7 +1,7 @@
-import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
+import 'package:ccs_app/app/model/client_job.dart';
+import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
-import 'package:intl/intl.dart';
 
 class ClientJobsView extends GetView<ClientDashboardController> {
   const ClientJobsView({super.key});
@@ -72,7 +72,7 @@ class _JobCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = DateFormat('EEE d MMM').format(job.date);
+    final dateStr = CcsDateUtils.shortDateNoYear(job.date);
     final timeStr = '${job.startTime} – ${job.endTime}';
 
     return AppCard(

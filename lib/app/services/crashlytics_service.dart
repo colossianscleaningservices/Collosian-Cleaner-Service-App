@@ -7,8 +7,8 @@ class CrashlyticsService {
   CrashlyticsService._internal();
 
   static CrashlyticsService? _instance;
-
-  static CrashlyticsService get instance => _instance ??= CrashlyticsService._internal();
+  static CrashlyticsService get instance =>
+      _instance ??= CrashlyticsService._internal();
 
   FirebaseCrashlytics? _crashlytics;
   bool _isInitialized = false;
@@ -110,5 +110,6 @@ class CrashlyticsService {
     }
   }
 
-  static bool isServerError(int? statusCode) => statusCode != null && statusCode >= 500 && statusCode < 600;
+  static bool isServerError(int? statusCode) =>
+      statusCode != null && statusCode >= 500 && statusCode < 600;
 }

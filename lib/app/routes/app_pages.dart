@@ -1,3 +1,8 @@
+import 'package:ccs_app/app/modules/cleaner/notification/notification_binding.dart';
+import 'package:ccs_app/app/modules/cleaner/notification/notification_view.dart';
+import 'package:ccs_app/app/modules/cleaner/support_document/support_document_binding.dart';
+import 'package:ccs_app/app/modules/cleaner/support_document/support_document_view.dart';
+import 'package:ccs_app/app/modules/cleaner/support_document/views/add_document_view.dart';
 import 'package:get/get.dart';
 
 import '../modules/auth/auth_binding.dart';
@@ -18,13 +23,8 @@ import '../modules/cleaner/cleaner_review/cleaner_review_binding.dart';
 import '../modules/cleaner/cleaner_review/cleaner_review_view.dart';
 import '../modules/cleaner/dashboard/cleaner_dashboard_binding.dart';
 import '../modules/cleaner/dashboard/cleaner_dashboard_view.dart';
-import '../modules/cleaner/dashboard/cleaner_job_detail_binding.dart';
-import '../modules/cleaner/dashboard/cleaner_job_detail_view.dart';
-import '../modules/cleaner/notification/notification_binding.dart';
-import '../modules/cleaner/notification/notification_view.dart';
-import '../modules/cleaner/support_document/support_document_binding.dart';
-import '../modules/cleaner/support_document/support_document_view.dart';
-import '../modules/cleaner/support_document/views/add_document_view.dart';
+import '../modules/cleaner/job/cleaner_job_detail_binding.dart';
+import '../modules/cleaner/job/cleaner_job_detail_view.dart';
 import '../modules/cleaner/training_and_resources/training_and_resources_binding.dart';
 import '../modules/cleaner/training_and_resources/training_and_resources_view.dart';
 import '../modules/client/create_job/create_job_binding.dart';
@@ -55,46 +55,19 @@ class AppPages {
   static const INITIAL = Routes.SPLASH;
 
   static final routes = <GetPage>[
-    GetPage(
-        name: _Paths.SPLASH,
-        page: () => const SplashView(),
-        binding: SplashBinding()),
+    GetPage(name: _Paths.SPLASH, page: () => const SplashView(), binding: SplashBinding()),
 
     // Auth module (single binding/controller shared across auth screens)
-    GetPage(
-        name: _Paths.AUTH,
-        page: () => const AuthView(),
-        binding: AuthBinding()),
-    GetPage(
-        name: _Paths.LOGIN,
-        page: () => const LoginView(),
-        binding: AuthBinding()),
-    GetPage(
-        name: _Paths.ROLE_SELECTION,
-        page: () => const RoleSelectionView(),
-        binding: AuthBinding()),
-    GetPage(
-        name: _Paths.SIGN_UP,
-        page: () => const SignupView(),
-        binding: AuthBinding()),
-    GetPage(
-        name: _Paths.FORGOT_PASSWORD,
-        page: () => const ForgotPasswordView(),
-        binding: AuthBinding()),
-    GetPage(
-        name: _Paths.RESET_PASSWORD,
-        page: () => const ResetPasswordView(),
-        binding: AuthBinding()),
+    GetPage(name: _Paths.AUTH, page: () => const AuthView(), binding: AuthBinding()),
+    GetPage(name: _Paths.LOGIN, page: () => const LoginView(), binding: AuthBinding()),
+    GetPage(name: _Paths.ROLE_SELECTION, page: () => const RoleSelectionView(), binding: AuthBinding()),
+    GetPage(name: _Paths.SIGN_UP, page: () => const SignupView(), binding: AuthBinding()),
+    GetPage(name: _Paths.FORGOT_PASSWORD, page: () => const ForgotPasswordView(), binding: AuthBinding()),
+    GetPage(name: _Paths.RESET_PASSWORD, page: () => const ResetPasswordView(), binding: AuthBinding()),
 
     // Client module — register CREATE before DETAIL so /client/job/create opens CreateJobView, not JobDetail
-    GetPage(
-        name: _Paths.CLIENT_DASHBOARD,
-        page: () => const ClientDashboardView(),
-        binding: ClientDashboardBinding()),
-    GetPage(
-        name: _Paths.CLIENT_CREATE_JOB,
-        page: () => const CreateJobView(),
-        binding: CreateJobBinding()),
+    GetPage(name: _Paths.CLIENT_DASHBOARD, page: () => const ClientDashboardView(), binding: ClientDashboardBinding()),
+    GetPage(name: _Paths.CLIENT_CREATE_JOB, page: () => const CreateJobView(), binding: CreateJobBinding()),
     GetPage(
       name: _Paths.CLIENT_JOB_DETAIL,
       page: () => const ClientJobDetailView(),
@@ -107,10 +80,7 @@ class AppPages {
     ),
 
     // Cleaner module
-    GetPage(
-        name: _Paths.CLEANER_DASHBOARD,
-        page: () => const CleanerDashboardView(),
-        binding: CleanerDashboardBinding()),
+    GetPage(name: _Paths.CLEANER_DASHBOARD, page: () => const CleanerDashboardView(), binding: CleanerDashboardBinding()),
     GetPage(
       name: _Paths.CLEANER_JOB_DETAIL,
       page: () => const CleanerJobDetailView(),

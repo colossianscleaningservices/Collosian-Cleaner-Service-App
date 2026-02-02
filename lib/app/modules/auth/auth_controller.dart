@@ -1,5 +1,5 @@
-import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/export.dart';
+import 'package:ccs_app/app/services/onesignal_service.dart';
 
 enum AppRole { client, cleaner }
 

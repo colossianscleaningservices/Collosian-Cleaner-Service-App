@@ -1,11 +1,10 @@
 import 'package:ccs_app/app/model/client_job.dart';
+import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
-import 'package:intl/intl.dart';
 
-import 'cleaner_dashboard_controller.dart';
-import 'cleaner_jobs_controller.dart';
+import '../cleaner_dashboard_controller.dart';
 
-class CleanerJobsView extends GetView<CleanerJobsController> {
+class CleanerJobsView extends GetView<CleanerDashboardController> {
   const CleanerJobsView({super.key});
 
   @override
@@ -15,7 +14,41 @@ class CleanerJobsView extends GetView<CleanerJobsController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _JobsHeader(scheme: scheme).marginOnly(left: 18, right: 18, top: 18, bottom: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CommonText.bold('Jobs', size: 24, color: scheme.onSurface),
+                    const SizedBox(height: 4),
+                    CommonText.regular(
+                      controller.jobs.isEmpty ? 'No assignments yet' : '${controller.jobs.length} ${controller.jobs.length == 1 ? 'job' : 'jobs'} total',
+                      size: 14,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+              ),
+              if (controller.jobs.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: scheme.primaryContainer.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(IconsaxPlusLinear.calendar_1, size: 18, color: scheme.primary),
+                      const SizedBox(width: 6),
+                      CommonText.semiBold('${controller.jobs.length}', size: 14, color: scheme.primary),
+                    ],
+                  ),
+                ),
+            ],
+          ).marginOnly(left: 18, right: 18, top: 18, bottom: 16),
           Expanded(
             child: Obx(() {
               final list = controller.jobs;
@@ -25,10 +58,7 @@ class CleanerJobsView extends GetView<CleanerJobsController> {
                   title: 'No jobs assigned',
                   subtitle: 'Update your availability to get more assignments.',
                   actionLabel: 'Edit availability',
-                  onAction: () {
-                    final ctrl = Get.find<CleanerDashboardController>();
-                    ctrl.setTab(3);
-                  },
+                  onAction: () => controller.setTab(3),
                 );
               }
 
@@ -73,56 +103,6 @@ class CleanerJobsView extends GetView<CleanerJobsController> {
   static bool _isSameDay(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;
 }
 
-class _JobsHeader extends StatelessWidget {
-  const _JobsHeader({required this.scheme});
-
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return GetX<CleanerJobsController>(
-      builder: (ctrl) {
-        final count = ctrl.jobs.length;
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CommonText.bold('Jobs', size: 24, color: scheme.onSurface),
-                  const SizedBox(height: 4),
-                  CommonText.regular(
-                    count == 0 ? 'No assignments yet' : '$count ${count == 1 ? 'job' : 'jobs'} total',
-                    size: 14,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ],
-              ),
-            ),
-            if (count > 0)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: scheme.primaryContainer.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(IconsaxPlusLinear.calendar_1, size: 18, color: scheme.primary),
-                    const SizedBox(width: 6),
-                    CommonText.semiBold('$count', size: 14, color: scheme.primary),
-                  ],
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
-}
-
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel({required this.label, required this.count, required this.scheme});
 
@@ -162,7 +142,7 @@ class _JobListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dateStr = DateFormat('EEE d MMM').format(job.date);
+    final dateStr = CcsDateUtils.shortDateNoYear(job.date);
     final timeStr = '${job.startTime} – ${job.endTime}';
 
     return AppCard(
@@ -248,7 +228,7 @@ class _StatusChip extends StatelessWidget {
     if (lower.contains('cancel')) {
       bg = scheme.errorContainer.withValues(alpha: 0.6);
       fg = scheme.error;
-    } else if (lower.contains('complet') || lower.contains('done')) {
+    } else if (lower.contains('complete') || lower.contains('done')) {
       bg = scheme.tertiaryContainer.withValues(alpha: 0.6);
       fg = scheme.onTertiaryContainer;
     } else {

@@ -8,3 +8,4 @@ class SplashBinding extends Bindings {
     Get.put(SplashController());
   }
 }
+

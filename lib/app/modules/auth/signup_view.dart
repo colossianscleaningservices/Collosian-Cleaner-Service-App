@@ -62,7 +62,10 @@ class SignupView extends GetView<AuthController> {
           size: 18,
         ),
         const SizedBox(height: 32),
-        AppButton(label: 'Select role', onPressed: () => controller.goToRoleSelection(context)),
+        AppButton(
+          label: 'Select role',
+          onPressed:()=> controller.goToRoleSelection(context)
+        ),
         const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -78,7 +81,9 @@ class SignupView extends GetView<AuthController> {
   Widget _buildSignupForm(BuildContext context, AppRole role) {
     final scheme = context.colorScheme;
     final isClient = role == AppRole.client;
-    final subtitle = isClient ? 'Create your client account' : 'Create your cleaner account';
+    final subtitle = isClient
+        ? 'Create your client account'
+        : 'Create your cleaner account';
 
     return Form(
       key: controller.signupFormKey,

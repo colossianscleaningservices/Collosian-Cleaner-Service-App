@@ -1,8 +1,8 @@
+import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
-import 'package:intl/intl.dart';
 
-import '../../../widget/quick_action.dart';
-import 'cleaner_dashboard_controller.dart';
+import '../../../../widget/quick_action.dart';
+import '../cleaner_dashboard_controller.dart';
 import 'cleaner_earnings_view.dart';
 import 'cleaner_notifications_view.dart';
 
@@ -93,7 +93,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                             ),
                             const SizedBox(width: 4),
                             CommonText.regular(
-                              DateFormat('EEE d MMM').format(nextJob.$1),
+                              CcsDateUtils.shortDateNoYear(nextJob.$1),
                               size: 12,
                               color: scheme.onPrimary,
                             ),
@@ -358,7 +358,7 @@ class _GreetingSection extends StatelessWidget {
                   CommonText.bold('$greeting!', size: 24, color: scheme.onSurface),
                   const SizedBox(height: 4),
                   CommonText.regular(
-                    DateFormat('EEEE, d MMMM yyyy').format(DateTime.now()),
+                    CcsDateUtils.longDate(DateTime.now()),
                     size: 14,
                     color: scheme.onSurfaceVariant,
                   ),

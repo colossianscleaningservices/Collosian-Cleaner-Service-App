@@ -1,5 +1,3 @@
-import 'package:intl/intl.dart';
-
 import '../../../../export.dart';
 import '../../../widget/layout/app_scaffold.dart';
 import 'support_document_controller.dart';
@@ -103,7 +101,7 @@ class _DocumentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final expiry = item.expiry;
-    final expiryText = expiry != null ? DateFormat('MM/dd/yyyy').format(expiry) : '—';
+    final expiryText = expiry != null ? CcsDateUtils.forInput(expiry) : '—';
     final expiryStatus = _expiryStatus(expiry);
 
     return AppCard(

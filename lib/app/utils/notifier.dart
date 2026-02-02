@@ -24,8 +24,7 @@ class Notifier {
     }
   }
 
-  static void openSheet(
-    BuildContext context, {
+  static void openSheet(BuildContext context, {
     String title = "Alert!",
     String? message,
     Widget? iconWidget,
@@ -47,24 +46,24 @@ class Notifier {
 
     switch (type) {
       case SheetType.success:
-        bg = Colors.green.shade100.withValues(alpha: 0.4); // Background color for success
-        fg = Colors.green.shade400; // Foreground color (text) for success
+        bg = Colors.green.shade100.withValues(alpha: 0.4);  // Background color for success
+        fg = Colors.green.shade400;  // Foreground color (text) for success
         break;
       case SheetType.error:
-        bg = scheme.errorContainer; // Background color for info
-        fg = scheme.error; // Foreground color (text) for info
+        bg = scheme.errorContainer;   // Background color for info
+        fg = scheme.error;   // Foreground color (text) for info
         break;
       case SheetType.info:
-        bg = scheme.secondaryContainer; // Background color for info
-        fg = scheme.secondary; // Foreground color (text) for info
+        bg = scheme.secondaryContainer;   // Background color for info
+        fg = scheme.secondary;   // Foreground color (text) for info
         break;
       case SheetType.warning:
         bg = Colors.yellow.shade100.withValues(alpha: 0.6); // Background color for warning
         fg = Colors.yellow.shade800; // Foreground color (text) for warning
         break;
       case null:
-        bg = scheme.secondaryContainer; // Background color for info
-        fg = scheme.secondary; // Foreground color (text) for info
+        bg = scheme.secondaryContainer;   // Background color for info
+        fg = scheme.secondary;   // Foreground color (text) for info
     }
 
     void closeSheet() {
@@ -95,12 +94,7 @@ class Notifier {
               enableShadows: false,
               color: bg,
               radius: 100,
-              child: iconWidget ??
-                  Icon(
-                    icon ?? IconsaxPlusLinear.check,
-                    size: 56,
-                    color: fg,
-                  ).marginAll(16),
+              child: iconWidget ?? Icon(icon ?? IconsaxPlusLinear.check, size: 56, color: fg,).marginAll(16),
             ).marginOnly(top: 16),
 
             if (body == null)
@@ -128,9 +122,9 @@ class Notifier {
                         label: primaryButtonLabel,
                         onPressed: onPrimaryPressed != null
                             ? () {
-                                closeSheet();
-                                onPrimaryPressed.call();
-                              }
+                          closeSheet();
+                          onPrimaryPressed.call();
+                        }
                             : () => closeSheet(),
                       ),
                     ),
@@ -142,9 +136,9 @@ class Notifier {
                         label: secondaryButtonLabel,
                         onPressed: onSecondaryPressed != null
                             ? () {
-                                closeSheet();
-                                onSecondaryPressed.call();
-                              }
+                          closeSheet();
+                          onSecondaryPressed.call();
+                        }
                             : () => closeSheet(),
                       ),
                     ),
@@ -164,7 +158,7 @@ class Notifier {
       style: ToastificationStyle.flat,
       alignment: Alignment.topCenter,
       autoCloseDuration: _duration,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16,vertical: 8),
       title: Text(title),
       description: Text(message),
       closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),

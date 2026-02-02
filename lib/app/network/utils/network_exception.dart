@@ -45,7 +45,9 @@ sealed class NetworkException implements Exception {
         );
       }
 
-      if (error.type == DioExceptionType.connectionError || (error.type == DioExceptionType.unknown && error.error is SocketException)) {
+      if (error.type == DioExceptionType.connectionError ||
+          (error.type == DioExceptionType.unknown &&
+              error.error is SocketException)) {
         return NoInternetException(
           title: 'No connection',
           message: 'Please check your internet connection and try again.',
@@ -146,3 +148,4 @@ class UnexpectedNetworkException extends NetworkException {
     super.statusCode,
   });
 }
+

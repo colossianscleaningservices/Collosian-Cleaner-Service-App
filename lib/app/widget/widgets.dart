@@ -181,7 +181,9 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
               color: (widget.borderWidth ?? 0) <= 0 ? Colors.transparent : effectiveBorderColor,
               width: widget.borderWidth ?? 0,
             ),
-            boxShadow: widget.enableShadows ? context.effectiveShadows() : null,
+            boxShadow: widget.enableShadows
+                ? context.effectiveShadows()
+                : null,
           ),
           child: Material(
             color: Colors.transparent,
@@ -318,7 +320,7 @@ class AppSliverGrid extends StatelessWidget {
 }
 
 class MenuItem extends StatelessWidget {
-  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive, this.padding});
+  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive,this.padding});
 
   final MenuModel item;
   final VoidCallback? onTap;
@@ -408,7 +410,7 @@ class PageLoader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              CommonText.medium('Loading...', color: context.colorScheme.primary),
+              CommonText.medium('Loading...', color: context.colorScheme.onPrimary),
             ],
           ),
         ).paddingOnly(bottom: MediaQuery.of(context).padding.bottom, top: 4),
@@ -454,8 +456,8 @@ void showPicker({
         children: [
           MenuItem(
             MenuModel(
-              title: primaryText ?? 'Choose from Gallery',
-              subtitle: primarySubtitle ?? 'Select from your photo library',
+              title: 'Choose from Gallery',
+              subtitle: 'Select from your photo library',
               icon: IconsaxPlusLinear.gallery,
             ),
             onTap: () {
@@ -476,7 +478,7 @@ void showPicker({
                 cameraPicker?.call();
               },
               padding: 12,
-            ).marginOnly(left: 16, right: 16, top: 16),
+            ).marginOnly(left: 16, right: 16,top: 16),
           ],
           const SizedBox(height: 16),
           SizedBox(

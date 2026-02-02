@@ -1,6 +1,6 @@
 import 'package:ccs_app/export.dart';
 
-import 'cleaner_dashboard_controller.dart';
+import '../cleaner_dashboard_controller.dart';
 
 class CleanerNotificationsView extends GetView<CleanerDashboardController> {
   const CleanerNotificationsView({super.key});

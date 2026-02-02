@@ -32,4 +32,6 @@ class UiConstants {
     if (size <= 96) return radiusLarge;
     return radiusXLarge;
   }
+
 }
+

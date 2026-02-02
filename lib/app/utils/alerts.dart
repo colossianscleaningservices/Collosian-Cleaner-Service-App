@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'secure_logger.dart';
 
 /// Lightweight logger (avoid print in production code; keep centralized).

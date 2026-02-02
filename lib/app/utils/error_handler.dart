@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
+
 import 'package:ccs_app/app/routes/app_pages.dart';
 import 'package:ccs_app/app/services/crashlytics_service.dart';
 import 'package:ccs_app/app/services/network_monitor_service.dart';
 import 'package:ccs_app/app/utils/notifier.dart';
 import 'package:ccs_app/app/utils/secure_logger.dart';
-import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
 
 /// Global error handler for Flutter framework errors (mirror WAVTech).
 void setupErrorHandling() {
@@ -47,7 +48,8 @@ void _showErrorOverlay(Object error) {
       context,
       type: SheetType.error,
       title: 'Something went wrong',
-      message: 'We encountered an unexpected error. Please try again or contact support if the problem persists.',
+      message:
+          'We encountered an unexpected error. Please try again or contact support if the problem persists.',
       showPrimaryButton: true,
       showSecondaryButton: false,
       primaryButtonLabel: 'Reload App',

@@ -1,14 +1,14 @@
+import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
-import 'package:intl/intl.dart';
 
-import '../../../model/availability.dart';
-import 'cleaner_dashboard_controller.dart';
+import '../../../../model/availability.dart';
+import '../cleaner_dashboard_controller.dart';
 
 class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
   const CleanerAvailabilityView({super.key});
 
   /// 12h format e.g. "09:00 AM", "06:00 PM".
-  static String _formatTime(TimeOfDay t) => DateFormat.jm().format(DateTime(2000, 1, 1, t.hour, t.minute));
+  static String _formatTime(TimeOfDay t) => CcsDateUtils.timeFromTimeOfDay(t);
 
   @override
   Widget build(BuildContext context) {
@@ -404,7 +404,7 @@ class _BlockedChip extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CommonText.regular('Blocked', size: 12, color: scheme.onErrorContainer.withValues(alpha: 0.9)).marginOnly(bottom: 1),
-                  CommonText.semiBold(DateFormat('EEE, d MMM yyyy').format(date), size: 12, color: scheme.onErrorContainer),
+                  CommonText.semiBold(CcsDateUtils.shortWithWeekday(date), size: 12, color: scheme.onErrorContainer),
                 ],
               ),
             ],

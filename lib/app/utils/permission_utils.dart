@@ -37,3 +37,4 @@ class PermissionUtils {
     return status.isGranted;
   }
 }
+

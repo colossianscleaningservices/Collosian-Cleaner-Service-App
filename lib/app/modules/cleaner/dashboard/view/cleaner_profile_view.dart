@@ -1,7 +1,7 @@
 import 'package:ccs_app/export.dart';
 
-import '../../../services/session_service.dart';
-import 'cleaner_dashboard_controller.dart';
+import '../../../../services/session_service.dart';
+import '../cleaner_dashboard_controller.dart';
 
 class CleanerProfileView extends GetView<CleanerDashboardController> {
   const CleanerProfileView({super.key});

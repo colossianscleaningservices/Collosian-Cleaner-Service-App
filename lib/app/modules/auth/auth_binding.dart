@@ -8,3 +8,4 @@ class AuthBinding extends Bindings {
     Get.lazyPut<AuthController>(() => AuthController());
   }
 }
+

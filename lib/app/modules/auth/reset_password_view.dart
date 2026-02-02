@@ -19,7 +19,8 @@ class ResetPasswordView extends GetView<AuthController> {
                 label: 'New password',
                 hint: '••••••••',
                 obscure: controller.resetObscure.value,
-                validator: (v) => Validator.minLength(v, 8, fieldName: 'Password'),
+                validator: (v) =>
+                    Validator.minLength(v, 8, fieldName: 'Password'),
               ),
             ),
             const SizedBox(height: 12),
@@ -29,7 +30,8 @@ class ResetPasswordView extends GetView<AuthController> {
                 label: 'Confirm password',
                 hint: '••••••••',
                 obscure: controller.resetObscure.value,
-                validator: (v) => Validator.minLength(v, 8, fieldName: 'Confirm password'),
+                validator: (v) =>
+                    Validator.minLength(v, 8, fieldName: 'Confirm password'),
               ),
             ),
             const SizedBox(height: 16),
@@ -43,3 +45,4 @@ class ResetPasswordView extends GetView<AuthController> {
     );
   }
 }
+

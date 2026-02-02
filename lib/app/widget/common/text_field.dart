@@ -206,10 +206,6 @@ class CommonDropDownField<T> extends StatelessWidget {
       children: [
         if (label.isNotEmpty) ...[Text(label, style: labelStyle), const SizedBox(height: 6)],
         DropdownButtonFormField2<T>(
-          hint: Text(
-            hint,
-            style: hintStyle,
-          ),
           validator: validator,
           onChanged: onChanged,
           value: value,
@@ -221,7 +217,7 @@ class CommonDropDownField<T> extends StatelessWidget {
             hintStyle: hintStyle,
             context: context,
             hint: hint,
-            contentPadding: EdgeInsets.only(right: 8),
+            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
           ),
           iconStyleData: IconStyleData(icon: Icon(IconsaxPlusLinear.arrow_down, color: context.colorScheme.primary).marginOnly(right: 8)),
           items: items

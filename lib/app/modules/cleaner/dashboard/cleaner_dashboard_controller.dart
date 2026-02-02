@@ -1,15 +1,16 @@
+import 'package:ccs_app/app/model/client_job.dart';
+import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
-import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../model/availability.dart';
 import '../../../model/calendar_event.dart';
 import '../../../model/menu_model.dart';
-import 'cleaner_availability_view.dart';
-import 'cleaner_calendar_view.dart';
-import 'cleaner_dashboard_content.dart';
-import 'cleaner_jobs_view.dart';
-import 'cleaner_profile_view.dart';
+import 'view/cleaner_availability_view.dart';
+import 'view/cleaner_calendar_view.dart';
+import 'view/cleaner_dashboard_content.dart';
+import 'view/cleaner_jobs_view.dart';
+import 'view/cleaner_profile_view.dart';
 
 class CleanerDashboardController extends GetxController with GetSingleTickerProviderStateMixin {
   final tabIndex = 0.obs;
@@ -76,9 +77,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       final d = focusedDay.value;
       final start = d.subtract(Duration(days: d.weekday - 1));
       final end = start.add(const Duration(days: 6));
-      return '${start.day}–${end.day} ${DateFormat('MMM yyyy').format(start)}';
+      return CcsDateUtils.dateRange(start, end);
     }
-    return DateFormat('MMMM yyyy').format(focusedDay.value);
+    return CcsDateUtils.fullMonthYear(focusedDay.value);
   }
 
   List<MenuModel> profileItems = [
@@ -125,6 +126,19 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     tabController.removeListener(_syncModeFromTab);
     tabController.dispose();
     super.onClose();
+  }
+
+  final jobs = <ClientJob>[].obs;
+
+  @override
+  void onReady() {
+    super.onReady();
+    jobs.assignAll(ClientJob.demoJobs);
+  }
+
+  void openDetail(ClientJob job) {
+    final path = Routes.CLEANER_JOB_DETAIL.replaceFirst(':id', job.id);
+    Get.toNamed(path, arguments: job);
   }
 
   // Fetches the app version from the platform and updates the appVersion observable

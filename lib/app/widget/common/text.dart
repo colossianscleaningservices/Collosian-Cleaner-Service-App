@@ -262,3 +262,4 @@ class CommonText extends StatelessWidget {
     );
   }
 }
+
