@@ -1,7 +1,6 @@
 import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
-import 'package:ccs_app/app/model/client_job.dart';
 
 import 'client_job_detail_controller.dart';
 
@@ -57,16 +56,16 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        _chip(j.status, scheme.primaryContainer, scheme.primary),
+                        InfoChip(label: j.status, backgroundColor: scheme.primaryContainer, foregroundColor: scheme.primary),
                         if (j.recurrence != null)
-                          _chip(j.recurrence!, scheme.secondaryContainer, scheme.secondary),
+                          InfoChip(label: j.recurrence!, backgroundColor: scheme.secondaryContainer, foregroundColor: scheme.secondary),
                       ],
                     ),
                     const SizedBox(height: 12),
-                    _row('Date', CcsDateUtils.fullDate(j.date), scheme),
-                    _row('Time', '${j.startTime} – ${j.endTime}', scheme),
+                    LabelValueRow(label: 'Date', value: CcsDateUtils.fullDate(j.date), scheme: scheme),
+                    LabelValueRow(label: 'Time', value: '${j.startTime} – ${j.endTime}', scheme: scheme),
                     if (j.jobEndDate != null)
-                      _row('End date', CcsDateUtils.fullDate(j.jobEndDate!), scheme),
+                      LabelValueRow(label: 'End date', value: CcsDateUtils.fullDate(j.jobEndDate!), scheme: scheme),
                     if (j.status == 'Scheduled') ...[
                       const SizedBox(height: 12),
                       TextButton(
@@ -86,19 +85,19 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                   children: [
                     CommonText.semiBold('Property & client', size: 16, color: scheme.onSurface),
                     const SizedBox(height: 12),
-                    _row('Client', j.clientName, scheme),
-                    _row('Property', j.propertyOneLine, scheme),
-                    if (j.propertyLabel != null) _row('Label', j.propertyLabel!, scheme),
-                    if (j.accessToProperty != null) _row('Access', j.accessToProperty!, scheme),
+                    LabelValueRow(label: 'Client', value: j.clientName, scheme: scheme),
+                    LabelValueRow(label: 'Property', value: j.propertyOneLine, scheme: scheme),
+                    if (j.propertyLabel != null) LabelValueRow(label: 'Label', value: j.propertyLabel!, scheme: scheme),
+                    if (j.accessToProperty != null) LabelValueRow(label: 'Access', value: j.accessToProperty!, scheme: scheme),
                     if (j.address != null || j.city != null || j.postalCode != null)
-                      _row(
-                        'Address',
-                        [j.address, j.city, j.postalCode].whereType<String>().join(', '),
-                        scheme,
+                      LabelValueRow(
+                        label: 'Address',
+                        value: [j.address, j.city, j.postalCode].whereType<String>().join(', '),
+                        scheme: scheme,
                       ),
-                    if (j.propertyType != null) _row('Property type', j.propertyType!, scheme),
-                    if (j.propertySubtype != null) _row('Subtype', j.propertySubtype!, scheme),
-                    if (j.animals != null) _row('Animals', j.animals!, scheme),
+                    if (j.propertyType != null) LabelValueRow(label: 'Property type', value: j.propertyType!, scheme: scheme),
+                    if (j.propertySubtype != null) LabelValueRow(label: 'Subtype', value: j.propertySubtype!, scheme: scheme),
+                    if (j.animals != null) LabelValueRow(label: 'Animals', value: j.animals!, scheme: scheme),
                   ],
                 ).paddingAll(UiConstants.defaultPadding),
               ),
@@ -111,11 +110,11 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                   children: [
                     CommonText.semiBold('Preferences & equipment', size: 16, color: scheme.onSurface),
                     const SizedBox(height: 12),
-                    if (j.staffPreference != null) _row('Staff preference', j.staffPreference!, scheme),
-                    if (j.hoover != null) _row('Hoover', j.hoover!, scheme),
-                    _row('Cleaning products', j.provideCleaningProducts ? 'Yes' : 'No', scheme),
-                    _row('Washing machine', j.provideWashingMachine ? 'Yes' : 'No', scheme),
-                    _row('Dryer', j.provideDryer ? 'Yes' : 'No', scheme),
+                    if (j.staffPreference != null) LabelValueRow(label: 'Staff preference', value: j.staffPreference!, scheme: scheme),
+                    if (j.hoover != null) LabelValueRow(label: 'Hoover', value: j.hoover!, scheme: scheme),
+                    LabelValueRow(label: 'Cleaning products', value: j.provideCleaningProducts ? 'Yes' : 'No', scheme: scheme),
+                    LabelValueRow(label: 'Washing machine', value: j.provideWashingMachine ? 'Yes' : 'No', scheme: scheme),
+                    LabelValueRow(label: 'Dryer', value: j.provideDryer ? 'Yes' : 'No', scheme: scheme),
                   ],
                 ).paddingAll(UiConstants.defaultPadding),
               ),
@@ -129,8 +128,8 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                     CommonText.semiBold('Payment & staff', size: 16, color: scheme.onSurface),
                     const SizedBox(height: 12),
                     if (j.invoicePaymentSource != null)
-                      _row('Payment source', j.invoicePaymentSource!, scheme),
-                    _row('Cleaners needed', '${j.cleanersNeeded}', scheme),
+                      LabelValueRow(label: 'Payment source', value: j.invoicePaymentSource!, scheme: scheme),
+                    LabelValueRow(label: 'Cleaners needed', value: '${j.cleanersNeeded}', scheme: scheme),
                   ],
                 ).paddingAll(UiConstants.defaultPadding),
               ),
@@ -156,7 +155,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                 ...j.cleaners.map(
                   (cl) => Padding(
                     padding: const EdgeInsets.only(bottom: 10),
-                    child: _CleanerCard(
+                    child: CleanerCard(
                       cleaner: cl,
                       onShare: () => c.onShareCleanerProfile(cl),
                       scheme: scheme,
@@ -172,89 +171,4 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
     );
   }
 
-  Widget _row(String label, String value, ColorScheme scheme) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 130,
-            child: CommonText.regular('$label', size: 14, color: scheme.onSurfaceVariant),
-          ),
-          Expanded(
-            child: CommonText.regular(value, size: 14, color: scheme.onSurface),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _chip(String label, Color bg, Color fg) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
-      ),
-      child: CommonText.medium(label, size: 13, color: fg),
-    );
-  }
-}
-
-class _CleanerCard extends StatelessWidget {
-  const _CleanerCard({
-    required this.cleaner,
-    required this.onShare,
-    required this.scheme,
-  });
-
-  final ClientJobCleaner cleaner;
-  final VoidCallback onShare;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      child: Row(
-        children: [
-          Container(
-            height: 48,
-            width: 48,
-            decoration: BoxDecoration(
-              color: scheme.primaryContainer,
-              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-            ),
-            child: cleaner.avatarUrl != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                    child: Image.network(cleaner.avatarUrl!, fit: BoxFit.cover),
-                  )
-                : Center(
-                    child: CommonText.semiBold(
-                      cleaner.name.isNotEmpty ? cleaner.name[0].toUpperCase() : '?',
-                      size: 18,
-                      color: scheme.primary,
-                    ),
-                  ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CommonText.semiBold(cleaner.name, size: 15, color: scheme.onSurface),
-                const SizedBox(height: 2),
-                CommonText.regular(cleaner.status, size: 13, color: scheme.onSurfaceVariant),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: onShare,
-            child: CommonText.regular('Share', size: 14, color: scheme.primary),
-          ),
-        ],
-      ).paddingAll(UiConstants.defaultPadding),
-    );
-  }
 }

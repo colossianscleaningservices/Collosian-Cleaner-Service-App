@@ -164,7 +164,10 @@ class _CalendarSection extends StatelessWidget {
         SizedBox(height: UiConstants.gap),
         CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface).marginSymmetric(horizontal: 24),
         const SizedBox(height: 8),
-        _EmptyStateCard(scheme: scheme, ctrl: ctrl),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2)),
+        ),
       ],
     );
   }
@@ -195,7 +198,10 @@ class _ListContentView extends StatelessWidget {
         CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface),
         const SizedBox(height: 8),
         if (list.isEmpty)
-          _EmptyStateCard(scheme: scheme, ctrl: ctrl)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2)),
+          )
         else
           for (var i = 0; i < list.length; i++)
             Padding(
@@ -262,41 +268,3 @@ class _ListJobCard extends StatelessWidget {
   }
 }
 
-class _EmptyStateCard extends StatelessWidget {
-  const _EmptyStateCard({required this.scheme, this.ctrl});
-
-  final ColorScheme scheme;
-  final CleanerDashboardController? ctrl;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = ctrl ?? Get.find<CleanerDashboardController>();
-
-    return AppCard(
-      child: Row(
-        children: [
-          Icon(IconsaxPlusLinear.calendar, color: scheme.onSurfaceVariant, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CommonText.regular('No jobs this month.', size: 13, color: scheme.onSurfaceVariant),
-                const SizedBox(height: 2),
-                CommonText.regular('Your assigned jobs will appear here.', size: 12, color: scheme.onSurfaceVariant),
-              ],
-            ),
-          ),
-          AppButton(
-            label: 'My Jobs',
-            type: ButtonType.outline,
-            onPressed: () => c.setTab(2),
-            btnVerticalPadding: 8,
-            btnHorizontalPadding: 12,
-            textSize: 12,
-          ),
-        ],
-      ).paddingAll(14),
-    ).marginSymmetric(horizontal: 24);
-  }
-}
