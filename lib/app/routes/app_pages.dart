@@ -1,8 +1,3 @@
-import 'package:ccs_app/app/modules/cleaner/notification/notification_binding.dart';
-import 'package:ccs_app/app/modules/cleaner/notification/notification_view.dart';
-import 'package:ccs_app/app/modules/cleaner/support_document/support_document_binding.dart';
-import 'package:ccs_app/app/modules/cleaner/support_document/support_document_view.dart';
-import 'package:ccs_app/app/modules/cleaner/support_document/views/add_document_view.dart';
 import 'package:get/get.dart';
 
 import '../modules/auth/auth_binding.dart';
@@ -25,6 +20,11 @@ import '../modules/cleaner/dashboard/cleaner_dashboard_binding.dart';
 import '../modules/cleaner/dashboard/cleaner_dashboard_view.dart';
 import '../modules/cleaner/job/cleaner_job_detail_binding.dart';
 import '../modules/cleaner/job/cleaner_job_detail_view.dart';
+import '../modules/cleaner/notification/notification_binding.dart';
+import '../modules/cleaner/notification/notification_view.dart';
+import '../modules/cleaner/support_document/support_document_binding.dart';
+import '../modules/cleaner/support_document/support_document_view.dart';
+import '../modules/cleaner/support_document/views/add_document_view.dart';
 import '../modules/cleaner/training_and_resources/training_and_resources_binding.dart';
 import '../modules/cleaner/training_and_resources/training_and_resources_view.dart';
 import '../modules/client/create_job/create_job_binding.dart';
@@ -40,6 +40,8 @@ import '../modules/client/property/property_binding.dart';
 import '../modules/client/property/property_view.dart';
 import '../modules/common/change_password/change_password_binding.dart';
 import '../modules/common/change_password/change_password_view.dart';
+import '../modules/common/contact_us/contact_us_binding.dart';
+import '../modules/common/contact_us/contact_us_view.dart';
 import '../modules/common/help_support/help_support_binding.dart';
 import '../modules/common/help_support/help_support_view.dart';
 import '../modules/splash/splash_binding.dart';
@@ -150,6 +152,11 @@ class AppPages {
       name: _Paths.CLEANER_REVIEW,
       page: () => const CleanerReviewView(),
       binding: CleanerReviewBinding(),
+    ),
+    GetPage(
+      name: _Paths.CONTACT_US,
+      page: () => const ContactUsView(),
+      binding: ContactUsBinding(),
     ),
   ];
 }

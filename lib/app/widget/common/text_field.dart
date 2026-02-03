@@ -209,6 +209,7 @@ class CommonDropDownField<T> extends StatelessWidget {
           validator: validator,
           onChanged: onChanged,
           value: value,
+          hint: Text(hint, style: hintStyle),
           decoration: buildCommonDecoration(
             borderColor: borderColor,
             prefixIcon: prefixIcon,
@@ -217,7 +218,7 @@ class CommonDropDownField<T> extends StatelessWidget {
             hintStyle: hintStyle,
             context: context,
             hint: hint,
-            contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+            contentPadding: EdgeInsets.only(right: 8),
           ),
           iconStyleData: IconStyleData(icon: Icon(IconsaxPlusLinear.arrow_down, color: context.colorScheme.primary).marginOnly(right: 8)),
           items: items

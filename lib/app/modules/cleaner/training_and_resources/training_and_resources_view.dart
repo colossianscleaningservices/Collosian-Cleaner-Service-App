@@ -65,6 +65,7 @@ class _HeaderSection extends StatelessWidget {
           children: [
             AppCard(
               radius: UiConstants.radiusDefault,
+              enableShadows: false,
               color: scheme.primary.withValues(alpha: 0.05),
               child: Icon(IconsaxPlusLinear.book_1, size: 24, color: scheme.primary).paddingAll(12),
             ).marginOnly(right: 14),
@@ -147,8 +148,9 @@ class _FilterChips extends StatelessWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 decoration: BoxDecoration(
-                  color: isSelected ? scheme.primaryContainer.withValues(alpha: 0.5) : scheme.surfaceContainerHighest.withValues(alpha: 0.6),
+                  color: isSelected ? scheme.primaryContainer.withValues(alpha: 0.5) : scheme.onPrimary,
                   borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+                  boxShadow: context.effectiveShadows(),
                   border: Border.all(
                     color: isSelected ? scheme.primary.withValues(alpha: 0.4) : scheme.outline.withValues(alpha: 0.15),
                     width: isSelected ? 1.5 : 1,

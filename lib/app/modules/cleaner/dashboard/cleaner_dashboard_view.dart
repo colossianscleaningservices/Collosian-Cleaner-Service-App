@@ -18,7 +18,7 @@ class CleanerDashboardView extends GetView<CleanerDashboardController> {
           actions: [
             IconButton(
               icon: const Icon(IconsaxPlusLinear.notification),
-              onPressed: () {},
+              onPressed: () => Get.toNamed(Routes.NOTIFICATION),
             ),
           ],
           hasBackIcon: false,

@@ -47,7 +47,8 @@ class CleanerJobDetailController extends GetxController {
   }
 
   void onContactClient() {
-    Notifier.info('Contact client (coming soon)');
+    // Notifier.info('Contact client (coming soon)');
+    Get.toNamed(Routes.CONTACT_US);
   }
 
   void onAccept() {

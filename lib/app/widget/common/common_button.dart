@@ -13,6 +13,7 @@ class AppButton extends StatelessWidget {
     this.textSize = 16,
     this.type = ButtonType.primary,
     this.bgColor,
+    this.borderClr,
     this.txtClr,
     this.icon,
     this.btnVerticalPadding = 16,
@@ -30,6 +31,7 @@ class AppButton extends StatelessWidget {
   final String label;
   final Color? bgColor;
   final Color? txtClr;
+  final Color? borderClr;
   final IconData? icon;
   final bool isLoading;
 
@@ -58,7 +60,7 @@ class AppButton extends StatelessWidget {
       case ButtonType.outline:
         bg = Colors.transparent;
         fg = txtClr ?? scheme.primary;
-        side = BorderSide(color: scheme.primary, width: 1.5);
+        side = BorderSide(color: borderClr?? scheme.primary, width: 1.5);
         break;
       case ButtonType.transparent:
         bg = Colors.transparent;
