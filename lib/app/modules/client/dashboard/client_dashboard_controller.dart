@@ -2,6 +2,7 @@ import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/app/model/menu_model.dart';
 import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../model/calendar_event.dart';
 import 'view/client_calendar_view.dart';
@@ -12,6 +13,7 @@ import 'view/client_profile_view.dart';
 class ClientDashboardController extends GetxController with GetSingleTickerProviderStateMixin {
   final tabIndex = 0.obs;
   final jobs = <ClientJob>[].obs;
+  var appVersion = "".obs;
 
   List<Widget> get pages => const [
         ClientDashboardContent(), ClientCalendarView(), ClientJobsView(),
@@ -45,6 +47,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     jobs.assignAll(ClientJob.demoJobs);
     tabController = TabController(length: 3, vsync: this, initialIndex: 1);
     tabController.addListener(_syncModeFromTab);
+    getAppVersion();
   }
 
   @override
@@ -52,6 +55,12 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     tabController.removeListener(_syncModeFromTab);
     tabController.dispose();
     super.onClose();
+  }
+
+  // Fetches the app version from the platform and updates the appVersion observable
+  Future<void> getAppVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    appVersion.value = packageInfo.version;
   }
 
   String get periodLabel {

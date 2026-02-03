@@ -40,6 +40,8 @@ import '../modules/client/property/property_binding.dart';
 import '../modules/client/property/property_view.dart';
 import '../modules/common/change_password/change_password_binding.dart';
 import '../modules/common/change_password/change_password_view.dart';
+import '../modules/common/chat/chat_binding.dart';
+import '../modules/common/chat/chat_view.dart';
 import '../modules/common/contact_us/contact_us_binding.dart';
 import '../modules/common/contact_us/contact_us_view.dart';
 import '../modules/common/help_support/help_support_binding.dart';
@@ -152,6 +154,11 @@ class AppPages {
       name: _Paths.CLEANER_REVIEW,
       page: () => const CleanerReviewView(),
       binding: CleanerReviewBinding(),
+    ),
+    GetPage(
+      name: _Paths.CHAT,
+      page: () => const ChatView(),
+      binding: ChatBinding(),
     ),
     GetPage(
       name: _Paths.CONTACT_US,

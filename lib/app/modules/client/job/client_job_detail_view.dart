@@ -23,6 +23,11 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
         titleCentered: false,
         actions: [
           IconButton(
+            icon: Icon(IconsaxPlusLinear.message_text, size: 22, color: scheme.primary),
+            tooltip: 'Chat',
+            onPressed: () => Get.toNamed(Routes.CHAT),
+          ),
+          IconButton(
             icon: Icon(IconsaxPlusLinear.edit_2, size: 22, color: scheme.primary),
             tooltip: 'Edit job',
             onPressed: c.onEdit,

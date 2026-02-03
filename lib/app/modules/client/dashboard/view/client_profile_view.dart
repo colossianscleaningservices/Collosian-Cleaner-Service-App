@@ -13,74 +13,99 @@ class ClientProfileView extends GetView<ClientDashboardController> {
       child: SingleChildScrollView(
         padding: UiConstants.padding,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             AppCard(
-              child: Row(
+              child: Column(
                 children: [
-                  Container(
-                    height: 56,
-                    width: 56,
-                    decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(UiConstants.radiusDefault)),
-                    child: Icon(IconsaxPlusLinear.user, color: scheme.primary, size: 28),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CommonText.semiBold('Client', size: 18, color: scheme.onSurface),
-                        const SizedBox(height: 2),
-                        CommonText.regular('Manage your account and preferences', size: 13, color: scheme.onSurfaceVariant),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(IconsaxPlusLinear.edit_2),
-                    onPressed: () => Get.toNamed(Routes.CLIENT_EDIT_PROFILE),
-                  ),
+                  Row(
+                    children: [
+                      Container(
+                        height: 56,
+                        width: 56,
+                        decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(UiConstants.radiusDefault)),
+                        child: Icon(IconsaxPlusLinear.user, color: scheme.primary, size: 28),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CommonText.semiBold('Client', size: 18, color: scheme.onSurface),
+                            const SizedBox(height: 2),
+                            CommonText.regular('Manage your account and preferences', size: 13, color: scheme.onSurfaceVariant),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(IconsaxPlusLinear.edit_2),
+                        onPressed: () => Get.toNamed(Routes.CLIENT_EDIT_PROFILE),
+                      ),
+                    ],
+                  ).paddingAll(UiConstants.defaultPadding),
+                  AppGrid(
+                    physics: NeverScrollableScrollPhysics(),
+                    maxExtent: 60,
+                    child: List.generate(controller.profileItems.length, (index) {
+                      return MenuItem(controller.profileItems[index], onTap: () {
+                        switch (index) {
+                          case 0:
+                            // Get.toNamed(Routes.CHANGE_PASSWORD);
+                            break;
+                          case 1:
+                            Get.toNamed(Routes.PROPERTY);
+                            break;
+                          case 2:
+                            // Get.toNamed(Routes.PREFERRED_STAFF);
+                            break;
+                          case 3:
+                            // Get.toNamed(Routes.NOTIFICATIONS);
+                            break;
+                          case 4:
+                            // Get.toNamed(Routes.TRAINING_RESOURCES);
+                            break;
+                          case 5:
+                            // Get.toNamed(Routes.HELP);
+                            break;
+                          default:
+                            // Get.toNamed(Routes.HELP);
+                            break;
+                        }
+                      });
+                    }),
+                  ).paddingSymmetric(horizontal: 16, vertical: 8),
                 ],
-              ).paddingAll(UiConstants.defaultPadding),
+              ),
             ),
-            const SizedBox(height: 24),
-            AppCard(
-              child: AppGrid(
-                physics: NeverScrollableScrollPhysics(),
-                maxExtent: 60,
-                child: List.generate(controller.profileItems.length, (index) {
-                  return MenuItem(controller.profileItems[index], onTap: () {
-                    switch (index) {
-                      case 0:
-                        // Get.toNamed(Routes.CHANGE_PASSWORD);
-                        break;
-                      case 1:
-                        Get.toNamed(Routes.PROPERTY);
-                        break;
-                      case 2:
-                        // Get.toNamed(Routes.PREFERRED_STAFF);
-                        break;
-                      case 3:
-                        // Get.toNamed(Routes.NOTIFICATIONS);
-                        break;
-                      case 4:
-                        // Get.toNamed(Routes.TRAINING_RESOURCES);
-                        break;
-                      case 5:
-                        // Get.toNamed(Routes.HELP);
-                        break;
-                    }
-                  });
-                }),
-              ).paddingSymmetric(horizontal: 16, vertical: 8),
-            ),
-            const SizedBox(height: 24),
-            AppButton(
-              label: 'Log out',
-              type: ButtonType.outline,
-              icon: IconsaxPlusLinear.logout,
-              onPressed: () => Get.find<SessionService>().logout(),
-            ),
-            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                label: 'Log out',
+                txtClr: scheme.error,
+                type: ButtonType.tonal,
+                bgColor: scheme.errorContainer,
+                icon: IconsaxPlusLinear.logout,
+                onPressed: () {
+                  Notifier.openSheet(
+                    context,
+                    title: "Logout",
+                    type: SheetType.error,
+                    showPrimaryButton: true,
+                    showSecondaryButton: true,
+                    icon: IconsaxPlusLinear.logout,
+                    message: "Are you sure you want to log out?",
+                    onPrimaryPressed: () => Get.find<SessionService>().logout(),
+                  );
+                },
+              ),
+            ).marginSymmetric(vertical: 24),
+            Obx(() {
+              return CommonText.medium(
+                "Version ${controller.appVersion.value}",
+                size: 14,
+                color: context.colorScheme.primary,
+              );
+            }),
           ],
         ),
       ),

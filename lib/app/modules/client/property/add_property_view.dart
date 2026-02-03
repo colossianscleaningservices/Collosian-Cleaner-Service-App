@@ -92,27 +92,15 @@ class AddPropertyView extends GetView<PropertyController> {
                     value: controller.hoover.value,
                     onChanged: (v) => v != null ? controller.hoover.value = v : null,
                   ),
-                  CheckboxListTile(
-                    title: CommonText.regular(
-                      'Check this if you are going to provide cleaning products',
-                      size: 14,
-                      color: scheme.onSurface,
-                    ),
+                  AppCheckBox(
+                    title: "Check this if you are going to provide cleaning products",
                     value: controller.provideCleaningProducts.value,
-                    onChanged: (v) => controller.provideCleaningProducts.value = v ?? false,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    contentPadding: EdgeInsets.zero,
+                    onChange: (v) => controller.provideCleaningProducts.value = v,
                   ),
-                  CheckboxListTile(
-                    title: CommonText.regular(
-                      'Do you have a washing machine?',
-                      size: 14,
-                      color: scheme.onSurface,
-                    ),
+                  AppCheckBox(
+                    title: "Do you have a washing machine?",
                     value: controller.hasWashingMachine.value,
-                    onChanged: (v) => controller.hasWashingMachine.value = v ?? false,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    contentPadding: EdgeInsets.zero,
+                    onChange: (v) => controller.hasWashingMachine.value = v,
                   ),
                   CommonDropDownField<String>(
                     label: 'Staff Preference',
@@ -122,17 +110,7 @@ class AddPropertyView extends GetView<PropertyController> {
                     value: controller.staffPreference.value,
                     onChanged: (v) => v != null ? controller.staffPreference.value = v : null,
                   ),
-                  CheckboxListTile(
-                    title: CommonText.regular(
-                      'Do you have a dryer?',
-                      size: 14,
-                      color: scheme.onSurface,
-                    ),
-                    value: controller.hasDryer.value,
-                    onChanged: (v) => controller.hasDryer.value = v ?? false,
-                    controlAffinity: ListTileControlAffinity.leading,
-                    contentPadding: EdgeInsets.zero,
-                  ),
+                  AppCheckBox(title: "Do you have a dryer?", value: controller.hasDryer.value, onChange: (v) => controller.hasDryer.value = v),
                   CommonDropDownField<String>(
                     label: 'Access to Property',
                     hint: 'Select',
@@ -150,9 +128,7 @@ class AddPropertyView extends GetView<PropertyController> {
                     onChanged: (v) => v != null ? controller.animals.value = v : null,
                   ),
                   AppButton(
-                    label: controller.isSaving.value
-                        ? (isEditing ? 'Saving...' : 'Adding...')
-                        : (isEditing ? 'Save changes' : 'Add Property'),
+                    label: controller.isSaving.value ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save changes' : 'Add Property'),
                     onPressed: controller.isSaving.value ? null : controller.addProperty,
                   ),
                 ],

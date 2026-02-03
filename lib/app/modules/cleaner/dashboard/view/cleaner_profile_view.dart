@@ -17,87 +17,86 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             AppCard(
-              child: Row(
+              child: Column(
                 children: [
-                  Container(
-                    height: 56,
-                    width: 56,
-                    decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(UiConstants.radiusDefault)),
-                    child: Icon(IconsaxPlusLinear.user, color: scheme.primary, size: 28),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CommonText.semiBold('Cleaner', size: 18, color: scheme.onSurface),
-                        const SizedBox(height: 2),
-                        CommonText.regular('Manage your account and preferences', size: 13, color: scheme.onSurfaceVariant),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(IconsaxPlusLinear.edit_2),
-                    onPressed: () => Get.toNamed(Routes.CLEANER_EDIT_PROFILE),
-                  ),
+                  Row(
+                    children: [
+                      Container(
+                        height: 56,
+                        width: 56,
+                        decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(UiConstants.radiusDefault)),
+                        child: Icon(IconsaxPlusLinear.user, color: scheme.primary, size: 28),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CommonText.semiBold('Cleaner', size: 18, color: scheme.onSurface),
+                            const SizedBox(height: 2),
+                            CommonText.regular('Manage your account and preferences', size: 13, color: scheme.onSurfaceVariant),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(IconsaxPlusLinear.edit_2),
+                        onPressed: () => Get.toNamed(Routes.CLEANER_EDIT_PROFILE),
+                      ),
+                    ],
+                  ).paddingAll(UiConstants.defaultPadding),
+                  AppGrid(
+                    physics: NeverScrollableScrollPhysics(),
+                    maxExtent: 60,
+                    child: List.generate(controller.cleanerProfileItems.length, (index) {
+                      return MenuItem(controller.cleanerProfileItems[index], onTap: () {
+                        String route = switch (index) {
+                          0 => Routes.CHANGE_PASSWORD,
+                          1 => Routes.CLEANER_REFERENCES,
+                          2 => Routes.SUPPORT_DOCUMENT,
+                          3 => Routes.CLEANER_REVIEW,
+                          4 => Routes.CLEANER_PAYOUT_COMPUTATION,
+                          5 => Routes.NOTIFICATION,
+                          6 => Routes.TRAINING_AND_RESOURCES,
+                          7 => Routes.HELP_SUPPORT,
+                          _ => Routes.CHANGE_PASSWORD
+                        };
+
+                        Get.toNamed(route);
+                      });
+                    }),
+                  ).paddingSymmetric(horizontal: 18, vertical: 8),
                 ],
-              ).paddingAll(UiConstants.defaultPadding),
+              ),
             ),
-            const SizedBox(height: 24),
-            AppCard(
-              child: AppGrid(
-                physics: NeverScrollableScrollPhysics(),
-                maxExtent: 60,
-                child: List.generate(controller.cleanerProfileItems.length, (index) {
-                  return MenuItem(controller.cleanerProfileItems[index], onTap: () {
-                    switch (index) {
-                      case 0:
-                        Get.toNamed(Routes.CHANGE_PASSWORD);
-                        break;
-                      case 1:
-                        Get.toNamed(Routes.CLEANER_REFERENCES);
-                        break;
-                      case 2:
-                        Get.toNamed(Routes.SUPPORT_DOCUMENT);
-                        break;
-                      case 3:
-                        Get.toNamed(Routes.CLEANER_REVIEW);
-                        break;
-                      case 4:
-                        Get.toNamed(Routes.CLEANER_PAYOUT_COMPUTATION);
-                        break;
-                      case 5:
-                        Get.toNamed(Routes.NOTIFICATION);
-                        break;
-                      case 6:
-                        Get.toNamed(Routes.TRAINING_AND_RESOURCES);
-                        break;
-                      case 7:
-                        Get.toNamed(Routes.HELP_SUPPORT);
-                        break;
-                    }
-                  });
-                }),
-              ).paddingSymmetric(horizontal: 16, vertical: 8),
-            ),
-            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
               child: AppButton(
                 label: 'Log out',
-                type: ButtonType.outline,
+                txtClr: scheme.error,
+                type: ButtonType.tonal,
+                bgColor: scheme.errorContainer,
                 icon: IconsaxPlusLinear.logout,
-                onPressed: () => Get.find<SessionService>().logout(),
+                onPressed: () {
+                  Notifier.openSheet(
+                    context,
+                    title: "Logout",
+                    type: SheetType.error,
+                    showPrimaryButton: true,
+                    showSecondaryButton: true,
+                    icon: IconsaxPlusLinear.logout,
+                    message: "Are you sure you want to log out?",
+                    onPrimaryPressed: () => Get.find<SessionService>().logout(),
+                  );
+                },
               ),
-            ).marginOnly(bottom: 16),
+            ).marginSymmetric(vertical: 18),
             Obx(() {
               return CommonText.medium(
                 "Version ${controller.appVersion.value}",
-                size: 16,
+                size: 14,
                 color: context.colorScheme.primary,
               );
             }),
-            const SizedBox(height: 24),
           ],
         ),
       ),

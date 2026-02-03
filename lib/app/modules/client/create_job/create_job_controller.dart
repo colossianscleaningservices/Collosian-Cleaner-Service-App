@@ -5,6 +5,10 @@ import '../../../model/create_job_request.dart';
 class CreateJobController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final notesController = TextEditingController();
+  final dateDisplayController = TextEditingController();
+  final startTimeDisplayController = TextEditingController();
+  final endTimeDisplayController = TextEditingController();
+  final cleanersNeededController = TextEditingController();
 
   final selectedPropertyId = Rxn<String>();
   final jobStartDate = Rxn<DateTime>();
@@ -26,11 +30,16 @@ class CreateJobController extends GetxController {
   void onInit() {
     super.onInit();
     notesController.addListener(() => notesLength.value = notesController.text.length);
+    cleanersNeededController.text = '1';
   }
 
   @override
   void onClose() {
     notesController.dispose();
+    dateDisplayController.dispose();
+    startTimeDisplayController.dispose();
+    endTimeDisplayController.dispose();
+    cleanersNeededController.dispose();
     super.onClose();
   }
 
@@ -49,11 +58,40 @@ class CreateJobController extends GetxController {
     return null;
   }
 
-  void setJobStartDate(DateTime? d) => jobStartDate.value = d;
+  void setJobStartDate(DateTime? d) {
+    jobStartDate.value = d;
+    dateDisplayController.text = d != null ? CcsDateUtils.forInput(d) : '';
+  }
 
-  void setStartTime(TimeOfDay? t) => startTime.value = t;
+  void setStartTime(TimeOfDay? t) {
+    startTime.value = t;
+    startTimeDisplayController.text = t != null
+        ? '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}'
+        : '';
+  }
 
-  void setEndTime(TimeOfDay? t) => endTime.value = t;
+  void setEndTime(TimeOfDay? t) {
+    endTime.value = t;
+    endTimeDisplayController.text = t != null
+        ? '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}'
+        : '';
+  }
+
+  String? validateCleanersNeeded(String? v) {
+    if (v == null || v.isEmpty) return 'Cleaner(s) needed is required';
+    final n = int.tryParse(v);
+    if (n == null || n < 1 || n > 20) return 'Enter a number between 1 and 20';
+    return null;
+  }
+
+  void onCleanersNeededChanged(String v) {
+    final n = int.tryParse(v);
+    if (n != null) {
+      final clamped = n.clamp(1, 20);
+      cleanersNeeded.value = clamped;
+      if (v != '$clamped') cleanersNeededController.text = '$clamped';
+    }
+  }
 
   void submit() {
     if (!formKey.currentState!.validate()) return;

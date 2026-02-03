@@ -37,6 +37,7 @@ abstract class Routes {
   static const HELP_SUPPORT = _Paths.HELP_SUPPORT;
   static const CHANGE_PASSWORD = _Paths.CHANGE_PASSWORD;
   static const CLEANER_REVIEW = _Paths.CLEANER_REVIEW;
+  static const CHAT = _Paths.CHAT;
   static const CONTACT_US = _Paths.CONTACT_US;
 }
 
@@ -74,5 +75,6 @@ abstract class _Paths {
   static const HELP_SUPPORT = '/common/help-support';
   static const CHANGE_PASSWORD = '/common/change-password';
   static const CLEANER_REVIEW = '/cleaner/cleaner-review';
-  static const CONTACT_US = '/common//contact-us';
+  static const CHAT = '/chat';
+  static const CONTACT_US = '/common/contact-us';
 }

@@ -181,9 +181,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
               color: (widget.borderWidth ?? 0) <= 0 ? Colors.transparent : effectiveBorderColor,
               width: widget.borderWidth ?? 0,
             ),
-            boxShadow: widget.enableShadows
-                ? context.effectiveShadows()
-                : null,
+            boxShadow: widget.enableShadows ? context.effectiveShadows() : null,
           ),
           child: Material(
             color: Colors.transparent,
@@ -320,7 +318,7 @@ class AppSliverGrid extends StatelessWidget {
 }
 
 class MenuItem extends StatelessWidget {
-  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive,this.padding});
+  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive, this.padding});
 
   final MenuModel item;
   final VoidCallback? onTap;
@@ -342,13 +340,13 @@ class MenuItem extends StatelessWidget {
         spacing: 16,
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
               color: iconColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
             ),
-            child: Icon(item.icon, color: iconColor, size: 20),
+            child: Icon(item.icon, color: iconColor, size: 24),
           ),
           Expanded(
             child: Column(
@@ -432,12 +430,38 @@ class SwipeRefresh extends StatelessWidget {
       );
 }
 
-void showPicker({
-  required VoidCallback? galleryPicker,
-  VoidCallback? cameraPicker,
-  bool? isShowCameraOption,
-  String? primaryText,primarySubtitle
-}) {
+class AppCheckBox extends StatelessWidget {
+  const AppCheckBox({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.onChange,
+  });
+
+  final String title;
+  final bool value;
+  final bool Function(bool) onChange;
+
+  @override
+  Widget build(BuildContext context) {
+    return CheckboxListTile(
+      title: CommonText.regular(
+        title,
+        size: 14,
+        color: context.colorScheme.onSurface,
+      ),
+      value: value,
+      minLeadingWidth: 16,
+      dense: true,
+      minVerticalPadding: 0,
+      contentPadding: EdgeInsets.zero,
+      onChanged: (v) => onChange(v ?? false),
+      controlAffinity: ListTileControlAffinity.leading,
+    );
+  }
+}
+
+void showPicker({required VoidCallback? galleryPicker, VoidCallback? cameraPicker, bool? isShowCameraOption, String? primaryText, primarySubtitle}) {
   final context = Get.context!;
   showModalBottomSheet(
     context: context,
@@ -478,7 +502,7 @@ void showPicker({
                 cameraPicker?.call();
               },
               padding: 12,
-            ).marginOnly(left: 16, right: 16,top: 16),
+            ).marginOnly(left: 16, right: 16, top: 16),
           ],
           const SizedBox(height: 16),
           SizedBox(

@@ -1,3 +1,5 @@
+import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
+
 import '../../../../../export.dart';
 import '../../../../widget/layout/app_scaffold.dart';
 import '../support_document_controller.dart';
@@ -12,7 +14,6 @@ class AddDocumentView extends GetView<SupportDocumentController> {
       appBar: Header(title: "Add New Document"),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -113,20 +114,12 @@ class AddDocumentView extends GetView<SupportDocumentController> {
                 );
               }),
             ],
-          ),
+          ).paddingSymmetric(horizontal: 16, vertical: 8),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: context.colorScheme.onPrimary,
-        child: Obx(
-          () => SizedBox(
-            width: double.infinity,
-            child: AppButton(
-              label: controller.isSaving.value ? 'Saving...' : 'Upload Document',
-              onPressed: controller.isSaving.value ? null : controller.addDocument,
-            ),
-          ),
-        ),
+      bottomNavigationBar: SingleActionBottomBar(
+        label: controller.isSaving.value ? 'Saving...' : 'Upload Document',
+        onPressed:() => controller.isSaving.value ? null : controller.addDocument,
       ),
     );
   }
