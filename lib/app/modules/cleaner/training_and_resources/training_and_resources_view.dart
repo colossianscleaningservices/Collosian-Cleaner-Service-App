@@ -1,6 +1,7 @@
 import 'package:ccs_app/app/model/common_model.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
+import 'package:video_player/video_player.dart';
 
 import 'training_and_resources_controller.dart';
 
@@ -29,17 +30,20 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
               if (list.isEmpty) {
                 return _EmptyState(scheme: scheme);
               }
+              final itemCount = list.length;
               return ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: list.length,
+                itemCount: itemCount,
                 separatorBuilder: (_, __) => const SizedBox(height: 14),
                 itemBuilder: (context, index) {
+                  if (index < 0 || index >= itemCount) return const SizedBox.shrink();
                   final item = list[index];
                   return _TrainingCard(
                     item: item,
                     mediaTypeLabel: selectedType,
                     scheme: scheme,
+                    ctrl: controller,
                   );
                 },
               );
@@ -191,16 +195,223 @@ class _FilterChips extends StatelessWidget {
   }
 }
 
+class _VideoPlaceholder extends StatelessWidget {
+  const _VideoPlaceholder({
+    required this.controller,
+    required this.scheme,
+  });
+
+  final VideoPlayerController? controller;
+  final ColorScheme scheme;
+
+  static const double _minHeight = 160;
+
+  @override
+  Widget build(BuildContext context) {
+    if (controller == null) {
+      return _videoFallback(scheme: scheme, icon: IconsaxPlusLinear.video_play);
+    }
+    final ctrl = controller!;
+    return ListenableBuilder(
+      listenable: ctrl,
+      builder: (_, __) {
+        if (ctrl.value.hasError) {
+          return _videoFallback(
+            scheme: scheme,
+            icon: IconsaxPlusLinear.video_slash,
+            label: 'Video unavailable on this device',
+          );
+        }
+        if (!ctrl.value.isInitialized) {
+          return SizedBox(
+            height: _minHeight,
+            width: double.infinity,
+            child: Center(
+              child: SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: scheme.primary,
+                ),
+              ),
+            ),
+          );
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AspectRatio(
+              aspectRatio: ctrl.value.aspectRatio,
+              child: VideoPlayer(ctrl),
+            ),
+            _VideoControlsBar(controller: ctrl, scheme: scheme),
+          ],
+        );
+      },
+    );
+  }
+
+  static Widget _videoFallback({
+    required ColorScheme scheme,
+    required IconData icon,
+    String? label,
+  }) {
+    return Container(
+      height: _minHeight,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            scheme.surfaceContainerHigh.withValues(alpha: 0.3),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 40, color: scheme.onSurfaceVariant),
+            if (label != null) ...[
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: CommonText.regular(
+                  label,
+                  size: 12,
+                  color: scheme.onSurfaceVariant,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _formatVideoDuration(Duration d) {
+  final m = d.inMinutes;
+  final s = d.inSeconds % 60;
+  return '$m:${s.toString().padLeft(2, '0')}';
+}
+
+class _VideoControlsBar extends StatefulWidget {
+  const _VideoControlsBar({
+    required this.controller,
+    required this.scheme,
+  });
+
+  final VideoPlayerController controller;
+  final ColorScheme scheme;
+
+  @override
+  State<_VideoControlsBar> createState() => _VideoControlsBarState();
+}
+
+class _VideoControlsBarState extends State<_VideoControlsBar> {
+  bool _isDragging = false;
+  double _dragPositionSeconds = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final ctrl = widget.controller;
+    final scheme = widget.scheme;
+    return ListenableBuilder(
+      listenable: ctrl,
+      builder: (_, __) {
+        final position = ctrl.value.position;
+        final duration = ctrl.value.duration;
+        final totalSeconds = duration.inMilliseconds / 1000.0;
+        final currentSeconds = _isDragging
+            ? _dragPositionSeconds
+            : position.inMilliseconds / 1000.0;
+        final safeTotal = totalSeconds > 0 ? totalSeconds : 1.0;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          color: scheme.surfaceContainerHighest.withValues(alpha: 0.95),
+          child: Row(
+            children: [
+                Material(
+                color: Colors.transparent,
+                child:  IconButton(
+                  onPressed: () {
+                    if (ctrl.value.isPlaying) {
+                      ctrl.pause();
+                    } else {
+                      ctrl.play();
+                    }
+                  },
+                  icon: Icon(
+                    ctrl.value.isPlaying
+                        ? IconsaxPlusLinear.pause
+                        : IconsaxPlusLinear.play,
+                    color: scheme.primary,
+                    size: 28,
+                  ),
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+                ),
+              ),
+              Expanded(
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: scheme.primary,
+                    inactiveTrackColor: scheme.outline.withValues(alpha: 0.3),
+                    thumbColor: scheme.primary,
+                    overlayColor: scheme.primary.withValues(alpha: 0.2),
+                  ),
+                  child: Slider(
+                    value: currentSeconds.clamp(0.0, safeTotal),
+                    max: safeTotal,
+                    onChanged: totalSeconds <= 0
+                        ? null
+                        : (v) {
+                            setState(() {
+                              _isDragging = true;
+                              _dragPositionSeconds = v;
+                            });
+                          },
+                    onChangeEnd: (v) {
+                      ctrl.seekTo(Duration(milliseconds: (v * 1000).round()));
+                      setState(() => _isDragging = false);
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '${_formatVideoDuration(Duration(milliseconds: (currentSeconds * 1000).round()))} / ${_formatVideoDuration(duration)}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _TrainingCard extends StatelessWidget {
   const _TrainingCard({
     required this.item,
     required this.mediaTypeLabel,
     required this.scheme,
+    required this.ctrl,
   });
 
   final CommonModel item;
   final String mediaTypeLabel;
   final ColorScheme scheme;
+  final TrainingAndResourcesController ctrl;
 
   @override
   Widget build(BuildContext context) {
@@ -219,34 +430,39 @@ class _TrainingCard extends StatelessWidget {
               topLeft: Radius.circular(UiConstants.radiusLarge),
               topRight: Radius.circular(UiConstants.radiusLarge),
             ),
-            child: Container(
-              height: 160,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    scheme.primaryContainer.withValues(alpha: 0.35),
-                    scheme.secondaryContainer.withValues(alpha: 0.25),
-                  ],
-                ),
-              ),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: scheme.primary.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
+            child: item.type == 'Video'
+                ? _VideoPlaceholder(
+                    controller: item.videoPlayerController,
+                    scheme: scheme,
+                  )
+                : Container(
+                    height: 160,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          scheme.primaryContainer.withValues(alpha: 0.35),
+                          scheme.secondaryContainer.withValues(alpha: 0.25),
+                        ],
+                      ),
+                    ),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: scheme.primary.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _iconForMediaType(item.type),
+                          size: 40,
+                          color: scheme.primary,
+                        ),
+                      ),
+                    ),
                   ),
-                  child: Icon(
-                    _iconForMediaType(mediaTypeLabel),
-                    size: 40,
-                    color: scheme.primary,
-                  ),
-                ),
-              ),
-            ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
@@ -264,7 +480,7 @@ class _TrainingCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
                       ),
                       child: CommonText.medium(
-                        mediaTypeLabel,
+                        item.type,
                         size: 12,
                         color: scheme.onSecondaryContainer,
                       ),

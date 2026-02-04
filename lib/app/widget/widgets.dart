@@ -408,7 +408,7 @@ class PageLoader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              CommonText.medium('Loading...', color: context.colorScheme.onPrimary),
+              CommonText.medium('Loading...', color: context.colorScheme.primary),
             ],
           ),
         ).paddingOnly(bottom: MediaQuery.of(context).padding.bottom, top: 4),
@@ -456,13 +456,12 @@ class AppCheckBox extends StatelessWidget {
           color: context.colorScheme.onSurface,
         ),
         value: value,
-        minLeadingWidth: 16,
-        dense: true,
-        minVerticalPadding: 0,
-        contentPadding: EdgeInsets.zero,
-        onChanged: (v) => onChange(v ?? false),
-        controlAffinity: ListTileControlAffinity.leading,
-      ),
+        // minLeadingWidth: 16,
+      dense: true,
+      // minVerticalPadding: 0,
+      contentPadding: EdgeInsets.zero,
+      onChanged: (v) => onChange(v ?? false),
+      controlAffinity: ListTileControlAffinity.leading,),
     );
   }
 }
