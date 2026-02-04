@@ -1,5 +1,7 @@
 import 'pref.dart';
 
+/// API-based auth: token and user data stored in Prefs.
+/// Login/register/logout are performed via API (AuthRepository).
 class AuthService {
   AuthService();
 

@@ -9,11 +9,26 @@ class Prefs {
   static const _boxName = 'ccs_prefs';
   static const _kToken = 'token';
 
+  /// Keys for user data (persisted after login/register).
+  static const String id = 'id';
+  static const String email = 'email';
+  static const String firstName = 'first_name';
+  static const String lastName = 'last_name';
+  static const String roleId = 'role_id';
+  static const String timezone = 'timezone';
+
   late final GetStorage _box;
 
   Future<void> init() async {
     await GetStorage.init(_boxName);
     _box = GetStorage(_boxName);
+    _setTimezoneIfMissing();
+  }
+
+  void _setTimezoneIfMissing() {
+    if (_box.read<String>(timezone) == null) {
+      _box.write(timezone, DateTime.now().timeZoneName);
+    }
   }
 
   String? get token => _box.read<String>(_kToken);
@@ -25,8 +40,13 @@ class Prefs {
     await _box.write(_kToken, token);
   }
 
+  void putData(String key, String value) => _box.write(key, value);
+  String getData(String key) => _box.read<String>(key) ?? '';
+  String getTimeZoneData(String key) => _box.read<String>(key) ?? DateTime.now().timeZoneName;
+
   Future<void> clearAll() async {
     await _box.erase();
+    _setTimezoneIfMissing();
   }
 }
 

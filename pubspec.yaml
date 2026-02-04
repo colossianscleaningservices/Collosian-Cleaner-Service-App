@@ -46,8 +46,7 @@ dependencies:
 
   onesignal_flutter: ^5.3.4
 
-  #firebase
-  firebase_auth: ^5.1.0
+  # Firebase (analytics, crashlytics; auth is API-based)
   firebase_core: ^3.1.0
   firebase_analytics: ^11.3.3
   firebase_crashlytics: ^4.0.0

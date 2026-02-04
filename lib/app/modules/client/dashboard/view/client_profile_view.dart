@@ -31,7 +31,11 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CommonText.semiBold('Client', size: 18, color: scheme.onSurface),
+                            CommonText.semiBold(
+                              Get.find<SessionService>().userDisplayName,
+                              size: 18,
+                              color: scheme.onSurface,
+                            ),
                             const SizedBox(height: 2),
                             CommonText.regular('Manage your account and preferences', size: 13, color: scheme.onSurfaceVariant),
                           ],

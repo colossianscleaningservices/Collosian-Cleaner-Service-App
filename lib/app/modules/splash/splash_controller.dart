@@ -1,5 +1,10 @@
+import 'package:ccs_app/app/routes/app_pages.dart';
+import 'package:ccs_app/app/services/auth_service.dart';
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
-import '../../services/auth_service.dart';
+
+/// Backend role_id for client (must match auth_controller).
+const int _roleIdClient = 1;
 
 class SplashController extends GetxController {
   final AuthService _authService = Get.find<AuthService>();
@@ -8,7 +13,6 @@ class SplashController extends GetxController {
   void onReady() {
     super.onReady();
     _route();
-    // Get.offAllNamed(Routes.LOGIN);
   }
 
   Future<void> _route() async {
@@ -19,7 +23,13 @@ class SplashController extends GetxController {
       return;
     }
 
-    Get.offAllNamed(Routes.LOGIN);
+    final roleIdStr = Prefs().getData(Prefs.roleId);
+    final roleId = int.tryParse(roleIdStr);
+    if (roleId == _roleIdClient) {
+      Get.offAllNamed(Routes.CLIENT_DASHBOARD);
+    } else {
+      Get.offAllNamed(Routes.CLEANER_DASHBOARD);
+    }
   }
 }
 

@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/app/model/menu_model.dart';
+import 'package:ccs_app/app/services/session_service.dart';
 import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -40,6 +41,10 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   @override
   void onInit() {
     super.onInit();
+    if (!Get.find<SessionService>().isLoggedIn) {
+      Get.offAllNamed(Routes.LOGIN);
+      return;
+    }
     final args = Get.arguments;
     if (args is Map && args['tab'] is int) {
       tabIndex.value = (args['tab'] as int).clamp(0, pages.length - 1);

@@ -25,7 +25,8 @@ sealed class NetworkException implements Exception {
       final statusCode = error.response?.statusCode;
       final data = error.response?.data;
 
-      // Unauthorized / token invalid
+      // 401 / unauthenticated: UnauthorizedRequestException.requiresLogout = true
+      // so Notifier.apiError() will call SessionService.logout().
       if (statusCode == 401 || _looksUnauthenticated(data, error.message)) {
         return UnauthorizedRequestException(
           statusCode: statusCode,

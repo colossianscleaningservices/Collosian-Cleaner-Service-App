@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/model/client_job.dart';
+import 'package:ccs_app/app/services/session_service.dart';
 import 'package:ccs_app/export.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -106,6 +107,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   @override
   void onInit() {
     super.onInit();
+    if (!Get.find<SessionService>().isLoggedIn) {
+      Get.offAllNamed(Routes.LOGIN);
+      return;
+    }
     selectedDay.value = DateTime.now();
     if (weeklySchedule.isEmpty) {
       weeklySchedule.assignAll(List.generate(7, DayAvailability.getDefault));

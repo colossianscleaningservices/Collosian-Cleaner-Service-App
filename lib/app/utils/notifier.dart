@@ -15,6 +15,8 @@ class Notifier {
 
   static void error(String message, {String title = 'Error'}) => _show(title: title, message: message, type: ToastificationType.error);
 
+  /// Shows error toast and, when [NetworkException.requiresLogout] is true (e.g. 401),
+  /// calls [SessionService.logout] so the user is signed out and sent to login.
   static Future<void> apiError(Object error, {String? contextTag}) async {
     final ex = error is NetworkException ? error : NetworkException.fromDio(error);
     _show(title: ex.title, message: ex.message, type: ToastificationType.error);
