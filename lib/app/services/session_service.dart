@@ -1,6 +1,7 @@
+import 'package:ccs_app/app/services/pref.dart';
+
 import '../../export.dart';
 import 'onesignal_service.dart';
-import 'pref.dart';
 
 /// Simple session holder (junior-friendly).
 /// - Source of truth for auth token presence
@@ -16,4 +17,3 @@ class SessionService extends GetxService {
     Get.offAllNamed(Routes.LOGIN);
   }
 }
-

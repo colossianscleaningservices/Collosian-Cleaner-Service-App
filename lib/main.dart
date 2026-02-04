@@ -53,6 +53,7 @@ Future<void> main() async {
         initial: savedThemeMode ?? AdaptiveThemeMode.light,
         builder:  (theme, darkTheme) {
           return GetMaterialApp(
+            defaultTransition: Transition.native,
             debugShowCheckedModeBanner: false,
             initialRoute: AppPages.INITIAL,
             getPages: AppPages.routes,

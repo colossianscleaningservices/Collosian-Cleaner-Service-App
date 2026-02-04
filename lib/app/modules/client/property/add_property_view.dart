@@ -1,7 +1,18 @@
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
+import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
 
 import 'property_controller.dart';
+
+Widget _buildNumberField(TextEditingController controller, String label) {
+  return CommonTextField(
+    controller: controller,
+    label: label,
+    hint: '0',
+    keyboardType: TextInputType.number,
+    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+  );
+}
 
 class AddPropertyView extends GetView<PropertyController> {
   const AddPropertyView({super.key});
@@ -28,113 +39,147 @@ class AddPropertyView extends GetView<PropertyController> {
                 ]
               : null,
         ),
-        backgroundColor: scheme.surface,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: UiConstants.padding,
             child: Form(
               key: controller.formKey,
               child: Column(
                 spacing: 16,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  CommonTextField(
-                    controller: controller.propertyNameCtrl,
-                    label: 'Property Name',
-                    hint: 'Enter property name',
-                    validator: (v) => controller.validateRequired(v, 'Property name'),
-                    prefixIcon: Icon(IconsaxPlusLinear.home_2, size: 20, color: scheme.onSurfaceVariant),
-                  ),
-                  CommonDropDownField<String>(
-                    label: 'Business Type',
-                    hint: 'Select',
-                    items: PropertyController.businessTypeOptions,
-                    itemLabel: (v) => v,
-                    value: controller.businessType.value,
-                    onChanged: (v) => v != null ? controller.businessType.value = v : null,
-                  ),
-                  CommonTextField(
-                    controller: controller.addressCtrl,
-                    label: 'Address',
-                    hint: 'Enter address',
-                    validator: (v) => controller.validateRequired(v, 'Address'),
-                    prefixIcon: Icon(IconsaxPlusLinear.location, size: 20, color: scheme.onSurfaceVariant),
-                  ),
-                  CommonTextField(
-                    controller: controller.cityCtrl,
-                    label: 'City',
-                    hint: 'Enter city',
-                    validator: (v) => controller.validateRequired(v, 'City'),
-                    prefixIcon: Icon(IconsaxPlusLinear.building_4, size: 20, color: scheme.onSurfaceVariant),
-                  ),
-                  CommonTextField(
-                    controller: controller.postalCodeCtrl,
-                    label: 'Postal Code',
-                    hint: 'Enter postal code',
-                    keyboardType: TextInputType.text,
-                    validator: (v) => controller.validateRequired(v, 'Postal code'),
-                    prefixIcon: Icon(IconsaxPlusLinear.map_1, size: 20, color: scheme.onSurfaceVariant),
-                  ),
-                  CommonDropDownField<String>(
-                    label: 'Type of Property',
-                    hint: 'Select Property Type',
-                    items: PropertyController.propertyTypeOptions,
-                    itemLabel: (v) => v,
-                    value: controller.propertyType.value,
-                    onChanged: (v) => controller.propertyType.value = v,
-                    validator: (v) => v == null ? 'Type of property is required' : null,
-                  ),
-                  CommonDropDownField<String>(
-                    label: 'Do you have a hoover?',
-                    hint: 'Select',
-                    items: PropertyController.hooverOptions,
-                    itemLabel: (v) => v,
-                    value: controller.hoover.value,
-                    onChanged: (v) => v != null ? controller.hoover.value = v : null,
-                  ),
-                  AppCheckBox(
-                    title: "Check this if you are going to provide cleaning products",
-                    value: controller.provideCleaningProducts.value,
-                    onChange: (v) => controller.provideCleaningProducts.value = v,
-                  ),
-                  AppCheckBox(
-                    title: "Do you have a washing machine?",
-                    value: controller.hasWashingMachine.value,
-                    onChange: (v) => controller.hasWashingMachine.value = v,
-                  ),
-                  CommonDropDownField<String>(
-                    label: 'Staff Preference',
-                    hint: 'Select',
-                    items: PropertyController.staffPreferenceOptions,
-                    itemLabel: (v) => v,
-                    value: controller.staffPreference.value,
-                    onChanged: (v) => v != null ? controller.staffPreference.value = v : null,
-                  ),
-                  AppCheckBox(title: "Do you have a dryer?", value: controller.hasDryer.value, onChange: (v) => controller.hasDryer.value = v),
-                  CommonDropDownField<String>(
-                    label: 'Access to Property',
-                    hint: 'Select',
-                    items: PropertyController.accessOptions,
-                    itemLabel: (v) => v,
-                    value: controller.accessToProperty.value,
-                    onChanged: (v) => v != null ? controller.accessToProperty.value = v : null,
-                  ),
-                  CommonDropDownField<String>(
-                    label: 'Do you have animals?',
-                    hint: 'Select',
-                    items: PropertyController.animalsOptions,
-                    itemLabel: (v) => v,
-                    value: controller.animals.value,
-                    onChanged: (v) => v != null ? controller.animals.value = v : null,
-                  ),
-                  AppButton(
-                    label: controller.isSaving.value ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save changes' : 'Add Property'),
-                    onPressed: controller.isSaving.value ? null : controller.addProperty,
-                  ),
+                  AppCard(
+                    child: Column(
+                      spacing: 16,
+                      children: [
+                        CommonTextField(
+                          controller: controller.propertyNameCtrl,
+                          label: 'Property Name',
+                          hint: 'Enter property name',
+                          validator: (v) => controller.validateRequired(v, 'Property name'),
+                          prefixIcon: Icon(IconsaxPlusLinear.home_2, size: 20, color: scheme.onSurfaceVariant),
+                        ),
+                        CommonDropDownField<String>(
+                          label: 'Business Type',
+                          hint: 'Select',
+                          items: PropertyController.businessTypeOptions,
+                          itemLabel: (v) => v,
+                          value: controller.businessType.value,
+                          onChanged: (v) => v != null ? controller.businessType.value = v : null,
+                        ),
+                        CommonTextField(
+                          controller: controller.addressCtrl,
+                          label: 'Address',
+                          hint: 'Enter address',
+                          validator: (v) => controller.validateRequired(v, 'Address'),
+                          prefixIcon: Icon(IconsaxPlusLinear.location, size: 20, color: scheme.onSurfaceVariant),
+                        ),
+                        CommonTextField(
+                          controller: controller.cityCtrl,
+                          label: 'City',
+                          hint: 'Enter city',
+                          validator: (v) => controller.validateRequired(v, 'City'),
+                          prefixIcon: Icon(IconsaxPlusLinear.building_4, size: 20, color: scheme.onSurfaceVariant),
+                        ),
+                        CommonTextField(
+                          controller: controller.postalCodeCtrl,
+                          label: 'Postal Code',
+                          hint: 'Enter postal code',
+                          keyboardType: TextInputType.text,
+                          validator: (v) => controller.validateRequired(v, 'Postal code'),
+                          prefixIcon: Icon(IconsaxPlusLinear.map_1, size: 20, color: scheme.onSurfaceVariant),
+                        ),
+                        CommonDropDownField<String>(
+                          label: 'Type of Property',
+                          hint: 'Select Property Type',
+                          items: PropertyController.propertyTypeOptions,
+                          itemLabel: (v) => v,
+                          value: controller.propertyType.value,
+                          onChanged: (v) {
+                            if (v != null) {
+                              if (v != 'House') controller.clearHouseFields();
+                              controller.propertyType.value = v;
+                            }
+                          },
+                          validator: (v) => v == null ? 'Type of property is required' : null,
+                        ),
+                        if (controller.propertyType.value == 'House') ...[
+                          CommonDropDownField<String>(
+                            label: 'Sub Type',
+                            hint: 'Select',
+                            items: PropertyController.houseSubTypeOptions,
+                            itemLabel: (v) => v,
+                            value: controller.subType.value,
+                            onChanged: (v) => controller.subType.value = v,
+                          ),
+                          _buildNumberField(controller.numberOfBedroomsCtrl, 'Number of Bedrooms'),
+                          _buildNumberField(controller.numberOfBathroomsCtrl, 'Number of Bathrooms'),
+                          _buildNumberField(controller.numberOfGuestToiletCtrl, 'Number of Separate/Guest Toilet'),
+                          _buildNumberField(controller.livingRoomCtrl, 'Living Room'),
+                          _buildNumberField(controller.officeCtrl, 'Office'),
+                          _buildNumberField(controller.conservatoryCtrl, 'Conservatory'),
+                          _buildNumberField(controller.diningRoomCtrl, 'Dining Room'),
+                        ],
+                      ],
+                    ).paddingAll(16),
+                  ).marginSymmetric(horizontal: 16, vertical: 8),
+                  AppCard(
+                    child: Column(
+                      spacing: 16,
+                      children: [
+                        CommonDropDownField<String>(
+                          label: 'Do you have a hoover?',
+                          hint: 'Select',
+                          items: PropertyController.hooverOptions,
+                          itemLabel: (v) => v,
+                          value: controller.hoover.value,
+                          onChanged: (v) => v != null ? controller.hoover.value = v : null,
+                        ),
+                        AppCheckBox(
+                          title: "Check this if you are going to provide cleaning products",
+                          value: controller.provideCleaningProducts.value,
+                          onChange: (v) => controller.provideCleaningProducts.value = v,
+                        ),
+                        AppCheckBox(
+                          title: "Do you have a washing machine?",
+                          value: controller.hasWashingMachine.value,
+                          onChange: (v) => controller.hasWashingMachine.value = v,
+                        ),
+                        CommonDropDownField<String>(
+                          label: 'Staff Preference',
+                          hint: 'Select',
+                          items: PropertyController.staffPreferenceOptions,
+                          itemLabel: (v) => v,
+                          value: controller.staffPreference.value,
+                          onChanged: (v) => v != null ? controller.staffPreference.value = v : null,
+                        ),
+                        AppCheckBox(title: "Do you have a dryer?", value: controller.hasDryer.value, onChange: (v) => controller.hasDryer.value = v),
+                        CommonDropDownField<String>(
+                          label: 'Access to Property',
+                          hint: 'Select',
+                          items: PropertyController.accessOptions,
+                          itemLabel: (v) => v,
+                          value: controller.accessToProperty.value,
+                          onChanged: (v) => v != null ? controller.accessToProperty.value = v : null,
+                        ),
+                        CommonDropDownField<String>(
+                          label: 'Do you have animals?',
+                          hint: 'Select',
+                          items: PropertyController.animalsOptions,
+                          itemLabel: (v) => v,
+                          value: controller.animals.value,
+                          onChanged: (v) => v != null ? controller.animals.value = v : null,
+                        ),
+                      ],
+                    ).paddingAll(16),
+                  ).marginSymmetric(horizontal: 16, vertical: 8),
                 ],
-              ).paddingSymmetric(horizontal: 4, vertical: 8),
+              ),
             ),
           ),
+        ),
+        bottomNavigationBar: SingleActionBottomBar(
+          label: controller.isSaving.value ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save changes' : 'Add Property'),
+          onPressed: () => controller.isSaving.value ? null : controller.addProperty,
         ),
       ),
     );

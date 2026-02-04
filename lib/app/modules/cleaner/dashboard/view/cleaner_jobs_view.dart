@@ -1,5 +1,3 @@
-import 'package:ccs_app/app/model/client_job.dart';
-import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
 
 import '../cleaner_dashboard_controller.dart';
@@ -67,31 +65,64 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
               final upcoming = list.where((j) => j.date.isAfter(today) || _isSameDay(j.date, today)).toList();
               final past = list.where((j) => j.date.isBefore(today)).toList();
 
-              return ListView(
-                padding: const EdgeInsets.only(bottom: 24),
-                children: [
-                  if (upcoming.isNotEmpty) ...[
-                    _SectionLabel(label: 'Upcoming', count: upcoming.length, scheme: scheme).marginOnly(left: 18, right: 18, bottom: 8),
-                    ...upcoming.asMap().entries.map(
-                          (e) => _JobListTile(
-                            job: e.value,
-                            onTap: () => controller.openDetail(e.value),
-                            scheme: scheme,
-                          ).marginOnly(bottom: 12),
-                        ),
-                    if (past.isNotEmpty) const SizedBox(height: 8),
-                  ],
-                  if (past.isNotEmpty) ...[
-                    _SectionLabel(label: 'Past', count: past.length, scheme: scheme).marginOnly(left: 18, right: 18, bottom: 8),
-                    ...past.asMap().entries.map(
-                          (e) => _JobListTile(
-                            job: e.value,
-                            onTap: () => controller.openDetail(e.value),
-                            scheme: scheme,
-                          ).marginOnly(bottom: 12),
-                        ),
-                  ],
+              final slivers = <Widget>[
+                if (upcoming.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: _SectionLabel(label: 'Upcoming', count: upcoming.length, scheme: scheme).marginOnly(left: 18, right: 18, bottom: 8),
+                  ),
+                  AppSliverGrid(
+                    child: upcoming
+                        .map(
+                          (job) => JobCard(
+                            title: job.jobType,
+                            dateTime: '${CcsDateUtils.shortDateNoYear(job.date)} · ${job.startTime} – ${job.endTime}',
+                            status: job.status,
+                            subtitle: job.clientName,
+                            property: job.propertyOneLine,
+                            recurrence: job.recurrence,
+                            onTap: () => controller.openDetail(job),
+                          ),
+                        )
+                        .toList(),
+                    maxExtent: 180,
+                    axisSpacing: 12,
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    phoneCount: 1,
+                    tabletCount: 2,
+                    landscapeCount: 3,
+                  ),
+                  if (past.isNotEmpty) const SliverToBoxAdapter(child: SizedBox(height: 8)),
                 ],
+                if (past.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: _SectionLabel(label: 'Past', count: past.length, scheme: scheme).marginOnly(left: 18, right: 18, bottom: 8),
+                  ),
+                  AppSliverGrid(
+                    child: past
+                        .map(
+                          (job) => JobCard(
+                            title: job.jobType,
+                            dateTime: '${CcsDateUtils.shortDateNoYear(job.date)} · ${job.startTime} – ${job.endTime}',
+                            status: job.status,
+                            subtitle: job.clientName,
+                            property: job.propertyOneLine,
+                            recurrence: job.recurrence,
+                            onTap: () => controller.openDetail(job),
+                          ),
+                        )
+                        .toList(),
+                    maxExtent: 180,
+                    axisSpacing: 12,
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    phoneCount: 1,
+                    tabletCount: 2,
+                    landscapeCount: 3,
+                  ),
+                ],
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              ];
+              return CustomScrollView(
+                slivers: slivers,
               );
             }),
           ),
@@ -125,123 +156,6 @@ class _SectionLabel extends StatelessWidget {
           child: CommonText.medium('$count', size: 12, color: scheme.onSurfaceVariant),
         ),
       ],
-    );
-  }
-}
-
-class _JobListTile extends StatelessWidget {
-  const _JobListTile({
-    required this.job,
-    required this.onTap,
-    required this.scheme,
-  });
-
-  final ClientJob job;
-  final VoidCallback onTap;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    final dateStr = CcsDateUtils.shortDateNoYear(job.date);
-    final timeStr = '${job.startTime} – ${job.endTime}';
-
-    return AppCard(
-      onTap: onTap,
-      radius: UiConstants.radiusLarge,
-      enableShadows: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppCard(
-                enableShadows: false,
-                color: scheme.secondaryContainer,
-                padding: const EdgeInsets.all(12),
-                child: Icon(IconsaxPlusLinear.briefcase, size: 24, color: scheme.secondary),
-              ).marginOnly(right: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CommonText.semiBold(job.clientName, size: 16, color: scheme.onSurface).marginOnly(bottom: 4),
-                    CommonText.regular(job.jobType, size: 14, color: scheme.onSurfaceVariant),
-                  ],
-                ),
-              ),
-              _StatusChip(label: job.status, scheme: scheme),
-            ],
-          ).marginOnly(bottom: 12),
-          Row(
-            children: [
-              Icon(IconsaxPlusLinear.calendar_1, size: 16, color: scheme.onSurfaceVariant).marginOnly(right: 8),
-              CommonText.regular(dateStr, size: 12, color: scheme.onSurfaceVariant).marginOnly(right: 16),
-              Icon(IconsaxPlusLinear.clock, size: 16, color: scheme.onSurfaceVariant).marginOnly(right: 8),
-              CommonText.regular(timeStr, size: 12, color: scheme.onSurfaceVariant),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Icon(IconsaxPlusLinear.location, size: 16, color: scheme.onSurfaceVariant).marginOnly(right: 8),
-              Expanded(
-                child: CommonText.regular(
-                  job.propertyOneLine,
-                  size: 12,
-                  color: scheme.onSurfaceVariant,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-          if (job.recurrence != null && job.recurrence!.isNotEmpty) ...[
-            AppCard(
-              radius: UiConstants.radiusSmall,
-              enableShadows: false,
-              color: scheme.tertiaryContainer.withValues(alpha: 0.5),
-              child: CommonText.medium(
-                job.recurrence ?? "",
-                size: 11,
-                color: scheme.onTertiaryContainer,
-              ).paddingSymmetric(horizontal: 8, vertical: 4),
-            ).marginOnly(top: 8),
-          ],
-        ],
-      ).paddingAll(16),
-    ).marginOnly(left: 18, right: 18);
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({required this.label, required this.scheme});
-
-  final String label;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    final lower = label.toLowerCase();
-    Color bg;
-    Color fg;
-    if (lower.contains('cancel')) {
-      bg = scheme.errorContainer.withValues(alpha: 0.6);
-      fg = scheme.error;
-    } else if (lower.contains('complete') || lower.contains('done')) {
-      bg = scheme.tertiaryContainer.withValues(alpha: 0.6);
-      fg = scheme.onTertiaryContainer;
-    } else {
-      bg = scheme.primaryContainer.withValues(alpha: 0.5);
-      fg = scheme.primary;
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
-      ),
-      child: CommonText.semiBold(label, size: 12, color: fg).paddingSymmetric(horizontal: 12, vertical: 6),
     );
   }
 }

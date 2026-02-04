@@ -444,19 +444,25 @@ class AppCheckBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CheckboxListTile(
-      title: CommonText.regular(
-        title,
-        size: 14,
-        color: context.colorScheme.onSurface,
+    return AppCard(
+      radius: UiConstants.radiusDefault,
+      borderColor: context.colorScheme.outline.withValues(alpha: 0.3),
+      enableShadows: false,
+      borderWidth: 2,
+      child: CheckboxListTile(
+        title: CommonText.regular(
+          title,
+          size: 14,
+          color: context.colorScheme.onSurface,
+        ),
+        value: value,
+        minLeadingWidth: 16,
+        dense: true,
+        minVerticalPadding: 0,
+        contentPadding: EdgeInsets.zero,
+        onChanged: (v) => onChange(v ?? false),
+        controlAffinity: ListTileControlAffinity.leading,
       ),
-      value: value,
-      minLeadingWidth: 16,
-      dense: true,
-      minVerticalPadding: 0,
-      contentPadding: EdgeInsets.zero,
-      onChanged: (v) => onChange(v ?? false),
-      controlAffinity: ListTileControlAffinity.leading,
     );
   }
 }

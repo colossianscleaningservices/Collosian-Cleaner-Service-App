@@ -6,7 +6,7 @@ class BottomActionBar extends StatelessWidget {
   const BottomActionBar({
     required this.children,
     super.key,
-    this.padding = const EdgeInsets.fromLTRB(16, 12, 16, 16),
+    this.padding = const EdgeInsets.fromLTRB(16, 12, 16, 24),
     this.backgroundColor,
     this.showSafeArea = true,
   });
@@ -25,7 +25,7 @@ class BottomActionBar extends StatelessWidget {
     );
 
     if (showSafeArea) {
-      return SafeArea(top: false, child: content);
+      return SafeArea(top: false, bottom: false,child: content);
     }
 
     return content;

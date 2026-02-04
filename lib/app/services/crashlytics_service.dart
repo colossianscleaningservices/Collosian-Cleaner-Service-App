@@ -1,14 +1,13 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 
-/// Crashlytics service for tracking critical errors and exceptions ONLY.
-/// Mirror WAVTech: do NOT overload with routine logs.
+/// Crashlytics service for tracking critical errors and exceptions ONLY. Mirror WAVTech: do NOT overload with routine logs.
 class CrashlyticsService {
   CrashlyticsService._internal();
 
   static CrashlyticsService? _instance;
-  static CrashlyticsService get instance =>
-      _instance ??= CrashlyticsService._internal();
+
+  static CrashlyticsService get instance => _instance ??= CrashlyticsService._internal();
 
   FirebaseCrashlytics? _crashlytics;
   bool _isInitialized = false;
@@ -110,6 +109,5 @@ class CrashlyticsService {
     }
   }
 
-  static bool isServerError(int? statusCode) =>
-      statusCode != null && statusCode >= 500 && statusCode < 600;
+  static bool isServerError(int? statusCode) => statusCode != null && statusCode >= 500 && statusCode < 600;
 }

@@ -75,6 +75,7 @@ class Notifier {
 
     var content = SafeArea(
       top: false,
+      bottom: false,
       child: AppCard(
         child: Column(
           spacing: 16,

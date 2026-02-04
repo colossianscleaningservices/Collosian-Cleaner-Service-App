@@ -61,6 +61,17 @@ class PropertyController extends GetxController {
     Get.toNamed(Routes.ADD_PROPERTY);
   }
 
+  void clearHouseFields() {
+    subType.value = null;
+    numberOfBedroomsCtrl.text = '0';
+    numberOfBathroomsCtrl.text = '0';
+    numberOfGuestToiletCtrl.text = '0';
+    livingRoomCtrl.text = '0';
+    officeCtrl.text = '0';
+    conservatoryCtrl.text = '0';
+    diningRoomCtrl.text = '0';
+  }
+
   void clearEditing() {
     editingProperty.value = null;
     propertyNameCtrl.clear();
@@ -69,6 +80,7 @@ class PropertyController extends GetxController {
     postalCodeCtrl.clear();
     businessType.value = 'Residential';
     propertyType.value = null;
+    clearHouseFields();
     hoover.value = 'No';
     staffPreference.value = 'Male';
     accessToProperty.value = 'Client Will Open';
@@ -83,17 +95,15 @@ class PropertyController extends GetxController {
     if (property == null) return;
     Notifier.openSheet(
       context,
-      type: SheetType.info,
+      type: SheetType.error,
       title: 'Delete property?',
+      icon: IconsaxPlusLinear.trash,
       message: 'This will remove "${property.name}" from your properties. This action cannot be undone.',
       primaryButtonLabel: 'Delete',
       secondaryButtonLabel: 'Cancel',
       showPrimaryButton: true,
       showSecondaryButton: true,
-      onPrimaryPressed: () {
-        deleteProperty();
-      },
-      onSecondaryPressed: () {},
+      onPrimaryPressed: () => deleteProperty(),
     );
   }
 
@@ -111,8 +121,18 @@ class PropertyController extends GetxController {
   final cityCtrl = TextEditingController();
   final postalCodeCtrl = TextEditingController();
 
+  /// House-specific field controllers (only relevant when propertyType == 'House').
+  final numberOfBedroomsCtrl = TextEditingController(text: '0');
+  final numberOfBathroomsCtrl = TextEditingController(text: '0');
+  final numberOfGuestToiletCtrl = TextEditingController(text: '0');
+  final livingRoomCtrl = TextEditingController(text: '0');
+  final officeCtrl = TextEditingController(text: '0');
+  final conservatoryCtrl = TextEditingController(text: '0');
+  final diningRoomCtrl = TextEditingController(text: '0');
+
   final businessType = 'Residential'.obs;
   final propertyType = Rxn<String>();
+  final subType = Rxn<String>();
   final hoover = 'No'.obs;
   final staffPreference = 'Male'.obs;
   final accessToProperty = 'Client Will Open'.obs;
@@ -130,6 +150,14 @@ class PropertyController extends GetxController {
     'Flat',
     'Semi-detached',
     'Detached',
+    'Bungalow',
+    'Other',
+  ];
+  static const List<String> houseSubTypeOptions = [
+    'Flat',
+    'Terrace',
+    'Detached',
+    'Semi-detached',
     'Bungalow',
     'Other',
   ];
@@ -181,6 +209,13 @@ class PropertyController extends GetxController {
     addressCtrl.dispose();
     cityCtrl.dispose();
     postalCodeCtrl.dispose();
+    numberOfBedroomsCtrl.dispose();
+    numberOfBathroomsCtrl.dispose();
+    numberOfGuestToiletCtrl.dispose();
+    livingRoomCtrl.dispose();
+    officeCtrl.dispose();
+    conservatoryCtrl.dispose();
+    diningRoomCtrl.dispose();
     super.onClose();
   }
 }

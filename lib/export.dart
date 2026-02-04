@@ -45,6 +45,7 @@ export 'app/widget/common/avatar.dart';
 export 'app/widget/common/cleaner_card.dart';
 export 'app/widget/common/common_button.dart';
 export 'app/widget/common/info_chip.dart';
+export 'app/widget/common/job_card.dart';
 export 'app/widget/common/label_value_row.dart';
 export 'app/widget/common/text.dart';
 export 'app/widget/common/text_field.dart';

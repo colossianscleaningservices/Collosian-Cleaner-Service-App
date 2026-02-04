@@ -116,6 +116,7 @@ class _CalendarSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AppCard(
@@ -189,6 +190,7 @@ class _ListContentView extends StatelessWidget {
     }
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface),
@@ -196,77 +198,23 @@ class _ListContentView extends StatelessWidget {
         if (list.isEmpty)
           CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2))
         else
-          for (var i = 0; i < list.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: _ListJobCard(
-                date: CcsDateUtils.shortDateNoYear(list[i].$1),
-                time: list[i].$2.timeRange,
-                property: list[i].$2.title,
+          AppGrid(
+            maxExtent: 140,
+            axisSpacing: 8,
+            phoneCount: 1,
+            tabletCount: 2,
+            landscapeCount: 3,
+            child: List.generate(
+              list.length,
+              (i) => JobCard(
+                title: list[i].$2.title,
+                dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
                 status: list[i].$2.status,
-                scheme: scheme,
+                onTap: () => Notifier.info('Job details (coming soon)'),
               ),
             ),
-      ],
-    );
-  }
-}
-
-class _ListJobCard extends StatelessWidget {
-  const _ListJobCard({required this.date, required this.time, required this.property, required this.status, required this.scheme});
-
-  final String date;
-  final String time;
-  final String property;
-  final String status;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    final isApproved = status == 'Approved';
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => Notifier.info('Job details (coming soon)'),
-        borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-        child: Card(
-          color: context.colorScheme.onPrimary,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Row(
-              children: [
-                Container(
-                  width: 4,
-                  height: 48,
-                  decoration: BoxDecoration(color: isApproved ? scheme.primary : scheme.outline, borderRadius: BorderRadius.circular(2)),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CommonText.semiBold(property, size: 14),
-                      const SizedBox(height: 2),
-                      CommonText.regular('$date · $time', size: 12, color: scheme.onSurfaceVariant),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: (isApproved ? scheme.primaryContainer : scheme.surfaceContainerHighest).withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: CommonText.medium(status, size: 11, color: isApproved ? scheme.onPrimaryContainer : scheme.onSurfaceVariant),
-                ),
-                const SizedBox(width: 4),
-                Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
-              ],
-            ),
           ),
-        ),
-      ),
+      ],
     );
   }
 }
