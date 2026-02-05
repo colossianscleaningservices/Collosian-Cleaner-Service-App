@@ -1,10 +1,10 @@
 import 'package:ccs_app/app/model/client_job.dart';
-import 'package:ccs_app/app/services/session_service.dart';
 import 'package:ccs_app/export.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../model/availability.dart';
 import '../../../model/calendar_event.dart';
+import '../../../model/common_model.dart';
 import '../../../model/menu_model.dart';
 import 'view/cleaner_availability_view.dart';
 import 'view/cleaner_calendar_view.dart';
@@ -102,6 +102,12 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     MenuModel(icon: IconsaxPlusLinear.message_question, title: 'Help & support', subtitle: "Get help and support"),
   ];
 
+  List<String> propertyNameOptions = ['British Citizen / Right of Adobe', 'Settled Status', 'Other'];
+  List<String> statusOptions = ['All', 'Finished', 'Approved'];
+  final selectedPropertyName = Rxn<String>();
+  final selectedStatus = Rxn<String>();
+  RxList<CommonModel> filter = <CommonModel>[].obs;
+
   var appVersion = "".obs;
 
   @override
@@ -121,6 +127,12 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     }
     tabController = TabController(length: 3, vsync: this, initialIndex: 1);
     tabController.addListener(_syncModeFromTab);
+
+    filter.clear();
+    filter.add(CommonModel(type: "All Jobs", isSelected: true));
+    filter.add(CommonModel(type: "Pending"));
+    filter.add(CommonModel(type: "Approved"));
+
 
     getAppVersion();
   }

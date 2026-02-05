@@ -1,5 +1,6 @@
 import '../../../../../export.dart';
 import '../../../../widget/layout/app_scaffold.dart';
+import '../../../../widget/layout/bottom_action_bar.dart';
 import '../cleaner_references_controller.dart';
 
 class AddReferenceView extends GetView<CleanerReferencesController> {
@@ -44,18 +45,12 @@ class AddReferenceView extends GetView<CleanerReferencesController> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: context.colorScheme.onPrimary,
-        child: Obx(
-              () => SizedBox(
-            width: double.infinity,
-            child: AppButton(
-              label: controller.isSaving.value ? 'Saving...' : 'Add Reference',
-              onPressed: controller.isSaving.value ? null : controller.addReferences,
-            ),
-          ),
-        ),
-      ),
+      bottomNavigationBar: Obx(() {
+        return SingleActionBottomBar(
+          label: controller.isSaving.value ? 'Saving...' : 'Add Reference',
+          onPressed: () => controller.isSaving.value ? null : controller.addReferences,
+        );
+      }),
     );
   }
 }

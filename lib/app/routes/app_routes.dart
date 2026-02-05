@@ -14,6 +14,7 @@ abstract class Routes {
   static const SIGN_UP = _Paths.SIGN_UP;
   static const FORGOT_PASSWORD = _Paths.FORGOT_PASSWORD;
   static const RESET_PASSWORD = _Paths.RESET_PASSWORD;
+  static const AGREEMENT = _Paths.AGREEMENT;
 
   // Client module
   static const CLIENT_DASHBOARD = _Paths.CLIENT_DASHBOARD;
@@ -52,6 +53,7 @@ abstract class _Paths {
   static const SIGN_UP = '/auth/signup';
   static const FORGOT_PASSWORD = '/auth/forgot-password';
   static const RESET_PASSWORD = '/auth/reset-password';
+  static const AGREEMENT = '/auth/agreement';
 
   // Client module
   static const CLIENT_DASHBOARD = '/client';

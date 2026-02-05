@@ -1,8 +1,8 @@
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
+import '../../gen/assets.gen.dart';
 import 'auth_controller.dart';
-import 'widgets/auth_logo.dart';
 
 class RoleSelectionView extends GetView<AuthController> {
   const RoleSelectionView({super.key});
@@ -25,7 +25,9 @@ class RoleSelectionView extends GetView<AuthController> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 32, bottom: 24),
-                      child: const AuthLogo(),
+                      child: Assets.imagesAppLogo.image(
+                        height: 120,
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 32),

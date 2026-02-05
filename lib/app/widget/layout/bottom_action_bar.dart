@@ -21,11 +21,11 @@ class BottomActionBar extends StatelessWidget {
     final content = Container(
       padding: padding,
       color: backgroundColor ?? Colors.transparent,
-      child: Column(mainAxisSize: MainAxisSize.min, children: children),
+      child: Row(mainAxisSize: MainAxisSize.min, children: children),
     );
 
     if (showSafeArea) {
-      return SafeArea(top: false, bottom: false,child: content);
+      return SafeArea(top: false, bottom: false, child: content);
     }
 
     return content;
@@ -49,9 +49,9 @@ class SingleActionBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BottomActionBar(
-    backgroundColor: backgroundColor,
-    children: [SizedBox(width: double.infinity,child: AppButton(label: label, onPressed: onPressed, type: buttonType))],
-  );
+        backgroundColor: backgroundColor,
+        children: [Expanded(child: SizedBox(width: double.infinity, child: AppButton(label: label, onPressed: onPressed, type: buttonType)))],
+      );
 }
 
 /// A specialized bottom action bar for dual button actions
@@ -63,9 +63,10 @@ class DualActionBottomBar extends StatelessWidget {
     required this.secondaryOnPressed,
     super.key,
     this.primaryButtonType = ButtonType.primary,
-    this.secondaryButtonType = ButtonType.outline,
+    this.secondaryButtonType = ButtonType.tonal,
     this.backgroundColor,
-    this.spacing = 12.0,
+    this.spacing = 16.0,
+    this.showSecondary = true,
   });
 
   final String primaryLabel;
@@ -76,21 +77,27 @@ class DualActionBottomBar extends StatelessWidget {
   final ButtonType secondaryButtonType;
   final Color? backgroundColor;
   final double spacing;
+  final bool showSecondary;
 
   @override
   Widget build(BuildContext context) => BottomActionBar(
-    backgroundColor: backgroundColor,
-    children: [
-      AppButton(
-        label: primaryLabel,
-        onPressed: primaryOnPressed,
-        type: primaryButtonType,
-      ).marginOnly(bottom: spacing),
-      AppButton(
-        label: secondaryLabel,
-        onPressed: secondaryOnPressed,
-        type: secondaryButtonType,
-      ),
-    ],
-  );
+        backgroundColor: backgroundColor,
+        children: [
+          if (showSecondary)
+            Expanded(
+              child: AppButton(
+                label: secondaryLabel,
+                onPressed: secondaryOnPressed,
+                type: secondaryButtonType,
+              ).marginOnly(right: spacing),
+            ),
+          Expanded(
+            child: AppButton(
+              label: primaryLabel,
+              onPressed: primaryOnPressed,
+              type: primaryButtonType,
+            ),
+          ),
+        ],
+      );
 }
