@@ -1,6 +1,7 @@
 import 'package:ccs_app/export.dart';
 
 import '../../../model/client_job.dart';
+import 'add_review.dart';
 
 class ClientJobDetailController extends GetxController {
   final job = Rx<ClientJob>(ClientJob(
@@ -13,6 +14,13 @@ class ClientJobDetailController extends GetxController {
     status: 'Created',
     propertyOneLine: '',
   ));
+
+  Rx<Options?> arrive = Rx<Options?>(null);
+  Rx<Options?> uniform = Rx<Options?>(null);
+  Rx<Options?> completedJob = Rx<Options?>(null);
+  Rx<Options?> requestAgain = Rx<Options?>(null);
+  Rx<double> rating = 0.0.obs;
+  final messageController = TextEditingController();
 
   @override
   void onInit() {
@@ -98,5 +106,8 @@ class ClientJobDetailController extends GetxController {
 
   void onShareCleanerProfile(ClientJobCleaner c) {
     Notifier.info('Share ${c.name} (coming soon)');
+  }
+  void onReviewCleanerProfile(ClientJobCleaner c) {
+    Get.toNamed(Routes.ADD_REVIEW);
   }
 }

@@ -20,7 +20,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                   onAction: () => Get.toNamed(Routes.CLIENT_CREATE_JOB),
                 )
               : AppGrid(
-                  maxExtent: 130,
+                  maxExtent: 142,
                   axisSpacing: 16,
                   phoneCount: 1,
                   tabletCount: 2,

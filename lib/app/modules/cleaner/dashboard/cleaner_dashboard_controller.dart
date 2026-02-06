@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/export.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../model/availability.dart';
@@ -110,6 +111,14 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
   var appVersion = "".obs;
 
+  // Controllers and focus node
+  final TextEditingController propertyController = TextEditingController();
+  final FocusNode focusNode = FocusNode();
+
+  // This will hold the suggestions that will be used in the typeahead field
+  final SuggestionsController<String> suggestionsController = SuggestionsController<String>();
+  final jobs = <ClientJob>[].obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -133,7 +142,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     filter.add(CommonModel(type: "Pending"));
     filter.add(CommonModel(type: "Approved"));
 
-
     getAppVersion();
   }
 
@@ -143,8 +151,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     tabController.dispose();
     super.onClose();
   }
-
-  final jobs = <ClientJob>[].obs;
 
   @override
   void onReady() {
@@ -248,5 +254,129 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   void removeBlockedDay(DateTime date) {
     final d = DateTime(date.year, date.month, date.day);
     blockedDays.removeWhere((x) => x.year == d.year && x.month == d.month && x.day == d.day);
+  }
+
+  List<String> getSuggestions(String pattern) {
+    return propertyNameOptions.where((item) => item.toLowerCase().contains(pattern.toLowerCase())).toList();
+  }
+
+  void onSelected(String selectedItem) {
+    propertyController.text = selectedItem;
+  }
+
+  void openFilter(BuildContext context) {
+    Notifier.openSheet(context, body: filterJob(context), showIcon: false, showPrimaryButton: false, showSecondaryButton: false);
+  }
+
+  Widget filterJob(BuildContext context) {
+    final scheme = context.colorScheme;
+    return Column(
+      children: [
+        AppCard(
+          color: Colors.transparent,
+          enableShadows: false,
+          child: Row(
+            children: [
+              AppCard(
+                radius: UiConstants.radiusDefault,
+                color: scheme.secondaryContainer.withValues(alpha: 0.7),
+                child: Icon(
+                  IconsaxPlusLinear.filter_search,
+                  size: 20,
+                  color: scheme.secondary,
+                ).paddingAll(10),
+              ).marginOnly(right: UiConstants.gap),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CommonText.bold('Filter Jobs', size: 18, color: scheme.onSurface),
+                    const SizedBox(height: 2),
+                    CommonText.regular(
+                      'By property and status',
+                      size: 12,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ).marginOnly(bottom: 12),
+
+        // Filter card
+        Obx(() {
+          return AppCard(
+            radius: UiConstants.radiusLarge,
+            enableShadows: true,
+            borderWidth: 1,
+            borderColor: scheme.outline.withValues(alpha: 0.12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CommonTypeAheadField<String>(
+                  controller: propertyController,
+                  focusNode: focusNode,
+                  suggestionsController: suggestionsController,
+                  suggestionsCallback: getSuggestions,
+                  itemBuilder: (context, item) {
+                    return ListTile(
+                      title: CommonText.regular(item),
+                    );
+                  },
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 1,
+                        height: 24,
+                        color: context.colorScheme.outline,
+                      ).marginOnly(right: 8),
+                      Icon(
+                        IconsaxPlusLinear.arrow_down,
+                        color: scheme.onSurfaceVariant,
+                      )
+                    ],
+                  ),
+                  onSelected: onSelected,
+                  hint: 'Select Property Name',
+                ),
+                SizedBox(height: UiConstants.gap),
+                CommonDropDownField(
+                  itemLabel: (value) => value.toString(),
+                  hint: 'Select Status',
+                  label: 'Status',
+                  onChanged: (value) {
+                    selectedStatus.value = value;
+                  },
+                  items: statusOptions,
+                  value: selectedStatus.value,
+                  borderRadius: UiConstants.radiusDefault,
+                ),
+              ],
+            ).paddingAll(UiConstants.defaultPadding),
+          );
+        }).marginOnly(bottom: 18),
+
+        Row(
+          children: [
+            Expanded(
+              child: AppButton(
+                type: ButtonType.tonal,
+                label: 'Cancel',
+                onPressed: () => Get.back(),
+              ).marginOnly(right: 4),
+            ),
+            Expanded(
+              child: AppButton(
+                type: ButtonType.primary,
+                label: 'Apply Filter',
+                onPressed: () => Get.back(),
+              ).marginOnly(left: 4),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }

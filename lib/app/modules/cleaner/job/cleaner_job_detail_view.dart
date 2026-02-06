@@ -162,6 +162,7 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                       cleaner: cl,
                       onShare: () => c.onShareCleanerProfile(cl),
                       scheme: scheme,
+                      onReview: () => {},
                     ),
                   ),
                 ),

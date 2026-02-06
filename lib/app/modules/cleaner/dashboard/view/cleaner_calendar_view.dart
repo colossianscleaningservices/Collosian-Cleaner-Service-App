@@ -15,7 +15,6 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _FilterJobSection(controller: controller),
           AppCard(
             child: TabBar(
               unselectedLabelStyle: context.textTheme.bodyLarge,
@@ -89,113 +88,6 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
           ),
         ],
       ).paddingSymmetric(vertical: 16),
-    );
-  }
-}
-
-class _FilterJobSection extends StatelessWidget {
-  final CleanerDashboardController controller;
-
-  const _FilterJobSection({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = context.colorScheme;
-
-    return Column(
-      children: [
-        AppCard(
-          color: Colors.transparent,
-          enableShadows: false,
-          child: Row(
-            children: [
-              AppCard(
-                radius: UiConstants.radiusDefault,
-                color: scheme.secondaryContainer.withValues(alpha: 0.7),
-                child: Icon(
-                  IconsaxPlusLinear.filter_search,
-                  size: 20,
-                  color: scheme.secondary,
-                ).paddingAll(10),
-              ).marginOnly(right: UiConstants.gap),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CommonText.bold('Filter Jobs', size: 18, color: scheme.onSurface),
-                    const SizedBox(height: 2),
-                    CommonText.regular(
-                      'By property and status',
-                      size: 13,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ).paddingSymmetric(horizontal: 24),
-        ).marginOnly(bottom: 12),
-
-        // Filter card
-        Obx(() {
-          return AppCard(
-            radius: UiConstants.radiusLarge,
-            enableShadows: true,
-            borderWidth: 1,
-            borderColor: scheme.outline.withValues(alpha: 0.12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                CommonDropDownField(
-                  itemLabel: (value) => value.toString(),
-                  hint: 'Select Property Name',
-                  label: 'Property Name',
-                  onChanged: (value) {
-                    controller.selectedPropertyName.value = value;
-                  },
-                  items: controller.propertyNameOptions,
-                  value: controller.selectedPropertyName.value,
-                  borderRadius: UiConstants.radiusDefault,
-                ),
-                SizedBox(height: UiConstants.gap),
-                CommonDropDownField(
-                  itemLabel: (value) => value.toString(),
-                  hint: 'Select Status',
-                  label: 'Status',
-                  onChanged: (value) {
-                    controller.selectedStatus.value = value;
-                  },
-                  items: controller.statusOptions,
-                  value: controller.selectedStatus.value,
-                  borderRadius: UiConstants.radiusDefault,
-                ),
-                Obx(() {
-                  final hasFilters = controller.selectedPropertyName.value != null || controller.selectedStatus.value != null;
-                  if (!hasFilters) return const SizedBox.shrink();
-
-                  return Wrap(
-                    alignment: WrapAlignment.end,
-                    children: [
-                      AppButton(
-                        bgColor: scheme.primaryContainer.withValues(alpha: 0.6),
-                        label: 'Reset Filter',
-                        type: ButtonType.tonal,
-                        onPressed: () {
-                          controller.selectedPropertyName.value = null;
-                          controller.selectedStatus.value = null;
-                        },
-                        btnVerticalPadding: 12,
-                        btnHorizontalPadding: 14,
-                        textSize: 12,
-                      ),
-                    ],
-                  ).marginOnly(top: 8);
-                }),
-              ],
-            ).paddingAll(UiConstants.defaultPadding),
-          );
-        }).paddingSymmetric(horizontal: 24).marginOnly(bottom: 18),
-      ],
     );
   }
 }

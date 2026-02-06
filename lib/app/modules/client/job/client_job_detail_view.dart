@@ -62,8 +62,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                             foregroundColor: j.isScheduled ? scheme.primary : scheme.onSurfaceVariant,
                           ),
                           InfoChip(label: 'Status: ${j.status.toUpperCase()}', backgroundColor: scheme.secondaryContainer, foregroundColor: scheme.secondary),
-                          if (j.recurrence != null)
-                            InfoChip(label: j.recurrence!, backgroundColor: scheme.tertiaryContainer, foregroundColor: scheme.tertiary),
+                        if (j.recurrence != null) InfoChip(label: j.recurrence!, backgroundColor: scheme.tertiaryContainer, foregroundColor: scheme.tertiary),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -140,8 +139,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                   children: [
                     CommonText.semiBold('Payment & staff', size: 16, color: scheme.onSurface),
                     const SizedBox(height: 12),
-                    if (j.invoicePaymentSource != null)
-                      LabelValueRow(label: 'Payment source', value: j.invoicePaymentSource!, scheme: scheme),
+                    if (j.invoicePaymentSource != null) LabelValueRow(label: 'Payment source', value: j.invoicePaymentSource!, scheme: scheme),
                     LabelValueRow(label: 'Cleaners needed', value: '${j.cleanersNeeded}', scheme: scheme),
                   ],
                 ).paddingAll(UiConstants.defaultPadding),
@@ -170,8 +168,10 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: CleanerCard(
                       cleaner: cl,
+                      isReview: true,
                       onShare: () => c.onShareCleanerProfile(cl),
                       scheme: scheme,
+                      onReview: () => c.onReviewCleanerProfile(cl),
                     ),
                   ),
                 ),
@@ -184,5 +184,4 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
     );
     });
   }
-
 }

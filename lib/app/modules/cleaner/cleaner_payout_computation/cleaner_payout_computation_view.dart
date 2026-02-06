@@ -73,8 +73,8 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
                       ).marginOnly(left: 8),
                     ),
                   ],
-                ),
-              ).marginOnly(bottom: 24),
+                ).marginOnly(bottom: 24),
+              ),
 
               // Summary section title
               Row(
@@ -263,7 +263,7 @@ class _EmptyWorkEntries extends StatelessWidget {
       borderColor: scheme.outline.withValues(alpha: 0.2),
       borderRadius: BorderRadius.circular(UiConstants.radiusLarge),
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-      enableShadows: false,
+      enableShadows: true,
       child: Column(
         children: [
           Icon(IconsaxPlusLinear.document_text, size: 44, color: scheme.onSurfaceVariant.withValues(alpha: 0.6)).marginOnly(bottom: 16),
@@ -397,7 +397,7 @@ class _DateField extends StatelessWidget {
                   decoration: buildCommonDecoration(
                     context: context,
                     hint: '-- / -- / ----',
-                    contentPadding: EdgeInsets.only(left: 0),
+                    contentPadding: EdgeInsets.only(left: 8),
                     suffixIcon: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -409,9 +409,9 @@ class _DateField extends StatelessWidget {
                             constraints: const BoxConstraints(),
                             padding: const EdgeInsets.all(4),
                           ),
-                        Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.primary),
+                        Icon(IconsaxPlusLinear.calendar_1, size: 18, color: scheme.primary),
                       ],
-                    ).marginOnly(right: 12),
+                    ).marginOnly(right: 8),
                   ),
                   isEmpty: value == null,
                   child: CommonText.regular(value != null ? CcsDateUtils.forInput(value!) : '', color: scheme.onSurface),

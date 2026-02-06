@@ -297,8 +297,9 @@ class _NotificationCard extends StatelessWidget {
                             color: context.colorScheme.error,
                             child: CommonText.regular(
                               'UNREAD',
+                              size: 12,
                               color: context.colorScheme.onPrimary,
-                            ).paddingAll(8),
+                            ).paddingSymmetric(horizontal: 8,vertical: 6),
                           )
                   ],
                 ),

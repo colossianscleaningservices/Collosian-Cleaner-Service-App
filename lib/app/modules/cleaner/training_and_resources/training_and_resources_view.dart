@@ -14,11 +14,14 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
 
     return AppScaffold(
       appBar: Header(title: 'Training & Resources'),
-      body: SingleChildScrollView(
-        child: Column(
+      body: SwipeRefresh(
+        onRefresh: () => controller.refreshTraining(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _HeaderSection(scheme: scheme).marginOnly(bottom: 20),
+            _StatsRow(controller: controller, scheme: scheme).marginOnly(bottom: 20),
             _SearchSection(controller: controller, scheme: scheme).marginOnly(bottom: 20),
             CommonText.semiBold('Media type filter', color: scheme.onSurface).marginOnly(bottom: 10),
             _FilterChips(controller: controller, scheme: scheme).marginOnly(bottom: 20),
@@ -50,37 +53,95 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
             }).marginOnly(bottom: 24),
           ],
         ).paddingAll(UiConstants.defaultPadding),
+        ),
       ),
     );
   }
 }
 
-class _HeaderSection extends StatelessWidget {
-  const _HeaderSection({required this.scheme});
+class _StatsRow extends StatelessWidget {
+  const _StatsRow({required this.controller, required this.scheme});
 
+  final TrainingAndResourcesController controller;
   final ColorScheme scheme;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            AppCard(
-              radius: UiConstants.radiusDefault,
-              enableShadows: false,
-              color: scheme.primary.withValues(alpha: 0.05),
-              child: Icon(IconsaxPlusLinear.book_1, size: 24, color: scheme.primary).paddingAll(12),
-            ).marginOnly(right: 14),
-            CommonText.regular(
-              'Videos, guides and materials',
-              size: 14,
-              color: scheme.onSurfaceVariant,
-            )
-          ],
-        ),
-      ],
+    return Obx(() {
+      final list = controller.training;
+      final unseen = list.where((e) => !e.isSeen).length;
+      final seen = list.where((e) => e.isSeen).length;
+      final total = list.length;
+
+      return Row(
+        children: [
+          Expanded(
+            child: _StatChip(
+              label: 'Unseen',
+              value: unseen,
+              scheme: scheme,
+              accentColor: scheme.error,
+            ).marginOnly(right: 10),
+          ),
+          Expanded(
+            child: _StatChip(
+              label: 'Seen',
+              value: seen,
+              scheme: scheme,
+              accentColor: scheme.tertiary,
+            ).marginOnly(right: 10),
+          ),
+          Expanded(
+            child: _StatChip(
+              label: 'Total',
+              value: total,
+              scheme: scheme,
+              accentColor: scheme.primary,
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  const _StatChip({
+    required this.label,
+    required this.value,
+    required this.scheme,
+    required this.accentColor,
+  });
+
+  final String label;
+  final int value;
+  final ColorScheme scheme;
+  final Color accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      color: accentColor.withValues(alpha: 0.08),
+      radius: UiConstants.radiusDefault,
+      borderWidth: 1,
+      enableShadows: false,
+      borderColor: accentColor.withValues(alpha: 0.25),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CommonText.medium(
+            label,
+            size: 12,
+            color: scheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 4),
+          CommonText.semiBold(
+            '$value',
+            size: 20,
+            color: accentColor,
+          ),
+        ],
+      ).paddingSymmetric(vertical: 14, horizontal: 12),
     );
   }
 }
@@ -327,9 +388,7 @@ class _VideoControlsBarState extends State<_VideoControlsBar> {
         final position = ctrl.value.position;
         final duration = ctrl.value.duration;
         final totalSeconds = duration.inMilliseconds / 1000.0;
-        final currentSeconds = _isDragging
-            ? _dragPositionSeconds
-            : position.inMilliseconds / 1000.0;
+        final currentSeconds = _isDragging ? _dragPositionSeconds : position.inMilliseconds / 1000.0;
         final safeTotal = totalSeconds > 0 ? totalSeconds : 1.0;
 
         return Container(
@@ -337,9 +396,9 @@ class _VideoControlsBarState extends State<_VideoControlsBar> {
           color: scheme.surfaceContainerHighest.withValues(alpha: 0.95),
           child: Row(
             children: [
-                Material(
+              Material(
                 color: Colors.transparent,
-                child:  IconButton(
+                child: IconButton(
                   onPressed: () {
                     if (ctrl.value.isPlaying) {
                       ctrl.pause();
@@ -348,9 +407,7 @@ class _VideoControlsBarState extends State<_VideoControlsBar> {
                     }
                   },
                   icon: Icon(
-                    ctrl.value.isPlaying
-                        ? IconsaxPlusLinear.pause
-                        : IconsaxPlusLinear.play,
+                    ctrl.value.isPlaying ? IconsaxPlusLinear.pause : IconsaxPlusLinear.play,
                     color: scheme.primary,
                     size: 28,
                   ),

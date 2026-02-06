@@ -299,6 +299,7 @@ class CommonTypeAheadField<T> extends StatelessWidget {
         borderColor: borderColor,
         fillColor: fillColor,
         keyboardType: TextInputType.text,
+
       ),
       suggestionsCallback: suggestionsCallback,
       itemBuilder: (context, item) => Container(

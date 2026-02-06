@@ -54,7 +54,7 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                       return MenuItem(controller.profileItems[index], onTap: () {
                         switch (index) {
                           case 0:
-                            // Get.toNamed(Routes.CHANGE_PASSWORD);
+                            Get.toNamed(Routes.CHANGE_PASSWORD);
                             break;
                           case 1:
                             Get.toNamed(Routes.PROPERTY);
@@ -63,16 +63,16 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                             // Get.toNamed(Routes.PREFERRED_STAFF);
                             break;
                           case 3:
-                            // Get.toNamed(Routes.NOTIFICATIONS);
+                            Get.toNamed(Routes.NOTIFICATION);
                             break;
                           case 4:
-                            // Get.toNamed(Routes.TRAINING_RESOURCES);
+                            Get.toNamed(Routes.TRAINING_AND_RESOURCES);
                             break;
                           case 5:
-                            // Get.toNamed(Routes.HELP);
+                            Get.toNamed(Routes.HELP_SUPPORT);
                             break;
                           default:
-                            // Get.toNamed(Routes.HELP);
+                            Get.toNamed(Routes.HELP_SUPPORT);
                             break;
                         }
                       });

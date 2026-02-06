@@ -119,13 +119,11 @@ class SupportDocumentController extends GetxController {
       }),
     );
 
-    return;
-
-    if (item.fileUrl != null && item.fileUrl!.isNotEmpty) {
+    /*if (item.fileUrl != null && item.fileUrl!.isNotEmpty) {
       // TODO: Open file (e.g. url_launcher or file viewer)
     } else {
       Notifier.info('No file attached');
-    }
+    }*/
   }
 
   void onEditDocument(SupportDocumentItem item) {

@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../widget/layout/app_scaffold.dart';
@@ -408,18 +409,10 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: context.colorScheme.onPrimary,
-        child: Obx(
-          () => SizedBox(
-            width: double.infinity,
-            child: AppButton(
-              label: controller.isSaving.value ? 'Saving...' : 'Save changes',
-              onPressed: controller.isSaving.value ? null : controller.saveProfile,
-            ),
-          ),
-        ),
-      ),
+      bottomNavigationBar: Obx(() {
+        return SingleActionBottomBar(
+            label: controller.isSaving.value ? 'Saving...' : 'Save changes', onPressed: () => controller.isSaving.value ? null : controller.saveProfile);
+      }),
     );
   }
 }

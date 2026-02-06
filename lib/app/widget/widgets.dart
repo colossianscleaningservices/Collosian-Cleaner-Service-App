@@ -196,6 +196,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
                 onTapUp: _handleTapUp,
                 onTapDown: _handleTapDown,
                 onTapCancel: _handleTapCancel,
+                focusColor: Colors.transparent,
                 borderRadius: BorderRadius.circular(effectiveRadius),
                 splashColor: context.colorScheme.onPrimary.withValues(
                   alpha: 0.1,
@@ -424,8 +425,6 @@ class SwipeRefresh extends StatelessWidget {
   @override
   Widget build(BuildContext context) => RefreshIndicator(
         onRefresh: onRefresh,
-        color: context.colorScheme.primary,
-        backgroundColor: context.colorScheme.tertiary,
         child: child,
       );
 }
@@ -457,11 +456,12 @@ class AppCheckBox extends StatelessWidget {
         ),
         value: value,
         // minLeadingWidth: 16,
-      dense: true,
-      // minVerticalPadding: 0,
-      contentPadding: EdgeInsets.zero,
-      onChanged: (v) => onChange(v ?? false),
-      controlAffinity: ListTileControlAffinity.leading,),
+        dense: true,
+        // minVerticalPadding: 0,
+        contentPadding: EdgeInsets.zero,
+        onChanged: (v) => onChange(v ?? false),
+        controlAffinity: ListTileControlAffinity.leading,
+      ),
     );
   }
 }

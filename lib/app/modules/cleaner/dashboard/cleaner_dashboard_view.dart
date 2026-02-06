@@ -17,6 +17,11 @@ class CleanerDashboardView extends GetView<CleanerDashboardController> {
           widget: Assets.imagesAppLogo.image(width: 120),
           title: "",
           actions: [
+            if (controller.tabIndex.value == 1)
+              IconButton(
+                icon: const Icon(IconsaxPlusLinear.filter),
+                onPressed: () => controller.openFilter(context),
+              ),
             IconButton(
               icon: const Icon(IconsaxPlusLinear.notification),
               onPressed: () => Get.toNamed(Routes.NOTIFICATION),

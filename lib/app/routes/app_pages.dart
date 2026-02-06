@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/modules/client/job/add_review.dart';
 import 'package:get/get.dart';
 
 import '../modules/auth/agreement_view.dart';
@@ -89,6 +90,10 @@ class AppPages {
       name: _Paths.CLIENT_EDIT_PROFILE,
       page: () => const ClientEditProfileView(),
       binding: ClientEditProfileBinding(),
+    ), GetPage(
+      name: _Paths.ADD_REVIEW,
+      page: () => const AddReview(),
+      binding: ClientJobDetailBinding(),
     ),
 
     // Cleaner module

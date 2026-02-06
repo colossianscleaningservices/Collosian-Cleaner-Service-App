@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
+
 import '../../../gen/assets.gen.dart';
 import 'client_dashboard_controller.dart';
 
@@ -11,12 +12,14 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
     return Obx(
       () => AppScaffold(
         appBar: Header(
-          widget: Assets.imagesAppLogo.image(width: 120, ),
+          widget: Assets.imagesAppLogo.image(
+            width: 120,
+          ),
           title: "",
           actions: [
             IconButton(
               icon: const Icon(IconsaxPlusLinear.notification),
-              onPressed: () {},
+              onPressed: () => Get.toNamed(Routes.NOTIFICATION),
             ),
           ],
           hasBackIcon: false,
@@ -34,4 +37,3 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
     );
   }
 }
-

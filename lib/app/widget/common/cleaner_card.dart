@@ -8,12 +8,15 @@ class CleanerCard extends StatelessWidget {
     super.key,
     required this.cleaner,
     required this.onShare,
+    required this.onReview,
     required this.scheme,
+    this.isReview = false
   });
 
   final ClientJobCleaner cleaner;
-  final VoidCallback onShare;
+  final VoidCallback onShare, onReview;
   final ColorScheme scheme;
+  final bool isReview;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +38,10 @@ class CleanerCard extends StatelessWidget {
           TextButton(
             onPressed: onShare,
             child: CommonText.regular('Share', size: 14, color: scheme.primary),
+          ),
+          if(isReview) TextButton(
+            onPressed: onReview,
+            child: CommonText.regular('Review', size: 14, color: scheme.primary),
           ),
         ],
       ).paddingAll(UiConstants.defaultPadding),

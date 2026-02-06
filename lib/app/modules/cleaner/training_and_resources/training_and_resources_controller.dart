@@ -115,4 +115,14 @@ class TrainingAndResourcesController extends GetxController {
   }
 
   void increment() => count.value++;
+
+  /// Called by pull-to-refresh. Disposes existing video controllers and reloads the list.
+  Future<void> refreshTraining() async {
+    for (final item in training) {
+      item.videoPlayerController?.dispose();
+      item.videoPlayerController = null;
+    }
+    initList();
+    await Future<void>.delayed(const Duration(milliseconds: 400));
+  }
 }
