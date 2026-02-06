@@ -1,10 +1,10 @@
+import 'package:ccs_app/app/model/Section_model.dart';
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
 import 'package:ccs_app/app/network/response/login_response.dart';
-import 'package:ccs_app/app/network/utils/network_exception.dart';
-import 'package:ccs_app/app/network/utils/network_result.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
+import 'package:step_progress/step_progress.dart';
 
 enum AppRole { client, cleaner }
 
@@ -57,6 +57,45 @@ class AuthController extends GetxController {
 
   void backToLogin() => Get.until((route) => Get.currentRoute == Routes.LOGIN);
 
+  //Agreement
+  var stepProgressController = StepProgressController(initialStep: 0, totalSteps: 4);
+  var stepCurrentIndex = 0.obs;
+  RxList<SectionModel> sectionList = <SectionModel>[].obs;
+  ScrollController scrollController = ScrollController();
+  ScrollController stepScrollController = ScrollController();
+
+  /// sectionIndex -> (questionIndex -> selected answer)
+  final selectedAgreementAnswers = <int, Map<int, String>>{}.obs;
+
+  void setAgreementAnswer(int sectionIndex, int questionIndex, String answer) {
+    selectedAgreementAnswers.value[sectionIndex] ??= {};
+    selectedAgreementAnswers.value[sectionIndex]![questionIndex] = answer;
+    selectedAgreementAnswers.refresh();
+  }
+
+  String? getAgreementAnswer(int sectionIndex, int questionIndex) {
+    return selectedAgreementAnswers.value[sectionIndex]?[questionIndex];
+  }
+
+  bool isAgreementStepComplete(int sectionIndex) {
+    if (sectionIndex >= sectionList.length) return true;
+    final questions = sectionList[sectionIndex].questions ?? [];
+    if (questions.isEmpty) return true;
+    final answers = selectedAgreementAnswers.value[sectionIndex];
+    if (answers == null) return false;
+    for (var i = 0; i < questions.length; i++) {
+      if (!answers.containsKey(i) || answers[i]!.isEmpty) return false;
+    }
+    return true;
+  }
+
+  @override
+  void onInit() {
+    initSectionsList();
+    stepProgressController = StepProgressController(initialStep: 0, totalSteps: sectionList.length);
+    super.onInit();
+  }
+
   void goToRoleSelection(BuildContext context) {
     Notifier.openSheet(
       context,
@@ -73,9 +112,51 @@ class AuthController extends GetxController {
       },
       onSecondaryPressed: () {
         selectRole(AppRole.cleaner);
+        resetAgreement();
+        // Get.toNamed(Routes.AGREEMENT);
         Get.toNamed(Routes.CLEANER_DASHBOARD);
       },
     );
+  }
+
+  void resetAgreement() {
+    selectedAgreementAnswers.value.clear();
+    stepCurrentIndex.value = 0;
+    stepProgressController.setCurrentStep(stepCurrentIndex.value);
+  }
+
+  void initSectionsList() {
+    sectionList.clear();
+    List<QuestionModel> questions = [];
+    questions.add(
+      QuestionModel(
+        question: 'What should you always do before using a new cleaning chemical?',
+        answers: [
+          'Mix it with another product to make it stronger',
+          'Smell it to check strength',
+          'Read the label and safety instructions',
+          'Use it only on floors'
+        ],
+      ),
+    );
+    questions.add(
+      QuestionModel(
+        question: 'Which two products must NEVER be mixed together?',
+        answers: ['Glass cleaner and water', 'Bleach and ammonia', 'Degreaser and detergent', 'Floor cleaner and disinfectant'],
+      ),
+    );
+    questions.add(
+      QuestionModel(
+        question: 'If a chemical spills on your skin, what should you do FIRST?',
+        answers: ['Make the property look “ok”', 'Clean only visible areas', 'Meet landlord/agent inventory standards', 'Clean only floors and bathrooms'],
+      ),
+    );
+    sectionList.add(SectionModel(title: 'Sec A – Chemicals & Products', questions: questions));
+    sectionList.add(SectionModel(title: 'Sec B – End of Tenancy Cleaning', questions: questions));
+    sectionList.add(SectionModel(title: 'Sec C – HMO, Office & After-Builders Cleaning', questions: questions));
+    sectionList.add(SectionModel(title: 'Sec D – Residential Surface Cleaning', questions: questions));
+    sectionList.add(SectionModel(title: 'Sec E – Residential Surface Cleaning', questions: questions));
+    sectionList.add(SectionModel(title: 'Sec F – Residential Surface Cleaning', questions: questions));
   }
 
   void goToSignup() => Get.toNamed(Routes.SIGN_UP);
@@ -131,8 +212,7 @@ class AuthController extends GetxController {
     signupErrorMsg.value = null;
     isSigningUp.value = true;
     try {
-      final name =
-          '${signupFirstNameCtrl.text.trim()} ${signupLastNameCtrl.text.trim()}'.trim();
+      final name = '${signupFirstNameCtrl.text.trim()} ${signupLastNameCtrl.text.trim()}'.trim();
       final roleId = role == AppRole.client ? _roleIdClient : 2;
 
       final result = await _authRepository.userRegister(

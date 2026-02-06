@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:ccs_app/export.dart';
-import 'package:flutter/material.dart';
 
 import '../../../model/chat_message.dart';
 

@@ -3,12 +3,13 @@ import 'base_response.dart';
 class LoginResponse extends BaseResponse {
   LoginResponse({super.status, super.message, super.errorType, this.data});
 
-  LoginResponse.fromJson(dynamic json)
+  LoginResponse.fromJson(super.json)
       : data = json['data'] != null ? Data.fromJson(json['data']) : null,
-        super.fromJson(json);
+        super.fromJson();
 
   Data? data;
 
+  @override
   Map<String, dynamic> toJson() {
     final map = super.toJson();
     if (data != null) {

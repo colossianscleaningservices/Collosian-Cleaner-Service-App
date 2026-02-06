@@ -39,6 +39,7 @@ class Notifier {
     bool isDismissable = true,
     bool showPrimaryButton = true,
     bool showSecondaryButton = true,
+    bool showIcon = true,
     void Function()? onPrimaryPressed,
     void Function()? onSecondaryPressed,
   }) {
@@ -96,25 +97,25 @@ class Notifier {
               ],
             ),
 
-            AppCard(
-              enableShadows: false,
-              color: bg,
-              radius: 100,
-              child: iconWidget ??
-                  Icon(
-                    icon ?? IconsaxPlusLinear.check,
-                    size: 56,
-                    color: fg,
-                  ).marginAll(16),
-            ).marginOnly(top: 16),
+            if (showIcon)
+              AppCard(
+                enableShadows: false,
+                color: bg,
+                radius: 100,
+                child: iconWidget ??
+                    Icon(
+                      icon ?? IconsaxPlusLinear.check,
+                      size: 56,
+                      color: fg,
+                    ).marginAll(16),
+              ).marginOnly(top: 16),
 
             if (body == null)
               Column(
                 spacing: 8,
                 children: [
                   CommonText.bold(title, size: 24, color: scheme.primary, fontWeight: FontWeight.w900),
-                  if (message != null)
-                    CommonText.regular(message, textAlign: TextAlign.center, size: 18, color: scheme.onSurface.withValues(alpha: 0.7)),
+                  if (message != null) CommonText.regular(message, textAlign: TextAlign.center, size: 18, color: scheme.onSurface.withValues(alpha: 0.7)),
                 ],
               ).marginSymmetric(vertical: 16),
 

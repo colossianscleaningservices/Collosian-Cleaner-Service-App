@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 
+import '../modules/auth/agreement_view.dart';
 import '../modules/auth/auth_binding.dart';
 import '../modules/auth/auth_view.dart';
 import '../modules/auth/forgot_password_view.dart';
@@ -171,6 +172,11 @@ class AppPages {
       name: _Paths.CONTACT_US,
       page: () => const ContactUsView(),
       binding: ContactUsBinding(),
+    ),
+    GetPage(
+      name: _Paths.AGREEMENT,
+      page: () => const AgreementView(),
+      binding: AuthBinding(),
     ),
   ];
 }

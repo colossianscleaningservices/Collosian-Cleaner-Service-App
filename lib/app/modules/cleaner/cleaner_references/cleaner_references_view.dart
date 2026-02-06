@@ -1,7 +1,6 @@
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 
 import '../../../../export.dart';
-import '../../../widget/widgets.dart';
 import 'cleaner_references_controller.dart';
 
 class CleanerReferencesView extends GetView<CleanerReferencesController> {

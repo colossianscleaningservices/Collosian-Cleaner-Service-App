@@ -1,6 +1,5 @@
 import 'package:ccs_app/app/model/calendar_event.dart';
 import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
-import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:ccs_app/export.dart';
 import 'package:table_calendar/table_calendar.dart';
 

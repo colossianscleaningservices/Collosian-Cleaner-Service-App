@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:easy_pdf_viewer/easy_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -37,8 +39,10 @@ class SupportDocumentController extends GetxController {
 
   /// Whether the document list is currently loading.
   final isLoadingDocuments = false.obs;
+  var isPdfLoading = false.obs;
 
   void setJobStartDate(DateTime? d) => jobStartDate.value = d;
+
   void increment() => count.value++;
   final picker = ImagePicker();
 
@@ -58,9 +62,8 @@ class SupportDocumentController extends GetxController {
 
       await Future.delayed(const Duration(milliseconds: 400));
 
-      documents.add(SupportDocumentItem(type: 'Passport', number: '123456',expiry: DateTime.now()));
-      documents.add(SupportDocumentItem(type: 'Visa', number: '12345689',expiry: DateTime.now()));
-
+      documents.add(SupportDocumentItem(type: 'Passport', number: '123456', expiry: DateTime.now()));
+      documents.add(SupportDocumentItem(type: 'Visa', number: '12345689', expiry: DateTime.now()));
     } finally {
       isLoadingDocuments.value = false;
     }
@@ -85,7 +88,39 @@ class SupportDocumentController extends GetxController {
     }
   }
 
-  void onViewFile(SupportDocumentItem item) {
+  Future<void> onViewFile(SupportDocumentItem item) async {
+    isPdfLoading.value = true;
+
+    PDFDocument? doc;
+
+    PDFDocument.fromURL('https://www.ecma-international.org/wp-content/uploads/ECMA-262_12th_edition_june_2021.pdf').then((value) {
+      doc = value;
+      isPdfLoading.value = false;
+    });
+
+    Notifier.openSheet(
+      Get.context as BuildContext,
+      showIcon: false,
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      body: Obx(() {
+        return Center(
+          child: isPdfLoading.value
+              ? Center(child: CircularProgressIndicator())
+              : doc == null
+                  ? SizedBox.square()
+                  : SizedBox(
+                      height: (Get.context as BuildContext).mediaQuerySize.height * .8,
+                      child: PDFViewer(
+                        document: doc!,backgroundColor: Colors.transparent,
+                      ),
+                    ),
+        );
+      }),
+    );
+
+    return;
+
     if (item.fileUrl != null && item.fileUrl!.isNotEmpty) {
       // TODO: Open file (e.g. url_launcher or file viewer)
     } else {

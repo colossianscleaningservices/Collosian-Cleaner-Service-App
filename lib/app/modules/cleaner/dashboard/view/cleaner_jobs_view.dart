@@ -12,6 +12,8 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          CommonText.bold('Job Status',size: 18, color: scheme.onSurface).marginOnly(bottom: 10,left: 18,right: 18),
+          _FilterChips(controller: controller, scheme: scheme).marginOnly(left: 18,right: 18),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -71,6 +73,12 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: _SectionLabel(label: 'Upcoming', count: upcoming.length, scheme: scheme).marginOnly(left: 18, right: 18, bottom: 8),
                   ),
                   AppSliverGrid(
+                    maxExtent: 150,
+                    axisSpacing: 12,
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    phoneCount: 1,
+                    tabletCount: 2,
+                    landscapeCount: 3,
                     child: upcoming
                         .map(
                           (job) => JobCard(
@@ -84,12 +92,6 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                           ),
                         )
                         .toList(),
-                    maxExtent: 180,
-                    axisSpacing: 12,
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    phoneCount: 1,
-                    tabletCount: 2,
-                    landscapeCount: 3,
                   ),
                   if (past.isNotEmpty) const SliverToBoxAdapter(child: SizedBox(height: 8)),
                 ],
@@ -98,6 +100,12 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: _SectionLabel(label: 'Past', count: past.length, scheme: scheme).marginOnly(left: 18, right: 18, bottom: 8),
                   ),
                   AppSliverGrid(
+                    maxExtent: 150,
+                    axisSpacing: 12,
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    phoneCount: 1,
+                    tabletCount: 2,
+                    landscapeCount: 3,
                     child: past
                         .map(
                           (job) => JobCard(
@@ -111,12 +119,6 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                           ),
                         )
                         .toList(),
-                    maxExtent: 180,
-                    axisSpacing: 12,
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    phoneCount: 1,
-                    tabletCount: 2,
-                    landscapeCount: 3,
                   ),
                 ],
                 const SliverToBoxAdapter(child: SizedBox(height: 24)),
@@ -132,6 +134,57 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
   }
 
   static bool _isSameDay(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;
+}
+
+class _FilterChips extends StatelessWidget {
+  const _FilterChips({required this.controller, required this.scheme});
+
+  final CleanerDashboardController controller;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+          () => Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: controller.filter.map((category) {
+          final isSelected = category.isSelected;
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                for (var element in controller.filter) {
+                  element.isSelected = false;
+                }
+                category.isSelected = true;
+                controller.filter.refresh();
+              },
+              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  color: isSelected ? scheme.primaryContainer.withValues(alpha: 0.5) : scheme.onPrimary,
+                  borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+                  boxShadow: context.effectiveShadows(),
+                  border: Border.all(
+                    color: isSelected ? scheme.primary.withValues(alpha: 0.4) : scheme.outline.withValues(alpha: 0.15),
+                    width: isSelected ? 1.5 : 1,
+                  ),
+                ),
+                child: CommonText.medium(
+                  category.type,
+                  size: 14,
+                  color: isSelected ? scheme.primary : scheme.onSurface,
+                ).paddingSymmetric(horizontal: 14, vertical: 10),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
 }
 
 class _SectionLabel extends StatelessWidget {

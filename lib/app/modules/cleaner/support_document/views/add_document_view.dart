@@ -33,7 +33,8 @@ class AddDocumentView extends GetView<SupportDocumentController> {
                 hint: 'Enter document number',
                 keyboardType: TextInputType.phone,
               ).marginOnly(bottom: 18),
-              Obx(() => _DateField(
+              Obx(() =>
+                  _DateField(
                     label: 'Expiry Date *',
                     value: controller.jobStartDate.value,
                     onTap: () => _pickDate(context, controller),
@@ -83,9 +84,15 @@ class AddDocumentView extends GetView<SupportDocumentController> {
                                   color: Colors.grey,
                                 ).marginOnly(right: 6),
                                 SizedBox(
-                                    width: MediaQuery.of(context).size.width * 0.4,
+                                    width: MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width * 0.4,
                                     child: CommonText.regular(
-                                      controller.pickedFiles[index].path.toString().split('/').last,
+                                      controller.pickedFiles[index].path
+                                          .toString()
+                                          .split('/')
+                                          .last,
                                       maxLines: 1,
                                       color: context.colorScheme.primary,
                                     )),
@@ -117,10 +124,12 @@ class AddDocumentView extends GetView<SupportDocumentController> {
           ).paddingSymmetric(horizontal: 16, vertical: 8),
         ),
       ),
-      bottomNavigationBar: SingleActionBottomBar(
-        label: controller.isSaving.value ? 'Saving...' : 'Upload Document',
-        onPressed:() => controller.isSaving.value ? null : controller.addDocument,
-      ),
+      bottomNavigationBar: Obx(() {
+        return SingleActionBottomBar(
+          label: controller.isSaving.value ? 'Saving...' : 'Upload Document',
+          onPressed: () => controller.isSaving.value ? null : controller.addDocument,
+        );
+      }),
     );
   }
 
