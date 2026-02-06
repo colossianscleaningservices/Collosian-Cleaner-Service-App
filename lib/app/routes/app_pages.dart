@@ -35,6 +35,8 @@ import '../modules/client/edit_profile/client_edit_profile_binding.dart';
 import '../modules/client/edit_profile/client_edit_profile_view.dart';
 import '../modules/client/job/client_job_detail_binding.dart';
 import '../modules/client/job/client_job_detail_view.dart';
+import '../modules/client/schedule_job/schedule_job_binding.dart';
+import '../modules/client/schedule_job/schedule_job_view.dart';
 import '../modules/client/property/add_property_view.dart';
 import '../modules/client/property/property_binding.dart';
 import '../modules/client/property/property_view.dart';
@@ -76,6 +78,11 @@ class AppPages {
       name: _Paths.CLIENT_JOB_DETAIL,
       page: () => const ClientJobDetailView(),
       binding: ClientJobDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.CLIENT_SCHEDULE_JOB,
+      page: () => const ScheduleJobView(),
+      binding: ScheduleJobBinding(),
     ),
     GetPage(
       name: _Paths.CLIENT_EDIT_PROFILE,

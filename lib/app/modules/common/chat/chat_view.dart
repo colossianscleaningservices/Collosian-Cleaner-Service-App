@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:ccs_app/app/model/chat_message.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:image_picker/image_picker.dart';
 
 import 'chat_controller.dart';
@@ -56,10 +58,53 @@ class ChatView extends GetView<ChatController> {
                 );
               }),
             ),
-            Obx(() => controller.isSelectionMode.value
-                ? const SizedBox.shrink()
-                : _ChatComposer(controller: controller, scheme: scheme)),
+            Obx(() => controller.isSelectionMode.value ? const SizedBox.shrink() : _ChatComposer(controller: controller, scheme: scheme)),
+            Obx(() => _buildEmojiPicker(controller, scheme)),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmojiPicker(ChatController ctrl, ColorScheme scheme) {
+    if (!ctrl.isEmojiPickerVisible.value) return const SizedBox.shrink();
+    return SizedBox(
+      height: 256,
+      child: EmojiPicker(
+        textEditingController: ctrl.textController,
+        onEmojiSelected: (category, config) {},
+        onBackspacePressed: () {
+          final t = ctrl.textController;
+          if (t.text.isNotEmpty && t.selection.baseOffset > 0) {
+            t.text = t.text.replaceRange(
+              t.selection.baseOffset - 1,
+              t.selection.baseOffset,
+              '',
+            );
+            t.selection = TextSelection.collapsed(offset: t.selection.baseOffset - 1);
+          }
+        },
+        config: Config(
+          height: 256,
+          checkPlatformCompatibility: true,
+          emojiViewConfig: EmojiViewConfig(
+            emojiSizeMax: 28 * (foundation.defaultTargetPlatform == foundation.TargetPlatform.iOS ? 1.20 : 1.0),
+            backgroundColor: scheme.surfaceContainerHigh,
+          ),
+          categoryViewConfig: CategoryViewConfig(
+            backgroundColor: scheme.surfaceContainerHigh,
+            indicatorColor: scheme.primary,
+            iconColor: scheme.onSurfaceVariant,
+            iconColorSelected: scheme.primary,
+            backspaceColor: scheme.primary,
+          ),
+          bottomActionBarConfig: BottomActionBarConfig(
+            backgroundColor: scheme.surfaceContainerHighest,
+            buttonIconColor: scheme.onSurface,
+          ),
+          searchViewConfig: SearchViewConfig(
+            backgroundColor: scheme.surfaceContainerHigh,
+          ),
         ),
       ),
     );
@@ -393,7 +438,6 @@ class _ImageFromSource extends StatelessWidget {
   }
 }
 
-
 class _ChatComposer extends StatelessWidget {
   const _ChatComposer({
     required this.controller,
@@ -432,38 +476,42 @@ class _ChatComposer extends StatelessWidget {
                 bottom: UiConstants.gap,
               ),
               child: Row(
-                children: paths.map((path) => Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
-                        child: _ImageFromSource(
-                          source: path,
-                          width: 64,
-                          height: 64,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () => controller.removePendingImage(path),
-                          child: Container(
-                            padding: const EdgeInsets.all(2),
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.close,
-                              size: 16,
-                              color: Colors.white,
+                children: paths
+                    .map(
+                      (path) => Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
+                            child: _ImageFromSource(
+                              source: path,
+                              width: 64,
+                              height: 64,
+                              fit: BoxFit.cover,
                             ),
                           ),
-                        ),
-                      ),
-                    ],
-                  ).paddingOnly(right: 8)).toList(),
+                          Positioned(
+                            top: 0,
+                            right: 0,
+                            child: GestureDetector(
+                              onTap: () => controller.removePendingImage(path),
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.black54,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ).paddingOnly(right: 8),
+                    )
+                    .toList(),
               ),
             );
           }),
@@ -476,6 +524,17 @@ class _ChatComposer extends StatelessWidget {
                 onPressed: () => _pickImage(context),
                 style: filledIconButtonStyle(context),
                 icon: const Icon(IconsaxPlusLinear.gallery, size: 22),
+              ),
+              Obx(
+                () => IconButton(
+                  onPressed: controller.toggleEmojiPicker,
+                  style: filledIconButtonStyle(context),
+                  icon: Icon(
+                    controller.isEmojiPickerVisible.value ? Icons.keyboard_rounded : Icons.emoji_emotions_outlined,
+                    size: 22,
+                    color: controller.isEmojiPickerVisible.value ? scheme.primary : null,
+                  ),
+                ),
               ),
               Expanded(
                 child: Focus(
@@ -542,14 +601,13 @@ class _ReplyPreviewBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: scheme.secondaryContainer,
-        border: Border(
-          bottom: BorderSide(
-            color: scheme.secondary.withValues(alpha: 0.15),
+          color: scheme.secondaryContainer,
+          border: Border(
+            bottom: BorderSide(
+              color: scheme.secondary.withValues(alpha: 0.15),
+            ),
           ),
-        ),
-        borderRadius: BorderRadius.circular(8)
-      ),
+          borderRadius: BorderRadius.circular(8)),
       child: Row(
         children: [
           Expanded(
@@ -689,15 +747,17 @@ class _TypingIndicator extends StatelessWidget {
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            children: List.generate(3, (i) => Container(
-              margin: const EdgeInsets.symmetric(horizontal: 3),
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
-                shape: BoxShape.circle,
-              ),
-            )),
+            children: List.generate(
+                3,
+                (i) => Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                        shape: BoxShape.circle,
+                      ),
+                    )),
           ),
         ),
       ),

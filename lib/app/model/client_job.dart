@@ -59,6 +59,69 @@ class ClientJob {
   final String? additionalNotes;
   final List<ClientJobCleaner> cleaners;
 
+  /// True when status is Scheduled (job has been given a date/time).
+  bool get isScheduled => status.toLowerCase() == 'scheduled';
+
+  ClientJob copyWith({
+    String? id,
+    String? clientName,
+    String? jobType,
+    DateTime? date,
+    String? startTime,
+    String? endTime,
+    String? status,
+    String? propertyOneLine,
+    String? recurrence,
+    DateTime? jobEndDate,
+    String? propertyLabel,
+    String? accessToProperty,
+    String? address,
+    String? city,
+    String? postalCode,
+    String? propertyType,
+    String? propertySubtype,
+    String? animals,
+    String? staffPreference,
+    String? hoover,
+    bool? provideCleaningProducts,
+    bool? provideWashingMachine,
+    bool? provideDryer,
+    String? invoicePaymentSource,
+    int? cleanersNeeded,
+    String? additionalNotes,
+    List<ClientJobCleaner>? cleaners,
+  }) {
+    return ClientJob(
+      id: id ?? this.id,
+      clientName: clientName ?? this.clientName,
+      jobType: jobType ?? this.jobType,
+      date: date ?? this.date,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
+      status: status ?? this.status,
+      propertyOneLine: propertyOneLine ?? this.propertyOneLine,
+      recurrence: recurrence ?? this.recurrence,
+      jobEndDate: jobEndDate ?? this.jobEndDate,
+      propertyLabel: propertyLabel ?? this.propertyLabel,
+      accessToProperty: accessToProperty ?? this.accessToProperty,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      postalCode: postalCode ?? this.postalCode,
+      propertyType: propertyType ?? this.propertyType,
+      propertySubtype: propertySubtype ?? this.propertySubtype,
+      animals: animals ?? this.animals,
+      staffPreference: staffPreference ?? this.staffPreference,
+      hoover: hoover ?? this.hoover,
+      provideCleaningProducts: provideCleaningProducts ?? this.provideCleaningProducts,
+      provideWashingMachine: provideWashingMachine ?? this.provideWashingMachine,
+      provideDryer: provideDryer ?? this.provideDryer,
+      invoicePaymentSource: invoicePaymentSource ?? this.invoicePaymentSource,
+      cleanersNeeded: cleanersNeeded ?? this.cleanersNeeded,
+      additionalNotes: additionalNotes ?? this.additionalNotes,
+      cleaners: cleaners ?? this.cleaners,
+    );
+  }
+
   /// Placeholder list for listing + detail until API is connected.
   static List<ClientJob> get demoJobs => [
         ClientJob(
@@ -120,6 +183,25 @@ class ClientJob {
           endTime: '16:00',
           status: 'Completed',
           propertyOneLine: '7 Oak Lane, Birmingham',
+        ),
+        ClientJob(
+          id: '4',
+          clientName: 'Dacey Rodgers',
+          jobType: 'Regular clean',
+          date: DateTime(2026, 2, 10),
+          startTime: '13:30',
+          endTime: '15:00',
+          status: 'Created',
+          propertyOneLine: 'Suscipit qui laborio, Officia sint recusan',
+          propertyLabel: 'Ferris Gardner',
+          accessToProperty: 'Client Will Open',
+          address: 'Suscipit qui laborio',
+          city: 'Officia sint recusan',
+          postalCode: 'Velit sapiente do i',
+          propertyType: 'Office',
+          animals: 'Cats',
+          staffPreference: 'Male',
+          hoover: 'I will get one',
         ),
       ];
 

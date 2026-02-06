@@ -41,10 +41,10 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   @override
   void onInit() {
     super.onInit();
-    if (!Get.find<SessionService>().isLoggedIn) {
-      Get.offAllNamed(Routes.LOGIN);
-      return;
-    }
+    // if (!Get.find<SessionService>().isLoggedIn) {
+    //   Get.offAllNamed(Routes.LOGIN);
+    //   return;
+    // }
     final args = Get.arguments;
     if (args is Map && args['tab'] is int) {
       tabIndex.value = (args['tab'] as int).clamp(0, pages.length - 1);

@@ -24,12 +24,18 @@ class ChatController extends GetxController {
   final isSelectionMode = false.obs;
   final selectedMessageIds = <String>[].obs;
 
+  /// Emoji picker visibility: tap emoji icon to show, tap text field or emoji icon again to hide.
+  final isEmojiPickerVisible = false.obs;
+
   Timer? _typingTimer;
 
   @override
   void onInit() {
     super.onInit();
     _loadMockMessages();
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) hideEmojiPicker();
+    });
     // Backend/real-time: e.g. Firebase/WebSocket listener that calls addMessage() on new message.
   }
 
@@ -183,5 +189,16 @@ class ChatController extends GetxController {
   void hideTypingIndicator() {
     isTyping.value = false;
     _typingTimer?.cancel();
+  }
+
+  void toggleEmojiPicker() {
+    isEmojiPickerVisible.value = !isEmojiPickerVisible.value;
+    if (isEmojiPickerVisible.value) {
+      focusNode.unfocus();
+    }
+  }
+
+  void hideEmojiPicker() {
+    isEmojiPickerVisible.value = false;
   }
 }
