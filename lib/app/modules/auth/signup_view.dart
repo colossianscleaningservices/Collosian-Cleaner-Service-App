@@ -69,9 +69,9 @@ class SignupView extends GetView<AuthController> {
     ).paddingSymmetric(horizontal: 24, vertical: 18);
   }
 
-  Widget _buildSignupForm(BuildContext context, AppRole role) {
+  Widget _buildSignupForm(BuildContext context, UserRole role) {
     final scheme = context.colorScheme;
-    final isClient = role == AppRole.client;
+    final isClient = role == UserRole.client;
     final subtitle = isClient ? 'Create your client account' : 'Create your cleaner account';
 
     return Form(

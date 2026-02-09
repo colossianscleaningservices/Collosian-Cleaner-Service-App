@@ -1,3 +1,5 @@
+import 'package:ccs_app/app/model/chat_message.dart';
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
@@ -24,7 +26,31 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
             IconButton(
               icon: Icon(IconsaxPlusLinear.message_text, size: 22, color: scheme.primary),
               tooltip: 'Chat',
-              onPressed: () => Get.toNamed(Routes.CHAT),
+              onPressed: () {
+                final job = c.job.value;
+                final chatJob = ChatJob(
+                  id: job.id,
+                  jobType: job.jobType,
+                  propertyOneLine: job.propertyOneLine,
+                  date: job.date.toIso8601String(),
+                  clientName: job.clientName,
+                );
+                final participants = <String, ChatParticipant>{};
+                // Current user (client)
+                final userId = Prefs().userId;
+                final userName = Prefs().userFullName;
+                participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyClient);
+                // Assigned cleaners
+                for (final cleaner in job.cleaners) {
+                  participants[cleaner.id] = ChatParticipant(id: cleaner.id, name: cleaner.name, role: RoleConstants.roleKeyCleaner);
+                }
+                Get.toNamed(Routes.JOB_CHAT, arguments: {
+                  'type': ChatConstants.typeJob,
+                  'jobId': job.id,
+                  'job': chatJob,
+                  'participants': participants,
+                });
+              },
             ),
             IconButton(
               icon: Icon(IconsaxPlusLinear.edit_2, size: 22, color: scheme.primary),

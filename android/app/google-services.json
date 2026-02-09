@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "514524285235",
+    "firebase_url": "https://collosian-cleaner-service-app-default-rtdb.firebaseio.com",
     "project_id": "collosian-cleaner-service-app",
     "storage_bucket": "collosian-cleaner-service-app.firebasestorage.app"
   },

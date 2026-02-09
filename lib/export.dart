@@ -19,6 +19,8 @@ export 'package:get/get_navigation/src/routes/transitions_type.dart';
 // App configuration & routing
 export 'app/constants/constants.dart';
 export 'app/constants/ui_constants.dart';
+export 'app/constants/role_constants.dart';
+export 'app/constants/chat_constants.dart';
 export 'app/routes/app_pages.dart';
 
 // Theme

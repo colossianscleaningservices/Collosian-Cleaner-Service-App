@@ -3,6 +3,7 @@
 class ClientJob {
   const ClientJob({
     required this.id,
+    this.clientId,
     required this.clientName,
     required this.jobType,
     required this.date,
@@ -32,6 +33,7 @@ class ClientJob {
   });
 
   final String id;
+  final String? clientId;
   final String clientName;
   final String jobType;
   final DateTime date;
@@ -64,6 +66,7 @@ class ClientJob {
 
   ClientJob copyWith({
     String? id,
+    String? clientId,
     String? clientName,
     String? jobType,
     DateTime? date,
@@ -93,6 +96,7 @@ class ClientJob {
   }) {
     return ClientJob(
       id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
       clientName: clientName ?? this.clientName,
       jobType: jobType ?? this.jobType,
       date: date ?? this.date,
@@ -126,6 +130,7 @@ class ClientJob {
   static List<ClientJob> get demoJobs => [
         ClientJob(
           id: '1',
+          clientId: 'client_1',
           clientName: 'Jane Smith',
           jobType: 'Deep clean',
           date: DateTime.now().add(const Duration(days: 2)),
@@ -152,11 +157,12 @@ class ClientJob {
           cleanersNeeded: 1,
           additionalNotes: 'Please use the side door.',
           cleaners: [
-            ClientJobCleaner(name: 'Alex Cleaner', status: 'Assigned', avatarUrl: null),
+            ClientJobCleaner(id: 'cleaner_1', name: 'Alex Cleaner', status: 'Assigned', avatarUrl: null),
           ],
         ),
         ClientJob(
           id: '2',
+          clientId: 'client_2',
           clientName: 'Office Co',
           jobType: 'Regular clean',
           date: DateTime.now().add(const Duration(days: 5)),
@@ -176,6 +182,7 @@ class ClientJob {
         ),
         ClientJob(
           id: '3',
+          clientId: 'client_3',
           clientName: 'John Doe',
           jobType: 'End of tenancy',
           date: DateTime.now().subtract(const Duration(days: 3)),
@@ -186,6 +193,7 @@ class ClientJob {
         ),
         ClientJob(
           id: '4',
+          clientId: 'client_4',
           clientName: 'Dacey Rodgers',
           jobType: 'Regular clean',
           date: DateTime(2026, 2, 10),
@@ -216,11 +224,13 @@ class ClientJob {
 
 class ClientJobCleaner {
   const ClientJobCleaner({
+    required this.id,
     required this.name,
     required this.status,
     this.avatarUrl,
   });
 
+  final String id;
   final String name;
   final String status; // e.g. "Assigned", "Confirmed"
   final String? avatarUrl;

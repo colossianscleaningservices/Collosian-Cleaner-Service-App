@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:ccs_app/export.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:intl/intl.dart';
 
 import '../../../model/chat_message.dart';
+import '../../../services/pref.dart';
+import '../../../utils/fire_ref.dart';
 
-/// Chat screen controller. Uses GetX (existing state management).
-/// Backend plug-in: replace [messages] with API/WebSocket stream; call [addMessage]
-/// when new messages arrive. Real-time: subscribe to channel in [onInit], dispose in [onClose].
 class ChatController extends GetxController {
   ChatController();
 
@@ -18,28 +19,74 @@ class ChatController extends GetxController {
   final isTyping = false.obs;
   final replyTo = Rxn<ChatMessage>();
   final pendingImagePaths = <String>[].obs;
-
-  /// WhatsApp-like multiselect: only self (outgoing) messages can be selected for delete.
   final isSelectionMode = false.obs;
   final selectedMessageIds = <String>[].obs;
-
-  /// Emoji picker visibility: tap emoji icon to show, tap text field or emoji icon again to hide.
   final isEmojiPickerVisible = false.obs;
+  final isLoading = false.obs;
+  final canSend = false.obs;
+
+  late final ChatMode chatMode;
+  late final String chatKey;
+
+  ChatJob? chatJob;
+  Map<String, ChatParticipant> participants = {};
+  final headerTitle = 'Chat'.obs;
+  final headerSubtitle = ''.obs;
 
   Timer? _typingTimer;
+  StreamSubscription? _newMessageSub;
+  static const int _pageSize = 50;
+  bool _initialLoadDone = false;
+  String _effectiveUserId = '';
+  String _effectiveUserName = '';
 
   @override
   void onInit() {
     super.onInit();
-    _loadMockMessages();
+
+    final prefsId = Prefs().userId;
+    final prefsName = Prefs().userFullName;
+    _effectiveUserId = prefsId.isNotEmpty ? prefsId : 'user_${DateTime.now().millisecondsSinceEpoch}';
+    _effectiveUserName = prefsName.isNotEmpty ? prefsName : 'Me';
+
+    final args = Get.arguments as Map<String, dynamic>? ?? {};
+
+    if (args['type'] == ChatConstants.typeSupport) {
+      chatMode = ChatMode.support;
+      chatKey = _effectiveUserId;
+      headerTitle.value = 'Support';
+      headerSubtitle.value = 'Message admin';
+      _initSupportChat();
+    } else {
+      chatMode = ChatMode.job;
+      chatKey = (args['jobId'] ?? '').toString();
+
+      if (args['job'] is ChatJob) {
+        chatJob = args['job'] as ChatJob;
+      }
+      if (args['participants'] is Map<String, ChatParticipant>) {
+        participants = Map<String, ChatParticipant>.from(args['participants'] as Map);
+      }
+
+      headerTitle.value = chatJob?.jobType ?? 'Job Chat';
+      headerSubtitle.value = chatJob?.propertyOneLine ?? '';
+      _initJobChat();
+    }
+
     focusNode.addListener(() {
       if (focusNode.hasFocus) hideEmojiPicker();
     });
-    // Backend/real-time: e.g. Firebase/WebSocket listener that calls addMessage() on new message.
+    textController.addListener(_updateCanSend);
+    scrollController.addListener(_onScroll);
+  }
+
+  void _updateCanSend() {
+    canSend.value = textController.text.trim().isNotEmpty || pendingImagePaths.isNotEmpty;
   }
 
   @override
   void onClose() {
+    _newMessageSub?.cancel();
     textController.dispose();
     scrollController.dispose();
     focusNode.dispose();
@@ -47,90 +94,248 @@ class ChatController extends GetxController {
     super.onClose();
   }
 
-  void _loadMockMessages() {
-    messages.assignAll(_mockMessages());
+  DatabaseReference get _chatRef => chatMode == ChatMode.job ? FireRef.jobChats.child(chatKey) : FireRef.supportChats.child(chatKey);
+
+  DatabaseReference get _messagesRef => _chatRef.child(MESSAGE_NODE);
+
+  DatabaseReference get _chatListRef => chatMode == ChatMode.job ? FireRef.jobChatList : FireRef.supportChatList;
+
+  void _initJobChat() {
+    _ensureJobThread();
+    _loadInitialMessages();
   }
 
-  /// Local mock data. Replace with API fetch or real-time stream.
-  static List<ChatMessage> _mockMessages() {
-    final now = DateTime.now();
-    return [
-      ChatMessage(
-        id: '1',
-        text: 'Hi! When is the cleaning scheduled?',
-        isOutgoing: false,
-        timestamp: now.subtract(const Duration(minutes: 12)),
-        isRead: true,
-        imageUrl: 'assets/images/dummy.jpg',
+  void _initSupportChat() {
+    _ensureSupportThread();
+    _loadInitialMessages();
+  }
+
+  void _ensureJobThread() {
+    if (chatJob != null) {
+      _chatRef.child(JOB_NODE).update(chatJob!.toJson()).catchError((_) {});
+    }
+    _ensureCurrentUserInParticipants();
+    final validParticipants = participants.entries.where((e) => e.key.isNotEmpty);
+    if (validParticipants.isNotEmpty) {
+      final map = Map.fromEntries(validParticipants.map((e) => MapEntry(e.key, e.value.toJson())));
+      _chatRef.child(PARTICIPANTS_NODE).update(map).catchError((_) {});
+    }
+  }
+
+  void _ensureCurrentUserInParticipants() {
+    if (!participants.containsKey(_effectiveUserId)) {
+      participants[_effectiveUserId] = ChatParticipant(
+        id: _effectiveUserId,
+        name: _effectiveUserName,
+        role: Prefs().userRoleString,
+      );
+    }
+  }
+
+  void _ensureSupportThread() {
+    final userRole = Prefs().userRoleString;
+
+    final supportParticipants = <String, ChatParticipant>{
+      _effectiveUserId: ChatParticipant(id: _effectiveUserId, name: _effectiveUserName, role: userRole),
+      supportAdminUserId: ChatParticipant(
+        id: supportAdminUserId,
+        name: supportAdminDisplayName,
+        role: RoleConstants.roleKeyAdmin,
       ),
-      ChatMessage(
-        id: '2',
-        text: 'Tomorrow at 10 AM. I\'ll bring supplies.',
-        isOutgoing: true,
-        timestamp: now.subtract(const Duration(minutes: 10)),
-        isRead: true,
-      ),
-      ChatMessage(
-        id: '3',
-        text: 'Perfect, thanks 👍',
-        isOutgoing: false,
-        timestamp: now.subtract(const Duration(minutes: 8)),
-        isRead: true,
-      ),
-      ChatMessage(
-        id: '4',
-        text: 'See you then!',
-        isOutgoing: true,
-        timestamp: now.subtract(const Duration(minutes: 5)),
-        isRead: false,
-      ),
-    ];
+    };
+
+    participants = supportParticipants;
+    final map = supportParticipants.map((k, v) => MapEntry(k, v.toJson()));
+    _chatRef.child(PARTICIPANTS_NODE).update(map).catchError((_) {});
+  }
+
+  void _loadInitialMessages() {
+    _messagesRef.orderByKey().limitToLast(_pageSize).once().then((event) {
+      final List<ChatMessage> fetched = [];
+      for (final child in event.snapshot.children) {
+        fetched.add(ChatMessage.fromSnapshot(child));
+      }
+      messages.assignAll(fetched.reversed.toList());
+      _initialLoadDone = true;
+      _listenForNewMessages();
+    }).catchError((e) {
+      _initialLoadDone = true;
+      _listenForNewMessages();
+    });
+  }
+
+  void _listenForNewMessages() {
+    _newMessageSub?.cancel();
+
+    Query query = _messagesRef.orderByKey();
+    if (messages.isNotEmpty) {
+      query = query.startAfter(messages.first.id);
+    }
+
+    _newMessageSub = query.onChildAdded.listen((event) {
+      final msg = ChatMessage.fromSnapshot(event.snapshot);
+      if (!messages.any((m) => m.id == msg.id)) {
+        messages.insert(0, msg);
+      }
+    });
+  }
+
+  void _onScroll() {
+    if (!scrollController.hasClients) return;
+    if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 100 && messages.isNotEmpty && !isLoading.value && _initialLoadDone) {
+      _loadMoreMessages();
+    }
+  }
+
+  void _loadMoreMessages() {
+    if (isLoading.value || messages.isEmpty) return;
+    isLoading.value = true;
+    final oldestKey = messages.last.id;
+
+    _messagesRef.orderByKey().endBefore(oldestKey).limitToLast(_pageSize).once().then((event) {
+      if (event.snapshot.children.isNotEmpty) {
+        final older = <ChatMessage>[];
+        for (final child in event.snapshot.children) {
+          older.add(ChatMessage.fromSnapshot(child));
+        }
+        messages.addAll(older.reversed);
+      }
+    }).whenComplete(() {
+      isLoading.value = false;
+    });
   }
 
   void sendMessage() {
     final text = textController.text.trim();
     if (text.isEmpty && pendingImagePaths.isEmpty) return;
 
+    var userId = Prefs().userId;
+    var userName = Prefs().userFullName;
+    if (userId.isEmpty) userId = 'user_${DateTime.now().millisecondsSinceEpoch}';
+    if (userName.isEmpty) userName = 'Me';
+    final userRole = Prefs().userRoleString;
+    final time = DateTime.now().millisecondsSinceEpoch.toString();
+
     final reply = replyTo.value;
-    final msg = ChatMessage(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+    final msgType = (pendingImagePaths.isNotEmpty && text.isEmpty) ? ChatConstants.messageTypeImage : ChatConstants.messageTypeText;
+
+    final message = ChatMessage(
+      id: '',
       text: text.isEmpty ? '(Image)' : text,
-      isOutgoing: true,
-      timestamp: DateTime.now(),
+      type: msgType,
+      timeStamp: time,
+      senderId: userId,
+      senderName: userName,
+      senderRole: userRole,
       imageUrl: pendingImagePaths.isNotEmpty ? pendingImagePaths.first : null,
       replyToId: reply?.id,
       replyToPreview: reply?.text,
     );
-    addMessage(msg);
-    textController.clear();
-    pendingImagePaths.clear();
-    clearReplyTo();
-    _scrollToBottom();
-    // Backend: POST message to API or send via WebSocket.
+
+    final pushKey = _messagesRef.push().key;
+    if (pushKey == null) {
+      _showSendError();
+      return;
+    }
+    final messageKey = pushKey;
+
+    void sendRealMessage() {
+      final json = message.toJson();
+      _messagesRef.child(messageKey).set(json).then((_) {
+        _updateChatList(message);
+        textController.clear();
+        pendingImagePaths.clear();
+        clearReplyTo();
+        _updateCanSend();
+        _scrollToBottom();
+      }).catchError((_) {
+        _showSendError();
+      });
+    }
+
+    if (_shouldInsertDateMessage()) {
+      final dateMsg = ChatMessage(
+        id: '',
+        text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+        type: ChatConstants.messageTypeDate,
+        timeStamp: time,
+        senderId: '',
+        senderName: '',
+        senderRole: '',
+      );
+      final dateKey = _messagesRef.push().key;
+      if (dateKey != null) {
+        _messagesRef.child(dateKey).set(dateMsg.toJson()).then((_) => sendRealMessage()).catchError((_) => sendRealMessage());
+      } else {
+        sendRealMessage();
+      }
+    } else {
+      sendRealMessage();
+    }
   }
 
-  void addMessage(ChatMessage msg) {
-    messages.insert(0, msg);
+  bool _shouldInsertDateMessage() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (messages.isEmpty) return true;
+    final lastMsgDate = messages.first.timestamp;
+    final lastDay = DateTime(lastMsgDate.year, lastMsgDate.month, lastMsgDate.day);
+    return today != lastDay;
+  }
+
+  void _showSendError() {
+    Get.snackbar('Send failed', 'Could not send message. Check connection and try again.');
+  }
+
+  void _updateChatList(ChatMessage lastMessage) {
+    final validParticipants = participants.entries.where((e) => e.key.isNotEmpty);
+    final participantsJson = Map.fromEntries(validParticipants.map((e) => MapEntry(e.key, e.value.toJson())));
+    final chatListData = <String, dynamic>{
+      'type': chatMode.asType,
+      'lastMessage': lastMessage.toJson(),
+      'participants': participantsJson,
+    };
+
+    if (chatMode == ChatMode.job && chatJob != null) {
+      chatListData['job'] = chatJob!.toJson();
+    }
+
+    for (final participantId in participants.keys) {
+      if (participantId.isEmpty) continue;
+      _chatListRef.child(participantId).child(chatKey).update(chatListData).catchError((_) {});
+    }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(0, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+      }
+    });
   }
 
   void deleteMessage(ChatMessage msg) {
+    _messagesRef.child(msg.id).remove().catchError((_) {});
     messages.removeWhere((m) => m.id == msg.id);
     selectedMessageIds.remove(msg.id);
-    // Backend: DELETE message API or emit via WebSocket.
   }
 
   void deleteSelectedMessages() {
     final ids = selectedMessageIds.toSet();
-    messages.removeWhere((m) => m.isOutgoing && ids.contains(m.id));
+    for (final id in ids) {
+      _messagesRef.child(id).remove().catchError((_) {});
+    }
+    messages.removeWhere((m) => isOutgoingMessage(m) && ids.contains(m.id));
     selectedMessageIds.clear();
     isSelectionMode.value = false;
-    // Backend: DELETE messages API or emit via WebSocket.
   }
 
   bool isSelected(ChatMessage msg) => selectedMessageIds.contains(msg.id);
 
+  bool isOutgoingMessage(ChatMessage msg) => msg.senderId == _effectiveUserId;
+
   void toggleMessageSelection(ChatMessage msg) {
-    if (!msg.isOutgoing) return;
+    if (!isOutgoingMessage(msg)) return;
     if (!isSelectionMode.value) {
       isSelectionMode.value = true;
       selectedMessageIds.add(msg.id);
@@ -149,32 +354,18 @@ class ChatController extends GetxController {
     selectedMessageIds.clear();
   }
 
-  void setReplyTo(ChatMessage? msg) {
-    replyTo.value = msg;
-  }
+  void setReplyTo(ChatMessage? msg) => replyTo.value = msg;
 
-  void clearReplyTo() {
-    replyTo.value = null;
-  }
+  void clearReplyTo() => replyTo.value = null;
 
   void addPendingImage(String path) {
     if (pendingImagePaths.length < 5) pendingImagePaths.add(path);
+    _updateCanSend();
   }
 
   void removePendingImage(String path) {
     pendingImagePaths.remove(path);
-  }
-
-  void _scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (scrollController.hasClients) {
-        scrollController.animateTo(
-          0,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+    _updateCanSend();
   }
 
   void showTypingIndicator() {
@@ -192,12 +383,8 @@ class ChatController extends GetxController {
 
   void toggleEmojiPicker() {
     isEmojiPickerVisible.value = !isEmojiPickerVisible.value;
-    if (isEmojiPickerVisible.value) {
-      focusNode.unfocus();
-    }
+    if (isEmojiPickerVisible.value) focusNode.unfocus();
   }
 
-  void hideEmojiPicker() {
-    isEmojiPickerVisible.value = false;
-  }
+  void hideEmojiPicker() => isEmojiPickerVisible.value = false;
 }

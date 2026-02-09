@@ -53,6 +53,10 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                     maxExtent: 60,
                     child: List.generate(controller.cleanerProfileItems.length, (index) {
                       return MenuItem(controller.cleanerProfileItems[index], onTap: () {
+                        if (index == 7) {
+                          Get.toNamed(Routes.SUPPORT_CHAT, arguments: {'type': ChatConstants.typeSupport});
+                          return;
+                        }
                         String route = switch (index) {
                           0 => Routes.CHANGE_PASSWORD,
                           1 => Routes.CLEANER_REFERENCES,
@@ -61,7 +65,7 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                           4 => Routes.CLEANER_PAYOUT_COMPUTATION,
                           5 => Routes.NOTIFICATION,
                           6 => Routes.TRAINING_AND_RESOURCES,
-                          7 => Routes.HELP_SUPPORT,
+                          8 => Routes.HELP_SUPPORT,
                           _ => Routes.CHANGE_PASSWORD
                         };
 

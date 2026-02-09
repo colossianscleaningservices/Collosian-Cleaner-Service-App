@@ -53,6 +53,7 @@ class DefaultFirebaseOptions {
     appId: '1:514524285235:android:9c7af02e424c95d8791646',
     messagingSenderId: '514524285235',
     projectId: 'collosian-cleaner-service-app',
+    databaseURL: 'https://collosian-cleaner-service-app-default-rtdb.firebaseio.com',
     storageBucket: 'collosian-cleaner-service-app.firebasestorage.app',
   );
 
@@ -61,7 +62,9 @@ class DefaultFirebaseOptions {
     appId: '1:514524285235:ios:9b3f2524ece9e2b0791646',
     messagingSenderId: '514524285235',
     projectId: 'collosian-cleaner-service-app',
+    databaseURL: 'https://collosian-cleaner-service-app-default-rtdb.firebaseio.com',
     storageBucket: 'collosian-cleaner-service-app.firebasestorage.app',
     iosBundleId: 'io.ccs.app',
   );
+
 }

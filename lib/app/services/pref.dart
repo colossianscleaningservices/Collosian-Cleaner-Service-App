@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/constants/role_constants.dart';
 import 'package:get_storage/get_storage.dart';
 
 class Prefs {
@@ -9,7 +10,6 @@ class Prefs {
   static const _boxName = 'ccs_prefs';
   static const _kToken = 'token';
 
-  /// Keys for user data (persisted after login/register).
   static const String id = 'id';
   static const String email = 'email';
   static const String firstName = 'first_name';
@@ -43,6 +43,15 @@ class Prefs {
   void putData(String key, String value) => _box.write(key, value);
   String getData(String key) => _box.read<String>(key) ?? '';
   String getTimeZoneData(String key) => _box.read<String>(key) ?? DateTime.now().timeZoneName;
+
+  String get userId => getData(id);
+
+  String get userFullName => '${getData(firstName)} ${getData(lastName)}'.trim();
+
+  String get userRoleString {
+    final rid = int.tryParse(getData(roleId));
+    return RoleConstants.roleIdToRoleKey(rid);
+  }
 
   Future<void> clearAll() async {
     await _box.erase();

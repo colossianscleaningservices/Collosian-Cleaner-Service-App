@@ -52,10 +52,11 @@ dependencies:
 
   onesignal_flutter: ^5.3.4
 
-  # Firebase (analytics, crashlytics; auth is API-based)
+  # Firebase (analytics, crashlytics, realtime database for chat; auth is API-based)
   firebase_core: ^3.1.0
   firebase_analytics: ^11.3.3
   firebase_crashlytics: ^4.0.0
+  firebase_database: ^11.0.0
   flutter_native_splash: ^2.4.4
 
 dev_dependencies:

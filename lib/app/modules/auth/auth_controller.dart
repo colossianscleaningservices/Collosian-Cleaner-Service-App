@@ -6,17 +6,12 @@ import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 import 'package:step_progress/step_progress.dart';
 
-enum AppRole { client, cleaner }
-
-/// Backend role_id for client (adjust if your API uses different values).
-const int _roleIdClient = 1;
-
 class AuthController extends GetxController {
-  final selectedRole = Rxn<AppRole>();
+  final selectedRole = Rxn<UserRole>();
 
   final AuthRepository _authRepository = AuthRepository();
 
-  void selectRole(AppRole role) => selectedRole.value = role;
+  void selectRole(UserRole role) => selectedRole.value = role;
 
   // Login
   final loginFormKey = GlobalKey<FormState>();
@@ -107,11 +102,11 @@ class AuthController extends GetxController {
       primaryButtonLabel: "I am a Client",
       secondaryButtonLabel: "I am a Cleaner",
       onPrimaryPressed: () {
-        selectRole(AppRole.client);
+        selectRole(UserRole.client);
         Get.toNamed(Routes.CLIENT_DASHBOARD);
       },
       onSecondaryPressed: () {
-        selectRole(AppRole.cleaner);
+        selectRole(UserRole.cleaner);
         resetAgreement();
         // Get.toNamed(Routes.AGREEMENT);
         Get.toNamed(Routes.CLEANER_DASHBOARD);
@@ -213,7 +208,7 @@ class AuthController extends GetxController {
     isSigningUp.value = true;
     try {
       final name = '${signupFirstNameCtrl.text.trim()} ${signupLastNameCtrl.text.trim()}'.trim();
-      final roleId = role == AppRole.client ? _roleIdClient : 2;
+      final roleId = role.roleId;
 
       final result = await _authRepository.userRegister(
         name: name.isNotEmpty ? name : signupEmailCtrl.text,
@@ -228,7 +223,7 @@ class AuthController extends GetxController {
           if (data == null) throw Exception(response.message ?? 'Registration failed');
           await _saveUserData(data);
           setPushUserId(data.id?.toString());
-          if (role == AppRole.client) {
+          if (role == UserRole.client) {
             Get.offAllNamed(Routes.CLIENT_DASHBOARD);
           } else {
             Get.offAllNamed(Routes.CLEANER_DASHBOARD);
@@ -326,7 +321,7 @@ class AuthController extends GetxController {
   }
 
   void _routeByRoleId(num? roleId) {
-    if (roleId != null && roleId.toInt() == _roleIdClient) {
+    if (RoleConstants.isClient(roleId?.toInt())) {
       Get.offAllNamed(Routes.CLIENT_DASHBOARD);
     } else {
       Get.offAllNamed(Routes.CLEANER_DASHBOARD);

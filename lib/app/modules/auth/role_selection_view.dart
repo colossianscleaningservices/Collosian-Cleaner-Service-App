@@ -46,7 +46,7 @@ class RoleSelectionView extends GetView<AuthController> {
                             AppButton(
                               label: 'I am a Client',
                               onPressed: () {
-                                controller.selectRole(AppRole.client);
+                                controller.selectRole(UserRole.client);
                                 controller.goToSignup();
                               },
                             ),
@@ -55,7 +55,7 @@ class RoleSelectionView extends GetView<AuthController> {
                               label: 'I am a Cleaner',
                               type: ButtonType.tonal,
                               onPressed: () {
-                                controller.selectRole(AppRole.cleaner);
+                                controller.selectRole(UserRole.cleaner);
                                 controller.goToSignup();
                               },
                             ),
