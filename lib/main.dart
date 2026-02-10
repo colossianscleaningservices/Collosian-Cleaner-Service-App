@@ -21,7 +21,6 @@ Future<void> main() async {
 
   await EnvService.init();
   await Prefs().init();
-  await Prefs().getIpAddress();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   try {
@@ -36,13 +35,14 @@ Future<void> main() async {
     debugPrint('main: OneSignal initialization failed: $e');
   }
 
-  // Register global services (mirror WAVTech pattern)
-  Get
-    ..put(NetworkMonitorService(), permanent: true)
-    ..put(ApiHandler(), tag: 'handler', permanent: true)
-    ..put(DioClient().getClient(), tag: 'dio_client', permanent: true)
-    ..put(AuthService(), permanent: true)
-    ..put(SessionService(), permanent: true);
+  getTimeZone().then((onValue) {
+    Get
+      ..put(NetworkMonitorService(), permanent: true)
+      ..put(ApiHandler(), tag: 'handler', permanent: true)
+      ..put(DioClient().getClient(), tag: 'dio_client', permanent: true)
+      ..put(AuthService(), permanent: true)
+      ..put(SessionService(), permanent: true);
+  });
 
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
 
@@ -52,7 +52,7 @@ Future<void> main() async {
         light: getTheme(lightColorScheme),
         dark: getTheme(darkColorScheme),
         initial: savedThemeMode ?? AdaptiveThemeMode.light,
-        builder:  (theme, darkTheme) {
+        builder: (theme, darkTheme) {
           return GetMaterialApp(
             defaultTransition: Transition.native,
             debugShowCheckedModeBanner: false,

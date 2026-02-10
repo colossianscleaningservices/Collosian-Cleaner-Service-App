@@ -1,9 +1,9 @@
 import 'package:ccs_app/app/constants/role_constants.dart';
-import 'package:get_ip_address/get_ip_address.dart';
 import 'package:get_storage/get_storage.dart';
 
 class Prefs {
   Prefs._();
+
   static final Prefs instance = Prefs._();
 
   factory Prefs() => instance;
@@ -34,19 +34,9 @@ class Prefs {
   }
 
   /// Fetches public IP via get_ip_address (JSON) and stores in [ipAddress]. Call from main.dart.
-  Future<void> getIpAddress() async {
-    try {
-      var ipAddressReq = IpAddress(type: RequestType.json);
-      dynamic data = await ipAddressReq.getIpAddress();
-      if (data is Map<String, dynamic> && data['ip'] != null) {
-        putData(Prefs.ipAddress, data['ip'].toString());
-      }
-    } catch (_) {
-      // Best-effort; leave ip_address empty on failure
-    }
-  }
 
   String? get token => _box.read<String>(_kToken);
+
   Future<void> setToken(String? token) async {
     if (token == null) {
       await _box.remove(_kToken);
@@ -56,21 +46,21 @@ class Prefs {
   }
 
   void putData(String key, String value) => _box.write(key, value);
+
+  void putTimeZoneData(String key, String value) => _box.write(key, value);
+
   String getData(String key) => _box.read<String>(key) ?? '';
+
   String getTimeZoneData(String key) => _box.read<String>(key) ?? DateTime.now().timeZoneName;
 
   String get userId => getData(id);
 
   String get userFullName => '${getData(firstName)} ${getData(lastName)}'.trim();
 
-  String get userRoleString {
-    final rid = int.tryParse(getData(roleId));
-    return RoleConstants.roleIdToRoleKey(rid);
-  }
+  String get userRoleString => RoleConstants.roleIdToRoleKey(int.tryParse(getData(roleId)));
 
   Future<void> clearAll() async {
     await _box.erase();
     _setTimezoneIfMissing();
   }
 }
-

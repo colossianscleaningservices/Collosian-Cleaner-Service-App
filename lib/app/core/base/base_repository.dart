@@ -24,7 +24,7 @@ class BaseRepository {
         queryParameters: queryParameters,
         options: options,
       );
-      return _apiHandler.handleNetworkResult<T>(
+      return await _apiHandler.handleNetworkResult<T>(
         response: response,
         fromJson: fromJson,
       );
@@ -39,6 +39,7 @@ class BaseRepository {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     Options? options,
+    Function(double progress)? callback,
   }) async {
     try {
       final response = await _dio.post(
@@ -46,8 +47,13 @@ class BaseRepository {
         data: data,
         queryParameters: queryParameters,
         options: options,
+        onSendProgress: (int sent, int total) {
+          if (total > 0 && callback != null) {
+            callback(sent / total * 100);
+          }
+        },
       );
-      return _apiHandler.handleNetworkResult<T>(
+      return await _apiHandler.handleNetworkResult<T>(
         response: response,
         fromJson: fromJson,
       );
@@ -70,7 +76,7 @@ class BaseRepository {
         queryParameters: queryParameters,
         options: options,
       );
-      return _apiHandler.handleNetworkResult<T>(
+      return await _apiHandler.handleNetworkResult<T>(
         response: response,
         fromJson: fromJson,
       );
@@ -93,7 +99,7 @@ class BaseRepository {
         queryParameters: queryParameters,
         options: options,
       );
-      return _apiHandler.handleNetworkResult<T>(
+      return await _apiHandler.handleNetworkResult<T>(
         response: response,
         fromJson: fromJson,
       );
@@ -116,7 +122,7 @@ class BaseRepository {
         queryParameters: queryParameters,
         options: options,
       );
-      return _apiHandler.handleNetworkResult<T>(
+      return await _apiHandler.handleNetworkResult<T>(
         response: response,
         fromJson: fromJson,
       );

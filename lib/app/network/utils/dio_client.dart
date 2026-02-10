@@ -1,7 +1,9 @@
+import 'package:ccs_app/export.dart';
 import 'package:dio/dio.dart';
 
 import '../../services/env_service.dart';
 import 'auth_interceptor.dart';
+import 'log_interceptor.dart' as ccs_log;
 
 class DioClient {
   DioClient() {
@@ -17,10 +19,11 @@ class DioClient {
     );
     _dio = Dio(baseOptions);
     _dio.interceptors.add(AuthInterceptor());
+
+    if (kDebugMode) _dio.interceptors.add(ccs_log.LogInterceptor());
   }
 
   late final Dio _dio;
 
   Dio getClient() => _dio;
 }
-

@@ -1,4 +1,7 @@
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:get_ip_address/get_ip_address.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../theme/theme.dart';
@@ -85,6 +88,35 @@ void openUrl(String uri) async {
   final Uri url = Uri.parse(uri);
   if (!await launchUrl(url)) {
     throw Exception('Could not launch $url');
+  }
+}
+
+Future<void> getTimeZone() async {
+  String timeZone = '';
+
+  await getIpAddress();
+
+  await FlutterTimezone.getLocalTimezone().then(
+    (onValue) {
+      timeZone = onValue.identifier;
+      Prefs().putTimeZoneData(Prefs.timezone, timeZone);
+      return timeZone;
+    },
+    onError: (onError) {
+      return timeZone;
+    },
+  );
+}
+
+Future<void> getIpAddress() async {
+  try {
+    var ipAddressReq = IpAddress(type: RequestType.json);
+    dynamic data = await ipAddressReq.getIpAddress();
+    if (data is Map<String, dynamic> && data['ip'] != null) {
+      Prefs().putData(Prefs.ipAddress, data['ip'].toString());
+    }
+  } catch (_) {
+    // Best-effort; leave ip_address empty on failure
   }
 }
 
