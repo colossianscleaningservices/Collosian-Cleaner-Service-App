@@ -2,99 +2,91 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-/// Unified network exception + mapping (merges the previous ErrorMapper idea).
+import '../../model/api_error.dart';
+
+/// Sealed network exception hierarchy (mirrors WAVTech).
+/// Base has errorMessage, shouldShowApiError, errBody; subtypes add apiErrorMessage for display.
 sealed class NetworkException implements Exception {
   const NetworkException({
-    required this.title,
-    required this.message,
+    required this.errorMessage,
+    this.shouldShowApiError = true,
+    this.errBody,
+    this.title,
     this.statusCode,
     this.isRetryable = false,
     this.requiresLogout = false,
   });
 
-  final String title;
-  final String message;
+  final String errorMessage;
+  final bool shouldShowApiError;
+  final DefaultApiError? errBody;
+  final String? title;
   final int? statusCode;
   final bool isRetryable;
-
-  /// True when the user should be logged out (401/expired/invalid token).
   final bool requiresLogout;
 
+  /// Display title for UI (e.g. toast/sheet). Defaults to 'Error'.
+  String get displayTitle => title ?? 'Error';
+
+  /// Display message for UI. Override in ApiException subclasses to prefer apiErrorMessage.
+  String get message => errorMessage;
+
+  /// Fallback when a raw error (e.g. DioException) is passed to Notifier.apiError().
   static NetworkException fromDio(dynamic error) {
     if (error is DioException) {
       final statusCode = error.response?.statusCode;
       final data = error.response?.data;
-
-      // 401 / unauthenticated: UnauthorizedRequestException.requiresLogout = true
-      // so Notifier.apiError() will call SessionService.logout().
       if (statusCode == 401 || _looksUnauthenticated(data, error.message)) {
         return UnauthorizedRequestException(
-          statusCode: statusCode,
+          errorMessage: 'Sorry, the request is unauthorized.',
           title: 'Session expired',
-          message: 'Please login again.',
+          apiErrorMessage: _extractMessage(data),
         );
       }
-
-      // Timeouts / connectivity
       if (error.type == DioExceptionType.connectionTimeout ||
           error.type == DioExceptionType.sendTimeout ||
           error.type == DioExceptionType.receiveTimeout) {
-        return TimeoutException(
-          title: 'Connection timeout',
-          message: 'Please check your internet connection and try again.',
-          statusCode: statusCode,
+        return RequestTimeoutException(
+          errorMessage: 'Sorry, the request has timed out.',
+          apiErrorMessage: _extractMessage(data),
         );
       }
-
       if (error.type == DioExceptionType.connectionError ||
           (error.type == DioExceptionType.unknown &&
               error.error is SocketException)) {
-        return NoInternetException(
-          title: 'No connection',
-          message: 'Please check your internet connection and try again.',
+        return NoInternetConnectionException(
+          errorMessage: 'No internet connection.',
         );
       }
-
-      // HTTP error response
       if (error.type == DioExceptionType.badResponse && statusCode != null) {
-        return ApiException(
-          title: 'Error',
-          message: _extractMessage(data) ?? 'Something went wrong. Please try again.',
+        return DefaultApiException(
+          errorMessage: 'Something went wrong. Please try again.',
+          apiErrorMessage: _extractMessage(data),
           statusCode: statusCode,
-          isRetryable: statusCode >= 500,
         );
       }
-
-      return UnexpectedNetworkException(
-        title: 'Error',
-        message: 'Something went wrong. Please try again.',
-        statusCode: statusCode,
+      return UnexpectedErrorException(
+        errorMessage: 'Something went wrong. Please try again.',
       );
     }
-
     if (error is SocketException) {
-      return NoInternetException(
-        title: 'No connection',
-        message: 'Please check your internet connection and try again.',
+      return NoInternetConnectionException(
+        errorMessage: 'No internet connection.',
       );
     }
-
-    return UnexpectedNetworkException(
-      title: 'Error',
-      message: 'Something went wrong. Please try again.',
+    return UnexpectedErrorException(
+      errorMessage: 'Something went wrong. Please try again.',
     );
   }
 
-  static bool _looksUnauthenticated(Object? data, String? message) {
-    final msg = (message ?? '').toLowerCase();
-    if (msg.contains('unauthenticated') || msg.contains('invalid token')) {
-      return true;
-    }
+  static bool _looksUnauthenticated(Object? data, String? msg) {
+    final m = (msg ?? '').toLowerCase();
+    if (m.contains('unauthenticated') || m.contains('invalid token')) return true;
     if (data is Map) {
-      final type = (data['type'] ?? data['error'] ?? '').toString().toLowerCase();
-      if (type.contains('invalid_token') || type.contains('expired_token')) return true;
-      final m = (data['message'] ?? '').toString().toLowerCase();
-      if (m.contains('unauthenticated')) return true;
+      final t = (data['type'] ?? data['error'] ?? '').toString().toLowerCase();
+      if (t.contains('invalid_token') || t.contains('expired_token')) return true;
+      final s = (data['message'] ?? '').toString().toLowerCase();
+      if (s.contains('unauthenticated')) return true;
     }
     return false;
   }
@@ -110,43 +102,169 @@ sealed class NetworkException implements Exception {
   }
 }
 
+// ─── ApiException (has apiErrorMessage for server message) ─────────────────
+
 class ApiException extends NetworkException {
   const ApiException({
-    required super.title,
-    required super.message,
+    required super.errorMessage,
+    this.apiErrorMessage,
+    super.errBody,
+    super.shouldShowApiError,
+    super.title,
     super.statusCode,
-    super.isRetryable = false,
+    super.isRetryable,
+    super.requiresLogout,
+  });
+
+  final String? apiErrorMessage;
+
+  @override
+  String get message => shouldShowApiError ? (apiErrorMessage ?? errorMessage) : errorMessage;
+}
+
+class DefaultApiException extends ApiException {
+  const DefaultApiException({
+    required super.errorMessage,
+    super.apiErrorMessage,
+    super.errBody,
+    super.shouldShowApiError,
+    super.title,
+    super.statusCode,
   });
 }
 
-class UnauthorizedRequestException extends NetworkException {
+class UnauthorizedRequestException extends ApiException {
   const UnauthorizedRequestException({
-    required super.title,
-    required super.message,
+    required super.errorMessage,
+    super.apiErrorMessage,
+    super.errBody,
+    super.shouldShowApiError,
+    super.title,
     super.statusCode,
   }) : super(requiresLogout: true);
 }
 
-class NoInternetException extends NetworkException {
-  const NoInternetException({
-    required super.title,
-    required super.message,
-  }) : super(isRetryable: true);
-}
-
-class TimeoutException extends NetworkException {
-  const TimeoutException({
-    required super.title,
-    required super.message,
-    super.statusCode,
-  }) : super(isRetryable: true);
-}
-
-class UnexpectedNetworkException extends NetworkException {
-  const UnexpectedNetworkException({
-    required super.title,
-    required super.message,
+class NotFoundException extends ApiException {
+  const NotFoundException({
+    required super.errorMessage,
+    super.apiErrorMessage,
+    super.errBody,
+    super.shouldShowApiError,
+    super.title,
     super.statusCode,
   });
+
+  @override
+  String get message => shouldShowApiError ? (apiErrorMessage ?? errorMessage) : errorMessage;
 }
 
+class ConflictException extends ApiException {
+  const ConflictException({
+    required super.errorMessage,
+    super.apiErrorMessage,
+    super.shouldShowApiError,
+    super.title,
+    super.statusCode,
+  });
+
+  @override
+  String get message => shouldShowApiError ? (apiErrorMessage ?? errorMessage) : errorMessage;
+}
+
+class RequestTimeoutException extends ApiException {
+  const RequestTimeoutException({
+    required super.errorMessage,
+    super.apiErrorMessage,
+    super.shouldShowApiError,
+    super.title,
+    super.statusCode,
+  }) : super(isRetryable: true);
+
+  @override
+  String get message => shouldShowApiError ? (apiErrorMessage ?? errorMessage) : errorMessage;
+}
+
+class UnableToProcessException extends ApiException {
+  const UnableToProcessException({
+    required super.errorMessage,
+    super.apiErrorMessage,
+    super.errBody,
+    super.shouldShowApiError,
+    super.title,
+    super.statusCode,
+  });
+
+  @override
+  String get message => shouldShowApiError ? (apiErrorMessage ?? errorMessage) : errorMessage;
+}
+
+class InternalServerErrorException extends ApiException {
+  const InternalServerErrorException({
+    required super.errorMessage,
+    super.apiErrorMessage,
+    super.shouldShowApiError,
+    super.title,
+    super.statusCode,
+  }) : super(isRetryable: true);
+
+  @override
+  String get message => shouldShowApiError ? (apiErrorMessage ?? errorMessage) : errorMessage;
+}
+
+class ServiceUnavailableException extends ApiException {
+  const ServiceUnavailableException({
+    required super.errorMessage,
+    super.apiErrorMessage,
+    super.shouldShowApiError,
+    super.title,
+    super.statusCode,
+  }) : super(isRetryable: true);
+
+  @override
+  String get message => shouldShowApiError ? (apiErrorMessage ?? errorMessage) : errorMessage;
+}
+
+class EmptyResponseException extends ApiException {
+  const EmptyResponseException({
+    required super.errorMessage,
+    super.apiErrorMessage,
+    super.shouldShowApiError,
+  });
+
+  @override
+  String get message => shouldShowApiError ? (apiErrorMessage ?? errorMessage) : errorMessage;
+}
+
+// ─── Non-Api (no server body) ─────────────────────────────────────────────────
+
+class SendTimeoutException extends NetworkException {
+  const SendTimeoutException({required super.errorMessage}) : super(isRetryable: true);
+}
+
+class RequestCanceledException extends NetworkException {
+  const RequestCanceledException({required super.errorMessage});
+}
+
+class NoInternetConnectionException extends NetworkException {
+  const NoInternetConnectionException({required super.errorMessage}) : super(isRetryable: true);
+}
+
+class SecureConnectionException extends NetworkException {
+  const SecureConnectionException({required super.errorMessage});
+}
+
+/// Named to avoid collision with dart:core FormatException.
+class NetworkFormatException extends NetworkException {
+  const NetworkFormatException({required super.errorMessage});
+}
+
+class UnexpectedErrorException extends NetworkException {
+  const UnexpectedErrorException({required super.errorMessage});
+}
+
+// ─── Notifier compatibility: title getter ────────────────────────────────────
+
+extension NetworkExceptionDisplay on NetworkException {
+  /// For Notifier and UI: use displayTitle and message.
+  String get title => displayTitle;
+}

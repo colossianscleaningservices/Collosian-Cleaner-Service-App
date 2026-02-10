@@ -19,7 +19,7 @@ class Notifier {
   /// calls [SessionService.logout] so the user is signed out and sent to login.
   static Future<void> apiError(Object error, {String? contextTag}) async {
     final ex = error is NetworkException ? error : NetworkException.fromDio(error);
-    _show(title: ex.title, message: ex.message, type: ToastificationType.error);
+    _show(title: ex.displayTitle, message: ex.message, type: ToastificationType.error);
 
     if (ex.requiresLogout) {
       await Get.find<SessionService>().logout();
