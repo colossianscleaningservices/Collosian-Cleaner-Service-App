@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
+import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
 
 import 'cleaner_job_detail_controller.dart';
@@ -11,12 +12,11 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
   @override
   Widget build(BuildContext context) {
     final c = controller;
-    final j = c.job;
     final scheme = context.colorScheme;
 
     return AppScaffold(
       appBar: Header(
-        title: j.jobType,
+        title: c.job.jobType,
         headerLogoIcon: false,
         hasBackIcon: true,
         titleCentered: false,
@@ -35,51 +35,55 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
       ),
       backgroundColor: scheme.surface,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: UiConstants.padding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Obx(() {
+          final j = c.job;
+          return Column(
             children: [
-              // Status & schedule
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CommonText.semiBold('Status & schedule', size: 16, color: scheme.onSurface),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        InfoChip(label: j.status, backgroundColor: scheme.primaryContainer, foregroundColor: scheme.primary),
-                        if (j.recurrence != null)
-                          InfoChip(label: j.recurrence!, backgroundColor: scheme.secondaryContainer, foregroundColor: scheme.secondary),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    LabelValueRow(label: 'Date', value: CcsDateUtils.fullDate(j.date), scheme: scheme),
-                    LabelValueRow(label: 'Time', value: '${j.startTime} – ${j.endTime}', scheme: scheme),
-                    if (j.jobEndDate != null)
-                      LabelValueRow(label: 'End date', value: CcsDateUtils.fullDate(j.jobEndDate!), scheme: scheme),
-                    if (j.status == 'Pending' || j.status.toLowerCase() == 'pending') ...[
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          TextButton(
-                            onPressed: c.onAccept,
-                            child: CommonText.regular('Accept', size: 14, color: scheme.primary),
-                          ),
-                          TextButton(
-                            onPressed: c.onDecline,
-                            child: CommonText.regular('Decline', size: 14, color: scheme.error),
-                          ),
-                        ],
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: UiConstants.padding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Status & schedule
+                      AppCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CommonText.semiBold('Status & schedule', size: 16, color: scheme.onSurface),
+                            const SizedBox(height: 12),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                InfoChip(label: j.status, backgroundColor: scheme.primaryContainer, foregroundColor: scheme.primary),
+                                if (j.recurrence != null)
+                                  InfoChip(label: j.recurrence!, backgroundColor: scheme.secondaryContainer, foregroundColor: scheme.secondary),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            LabelValueRow(label: 'Date', value: CcsDateUtils.fullDate(j.date), scheme: scheme),
+                            LabelValueRow(label: 'Time', value: '${j.startTime} – ${j.endTime}', scheme: scheme),
+                            if (j.jobEndDate != null) LabelValueRow(label: 'End date', value: CcsDateUtils.fullDate(j.jobEndDate!), scheme: scheme),
+                            if (j.status == 'Pending' || j.status.toLowerCase() == 'pending') ...[
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  TextButton(
+                                    onPressed: c.onAccept,
+                                    child: CommonText.regular('Accept', size: 14, color: scheme.primary),
+                                  ),
+                                  TextButton(
+                                    onPressed: c.onDecline,
+                                    child: CommonText.regular('Decline', size: 14, color: scheme.error),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ).paddingAll(UiConstants.defaultPadding),
                       ),
-                    ],
-                  ],
-                ).paddingAll(UiConstants.defaultPadding),
-              ),
-              const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
               // Property & client
               AppCard(
@@ -167,12 +171,22 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                   ),
                 ),
               ],
-              const SizedBox(height: 24),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                ),
+              ),
+              if (c.bottomBarState != 0)
+                SingleActionBottomBar(
+                  label: c.bottomBarLabel,
+                  onPressed: c.bottomBarOnPressed ?? () {},
+                  buttonType: c.bottomBarButtonType,
+                  backgroundColor: scheme.surface,
+                ),
             ],
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
-
 }

@@ -3,24 +3,102 @@ import 'package:ccs_app/export.dart';
 import '../../../model/chat_message.dart';
 import '../../../model/client_job.dart';
 import '../../../services/pref.dart';
+import 'job_check_photo_controller.dart';
 
-/// Controller for cleaner job detail. Same full job data as client; actions are cleaner-oriented (directions, contact, accept/decline).
+/// Controller for cleaner job detail. Same full job data as client; actions are cleaner-oriented (directions, contact, accept/decline, start/stop with photos).
 class CleanerJobDetailController extends GetxController {
-  late final ClientJob job;
+  final Rx<ClientJob> _job = Rx<ClientJob>(ClientJob(
+    id: '',
+    clientName: '—',
+    jobType: '—',
+    date: DateTime.now(),
+    startTime: '—',
+    endTime: '—',
+    status: 'Unknown',
+    propertyOneLine: '—',
+  ));
+
+  ClientJob get job => _job.value;
+
+  /// True when cleaner can tap "Start job" (e.g. Scheduled, Accepted).
+  bool get canStartJob {
+    final s = _job.value.status.toLowerCase();
+    return s == 'scheduled' || s == 'accepted';
+  }
+
+  /// True when cleaner can tap "Stop job" (job in progress).
+  bool get canStopJob {
+    final s = _job.value.status.toLowerCase();
+    return s == 'in progress' || s == 'in_progress';
+  }
+
+  /// True when job is completed and cleaner can tap "Review".
+  bool get canShowReview {
+    final s = _job.value.status.toLowerCase();
+    return s == 'completed';
+  }
+
+  /// Bottom bar state: 1 = Start, 2 = Stop, 3 = Review. 0 = hide bar (e.g. Pending).
+  int get bottomBarState {
+    if (canStartJob) return 1;
+    if (canStopJob) return 2;
+    if (canShowReview) return 3;
+    return 0;
+  }
+
+  String get bottomBarLabel {
+    switch (bottomBarState) {
+      case 1:
+        return 'Start';
+      case 2:
+        return 'Stop';
+      case 3:
+        return 'Review';
+      default:
+        return '';
+    }
+  }
+
+  VoidCallback? get bottomBarOnPressed {
+    switch (bottomBarState) {
+      case 1:
+        return onStartJob;
+      case 2:
+        return onStopJob;
+      case 3:
+        return onReview;
+      default:
+        return null;
+    }
+  }
+
+  ButtonType get bottomBarButtonType {
+    switch (bottomBarState) {
+      case 1:
+        return ButtonType.primary;
+      case 2:
+        return ButtonType.tonal;
+      case 3:
+        return ButtonType.primary;
+      default:
+        return ButtonType.primary;
+    }
+  }
 
   @override
   void onInit() {
     super.onInit();
     final args = Get.arguments;
     final id = Get.parameters['id'];
+    ClientJob initial;
     if (args is ClientJob) {
-      job = args;
+      initial = args;
     } else if (id != null) {
       final found = ClientJob.byId(id);
       if (found != null) {
-        job = found;
+        initial = found;
       } else {
-        job = ClientJob(
+        initial = ClientJob(
           id: id,
           clientName: '—',
           jobType: '—',
@@ -32,7 +110,7 @@ class CleanerJobDetailController extends GetxController {
         );
       }
     } else {
-      job = ClientJob(
+      initial = ClientJob(
         id: '',
         clientName: '—',
         jobType: '—',
@@ -43,6 +121,21 @@ class CleanerJobDetailController extends GetxController {
         propertyOneLine: '—',
       );
     }
+    _job.value = initial;
+  }
+
+  /// Navigate to check-in photo screen; on success update job status to in progress.
+  void onStartJob() {
+    Get.toNamed(Routes.CLEANER_JOB_CHECKIN, arguments: {'job': job, 'mode': JobCheckPhotoMode.checkIn})?.then((result) {
+      if (result == true) _job.value = job.copyWith(status: 'In progress');
+    });
+  }
+
+  /// Navigate to check-out photo screen; on success update job status to completed.
+  void onStopJob() {
+    Get.toNamed(Routes.CLEANER_JOB_CHECKOUT, arguments: {'job': job, 'mode': JobCheckPhotoMode.checkOut})?.then((result) {
+      if (result == true) _job.value = job.copyWith(status: 'Completed');
+    });
   }
 
   void onDirections() {
@@ -98,5 +191,10 @@ class CleanerJobDetailController extends GetxController {
 
   void onShareCleanerProfile(ClientJobCleaner c) {
     Notifier.info('Share ${c.name} (coming soon)');
+  }
+
+  /// Navigate to review/feedback screen (completed jobs).
+  void onReview() {
+    Notifier.info('Review (coming soon)');
   }
 }

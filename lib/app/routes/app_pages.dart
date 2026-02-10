@@ -22,6 +22,8 @@ import '../modules/cleaner/dashboard/cleaner_dashboard_binding.dart';
 import '../modules/cleaner/dashboard/cleaner_dashboard_view.dart';
 import '../modules/cleaner/job/cleaner_job_detail_binding.dart';
 import '../modules/cleaner/job/cleaner_job_detail_view.dart';
+import '../modules/cleaner/job/job_check_photo_binding.dart';
+import '../modules/cleaner/job/job_check_photo_view.dart';
 import '../modules/cleaner/notification/notification_binding.dart';
 import '../modules/cleaner/notification/notification_view.dart';
 import '../modules/cleaner/support_document/support_document_binding.dart';
@@ -102,6 +104,16 @@ class AppPages {
       name: _Paths.CLEANER_JOB_DETAIL,
       page: () => const CleanerJobDetailView(),
       binding: CleanerJobDetailBinding(),
+    ),
+    GetPage(
+      name: _Paths.CLEANER_JOB_CHECKIN,
+      page: () => const JobCheckPhotoView(),
+      binding: JobCheckPhotoBinding(),
+    ),
+    GetPage(
+      name: _Paths.CLEANER_JOB_CHECKOUT,
+      page: () => const JobCheckPhotoView(),
+      binding: JobCheckPhotoBinding(),
     ),
     GetPage(
       name: _Paths.PROPERTY,

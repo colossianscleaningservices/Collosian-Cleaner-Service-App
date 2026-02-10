@@ -81,7 +81,26 @@ Backend API specification for the CCS platform (auth, client, cleaner, common).
 
 ---
 
-## 8. Cleaner – Documents & References
+## 8. Cleaner – Check-in / Check-out (job start/stop)
+
+**Flow:** Cleaner taps Start job or Stop job → is redirected to a check-in or check-out page →
+takes/selects one or more photos → submits. The job is only marked as started or stopped after the
+app sends the photo(s) to the API and receives a successful response. If upload/API fails, the
+cleaner can retry; the job state does not change until success. Per job, per visit: each visit has
+its own check-in and check-out (and their photos). Photos are visible to both client and admin.
+
+- **Check-in (start job)** — POST: Job id + one or more check-in photos. Backend stores photos,
+  records check-in time, sets job status to in progress. Success response required before app marks
+  job as started.
+- **Check-out (stop job)** — POST: Job id + one or more check-out photos. Backend stores photos,
+  records check-out time, sets job status to completed. Success response required before app marks
+  job as stopped.
+- **Get job check-in/check-out photos** — GET: Return check-in and check-out photos for a job (for
+  client and admin to view). May be part of job detail response or a separate endpoint.
+
+---
+
+## 9. Cleaner – Documents & References
 
 - **List support documents** — GET: Cleaner's documents (type, number, expiry, file)
 - **Upload/add document** — POST: Add document (type, number, expiry, file)
@@ -94,7 +113,7 @@ Backend API specification for the CCS platform (auth, client, cleaner, common).
 
 ---
 
-## 9. Cleaner – Other
+## 10. Cleaner – Other
 
 - **Payout computation / earnings** — GET: Cleaner earnings/payout summary
 - **Action-needed count** — GET: Optional; count of items needing action
@@ -103,7 +122,7 @@ Backend API specification for the CCS platform (auth, client, cleaner, common).
 
 ---
 
-## 10. Common – Notifications, Chat, Support, Training
+## 11. Common – Notifications, Chat, Support, Training
 
 - **List notifications** — GET: Notifications for current user (client or cleaner)
 - **Mark notification read** — PUT/PATCH: Mark one or many as read
@@ -128,10 +147,11 @@ Backend API specification for the CCS platform (auth, client, cleaner, common).
 | Client – Jobs                    | 8       |
 | Client – Preferred staff         | 3       |
 | Cleaner – Jobs & Availability    | 6       |
+| Cleaner – Check-in / Check-out   | 3       |
 | Cleaner – Documents & References | 8       |
 | Cleaner – Other                  | 4       |
 | Common                           | 9       |
-| **Total**                        | **~56** |
+| **Total**                        | **~59** |
 
 ---
 

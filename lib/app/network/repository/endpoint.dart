@@ -9,4 +9,8 @@ class Endpoint {
   static const String logout = '${root}logout';
   static const String forgotPassword = '${root}forgot-password';
   static const String resetPassword = '${root}reset-password';
+
+  // Cleaner job check-in / check-out (photos)
+  static const String jobCheckIn = '${root}jobs/check-in';
+  static const String jobCheckOut = '${root}jobs/check-out';
 }
