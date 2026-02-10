@@ -94,7 +94,7 @@ void openUrl(String uri) async {
 Future<void> getTimeZone() async {
   String timeZone = '';
 
-  await getIpAddress();
+  // await getIpAddress();
 
   await FlutterTimezone.getLocalTimezone().then(
     (onValue) {
@@ -110,11 +110,13 @@ Future<void> getTimeZone() async {
 
 Future<void> getIpAddress() async {
   try {
-    var ipAddressReq = IpAddress(type: RequestType.json);
-    dynamic data = await ipAddressReq.getIpAddress();
-    if (data is Map<String, dynamic> && data['ip'] != null) {
-      Prefs().putData(Prefs.ipAddress, data['ip'].toString());
-    }
+    var data = IpAddress(type: RequestType.json).getIpAddress();
+
+    data.then((value) {
+      if (value is Map<String, dynamic> && value['ip'] != null) {
+        Prefs().putData(Prefs.ipAddress, value['ip'].toString());
+      }
+    });
   } catch (_) {
     // Best-effort; leave ip_address empty on failure
   }

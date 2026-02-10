@@ -1,9 +1,7 @@
-import 'package:ccs_app/app/services/auth_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 
 class SplashController extends GetxController {
-  final AuthService _authService = Get.find<AuthService>();
 
   @override
   void onReady() {
@@ -14,7 +12,7 @@ class SplashController extends GetxController {
   Future<void> _route() async {
     await Future<void>.delayed(const Duration(milliseconds: 400));
 
-    if (!_authService.hasToken) {
+    if (Prefs().token?.isEmpty ?? false) {
       Get.offAllNamed(Routes.LOGIN);
       return;
     }
