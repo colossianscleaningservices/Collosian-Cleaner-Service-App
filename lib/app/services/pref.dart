@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/constants/role_constants.dart';
+import 'package:get_ip_address/get_ip_address.dart';
 import 'package:get_storage/get_storage.dart';
 
 class Prefs {
@@ -16,6 +17,7 @@ class Prefs {
   static const String lastName = 'last_name';
   static const String roleId = 'role_id';
   static const String timezone = 'timezone';
+  static const String ipAddress = 'ip_address';
 
   late final GetStorage _box;
 
@@ -28,6 +30,19 @@ class Prefs {
   void _setTimezoneIfMissing() {
     if (_box.read<String>(timezone) == null) {
       _box.write(timezone, DateTime.now().timeZoneName);
+    }
+  }
+
+  /// Fetches public IP via get_ip_address (JSON) and stores in [ipAddress]. Call from main.dart.
+  Future<void> getIpAddress() async {
+    try {
+      var ipAddressReq = IpAddress(type: RequestType.json);
+      dynamic data = await ipAddressReq.getIpAddress();
+      if (data is Map<String, dynamic> && data['ip'] != null) {
+        putData(Prefs.ipAddress, data['ip'].toString());
+      }
+    } catch (_) {
+      // Best-effort; leave ip_address empty on failure
     }
   }
 

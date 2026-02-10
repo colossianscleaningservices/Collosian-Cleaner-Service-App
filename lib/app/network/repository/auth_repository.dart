@@ -153,4 +153,32 @@ class AuthRepository extends BaseRepository {
       data: <String, dynamic>{'verification_code': verificationCode},
     );
   }
+
+  // ─── Device registration (call on dashboard open so latest data is saved) ───
+
+  /// POST save device details (platform, app_version, optional: debug, ip, timezone, onesignal_player_id).
+  Future<NetworkResult<BaseResponse>> saveDeviceDetails({
+    required String platform,
+    required String appVersion,
+    bool? debug,
+    String? ip,
+    String? timezone,
+    String? onesignalPlayerId,
+  }) async {
+    final payload = <String, dynamic>{
+      'platform': platform,
+      'app_version': appVersion,
+    };
+    if (debug != null) payload['debug'] = debug;
+    if (ip != null && ip.isNotEmpty) payload['ip'] = ip;
+    if (timezone != null && timezone.isNotEmpty) payload['timezone'] = timezone;
+    if (onesignalPlayerId != null && onesignalPlayerId.isNotEmpty) {
+      payload['onesignal_player_id'] = onesignalPlayerId;
+    }
+    return post<BaseResponse>(
+      endpoint: Endpoint.device,
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data: payload,
+    );
+  }
 }

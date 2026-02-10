@@ -193,8 +193,10 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
           ),
 
           // Enhanced action needed card
-          if (controller.actionNeededCount > 0) ...[
-            AppCard(
+          Obx(() {
+            final count = controller.actionNeededCount.value;
+            if (count <= 0) return const SizedBox.shrink();
+            return AppCard(
               radius: UiConstants.radiusLarge,
               enableShadows: true,
               shadowOpacity: 0.06,
@@ -221,7 +223,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                         CommonText.semiBold('Action needed', size: 16, color: scheme.onSurface),
                         const SizedBox(height: 4),
                         CommonText.regular(
-                          '${controller.actionNeededCount} ${controller.actionNeededCount == 1 ? 'item requires' : 'items require'} your attention',
+                          '$count ${count == 1 ? 'item requires' : 'items require'} your attention',
                           size: 12,
                           color: scheme.onSurfaceVariant,
                         ),
@@ -238,12 +240,13 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                   ),
                 ],
               ),
-            ),
-          ],
+            );
+          }),
 
           // Enhanced profile completion card
-          if (!controller.isProfileComplete) ...[
-            AppCard(
+          Obx(() {
+            if (controller.isProfileComplete.value) return const SizedBox.shrink();
+            return AppCard(
               radius: UiConstants.radiusLarge,
               enableShadows: true,
               shadowOpacity: 0.06,
@@ -285,8 +288,8 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                   ),
                 ],
               ),
-            ),
-          ],
+            );
+          }),
 
           // Enhanced quick actions section
           Row(
@@ -314,13 +317,13 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: QuickActionChip(
-                  icon: IconsaxPlusLinear.user,
-                  label: controller.isProfileComplete ? 'Profile' : 'Complete',
-                  subtitle: controller.isProfileComplete ? 'View profile' : 'Finish setup',
-                  onTap: () => controller.setTab(4),
+                child: Obx(() => QuickActionChip(
+                      icon: IconsaxPlusLinear.user,
+                      label: controller.isProfileComplete.value ? 'Profile' : 'Complete',
+                      subtitle: controller.isProfileComplete.value ? 'View profile' : 'Finish setup',
+                      onTap: () => controller.setTab(4),
                   scheme: scheme,
-                ),
+                    )),
               ),
             ],
           ),

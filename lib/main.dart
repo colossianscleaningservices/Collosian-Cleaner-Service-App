@@ -21,6 +21,7 @@ Future<void> main() async {
 
   await EnvService.init();
   await Prefs().init();
+  await Prefs().getIpAddress();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   try {

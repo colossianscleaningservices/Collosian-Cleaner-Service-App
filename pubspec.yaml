@@ -28,6 +28,7 @@ dependencies:
 
   # Platform + utilities
   connectivity_plus: ^7.0.0
+  get_ip_address: ^0.0.7
   intl: ^0.20.2
 
   # UI

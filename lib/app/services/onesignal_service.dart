@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:onesignal_flutter/onesignal_flutter.dart';
-
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 /// OneSignal push notifications (mirror WAVTech pattern, adapted for CCS routes).
 class OneSignalService {
@@ -135,6 +134,17 @@ class OneSignalService {
       log(_tag, 'OneSignal login: $externalId');
     } catch (e) {
       log(_tag, 'OneSignal login failed: $e');
+    }
+  }
+
+  /// OneSignal push subscription ID (for device registration API). May be null before permission or on web.
+  static String? get pushSubscriptionId {
+    if (!_isInitialized) return null;
+    try {
+      return OneSignal.User.pushSubscription.id;
+    } catch (e) {
+      log(_tag, 'Failed to get push subscription id: $e');
+      return null;
     }
   }
 

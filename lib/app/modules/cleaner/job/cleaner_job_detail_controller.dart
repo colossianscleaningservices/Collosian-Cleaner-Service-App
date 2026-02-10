@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/network/repository/cleaner_repository.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../model/chat_message.dart';
@@ -7,6 +8,8 @@ import 'job_check_photo_controller.dart';
 
 /// Controller for cleaner job detail. Same full job data as client; actions are cleaner-oriented (directions, contact, accept/decline, start/stop with photos).
 class CleanerJobDetailController extends GetxController {
+  final CleanerRepository _cleanerRepository = CleanerRepository();
+
   final Rx<ClientJob> _job = Rx<ClientJob>(ClientJob(
     id: '',
     clientName: '—',
@@ -186,7 +189,32 @@ class CleanerJobDetailController extends GetxController {
   }
 
   void onDecline() {
-    Notifier.info('Decline job (coming soon)');
+    final jobId = int.tryParse(job.id);
+    if (jobId == null) {
+      Notifier.info('Invalid job');
+      return;
+    }
+    Notifier.openSheet(
+      Get.context!,
+      title: 'Decline job?',
+      message: 'You can add a reason (optional).',
+      showPrimaryButton: true,
+      showSecondaryButton: true,
+      primaryButtonLabel: 'Decline',
+      secondaryButtonLabel: 'Keep',
+      onPrimaryPressed: () => _declineJob(jobId),
+    );
+  }
+
+  Future<void> _declineJob(int jobId) async {
+    final result = await _cleanerRepository.declineJob(jobId: jobId);
+    switch (result) {
+      case NetworkSuccess():
+        Notifier.success('Job declined');
+        Get.back();
+      case NetworkError(error: final e):
+        await Notifier.apiError(e, contextTag: 'decline_job');
+    }
   }
 
   void onShareCleanerProfile(ClientJobCleaner c) {

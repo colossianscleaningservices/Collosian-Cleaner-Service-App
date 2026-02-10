@@ -1,4 +1,9 @@
+import 'dart:io' show Platform;
+
 import 'package:ccs_app/app/model/client_job.dart';
+import 'package:ccs_app/app/network/repository/auth_repository.dart';
+import 'package:ccs_app/app/services/onesignal_service.dart';
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -7,6 +12,7 @@ import '../../../model/availability.dart';
 import '../../../model/calendar_event.dart';
 import '../../../model/common_model.dart';
 import '../../../model/menu_model.dart';
+import '../../../network/repository/cleaner_repository.dart';
 import 'view/cleaner_availability_view.dart';
 import 'view/cleaner_calendar_view.dart';
 import 'view/cleaner_dashboard_content.dart';
@@ -14,6 +20,9 @@ import 'view/cleaner_jobs_view.dart';
 import 'view/cleaner_profile_view.dart';
 
 class CleanerDashboardController extends GetxController with GetSingleTickerProviderStateMixin {
+  final AuthRepository _authRepository = AuthRepository();
+  final CleanerRepository _cleanerRepository = CleanerRepository();
+
   final tabIndex = 0.obs;
 
   late final TabController tabController;
@@ -67,11 +76,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   /// Placeholder. Replace with API/session.
   String get earningsTotal => '£0.00';
 
-  /// Placeholder. Replace with API (documents, confirmations, messages).
-  int get actionNeededCount => 0;
-
-  /// Placeholder. Replace with session/profile check.
-  bool get isProfileComplete => false;
+  /// From API (profile-completion, action-needed). Updated when dashboard loads.
+  final actionNeededCount = 0.obs;
+  final isProfileComplete = false.obs;
+  final profileCompletionPercentage = 0.obs;
 
   String get periodLabel {
     if (mode.value == CalendarViewMode.week) {
@@ -144,6 +152,27 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     filter.add(CommonModel(type: "Approved"));
 
     getAppVersion();
+    _registerDevice();
+  }
+
+  /// Call device registration API so latest app/device data is saved when dashboard opens.
+  Future<void> _registerDevice() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final platform = kIsWeb ? 'web' : (Platform.isAndroid ? 'android' : 'ios');
+      final timezone = Prefs().getTimeZoneData(Prefs.timezone);
+      final ip = Prefs().getData(Prefs.ipAddress);
+      await _authRepository.saveDeviceDetails(
+        platform: platform,
+        appVersion: info.version,
+        debug: kDebugMode,
+        timezone: timezone.isNotEmpty ? timezone : null,
+        ip: ip.isNotEmpty ? ip : null,
+        onesignalPlayerId: OneSignalService.pushSubscriptionId,
+      );
+    } catch (_) {
+      // Best-effort; do not block dashboard
+    }
   }
 
   @override
@@ -157,6 +186,37 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   void onReady() {
     super.onReady();
     jobs.assignAll(ClientJob.demoJobs);
+    _fetchDashboardData();
+  }
+
+  Future<void> _fetchDashboardData() async {
+    try {
+      final compResult = await _cleanerRepository.getProfileCompletion();
+      switch (compResult) {
+        case NetworkSuccess(data: final res):
+          final data = res.data;
+          if (data is Map) {
+            final pc = data['profile_completion'];
+            if (pc is Map) {
+              final pct = pc['percentage'];
+              if (pct is int) profileCompletionPercentage.value = pct;
+              isProfileComplete.value = pct == 100;
+            }
+          }
+        case NetworkError():
+          break;
+      }
+      final actionResult = await _cleanerRepository.getActionNeeded();
+      switch (actionResult) {
+        case NetworkSuccess(data: final res):
+          final data = res.data;
+          if (data is Map && data['action_needed_count'] is int) {
+            actionNeededCount.value = data['action_needed_count'] as int;
+          }
+        case NetworkError():
+          break;
+      }
+    } catch (_) {}
   }
 
   void openDetail(ClientJob job) {

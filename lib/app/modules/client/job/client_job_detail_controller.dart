@@ -1,9 +1,13 @@
+import 'package:ccs_app/app/network/repository/client_repository.dart';
+import 'package:ccs_app/app/network/utils/network_result.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../model/client_job.dart';
 import 'add_review.dart';
 
 class ClientJobDetailController extends GetxController {
+  final ClientRepository _clientRepository = ClientRepository();
+
   final job = Rx<ClientJob>(ClientJob(
     id: '',
     clientName: '',
@@ -66,8 +70,32 @@ class ClientJobDetailController extends GetxController {
   }
 
   void onCancelJob() {
-    // TODO: confirm + API
-    Notifier.info('Cancel job (coming soon)');
+    final jobId = int.tryParse(job.value.id);
+    if (jobId == null) {
+      Notifier.info('Invalid job');
+      return;
+    }
+    Notifier.openSheet(
+      Get.context!,
+      title: 'Cancel job?',
+      message: 'This will cancel this job. You can add a reason below.',
+      showPrimaryButton: true,
+      showSecondaryButton: true,
+      primaryButtonLabel: 'Cancel job',
+      secondaryButtonLabel: 'Keep',
+      onPrimaryPressed: () => _cancelJob(jobId),
+    );
+  }
+
+  Future<void> _cancelJob(int jobId) async {
+    final result = await _clientRepository.cancelJob(jobId: jobId);
+    switch (result) {
+      case NetworkSuccess():
+        Notifier.success('Job cancelled');
+        Get.back();
+      case NetworkError(error: final e):
+        await Notifier.apiError(e, contextTag: 'cancel_job');
+    }
   }
 
   /// Navigates to the schedule-job page for a normal (one-off) job.
@@ -85,22 +113,34 @@ class ClientJobDetailController extends GetxController {
     DateTime endDate,
     TimeOfDay endTime,
   ) async {
-    try {
-      // TODO: call API to schedule job (e.g. PUT /jobs/:id/schedule with start_date, start_time, end_date, end_time)
-      await Future.delayed(const Duration(milliseconds: 400));
-      final startStr = _formatTime(startTime);
-      final endStr = _formatTime(endTime);
-      final endDateOnly = DateTime(endDate.year, endDate.month, endDate.day);
-      job.value = job.value.copyWith(
-        status: 'Scheduled',
-        date: startDate,
-        startTime: startStr,
-        endTime: endStr,
-        jobEndDate: endDateOnly,
-      );
-      Notifier.success('Job scheduled for ${CcsDateUtils.fullDate(startDate)}.');
-    } catch (e) {
-      Notifier.apiError(e, contextTag: 'schedule_job');
+    final jobId = int.tryParse(job.value.id);
+    if (jobId == null) {
+      Notifier.info('Invalid job');
+      return;
+    }
+    final startStr = '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}';
+    final endStr = '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}';
+    final result = await _clientRepository.scheduleJob(
+      jobId: jobId,
+      frequency: 'weekly',
+      startDate: startStr,
+      endDate: endStr,
+      copyCleaners: false,
+    );
+    switch (result) {
+      case NetworkSuccess():
+        final startTimeStr = _formatTime(startTime);
+        final endTimeStr = _formatTime(endTime);
+        job.value = job.value.copyWith(
+          status: 'Scheduled',
+          date: startDate,
+          startTime: startTimeStr,
+          endTime: endTimeStr,
+          jobEndDate: endDate,
+        );
+        Notifier.success('Job scheduled for ${CcsDateUtils.fullDate(startDate)}.');
+      case NetworkError(error: final e):
+        await Notifier.apiError(e, contextTag: 'schedule_job');
     }
   }
 
@@ -108,6 +148,28 @@ class ClientJobDetailController extends GetxController {
     Notifier.info('Share ${c.name} (coming soon)');
   }
   void onReviewCleanerProfile(ClientJobCleaner c) {
-    Get.toNamed(Routes.ADD_REVIEW);
+    Get.toNamed(Routes.ADD_REVIEW, arguments: job.value);
+  }
+
+  Future<void> submitReview() async {
+    final jobId = int.tryParse(job.value.id);
+    if (jobId == null) {
+      Notifier.info('Invalid job');
+      return;
+    }
+    final r = rating.value.round().clamp(1, 5);
+    final result = await _clientRepository.submitJobReview(
+      jobId: jobId,
+      rating: r,
+      feedback: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
+      message: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
+    );
+    switch (result) {
+      case NetworkSuccess():
+        Notifier.success('Thank you for your feedback');
+        Get.back();
+      case NetworkError(error: final e):
+        await Notifier.apiError(e, contextTag: 'submit_review');
+    }
   }
 }

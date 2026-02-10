@@ -206,7 +206,7 @@ class AddReview extends GetView<ClientJobDetailController> {
       ),
       bottomNavigationBar: SingleActionBottomBar(
         label: 'Submit Feedback',
-        onPressed: () {},
+        onPressed: () => controller.submitReview(),
       ),
     );
   }

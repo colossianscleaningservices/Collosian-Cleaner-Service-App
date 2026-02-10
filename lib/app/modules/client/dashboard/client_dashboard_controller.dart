@@ -1,6 +1,12 @@
+import 'dart:io' show Platform;
+
 import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/app/model/menu_model.dart';
+import 'package:ccs_app/app/network/repository/auth_repository.dart';
+import 'package:ccs_app/app/services/onesignal_service.dart';
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../model/calendar_event.dart';
@@ -10,6 +16,8 @@ import 'view/client_jobs_view.dart';
 import 'view/client_profile_view.dart';
 
 class ClientDashboardController extends GetxController with GetSingleTickerProviderStateMixin {
+  final AuthRepository _authRepository = AuthRepository();
+
   final tabIndex = 0.obs;
   final jobs = <ClientJob>[].obs;
   var appVersion = "".obs;
@@ -52,6 +60,27 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     tabController = TabController(length: 3, vsync: this, initialIndex: 1);
     tabController.addListener(_syncModeFromTab);
     getAppVersion();
+    _registerDevice();
+  }
+
+  /// Call device registration API so latest app/device data is saved when dashboard opens.
+  Future<void> _registerDevice() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      final platform = kIsWeb ? 'web' : (Platform.isAndroid ? 'android' : 'ios');
+      final timezone = Prefs().getTimeZoneData(Prefs.timezone);
+      final ip = Prefs().getData(Prefs.ipAddress);
+      await _authRepository.saveDeviceDetails(
+        platform: platform,
+        appVersion: info.version,
+        debug: kDebugMode,
+        timezone: timezone.isNotEmpty ? timezone : null,
+        ip: ip.isNotEmpty ? ip : null,
+        onesignalPlayerId: OneSignalService.pushSubscriptionId,
+      );
+    } catch (_) {
+      // Best-effort; do not block dashboard
+    }
   }
 
   @override

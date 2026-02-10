@@ -1,3 +1,5 @@
+import 'package:ccs_app/app/network/repository/client_repository.dart';
+import 'package:ccs_app/app/network/utils/network_result.dart';
 import 'package:ccs_app/export.dart';
 
 /// Minimal model for property list items.
@@ -20,10 +22,12 @@ class PropertyListItem {
 }
 
 class PropertyController extends GetxController {
+  final ClientRepository _clientRepository = ClientRepository();
   final formKey = GlobalKey<FormState>();
 
-  /// List of properties (replace with API later).
+  /// List of properties (from API; fallback to empty until response model is defined).
   final properties = <PropertyListItem>[].obs;
+  final isLoadingProperties = false.obs;
 
   @override
   void onInit() {
@@ -31,16 +35,53 @@ class PropertyController extends GetxController {
     _loadProperties();
   }
 
-  void _loadProperties() {
-    // TODO: load from API. Dummy property for now.
-    properties.assignAll([
-      const PropertyListItem(
-        id: 'dummy-1',
-        name: '12 Maple St',
-        addressLine: '12 Maple St, London SW1A 1AA',
-        propertyType: 'House',
-      ),
-    ]);
+  Future<void> _loadProperties() async {
+    isLoadingProperties.value = true;
+    try {
+      final result = await _clientRepository.listProperties();
+      switch (result) {
+        case NetworkSuccess(data: final response):
+          final raw = response.data;
+          List? list;
+          if (raw is Map) {
+            list = raw['properties'] ?? raw['data'];
+            if (list is! List) list = null;
+          } else if (raw is List) {
+            list = raw;
+          }
+          if (list != null && list.isNotEmpty) {
+            properties.assignAll(_parsePropertyList(list));
+          }
+        case NetworkError():
+          break;
+      }
+    } finally {
+      isLoadingProperties.value = false;
+    }
+  }
+
+  List<PropertyListItem> _parsePropertyList(dynamic list) {
+    final out = <PropertyListItem>[];
+    for (final e in list as List) {
+      if (e is! Map) continue;
+      final id = e['id']?.toString() ?? '';
+      if (id.isEmpty) continue;
+      final name = e['name']?.toString() ?? '';
+      final address = e['address']?.toString() ?? '';
+      final city = e['city']?.toString();
+      final postalCode = e['postal_code']?.toString();
+      final type = e['property_type']?.toString();
+      final line = [address, city, postalCode].whereType<String>().where((x) => x.isNotEmpty).join(', ');
+      out.add(PropertyListItem(
+        id: id,
+        name: name.isNotEmpty ? name : 'Property',
+        addressLine: line.isNotEmpty ? line : address,
+        propertyType: type,
+        city: city,
+        postalCode: postalCode,
+      ));
+    }
+    return out;
   }
 
   /// When set, we're on Add Property screen in edit mode.
@@ -107,12 +148,24 @@ class PropertyController extends GetxController {
     );
   }
 
-  void deleteProperty() {
+  Future<void> deleteProperty() async {
     final id = editingProperty.value?.id;
-    if (id != null) {
+    if (id == null) return;
+    final jobId = int.tryParse(id);
+    if (jobId == null) {
       properties.removeWhere((p) => p.id == id);
       clearEditing();
       Get.back();
+      return;
+    }
+    final result = await _clientRepository.deleteProperty(jobId);
+    switch (result) {
+      case NetworkSuccess():
+        properties.removeWhere((p) => p.id == id);
+        clearEditing();
+        Get.back();
+      case NetworkError(error: final e):
+        await Notifier.apiError(e, contextTag: 'delete_property');
     }
   }
 
@@ -175,29 +228,51 @@ class PropertyController extends GetxController {
     if (isSaving.value) return;
     isSaving.value = true;
     try {
-      // TODO: call API to create/update property
-      await Future<void>.delayed(const Duration(milliseconds: 600));
       final name = propertyNameCtrl.text.trim();
       final address = addressCtrl.text.trim();
       final city = cityCtrl.text.trim();
       final code = postalCodeCtrl.text.trim();
-      final line = [address, city, code].where((e) => e.isNotEmpty).join(', ');
-      final item = PropertyListItem(
-        id: editingProperty.value?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-        name: name.isNotEmpty ? name : 'Property',
-        addressLine: line.isNotEmpty ? line : 'No address',
-        propertyType: propertyType.value,
-        city: city.isNotEmpty ? city : null,
-        postalCode: code.isNotEmpty ? code : null,
-      );
-      if (editingProperty.value != null) {
-        final i = properties.indexWhere((p) => p.id == item.id);
-        if (i >= 0) properties[i] = item;
-        clearEditing();
-      } else {
-        properties.add(item);
+      final type = propertyType.value ?? 'Residential';
+      final editing = editingProperty.value;
+      if (editing != null) {
+        final id = int.tryParse(editing.id);
+        if (id != null) {
+          final result = await _clientRepository.updateProperty(
+            id: id,
+            name: name.isNotEmpty ? name : null,
+            address: address.isNotEmpty ? address : null,
+            city: city.isNotEmpty ? city : null,
+            postalCode: code.isNotEmpty ? code : null,
+            propertyType: type,
+            staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
+          );
+          switch (result) {
+            case NetworkSuccess():
+              await _loadProperties();
+              clearEditing();
+              Get.back();
+            case NetworkError(error: final e):
+              await Notifier.apiError(e, contextTag: 'update_property');
+          }
+          return;
+        }
       }
-      Get.back();
+      final result = await _clientRepository.createProperty(
+        name: name.isNotEmpty ? name : 'Property',
+        address: address,
+        city: city,
+        postalCode: code,
+        propertyType: type,
+        staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
+      );
+      switch (result) {
+        case NetworkSuccess():
+          await _loadProperties();
+          clearEditing();
+          Get.back();
+        case NetworkError(error: final e):
+          await Notifier.apiError(e, contextTag: 'create_property');
+      }
     } finally {
       isSaving.value = false;
     }
