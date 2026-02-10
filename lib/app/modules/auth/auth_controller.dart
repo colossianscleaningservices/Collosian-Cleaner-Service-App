@@ -189,13 +189,12 @@ class AuthController extends GetxController {
       secondaryButtonLabel: "I am a Cleaner",
       onPrimaryPressed: () {
         selectRole(UserRole.client);
-        Get.toNamed(Routes.CLIENT_DASHBOARD);
+        Get.toNamed(Routes.SIGN_UP);
       },
       onSecondaryPressed: () {
         selectRole(UserRole.cleaner);
         resetAgreement();
-        // Get.toNamed(Routes.AGREEMENT);
-        Get.toNamed(Routes.CLEANER_DASHBOARD);
+        Get.toNamed(Routes.AGREEMENT);
       },
     );
   }
