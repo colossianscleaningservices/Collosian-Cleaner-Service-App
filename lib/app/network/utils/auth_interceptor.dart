@@ -10,8 +10,7 @@ import '../../services/pref.dart';
 class AuthInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.headers['platform'] =
-        kIsWeb ? 'web' : (Platform.isAndroid ? 'android' : 'ios');
+    options.headers['platform'] = kIsWeb ? 'web' : (Platform.isAndroid ? 'android' : 'ios');
     options.headers['isDebug'] = kDebugMode.toString();
     options.headers['timezone'] = Prefs().getTimeZoneData(Prefs.timezone);
     final token = Prefs().token;

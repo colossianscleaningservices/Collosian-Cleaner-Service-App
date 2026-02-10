@@ -72,15 +72,6 @@ class LoginView extends GetView<AuthController> {
                               child: CommonText.regular('Forgot password?', onTap: controller.goToForgotPassword),
                             ),
                             const SizedBox(height: 24),
-                            // Inline error
-                            Obx(() {
-                              final msg = controller.loginErrorMsg.value;
-                              if (msg == null || msg.isEmpty) return const SizedBox.shrink();
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: CommonText.regular(msg, color: scheme.error, size: 14),
-                              );
-                            }),
                             // Login button
                             Obx(
                               () => AppButton(

@@ -63,9 +63,9 @@ class LogInterceptor extends Interceptor {
 
   @override
   void onResponse(
-    Response<dynamic> response,
-    ResponseInterceptorHandler handler,
-  ) {
+      Response<dynamic> response,
+      ResponseInterceptorHandler handler,
+      ) {
     if (!kDebugMode) {
       return super.onResponse(response, handler);
     }

@@ -21,12 +21,13 @@ sealed class NetworkResult<T> {
 }
 
 class NetworkSuccess<T> extends NetworkResult<T> {
+
   const NetworkSuccess(this.data);
   final T data;
 }
 
 class NetworkError<T> extends NetworkResult<T> {
+
   const NetworkError(this.error);
   final NetworkException error;
 }
-

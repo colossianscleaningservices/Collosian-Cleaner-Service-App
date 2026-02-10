@@ -19,7 +19,6 @@ class DioClient {
     );
     _dio = Dio(baseOptions);
     _dio.interceptors.add(AuthInterceptor());
-
     if (kDebugMode) _dio.interceptors.add(ccs_log.LogInterceptor());
   }
 

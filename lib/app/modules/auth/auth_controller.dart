@@ -1,8 +1,8 @@
 import 'package:ccs_app/app/model/Section_model.dart';
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
 import 'package:ccs_app/app/network/response/base_response.dart';
-import 'package:ccs_app/app/network/response/login_response.dart';
-import 'package:ccs_app/app/network/utils/network_result.dart';
+import 'package:ccs_app/app/network/response/login_signup_response.dart';
+import 'package:ccs_app/app/network/response/user_response.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
@@ -16,23 +16,20 @@ class AuthController extends GetxController {
   void selectRole(UserRole role) => selectedRole.value = role;
 
   // Cleaner assessment APIs (in AuthRepository; used e.g. during onboarding / post-signup)
-  Future<NetworkResult<DataResponse>> getAssessmentCategories() =>
-      _authRepository.getAssessmentCategories();
-  Future<NetworkResult<DataResponse>> getAssessmentForms({int? categoryId}) =>
-      _authRepository.getAssessmentForms(categoryId: categoryId);
+  Future<NetworkResult<DataResponse>> getAssessmentCategories() => _authRepository.getAssessmentCategories();
+
+  Future<NetworkResult<DataResponse>> getAssessmentForms({int? categoryId}) => _authRepository.getAssessmentForms(categoryId: categoryId);
+
   Future<NetworkResult<BaseResponse>> saveAssessmentForms({
     required int formId,
     required List<Map<String, dynamic>> responses,
   }) =>
       _authRepository.saveAssessmentForms(formId: formId, responses: responses);
-  Future<NetworkResult<BaseResponse>> saveGovCode({required String verificationCode}) =>
-      _authRepository.saveGovCode(verificationCode: verificationCode);
+
+  Future<NetworkResult<BaseResponse>> saveGovCode({required String verificationCode}) => _authRepository.saveGovCode(verificationCode: verificationCode);
 
   /// Logout: call API then clear local state. (SessionService may use this or call repository directly.)
   Future<NetworkResult<BaseResponse>> logout() => _authRepository.logout();
-
-  /// Get current authenticated user (e.g. for session refresh or profile).
-  Future<NetworkResult<LoginResponse>> getCurrentUser() => _authRepository.getCurrentUser();
 
   /// Change password (authenticated user).
   Future<NetworkResult<BaseResponse>> changePassword({
@@ -52,7 +49,6 @@ class AuthController extends GetxController {
   final loginPasswordCtrl = TextEditingController();
   final loginObscure = true.obs;
   final isLoggingIn = false.obs;
-  final loginErrorMsg = Rxn<String>();
 
   // Sign-up (shared)
   final signupFormKey = GlobalKey<FormState>();
@@ -79,6 +75,7 @@ class AuthController extends GetxController {
 
   /// Token for reset password (from deep link / route params: e.g. Get.parameters['token']).
   String get resetToken => Get.parameters['token'] ?? '';
+
   /// Email for reset password (from route params or leave empty if reset link doesn't provide it).
   String get resetEmail => Get.parameters['email'] ?? '';
 
@@ -252,27 +249,27 @@ class AuthController extends GetxController {
   Future<void> login() async {
     if (isLoggingIn.value) return;
     if (!(loginFormKey.currentState?.validate() ?? false)) return;
-    loginErrorMsg.value = null;
     isLoggingIn.value = true;
+
     try {
-      final result = await _authRepository.login(
+      final NetworkResult<LoginSignupResponse> result = await _authRepository.login(
         email: loginEmailCtrl.text,
         password: loginPasswordCtrl.text,
       );
 
-      switch (result) {
-        case NetworkSuccess(data: final response):
-          final data = response.data;
-          if (data == null) throw Exception(response.message ?? 'Login failed');
-          await _saveUserData(data);
-          setPushUserId(data.id?.toString());
-          _routeByRoleId(data.roleId);
-        case NetworkError(error: final e):
-          loginErrorMsg.value = e.message;
-          await Notifier.apiError(e, contextTag: 'login');
-      }
+      result.when(success: (value) async {
+        final data = value.data;
+
+        log('test', ' Response : $data ');
+        if (data == null) throw Exception(value.message ?? 'Login failed');
+        await _saveUserData(data.user!);
+
+        setPushUserId(data.user?.id?.toString());
+        _routeByRoleId(data.user?.roles?.first.id);
+      }, error: (error) async {
+        await Notifier.apiError(error, contextTag: 'login');
+      });
     } catch (e) {
-      loginErrorMsg.value = _errorMessage(e);
       await Notifier.apiError(e, contextTag: 'login');
     } finally {
       isLoggingIn.value = false;
@@ -296,12 +293,8 @@ class AuthController extends GetxController {
     signupErrorMsg.value = null;
     isSigningUp.value = true;
     try {
-      final firstName = signupFirstNameCtrl.text.trim().isNotEmpty
-          ? signupFirstNameCtrl.text.trim()
-          : signupEmailCtrl.text.trim();
-      final lastName = signupLastNameCtrl.text.trim().isNotEmpty
-          ? signupLastNameCtrl.text.trim()
-          : signupEmailCtrl.text.trim();
+      final firstName = signupFirstNameCtrl.text.trim().isNotEmpty ? signupFirstNameCtrl.text.trim() : signupEmailCtrl.text.trim();
+      final lastName = signupLastNameCtrl.text.trim().isNotEmpty ? signupLastNameCtrl.text.trim() : signupEmailCtrl.text.trim();
       final password = signupPasswordCtrl.text;
       final roleStr = role == UserRole.client ? 'client' : 'staff';
 
@@ -319,8 +312,8 @@ class AuthController extends GetxController {
         case NetworkSuccess(data: final response):
           final data = response.data;
           if (data == null) throw Exception(response.message ?? 'Registration failed');
-          await _saveUserData(data);
-          setPushUserId(data.id?.toString());
+          await _saveUserData(data.user!);
+          setPushUserId(data.user?.id.toString());
           if (role == UserRole.client) {
             Get.offAllNamed(Routes.CLIENT_DASHBOARD);
           } else {
@@ -405,7 +398,7 @@ class AuthController extends GetxController {
     return e.toString();
   }
 
-  Future<void> _saveUserData(Data data) async {
+  Future<void> _saveUserData(User data) async {
     final prefs = Prefs();
     await prefs.setToken(data.token ?? '');
     if (data.id != null) prefs.putData(Prefs.id, data.id.toString());
@@ -416,7 +409,7 @@ class AuthController extends GetxController {
     if (data.lastName != null && data.lastName!.isNotEmpty) {
       prefs.putData(Prefs.lastName, data.lastName!);
     }
-    if (data.roleId != null) prefs.putData(Prefs.roleId, data.roleId.toString());
+    if (data.roles?.first.id != null) prefs.putData(Prefs.roleId, data.roles!.first.id.toString());
   }
 
   void _routeByRoleId(num? roleId) {
