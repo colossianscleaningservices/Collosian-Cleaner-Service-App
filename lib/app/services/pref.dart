@@ -35,7 +35,7 @@ class Prefs {
 
   /// Fetches public IP via get_ip_address (JSON) and stores in [ipAddress]. Call from main.dart.
 
-  String? get token => _box.read<String>(_kToken);
+  String get token => _box.read<String>(_kToken) ?? '';
 
   Future<void> setToken(String? token) async {
     if (token == null) {

@@ -265,7 +265,19 @@ class AuthController extends GetxController {
         await _saveUserData(data.user!);
 
         setPushUserId(data.user?.id?.toString());
-        _routeByRoleId(data.user?.roles?.first.id);
+
+        Notifier.openSheet(
+          (Get.context as BuildContext),
+          type: SheetType.success,
+          title: "Success !",
+          message: value.message,
+          showSecondaryButton: false,
+          isDismissable: false,
+          icon: IconsaxPlusLinear.chart_success,
+          onPrimaryPressed: () {
+            _routeByRoleId(data.user?.roles?.first.id);
+          },
+        );
       }, error: (error) async {
         await Notifier.apiError(error, contextTag: 'login');
       });

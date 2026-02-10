@@ -2,9 +2,9 @@
 class RoleConstants {
   RoleConstants._();
 
-  static const int roleIdClient = 1;
-  static const int roleIdCleaner = 2;
-  static const int roleIdCommon = 3;
+  static const int roleIdAdmin = 1;
+  static const int roleIdClient = 2;
+  static const int roleIdCleaner = 3;
 
   static const String roleKeyClient = 'client';
   static const String roleKeyCleaner = 'cleaner';

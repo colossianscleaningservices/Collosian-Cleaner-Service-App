@@ -78,6 +78,7 @@ class LoginView extends GetView<AuthController> {
                                 label: 'Sign in',
                                 onPressed: () {
                                   if (controller.loginFormKey.currentState?.validate() ?? false) {
+                                    FocusScope.of(context).unfocus();
                                     controller.login();
                                   }
                                 },

@@ -50,7 +50,7 @@ class Notifier {
 
     switch (type) {
       case SheetType.success:
-        bg = Colors.green.shade100.withValues(alpha: 0.4); // Background color for success
+        bg = Colors.green.shade100; // Background color for success
         fg = Colors.green.shade400; // Foreground color (text) for success
         break;
       case SheetType.error:

@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/utils.dart';
 
 import '../../model/api_error.dart';
 import '../../services/crashlytics_service.dart';
@@ -65,6 +65,7 @@ class ApiHandler {
       try {
         return NetworkResult.success(fromJson(data));
       } catch (e) {
+        e.printError();
         return NetworkResult.error(
           UnableToProcessException(
             errorMessage: exceptionMessages.unableToProcess,

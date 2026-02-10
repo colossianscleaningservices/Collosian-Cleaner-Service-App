@@ -40,7 +40,8 @@ class User {
     name = json['name'];
     email = json['email'];
     phoneNumber = json['phone_number'];
-    roles = json['roles'] != null ? json['roles'].cast<String>() : [];
+    // roles = json['roles'] != null ? json['roles'].cast<String>() : [];
+    roles = json['roles'] != null ? (json['roles'] as List).map((e) => Roles.fromJson(e as Map<String, dynamic>)).toList() : null;
     emailVerifiedAt = json['email_verified_at'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
@@ -67,7 +68,9 @@ class User {
     map['name'] = name;
     map['email'] = email;
     map['phone_number'] = phoneNumber;
-    map['roles'] = roles;
+    if (roles != null) {
+      map['roles'] = roles!.map((e) => e.toJson()).toList();
+    }
     map['email_verified_at'] = emailVerifiedAt;
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
