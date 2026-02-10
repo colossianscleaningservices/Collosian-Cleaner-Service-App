@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-
 import '../../services/env_service.dart';
 import 'auth_interceptor.dart';
+import 'log_interceptor.dart' as log;
 
 class DioClient {
   DioClient() {
@@ -16,7 +16,8 @@ class DioClient {
       },
     );
     _dio = Dio(baseOptions);
-    _dio.interceptors.add(AuthInterceptor());
+    _dio.interceptors.add(log.LogInterceptor());
+    // _dio.interceptors.add(AuthInterceptor());
   }
 
   late final Dio _dio;

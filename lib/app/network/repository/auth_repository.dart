@@ -1,29 +1,27 @@
+import 'package:ccs_app/app/network/response/login_signup_response.dart';
+
 import '../../core/base/base_repository.dart';
 import '../response/base_response.dart';
-import '../response/login_response.dart';
 import '../utils/network_result.dart';
 import 'endpoint.dart';
 
 class AuthRepository extends BaseRepository {
   /// Login (email + password). Returns token and user per OpenAPI.
-  Future<NetworkResult<LoginResponse>> login({
+  Future<NetworkResult<LoginSignupResponse>> login({
     required String email,
     required String password,
   }) async {
-    final payload = <String, dynamic>{
-      'email': email.trim(),
-      'password': password,
-    };
-    return post<LoginResponse>(
+    final payload = <String, String>{'email': email.trim(), 'password': password.trim()};
+    return post<LoginSignupResponse>(
       endpoint: Endpoint.authLogin,
-      fromJson: (json) => LoginResponse.fromJson(json),
+      fromJson: (json) => LoginSignupResponse.fromJson(json),
       data: payload,
     );
   }
 
   /// Register (OpenAPI: first_name, last_name, email, password, password_confirmation, role).
   /// [role] must be 'client' or 'staff'.
-  Future<NetworkResult<LoginResponse>> userRegister({
+  Future<NetworkResult<LoginSignupResponse>> userRegister({
     required String firstName,
     required String lastName,
     required String email,
@@ -43,9 +41,9 @@ class AuthRepository extends BaseRepository {
     if (phoneNumber != null && phoneNumber.trim().isNotEmpty) {
       payload['phone_number'] = phoneNumber.trim();
     }
-    return post<LoginResponse>(
+    return post<LoginSignupResponse>(
       endpoint: Endpoint.authRegister,
-      fromJson: (json) => LoginResponse.fromJson(json),
+      fromJson: (json) => LoginSignupResponse.fromJson(json),
       data: payload,
     );
   }
@@ -59,10 +57,10 @@ class AuthRepository extends BaseRepository {
   }
 
   /// Get current authenticated user (requires Bearer token).
-  Future<NetworkResult<LoginResponse>> getCurrentUser() async {
-    return get<LoginResponse>(
+  Future<NetworkResult<BaseResponse>> getCurrentUser() async {
+    return get<BaseResponse>(
       endpoint: Endpoint.authUser,
-      fromJson: (json) => LoginResponse.fromJson(json),
+      fromJson: (json) => BaseResponse.fromJson(json),
     );
   }
 
