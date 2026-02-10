@@ -119,13 +119,13 @@ class AuthController extends GetxController {
         password: changePasswordNewCtrl.text,
         passwordConfirmation: changePasswordConfirmCtrl.text,
       );
-      switch (result) {
-        case NetworkSuccess():
+      result.when(
+        success: (_) {
           Notifier.success('Password changed successfully');
           Get.back();
-        case NetworkError(error: final e):
-          await Notifier.apiError(e, contextTag: 'change_password');
-      }
+        },
+        error: (e) async => await Notifier.apiError(e, contextTag: 'change_password'),
+      );
     } catch (e) {
       Notifier.error('Failed to change password');
     } finally {
@@ -320,8 +320,8 @@ class AuthController extends GetxController {
         phoneNumber: signupPhoneCtrl.text.trim().isNotEmpty ? signupPhoneCtrl.text.trim() : null,
       );
 
-      switch (result) {
-        case NetworkSuccess(data: final response):
+      result.when(
+        success: (response) async {
           final data = response.data;
           if (data == null) throw Exception(response.message ?? 'Registration failed');
           await _saveUserData(data.user!);
@@ -331,10 +331,12 @@ class AuthController extends GetxController {
           } else {
             Get.offAllNamed(Routes.CLEANER_DASHBOARD);
           }
-        case NetworkError(error: final e):
+        },
+        error: (e) async {
           signupErrorMsg.value = e.message;
           await Notifier.apiError(e, contextTag: 'signup');
-      }
+        },
+      );
     } catch (e) {
       signupErrorMsg.value = _errorMessage(e);
       await Notifier.apiError(e, contextTag: 'signup');
@@ -352,16 +354,16 @@ class AuthController extends GetxController {
       final result = await _authRepository.forgotPassword(
         email: forgotEmailCtrl.text,
       );
-      switch (result) {
-        case NetworkSuccess():
+      result.when(
+        success: (_) {
           Notifier.success(
             'If an account exists for this email, you will receive a password reset link.',
             title: 'Check your email',
           );
           Get.offAllNamed(Routes.LOGIN);
-        case NetworkError(error: final e):
-          await Notifier.apiError(e, contextTag: 'forgot_password');
-      }
+        },
+        error: (e) async => await Notifier.apiError(e, contextTag: 'forgot_password'),
+      );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'forgot_password');
     }
@@ -389,14 +391,16 @@ class AuthController extends GetxController {
         password: password,
         passwordConfirmation: confirm,
       );
-      switch (result) {
-        case NetworkSuccess():
+      result.when(
+        success: (_) {
           Notifier.success('Your password has been reset. You can sign in now.', title: 'Password reset');
           Get.offAllNamed(Routes.LOGIN);
-        case NetworkError(error: final e):
+        },
+        error: (e) async {
           resetErrorMsg.value = e.message;
           await Notifier.apiError(e, contextTag: 'reset_password');
-      }
+        },
+      );
     } catch (e) {
       resetErrorMsg.value = _errorMessage(e);
       await Notifier.apiError(e, contextTag: 'reset_password');

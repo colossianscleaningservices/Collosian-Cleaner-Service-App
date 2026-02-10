@@ -1,5 +1,4 @@
 import 'package:ccs_app/app/network/repository/client_repository.dart';
-import 'package:ccs_app/app/network/utils/network_result.dart';
 import 'package:ccs_app/export.dart';
 
 /// Minimal model for property list items.
@@ -39,8 +38,8 @@ class PropertyController extends GetxController {
     isLoadingProperties.value = true;
     try {
       final result = await _clientRepository.listProperties();
-      switch (result) {
-        case NetworkSuccess(data: final response):
+      result.when(
+        success: (response) {
           final raw = response.data;
           List? list;
           if (raw is Map) {
@@ -52,9 +51,9 @@ class PropertyController extends GetxController {
           if (list != null && list.isNotEmpty) {
             properties.assignAll(_parsePropertyList(list));
           }
-        case NetworkError():
-          break;
-      }
+        },
+        error: (_) {},
+      );
     } finally {
       isLoadingProperties.value = false;
     }
@@ -159,14 +158,14 @@ class PropertyController extends GetxController {
       return;
     }
     final result = await _clientRepository.deleteProperty(jobId);
-    switch (result) {
-      case NetworkSuccess():
+    result.when(
+      success: (_) {
         properties.removeWhere((p) => p.id == id);
         clearEditing();
         Get.back();
-      case NetworkError(error: final e):
-        await Notifier.apiError(e, contextTag: 'delete_property');
-    }
+      },
+      error: (e) async => await Notifier.apiError(e, contextTag: 'delete_property'),
+    );
   }
 
   final propertyNameCtrl = TextEditingController();
@@ -246,14 +245,14 @@ class PropertyController extends GetxController {
             propertyType: type,
             staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
           );
-          switch (result) {
-            case NetworkSuccess():
+          result.when(
+            success: (_) async {
               await _loadProperties();
               clearEditing();
               Get.back();
-            case NetworkError(error: final e):
-              await Notifier.apiError(e, contextTag: 'update_property');
-          }
+            },
+            error: (e) async => await Notifier.apiError(e, contextTag: 'update_property'),
+          );
           return;
         }
       }
@@ -265,14 +264,14 @@ class PropertyController extends GetxController {
         propertyType: type,
         staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
       );
-      switch (result) {
-        case NetworkSuccess():
+      result.when(
+        success: (_) async {
           await _loadProperties();
           clearEditing();
           Get.back();
-        case NetworkError(error: final e):
-          await Notifier.apiError(e, contextTag: 'create_property');
-      }
+        },
+        error: (e) async => await Notifier.apiError(e, contextTag: 'create_property'),
+      );
     } finally {
       isSaving.value = false;
     }

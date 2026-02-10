@@ -208,13 +208,13 @@ class CleanerJobDetailController extends GetxController {
 
   Future<void> _declineJob(int jobId) async {
     final result = await _cleanerRepository.declineJob(jobId: jobId);
-    switch (result) {
-      case NetworkSuccess():
+    result.when(
+      success: (_) {
         Notifier.success('Job declined');
         Get.back();
-      case NetworkError(error: final e):
-        await Notifier.apiError(e, contextTag: 'decline_job');
-    }
+      },
+      error: (e) async => await Notifier.apiError(e, contextTag: 'decline_job'),
+    );
   }
 
   void onShareCleanerProfile(ClientJobCleaner c) {

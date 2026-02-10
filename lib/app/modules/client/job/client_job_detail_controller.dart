@@ -1,5 +1,4 @@
 import 'package:ccs_app/app/network/repository/client_repository.dart';
-import 'package:ccs_app/app/network/utils/network_result.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../model/client_job.dart';
@@ -89,13 +88,13 @@ class ClientJobDetailController extends GetxController {
 
   Future<void> _cancelJob(int jobId) async {
     final result = await _clientRepository.cancelJob(jobId: jobId);
-    switch (result) {
-      case NetworkSuccess():
+    result.when(
+      success: (_) {
         Notifier.success('Job cancelled');
         Get.back();
-      case NetworkError(error: final e):
-        await Notifier.apiError(e, contextTag: 'cancel_job');
-    }
+      },
+      error: (e) async => await Notifier.apiError(e, contextTag: 'cancel_job'),
+    );
   }
 
   /// Navigates to the schedule-job page for a normal (one-off) job.
@@ -127,8 +126,8 @@ class ClientJobDetailController extends GetxController {
       endDate: endStr,
       copyCleaners: false,
     );
-    switch (result) {
-      case NetworkSuccess():
+    result.when(
+      success: (_) {
         final startTimeStr = _formatTime(startTime);
         final endTimeStr = _formatTime(endTime);
         job.value = job.value.copyWith(
@@ -139,9 +138,9 @@ class ClientJobDetailController extends GetxController {
           jobEndDate: endDate,
         );
         Notifier.success('Job scheduled for ${CcsDateUtils.fullDate(startDate)}.');
-      case NetworkError(error: final e):
-        await Notifier.apiError(e, contextTag: 'schedule_job');
-    }
+      },
+      error: (e) async => await Notifier.apiError(e, contextTag: 'schedule_job'),
+    );
   }
 
   void onShareCleanerProfile(ClientJobCleaner c) {
@@ -164,12 +163,12 @@ class ClientJobDetailController extends GetxController {
       feedback: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
       message: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
     );
-    switch (result) {
-      case NetworkSuccess():
+    result.when(
+      success: (_) {
         Notifier.success('Thank you for your feedback');
         Get.back();
-      case NetworkError(error: final e):
-        await Notifier.apiError(e, contextTag: 'submit_review');
-    }
+      },
+      error: (e) async => await Notifier.apiError(e, contextTag: 'submit_review'),
+    );
   }
 }
