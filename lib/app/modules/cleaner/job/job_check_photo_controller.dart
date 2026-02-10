@@ -2,14 +2,14 @@ import 'package:ccs_app/export.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../model/client_job.dart';
-import '../../../network/repository/job_repository.dart';
+import '../../../network/repository/cleaner_repository.dart';
 
 enum JobCheckPhotoMode { checkIn, checkOut }
 
 /// Controller for the check-in / check-out photo screen.
 /// Cleaner adds one or more photos and submits; job is only started/stopped after API success.
 class JobCheckPhotoController extends GetxController {
-  final JobRepository _jobRepository = JobRepository();
+  final CleanerRepository _cleanerRepository = CleanerRepository();
 
   late final ClientJob job;
   late final JobCheckPhotoMode mode;
@@ -117,8 +117,8 @@ class JobCheckPhotoController extends GetxController {
     isSubmitting.value = true;
     try {
       final result = isCheckIn
-          ? await _jobRepository.checkIn(jobId: job.id, photos: photos.toList())
-          : await _jobRepository.checkOut(jobId: job.id, photos: photos.toList());
+          ? await _cleanerRepository.checkIn(jobId: job.id, photos: photos.toList())
+          : await _cleanerRepository.checkOut(jobId: job.id, photos: photos.toList());
       switch (result) {
         case NetworkSuccess():
           Notifier.success(isCheckIn ? 'Job started' : 'Job completed');

@@ -1,9 +1,8 @@
+import 'package:ccs_app/app/modules/auth/auth_controller.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
-import 'change_password_controller.dart';
-
-class ChangePasswordView extends GetView<ChangePasswordController> {
+class ChangePasswordView extends GetView<AuthController> {
   const ChangePasswordView({super.key});
 
   @override
@@ -16,12 +15,10 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Form(
-            key: controller.formKey,
+            key: controller.changePasswordFormKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header info
-
                 AppCard(
                   color: scheme.primaryContainer.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
@@ -45,72 +42,68 @@ class ChangePasswordView extends GetView<ChangePasswordController> {
 
                 const SizedBox(height: 24),
 
-                // Current password
                 CommonText.medium('Current Password', size: 14, color: scheme.onSurface),
                 const SizedBox(height: 8),
                 Obx(() => CommonTextField(
-                      controller: controller.currentPasswordCtrl,
+                      controller: controller.changePasswordCurrentCtrl,
                       hint: 'Enter current password',
-                      obscure: !controller.showCurrentPassword.value,
-                      validator: controller.validateCurrentPassword,
+                      obscure: !controller.showChangeCurrentPassword.value,
+                      validator: controller.validateChangeCurrentPassword,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          controller.showCurrentPassword.value ? IconsaxPlusLinear.eye : IconsaxPlusLinear.eye_slash,
+                          controller.showChangeCurrentPassword.value ? IconsaxPlusLinear.eye : IconsaxPlusLinear.eye_slash,
                           size: 20,
                           color: scheme.onSurfaceVariant,
                         ),
-                        onPressed: () => controller.showCurrentPassword.toggle(),
+                        onPressed: () => controller.showChangeCurrentPassword.toggle(),
                       ),
                     )),
                 const SizedBox(height: 20),
 
-                // New password
                 CommonText.medium('New Password', size: 14, color: scheme.onSurface),
                 const SizedBox(height: 8),
                 Obx(() => CommonTextField(
-                      controller: controller.newPasswordCtrl,
+                      controller: controller.changePasswordNewCtrl,
                       hint: 'Enter new password',
-                      obscure: !controller.showNewPassword.value,
-                      validator: controller.validateNewPassword,
+                      obscure: !controller.showChangeNewPassword.value,
+                      validator: controller.validateChangeNewPassword,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          controller.showNewPassword.value ? IconsaxPlusLinear.eye : IconsaxPlusLinear.eye_slash,
+                          controller.showChangeNewPassword.value ? IconsaxPlusLinear.eye : IconsaxPlusLinear.eye_slash,
                           size: 20,
                           color: scheme.onSurfaceVariant,
                         ),
-                        onPressed: () => controller.showNewPassword.toggle(),
+                        onPressed: () => controller.showChangeNewPassword.toggle(),
                       ),
                     )),
                 const SizedBox(height: 20),
 
-                // Confirm password
                 CommonText.medium('Confirm New Password', size: 14, color: scheme.onSurface),
                 const SizedBox(height: 8),
                 Obx(() => CommonTextField(
-                      controller: controller.confirmPasswordCtrl,
+                      controller: controller.changePasswordConfirmCtrl,
                       hint: 'Re-enter new password',
-                      obscure: !controller.showConfirmPassword.value,
-                      validator: controller.validateConfirmPassword,
+                      obscure: !controller.showChangeConfirmPassword.value,
+                      validator: controller.validateChangeConfirmPassword,
                       action: TextInputAction.done,
                       suffixIcon: IconButton(
                         icon: Icon(
-                          controller.showConfirmPassword.value ? IconsaxPlusLinear.eye : IconsaxPlusLinear.eye_slash,
+                          controller.showChangeConfirmPassword.value ? IconsaxPlusLinear.eye : IconsaxPlusLinear.eye_slash,
                           size: 20,
                           color: scheme.onSurfaceVariant,
                         ),
-                        onPressed: () => controller.showConfirmPassword.toggle(),
+                        onPressed: () => controller.showChangeConfirmPassword.toggle(),
                       ),
                     )),
                 const SizedBox(height: 32),
 
-                // Submit button
                 Obx(() => SizedBox(
                       width: double.infinity,
                       child: AppButton(
                         label: 'Update Password',
                         type: ButtonType.primary,
-                        isLoading: controller.isLoading.value,
-                        onPressed: controller.changePassword,
+                        isLoading: controller.isChangingPassword.value,
+                        onPressed: controller.submitChangePassword,
                         btnVerticalPadding: 14,
                       ),
                     )),

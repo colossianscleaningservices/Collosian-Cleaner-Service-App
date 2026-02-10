@@ -1,6 +1,8 @@
 import 'package:ccs_app/app/model/Section_model.dart';
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
+import 'package:ccs_app/app/network/response/base_response.dart';
 import 'package:ccs_app/app/network/response/login_response.dart';
+import 'package:ccs_app/app/network/utils/network_result.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
@@ -12,6 +14,37 @@ class AuthController extends GetxController {
   final AuthRepository _authRepository = AuthRepository();
 
   void selectRole(UserRole role) => selectedRole.value = role;
+
+  // Cleaner assessment APIs (in AuthRepository; used e.g. during onboarding / post-signup)
+  Future<NetworkResult<DataResponse>> getAssessmentCategories() =>
+      _authRepository.getAssessmentCategories();
+  Future<NetworkResult<DataResponse>> getAssessmentForms({int? categoryId}) =>
+      _authRepository.getAssessmentForms(categoryId: categoryId);
+  Future<NetworkResult<BaseResponse>> saveAssessmentForms({
+    required int formId,
+    required List<Map<String, dynamic>> responses,
+  }) =>
+      _authRepository.saveAssessmentForms(formId: formId, responses: responses);
+  Future<NetworkResult<BaseResponse>> saveGovCode({required String verificationCode}) =>
+      _authRepository.saveGovCode(verificationCode: verificationCode);
+
+  /// Logout: call API then clear local state. (SessionService may use this or call repository directly.)
+  Future<NetworkResult<BaseResponse>> logout() => _authRepository.logout();
+
+  /// Get current authenticated user (e.g. for session refresh or profile).
+  Future<NetworkResult<LoginResponse>> getCurrentUser() => _authRepository.getCurrentUser();
+
+  /// Change password (authenticated user).
+  Future<NetworkResult<BaseResponse>> changePassword({
+    required String currentPassword,
+    required String password,
+    required String passwordConfirmation,
+  }) =>
+      _authRepository.changePassword(
+        currentPassword: currentPassword,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+      );
 
   // Login
   final loginFormKey = GlobalKey<FormState>();
@@ -46,6 +79,62 @@ class AuthController extends GetxController {
 
   /// Token for reset password (from deep link / route params: e.g. Get.parameters['token']).
   String get resetToken => Get.parameters['token'] ?? '';
+  /// Email for reset password (from route params or leave empty if reset link doesn't provide it).
+  String get resetEmail => Get.parameters['email'] ?? '';
+
+  // Change password (authenticated user; used by ChangePasswordView)
+  final changePasswordFormKey = GlobalKey<FormState>();
+  final changePasswordCurrentCtrl = TextEditingController();
+  final changePasswordNewCtrl = TextEditingController();
+  final changePasswordConfirmCtrl = TextEditingController();
+  final showChangeCurrentPassword = false.obs;
+  final showChangeNewPassword = false.obs;
+  final showChangeConfirmPassword = false.obs;
+  final isChangingPassword = false.obs;
+
+  String? validateChangeCurrentPassword(String? value) {
+    if (value == null || value.isEmpty) return 'Current password is required';
+    if (value.length < 6) return 'Password must be at least 6 characters';
+    return null;
+  }
+
+  String? validateChangeNewPassword(String? value) {
+    if (value == null || value.isEmpty) return 'New password is required';
+    if (value.length < 8) return 'Password must be at least 8 characters';
+    if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Include at least one uppercase letter';
+    if (!RegExp(r'[0-9]').hasMatch(value)) return 'Include at least one number';
+    if (value == changePasswordCurrentCtrl.text) return 'New password must be different';
+    return null;
+  }
+
+  String? validateChangeConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) return 'Please confirm your password';
+    if (value != changePasswordNewCtrl.text) return 'Passwords do not match';
+    return null;
+  }
+
+  Future<void> submitChangePassword() async {
+    if (!(changePasswordFormKey.currentState?.validate() ?? false)) return;
+    isChangingPassword.value = true;
+    try {
+      final result = await _authRepository.changePassword(
+        currentPassword: changePasswordCurrentCtrl.text,
+        password: changePasswordNewCtrl.text,
+        passwordConfirmation: changePasswordConfirmCtrl.text,
+      );
+      switch (result) {
+        case NetworkSuccess():
+          Notifier.success('Password changed successfully');
+          Get.back();
+        case NetworkError(error: final e):
+          await Notifier.apiError(e, contextTag: 'change_password');
+      }
+    } catch (e) {
+      Notifier.error('Failed to change password');
+    } finally {
+      isChangingPassword.value = false;
+    }
+  }
 
   // Navigation helpers (single auth module)
   void goToLogin() => Get.offAllNamed(Routes.LOGIN);
@@ -207,14 +296,23 @@ class AuthController extends GetxController {
     signupErrorMsg.value = null;
     isSigningUp.value = true;
     try {
-      final name = '${signupFirstNameCtrl.text.trim()} ${signupLastNameCtrl.text.trim()}'.trim();
-      final roleId = role.roleId;
+      final firstName = signupFirstNameCtrl.text.trim().isNotEmpty
+          ? signupFirstNameCtrl.text.trim()
+          : signupEmailCtrl.text.trim();
+      final lastName = signupLastNameCtrl.text.trim().isNotEmpty
+          ? signupLastNameCtrl.text.trim()
+          : signupEmailCtrl.text.trim();
+      final password = signupPasswordCtrl.text;
+      final roleStr = role == UserRole.client ? 'client' : 'staff';
 
       final result = await _authRepository.userRegister(
-        name: name.isNotEmpty ? name : signupEmailCtrl.text,
-        email: signupEmailCtrl.text,
-        password: signupPasswordCtrl.text,
-        roleId: roleId,
+        firstName: firstName,
+        lastName: lastName,
+        email: signupEmailCtrl.text.trim(),
+        password: password,
+        passwordConfirmation: password,
+        role: roleStr,
+        phoneNumber: signupPhoneCtrl.text.trim().isNotEmpty ? signupPhoneCtrl.text.trim() : null,
       );
 
       switch (result) {
@@ -282,7 +380,8 @@ class AuthController extends GetxController {
     try {
       final result = await _authRepository.resetPassword(
         token: resetToken,
-        newPassword: password,
+        email: resetEmail.isNotEmpty ? resetEmail : forgotEmailCtrl.text.trim(),
+        password: password,
         passwordConfirmation: confirm,
       );
       switch (result) {
@@ -343,6 +442,10 @@ class AuthController extends GetxController {
     forgotEmailCtrl.dispose();
     resetPasswordCtrl.dispose();
     resetConfirmPasswordCtrl.dispose();
+
+    changePasswordCurrentCtrl.dispose();
+    changePasswordNewCtrl.dispose();
+    changePasswordConfirmCtrl.dispose();
     super.onClose();
   }
 }
