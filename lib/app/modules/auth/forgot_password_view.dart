@@ -9,7 +9,7 @@ class ForgotPasswordView extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: Header(title:'Forgot password'),
+      appBar: Header(title: 'Forgot password'),
       body: Padding(
         padding: UiConstants.padding,
         child: Column(
@@ -21,10 +21,13 @@ class ForgotPasswordView extends GetView<AuthController> {
               validator: Validator.email,
             ),
             const SizedBox(height: 16),
-            AppButton(
-              label: 'Send reset link/code',
-              onPressed: controller.submitForgotPassword,
-            ),
+            Obx(() {
+              return AppButton(
+                label: 'Send reset link/code',
+                isLoading: controller.isForgotPassword.value,
+                onPressed: controller.submitForgotPassword,
+              );
+            }),
             const SizedBox(height: 12),
             AppButton(
               label: 'Back to login',

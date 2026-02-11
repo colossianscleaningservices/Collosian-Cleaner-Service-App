@@ -46,7 +46,6 @@ Future<void> main() async {
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
   SystemUIConfig.setSystemBehaviour(savedThemeMode);
 
-
   runApp(
     ToastificationWrapper(
       child: AdaptiveTheme(

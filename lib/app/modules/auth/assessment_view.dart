@@ -44,59 +44,56 @@ class AssessmentView extends GetView<AuthController> {
 
       return AppScaffold(
         backgroundColor: scheme.surface,
-        appBar: Header(title: category.name ?? ''),
+        appBar: Header(title: "Assessment"),
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              CommonText.semiBold(
+                category.name ?? '',
+                size: 18,
+                fontWeight: FontWeight.w700,
+              ).marginSymmetric(horizontal: 8).marginOnly(top: 8),
               // Step progress – improved styling
               SingleChildScrollView(
                 controller: controller.stepScrollController,
                 scrollDirection: Axis.horizontal,
                 child: StepProgress(
-                  stepNodeSize: 40,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  stepNodeSize: 32,
                   theme: StepProgressThemeData(
                     shape: StepNodeShape.circle,
                     defaultForegroundColor: scheme.outline.withValues(alpha: 0.5),
                     activeForegroundColor: scheme.secondary,
-                    enableRippleEffect: true,
+                    enableRippleEffect: false,
                     stepAnimationDuration: const Duration(milliseconds: 220),
-                    stepLineSpacing: 4,
                     nodeLabelAlignment: StepLabelAlignment.bottom,
                     nodeLabelStyle: StepLabelStyle(
-                      titleStyle: TextStyle(
+                      titleStyle: context.textTheme.bodyMedium?.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: scheme.onSurfaceVariant,
                       ),
-                      defualtColor: scheme.onSurfaceVariant,
+                      defualtColor: scheme.onSurfaceVariant.withValues(alpha: 0.5),
                       activeColor: scheme.secondary,
                       margin: const EdgeInsets.only(top: 6),
                       maxWidth: 44,
                     ),
                     stepNodeStyle: StepNodeStyle(
                       decoration: BoxDecoration(
-                        color: scheme.surfaceContainerHighest.withValues(alpha: 0.6),
+                        color: scheme.surface,
                         shape: BoxShape.circle,
                       ),
                       activeDecoration: BoxDecoration(
                         color: scheme.secondary,
                         shape: BoxShape.circle,
                       ),
-                      enableRippleEffect: true,
                     ),
                     stepLineStyle: StepLineStyle(
-                      foregroundColor: scheme.outline.withValues(alpha: 0.35),
-                      activeColor: scheme.secondary.withValues(alpha: 0.8),
-                      lineThickness: 3,
-                      borderRadius: const Radius.circular(2),
+                      isBreadcrumb: true,
+                      foregroundColor: scheme.surface,
+                      activeColor: scheme.secondary,
                     ),
                   ),
-                  nodeTitles: List.generate(
-                    totalSteps,
-                    (i) => 'Step ${i + 1}',
-                  ),
+                  nodeTitles: List.generate(totalSteps, (i) => 'Step ${i + 1}'),
                   controller: controller.stepProgressController,
                   totalSteps: totalSteps,
                   currentStep: currentStep,
@@ -104,19 +101,9 @@ class AssessmentView extends GetView<AuthController> {
                     controller.stepCurrentIndex.value = index;
                     controller.stepProgressController.setCurrentStep(index);
                   },
-                  onStepChanged: (index) {
-                    controller.stepCurrentIndex.value = index;
-                  },
-                ).marginOnly(bottom: UiConstants.gap),
-              ),
-
-              // Section header: "Step X of Y"
-              CommonText.regular(
-                'Step ${currentStep + 1} of $totalSteps',
-                size: 14,
-                color: scheme.onSurfaceVariant,
-              ).marginOnly(bottom: UiConstants.gap),
-
+                  onStepChanged: (index) => controller.stepCurrentIndex.value = index,
+                ),
+              ).marginSymmetric(vertical: 16),
               // Questions list (API type: Questions with questionText, options)
               Expanded(
                 child: ListView.separated(
@@ -142,10 +129,10 @@ class AssessmentView extends GetView<AuthController> {
                                 enableShadows: false,
                                 color: scheme.secondaryContainer,
                                 radius: UiConstants.radiusSmall,
-                                child: CommonText.semiBold(
+                                child: CommonText.extraBold(
                                   '${questionIndex + 1}',
                                   size: 14,
-                                  color: scheme.onSecondaryContainer,
+                                  color: scheme.secondary,
                                 ).paddingSymmetric(horizontal: 12, vertical: 6),
                               ).marginOnly(right: UiConstants.gap),
                               Expanded(
@@ -156,40 +143,47 @@ class AssessmentView extends GetView<AuthController> {
                                 ),
                               ),
                             ],
-                          ).marginOnly(bottom: UiConstants.gap),
-                          ...options.map((option) {
-                            final value = option.text ?? option.label ?? '';
-                            final label = option.label ?? option.text ?? '';
-                            final isSelected = selectedAnswer == value;
-                            return InkWell(
-                              onTap: () => controller.setAgreementAnswer(currentStep, questionIndex, value),
-                              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                              child: Row(
-                                children: [
-                                  Radio<String>(
-                                    value: value,
-                                    groupValue: selectedAnswer,
-                                    onChanged: (v) {
-                                      if (v != null) controller.setAgreementAnswer(currentStep, questionIndex, v);
-                                    },
-                                    fillColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
-                                      if (states.contains(WidgetState.selected)) return scheme.secondary;
-                                      return scheme.outline.withValues(alpha: 0.6);
-                                    }),
-                                  ),
-                                  Expanded(
-                                    child: CommonText.regular(
-                                      label,
-                                      size: 15,
-                                      color: isSelected ? scheme.onSurface : scheme.onSurfaceVariant,
+                          ).marginOnly(left: UiConstants.gap, right: UiConstants.gap, top: UiConstants.gap),
+                          ListView.builder(
+                            itemBuilder: (context, index) {
+                              final option = options[index];
+                              final label = option.text ?? option.label ?? '';
+                              final value = option.label ?? option.text ?? '';
+                              final isSelected = selectedAnswer == value;
+
+                              return InkWell(
+                                onTap: () => controller.setAgreementAnswer(currentStep, questionIndex, value),
+                                child: Row(
+                                  children: [
+                                    Radio<String>(
+                                      value: value,
+                                      groupValue: selectedAnswer,
+                                      onChanged: (v) {
+                                        if (v != null) controller.setAgreementAnswer(currentStep, questionIndex, v);
+                                      },
+                                      fillColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
+                                        if (states.contains(WidgetState.selected)) return scheme.secondary;
+                                        return scheme.outline;
+                                      }),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
+                                    Expanded(
+                                      child: CommonText.regular(
+                                        label,
+                                        size: 14,
+                                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                        color: isSelected ? scheme.onSurface : scheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: options.length,
+                          ),
                         ],
-                      ).paddingAll(UiConstants.defaultPadding),
+                      ).paddingSymmetric(vertical: 0),
                     ).marginAll(8);
                   },
                 ),
@@ -206,7 +200,8 @@ class AssessmentView extends GetView<AuthController> {
               } else {
                 try {
                   controller.scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                  controller.stepScrollController.animateTo(controller.stepCurrentIndex.value.toDouble(), duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                  controller.stepScrollController
+                      .animateTo(controller.stepCurrentIndex.value.toDouble(), duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
                 } catch (e) {
                   e.printError();
                 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../utils/extension.dart';
 
@@ -210,29 +211,16 @@ class CommonText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FontWeight weight;
-    switch (type) {
-      case TextType.extraBold:
-        weight = fontWeight ?? FontWeight.w800;
-        break;
-      case TextType.bold:
-        weight = fontWeight ?? FontWeight.w700;
-        break;
-      case TextType.semiBold:
-        weight = fontWeight ?? FontWeight.w600;
-        break;
-      case TextType.medium:
-        weight = fontWeight ?? FontWeight.w500;
-        break;
-      case TextType.regular:
-        weight = fontWeight ?? FontWeight.w400;
-        break;
-      case TextType.light:
-        weight = fontWeight ?? FontWeight.w300;
-        break;
-    }
+    FontWeight weight = switch (type) {
+      TextType.extraBold => fontWeight ?? FontWeight.w800,
+      TextType.bold => fontWeight ?? FontWeight.w700,
+      TextType.semiBold => fontWeight ?? FontWeight.w600,
+      TextType.medium => fontWeight ?? FontWeight.w500,
+      TextType.regular => fontWeight ?? FontWeight.w400,
+      TextType.light => fontWeight ?? FontWeight.w300
+    };
 
-    final style = TextStyle(
+    final style = GoogleFonts.manrope(
       color: color ?? context.colorScheme.onSurface,
       fontSize: size,
       fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,

@@ -20,7 +20,7 @@ class Endpoint {
 
   // ─── Cleaner - Assessment ──────────────────────────────────────────────────
   static const String cleanerAssessmentCategories = '${root}cleaner/assessment/categories';
-  static const String cleanerAssessmentForms = '${root}cleaner/assessment/forms';
+  static const String cleanerAssessmentForms = '${root}cleaner/assessment/questions';
   static const String cleanerAssessmentGovCode = '${root}cleaner/assessment/gov-code';
 
   // ─── Cleaner - Dashboard ───────────────────────────────────────────────────

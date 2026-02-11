@@ -38,6 +38,7 @@ class AuthController extends GetxController {
   final resetObscure = true.obs;
   final resetFormKey = GlobalKey<FormState>();
   final isResettingPassword = false.obs;
+  final isForgotPassword = false.obs;
 
   String get resetToken => Get.parameters['token'] ?? '';
 
@@ -340,24 +341,31 @@ class AuthController extends GetxController {
   // ─── Forgot / reset password ──────────────────────────────────────────────
 
   Future<void> submitForgotPassword() async {
+    if(isForgotPassword.value) return;
     if (!forgotEmailCtrl.text.trim().isNotEmpty) {
       Notifier.error('Please enter your email.');
       return;
     }
+    (Get.context as BuildContext).hideKeyboard();
+    isForgotPassword.value = true;
     try {
       final result = await _authRepository.forgotPassword(email: forgotEmailCtrl.text);
       result.when(
         success: (_) {
+          isForgotPassword.value = false;
           Notifier.success(
             'If an account exists for this email, you will receive a password reset link.',
             title: 'Check your email',
           );
-
           Get.until((route) => Get.currentRoute == Routes.LOGIN);
         },
-        error: (e) async => await Notifier.apiError(e, contextTag: 'forgot_password'),
+        error: (e) async {
+          isForgotPassword.value = false;
+          await Notifier.apiError(e, contextTag: 'forgot_password');
+        },
       );
     } catch (e) {
+      isForgotPassword.value = false;
       await Notifier.apiError(e, contextTag: 'forgot_password');
     }
   }

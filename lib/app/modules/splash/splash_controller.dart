@@ -17,6 +17,7 @@ class SplashController extends GetxController {
 
     if (token.isNotEmpty) {
       final roleIdStr = Prefs().getData(Prefs.roleId);
+      log(runtimeType.toString(), "ROLE ID => $roleIdStr");
       final roleId = int.tryParse(roleIdStr);
       if (RoleConstants.isClient(roleId)) {
         Get.offAllNamed(Routes.CLIENT_DASHBOARD);
