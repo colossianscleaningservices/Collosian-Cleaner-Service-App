@@ -47,7 +47,7 @@ class RoleSelectionView extends GetView<AuthController> {
                               label: 'I am a Client',
                               onPressed: () {
                                 controller.selectRole(UserRole.client);
-                                controller.goToSignup();
+                                Get.toNamed(Routes.SIGN_UP);
                               },
                             ),
                             const SizedBox(height: UiConstants.gap),
@@ -56,7 +56,7 @@ class RoleSelectionView extends GetView<AuthController> {
                               type: ButtonType.tonal,
                               onPressed: () {
                                 controller.selectRole(UserRole.cleaner);
-                                controller.goToSignup();
+                                Get.toNamed(Routes.SIGN_UP);
                               },
                             ),
                             const SizedBox(height: 32),
@@ -64,7 +64,7 @@ class RoleSelectionView extends GetView<AuthController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 CommonText.regular('Already have an account? ', color: scheme.onSurfaceVariant),
-                                CommonText.regular('Sign in', color: scheme.primary, onTap: controller.goToLogin),
+                                CommonText.regular('Sign in', color: scheme.primary, onTap: () => Get.offAllNamed(Routes.LOGIN)),
                               ],
                             ),
                           ],

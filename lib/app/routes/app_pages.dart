@@ -1,9 +1,10 @@
 import 'package:ccs_app/app/modules/client/job/add_review.dart';
 import 'package:get/get.dart';
 
-import '../modules/auth/agreement_view.dart';
+import '../modules/auth/assessment_view.dart';
 import '../modules/auth/auth_binding.dart';
 import '../modules/auth/auth_view.dart';
+import '../modules/auth/change_password_view.dart';
 import '../modules/auth/forgot_password_view.dart';
 import '../modules/auth/login_view.dart';
 import '../modules/auth/reset_password_view.dart';
@@ -44,7 +45,6 @@ import '../modules/client/property/property_binding.dart';
 import '../modules/client/property/property_view.dart';
 import '../modules/client/schedule_job/schedule_job_binding.dart';
 import '../modules/client/schedule_job/schedule_job_view.dart';
-import '../modules/auth/change_password_view.dart';
 import '../modules/common/chat/chat_binding.dart';
 import '../modules/common/chat/chat_view.dart';
 import '../modules/common/contact_us/contact_us_binding.dart';
@@ -196,7 +196,7 @@ class AppPages {
     ),
     GetPage(
       name: _Paths.AGREEMENT,
-      page: () => const AgreementView(),
+      page: () => const AssessmentView(),
       binding: AuthBinding(),
     ),
   ];

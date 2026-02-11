@@ -48,7 +48,7 @@ class ChangePasswordView extends GetView<AuthController> {
                       controller: controller.changePasswordCurrentCtrl,
                       hint: 'Enter current password',
                       obscure: !controller.showChangeCurrentPassword.value,
-                      validator: controller.validateChangeCurrentPassword,
+                      validator: (value) => Validator.minLength(value, 6, fieldName: 'Current password'),
                       suffixIcon: IconButton(
                         icon: Icon(
                           controller.showChangeCurrentPassword.value ? IconsaxPlusLinear.eye : IconsaxPlusLinear.eye_slash,
@@ -66,7 +66,11 @@ class ChangePasswordView extends GetView<AuthController> {
                       controller: controller.changePasswordNewCtrl,
                       hint: 'Enter new password',
                       obscure: !controller.showChangeNewPassword.value,
-                      validator: controller.validateChangeNewPassword,
+                      validator: (String? value) {
+                        final err = Validator.passwordStrength(value, fieldName: 'New password');
+                        if (err != null) return err;
+                        return value == controller.changePasswordCurrentCtrl.text ? 'New password must be different' : null;
+                      },
                       suffixIcon: IconButton(
                         icon: Icon(
                           controller.showChangeNewPassword.value ? IconsaxPlusLinear.eye : IconsaxPlusLinear.eye_slash,
@@ -84,7 +88,7 @@ class ChangePasswordView extends GetView<AuthController> {
                       controller: controller.changePasswordConfirmCtrl,
                       hint: 'Re-enter new password',
                       obscure: !controller.showChangeConfirmPassword.value,
-                      validator: controller.validateChangeConfirmPassword,
+                      validator: (value) => Validator.confirmMatches(value, controller.changePasswordNewCtrl.text, fieldName: 'Confirm password'),
                       action: TextInputAction.done,
                       suffixIcon: IconButton(
                         icon: Icon(

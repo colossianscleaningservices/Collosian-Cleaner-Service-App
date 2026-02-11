@@ -1,6 +1,8 @@
 import 'package:ccs_app/app/network/response/login_signup_response.dart';
 
 import '../../core/base/base_repository.dart';
+import '../response/assessment_category_response.dart';
+import '../response/assessment_question_response.dart';
 import '../response/base_response.dart';
 import '../utils/network_result.dart';
 import 'endpoint.dart';
@@ -112,18 +114,18 @@ class AuthRepository extends BaseRepository {
   // ─── Cleaner assessment (staff only; used e.g. during onboarding) ────────
 
   /// GET assessment categories.
-  Future<NetworkResult<DataResponse>> getAssessmentCategories() async {
-    return get<DataResponse>(
+  Future<NetworkResult<AssessmentCategoryResponse>> getAssessmentCategories() async {
+    return get<AssessmentCategoryResponse>(
       endpoint: Endpoint.cleanerAssessmentCategories,
-      fromJson: (json) => DataResponse.fromJson(json),
+      fromJson: (json) => AssessmentCategoryResponse.fromJson(json),
     );
   }
 
   /// GET assessment forms, optionally by [categoryId].
-  Future<NetworkResult<DataResponse>> getAssessmentForms({int? categoryId}) async {
-    return get<DataResponse>(
+  Future<NetworkResult<AssessmentQuestionResponse>> getAssessmentForms({int? categoryId}) async {
+    return get<AssessmentQuestionResponse>(
       endpoint: Endpoint.cleanerAssessmentForms,
-      fromJson: (json) => DataResponse.fromJson(json),
+      fromJson: (json) => AssessmentQuestionResponse.fromJson(json),
       queryParameters: categoryId != null ? {'category_id': categoryId} : null,
     );
   }

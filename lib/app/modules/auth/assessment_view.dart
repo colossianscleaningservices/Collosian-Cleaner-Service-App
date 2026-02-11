@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/constants/ui_constants.dart';
+import 'package:ccs_app/app/network/response/assessment_question_response.dart' as aq;
 import 'package:ccs_app/app/utils/extension.dart';
 import 'package:ccs_app/app/widget/common/header.dart';
 import 'package:ccs_app/app/widget/common/text.dart';
@@ -12,24 +13,38 @@ import 'package:step_progress/step_progress.dart';
 import '../../utils/notifier.dart';
 import 'auth_controller.dart';
 
-class AgreementView extends GetView<AuthController> {
-  const AgreementView({super.key});
+class AssessmentView extends GetView<AuthController> {
+  const AssessmentView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    final totalSteps = controller.sectionList.length;
 
     return Obx(() {
-      final currentStep = controller.stepCurrentIndex.value;
-      final section = controller.sectionList[currentStep];
-      final questions = section.questions ?? [];
+      if (controller.isAssessmentLoading.value) {
+        return AppScaffold(
+          backgroundColor: scheme.surface,
+          appBar: Header(title: 'Assessment'),
+          body: const Center(child: CircularProgressIndicator()),
+        );
+      }
+      final totalSteps = controller.assessmentCategories.length;
+      if (totalSteps == 0) {
+        return AppScaffold(
+          backgroundColor: scheme.surface,
+          appBar: Header(title: 'Assessment'),
+          body: Center(child: CommonText.regular('No assessment sections available.', color: scheme.onSurfaceVariant)),
+        );
+      }
+      final currentStep = controller.stepCurrentIndex.value.clamp(0, totalSteps - 1);
+      final category = controller.assessmentCategories[currentStep];
+      final questions = currentStep < controller.assessmentQuestionsByStep.length ? controller.assessmentQuestionsByStep[currentStep] : <aq.Questions>[];
       final isLastStep = currentStep == totalSteps - 1;
       final isStepComplete = controller.isAgreementStepComplete(currentStep);
 
       return AppScaffold(
         backgroundColor: scheme.surface,
-        appBar: Header(title: section.title ?? ''),
+        appBar: Header(title: category.name ?? ''),
         body: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -102,7 +117,7 @@ class AgreementView extends GetView<AuthController> {
                 color: scheme.onSurfaceVariant,
               ).marginOnly(bottom: UiConstants.gap),
 
-              // Questions list
+              // Questions list (API type: Questions with questionText, options)
               Expanded(
                 child: ListView.separated(
                   itemCount: questions.length,
@@ -110,6 +125,8 @@ class AgreementView extends GetView<AuthController> {
                   separatorBuilder: (_, __) => SizedBox(height: 0),
                   itemBuilder: (context, questionIndex) {
                     final item = questions[questionIndex];
+                    final questionText = item.questionText ?? '';
+                    final options = item.options ?? [];
                     final selectedAnswer = controller.getAgreementAnswer(currentStep, questionIndex);
 
                     return AppCard(
@@ -118,7 +135,6 @@ class AgreementView extends GetView<AuthController> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Question number badge + question text
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -134,51 +150,44 @@ class AgreementView extends GetView<AuthController> {
                               ).marginOnly(right: UiConstants.gap),
                               Expanded(
                                 child: CommonText.semiBold(
-                                  item.question ?? '',
+                                  questionText,
                                   size: 16,
                                   color: scheme.onSurface,
                                 ),
                               ),
                             ],
                           ).marginOnly(bottom: UiConstants.gap),
-                          // Answer options with larger tap targets
-                          ...List.generate(
-                            item.answers?.length ?? 0,
-                            (answerIndex) {
-                              final answer = item.answers?[answerIndex] ?? '';
-                              final isSelected = selectedAnswer == answer;
-                              return InkWell(
-                                onTap: () => controller.setAgreementAnswer(currentStep, questionIndex, answer),
-                                borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                                child: Row(
-                                  children: [
-                                    Radio<String>(
-                                      value: answer,
-                                      groupValue: selectedAnswer,
-                                      onChanged: (value) {
-                                        if (value != null) {
-                                          controller.setAgreementAnswer(currentStep, questionIndex, value);
-                                        }
-                                      },
-                                      fillColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
-                                        if (states.contains(WidgetState.selected)) {
-                                          return scheme.secondary;
-                                        }
-                                        return scheme.outline.withValues(alpha: 0.6);
-                                      }),
+                          ...options.map((option) {
+                            final value = option.text ?? option.label ?? '';
+                            final label = option.label ?? option.text ?? '';
+                            final isSelected = selectedAnswer == value;
+                            return InkWell(
+                              onTap: () => controller.setAgreementAnswer(currentStep, questionIndex, value),
+                              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+                              child: Row(
+                                children: [
+                                  Radio<String>(
+                                    value: value,
+                                    groupValue: selectedAnswer,
+                                    onChanged: (v) {
+                                      if (v != null) controller.setAgreementAnswer(currentStep, questionIndex, v);
+                                    },
+                                    fillColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
+                                      if (states.contains(WidgetState.selected)) return scheme.secondary;
+                                      return scheme.outline.withValues(alpha: 0.6);
+                                    }),
+                                  ),
+                                  Expanded(
+                                    child: CommonText.regular(
+                                      label,
+                                      size: 15,
+                                      color: isSelected ? scheme.onSurface : scheme.onSurfaceVariant,
                                     ),
-                                    Expanded(
-                                      child: CommonText.regular(
-                                        answer,
-                                        size: 15,
-                                        color: isSelected ? scheme.onSurface : scheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
                         ],
                       ).paddingAll(UiConstants.defaultPadding),
                     ).marginAll(8);

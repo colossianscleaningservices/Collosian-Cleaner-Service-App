@@ -29,7 +29,7 @@ class ForgotPasswordView extends GetView<AuthController> {
             AppButton(
               label: 'Back to login',
               type: ButtonType.transparent,
-              onPressed: controller.backToLogin,
+              onPressed: () => Get.until((route) => Get.currentRoute == Routes.LOGIN),
             ),
           ],
         ),

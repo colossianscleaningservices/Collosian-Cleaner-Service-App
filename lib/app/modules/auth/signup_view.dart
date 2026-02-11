@@ -62,7 +62,7 @@ class SignupView extends GetView<AuthController> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CommonText.regular('Already have an account? ', color: scheme.onSurfaceVariant),
-            CommonText.regular('Sign in', color: scheme.primary, onTap: controller.goToLogin),
+            CommonText.regular('Sign in', color: scheme.primary, onTap: () => Get.offAllNamed(Routes.LOGIN)),
           ],
         ),
       ],
@@ -152,16 +152,6 @@ class SignupView extends GetView<AuthController> {
             ),
           ],
           const SizedBox(height: 32),
-          Obx(() {
-            final msg = controller.signupErrorMsg.value;
-            if (msg != null && msg.isNotEmpty) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: CommonText.regular(msg, color: scheme.error, size: 14),
-              );
-            }
-            return const SizedBox.shrink();
-          }),
           Obx(
             () => AppButton(
               label: 'Create account',
@@ -178,7 +168,7 @@ class SignupView extends GetView<AuthController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CommonText.regular('Already have an account? ', color: scheme.onSurfaceVariant),
-              CommonText.regular('Sign in', color: scheme.primary, onTap: controller.backToLogin),
+              CommonText.regular('Sign in', color: scheme.primary, onTap: () => Get.until((route) => Get.currentRoute == Routes.LOGIN)),
             ],
           ),
         ],

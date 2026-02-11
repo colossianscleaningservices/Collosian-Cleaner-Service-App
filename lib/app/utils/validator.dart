@@ -22,6 +22,23 @@ class Validator {
     return null;
   }
 
+  /// Password: required, min length, at least one uppercase and one number.
+  static String? passwordStrength(String? value, {int minLength = 8, String fieldName = 'Password'}) {
+    final v = (value ?? '').trim();
+    if (v.isEmpty) return '$fieldName is required';
+    if (v.length < minLength) return '$fieldName must be at least $minLength characters';
+    if (!RegExp(r'[A-Z]').hasMatch(v)) return 'Include at least one uppercase letter';
+    if (!RegExp(r'[0-9]').hasMatch(v)) return 'Include at least one number';
+    return null;
+  }
+
+  /// Confirm field matches another value (e.g. confirm password).
+  static String? confirmMatches(String? value, String? matchValue, {String fieldName = 'Confirm password'}) {
+    if ((value ?? '').trim().isEmpty) return '$fieldName is required';
+    if (value != matchValue) return 'Passwords do not match';
+    return null;
+  }
+
   /// UK NI number (example: AB123456C). SRS: required for cleaner.
   static String? nin(String? value, {String fieldName = 'National Insurance Number'}) {
     final v = (value ?? '').trim().toUpperCase();

@@ -69,7 +69,7 @@ class LoginView extends GetView<AuthController> {
                             // Forgot password link
                             Align(
                               alignment: Alignment.centerRight,
-                              child: CommonText.regular('Forgot password?', onTap: controller.goToForgotPassword),
+                              child: CommonText.regular('Forgot password?', onTap: () => Get.toNamed(Routes.FORGOT_PASSWORD)),
                             ),
                             const SizedBox(height: 24),
                             // Login button

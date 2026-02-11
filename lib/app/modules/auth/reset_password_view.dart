@@ -48,16 +48,6 @@ class ResetPasswordView extends GetView<AuthController> {
                 ),
               ),
               const SizedBox(height: 16),
-              Obx(() {
-                final msg = controller.resetErrorMsg.value;
-                if (msg != null && msg.isNotEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: CommonText.regular(msg, color: scheme.error, size: 14),
-                  );
-                }
-                return const SizedBox.shrink();
-              }),
               Obx(
                 () => AppButton(
                   label: 'Reset password',
