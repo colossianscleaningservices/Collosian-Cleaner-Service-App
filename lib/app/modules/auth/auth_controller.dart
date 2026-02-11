@@ -355,11 +355,14 @@ class AuthController extends GetxController {
       );
       result.when(
         success: (_) {
+
           Notifier.success(
             'If an account exists for this email, you will receive a password reset link.',
             title: 'Check your email',
           );
-          Get.offAllNamed(Routes.LOGIN);
+
+          backToLogin();
+
         },
         error: (e) async => await Notifier.apiError(e, contextTag: 'forgot_password'),
       );
@@ -418,6 +421,7 @@ class AuthController extends GetxController {
     await prefs.setToken(data.token ?? '');
     if (data.id != null) prefs.putData(Prefs.id, data.id.toString());
     if (data.email != null && data.email!.isNotEmpty) prefs.putData(Prefs.email, data.email!);
+    if (data.phoneNumber != null) prefs.putData(Prefs.phoneNumber, data.phoneNumber!);
     if (data.firstName != null && data.firstName!.isNotEmpty) {
       prefs.putData(Prefs.firstName, data.firstName!);
     }

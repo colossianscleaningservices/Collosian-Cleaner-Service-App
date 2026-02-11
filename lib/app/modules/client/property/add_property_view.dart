@@ -179,7 +179,8 @@ class AddPropertyView extends GetView<PropertyController> {
         ),
         bottomNavigationBar: SingleActionBottomBar(
           label: controller.isSaving.value ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save changes' : 'Add Property'),
-          onPressed: () => controller.isSaving.value ? null : controller.addProperty,
+          onPressed: () => controller.isSaving.value ? null : controller.addProperty()
+
         ),
       ),
     );

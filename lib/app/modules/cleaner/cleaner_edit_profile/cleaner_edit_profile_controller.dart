@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ccs_app/app/model/common_model.dart';
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -52,6 +53,9 @@ class CleanerEditProfileController extends GetxController {
   void onInit() {
     super.onInit();
     initList();
+
+    showProfileData();
+
   }
 
   void initList() {
@@ -75,6 +79,7 @@ class CleanerEditProfileController extends GetxController {
     ignoringList.add(CommonModel(type: "Ironing shirts"));
     ignoringList.add(CommonModel(type: "Iron bedlinens"));
     ignoringList.add(CommonModel(type: "Iron clothing items"));
+
   }
 
   @override
@@ -144,4 +149,16 @@ class CleanerEditProfileController extends GetxController {
   void setScheduleValidFrom(DateTime d) {
     scheduleValidFrom.value = DateTime(d.year, d.month, d.day);
   }
+
+  void showProfileData() {
+    log(runtimeType.toString(), 'First Name => ${Prefs().getData(Prefs.firstName)}');
+
+    firstNameCtrl.text = Prefs().getData(Prefs.firstName);
+    lastNameCtrl.text = Prefs().getData(Prefs.lastName);
+    phoneCtrl.text = Prefs().getData(Prefs.phoneNumber);
+    emailCtrl.text = Prefs().getData(Prefs.email);
+    firstNameCtrl.text = Prefs().getData(Prefs.firstName);
+    firstNameCtrl.text = Prefs().getData(Prefs.firstName);
+  }
+
 }

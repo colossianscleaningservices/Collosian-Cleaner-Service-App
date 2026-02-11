@@ -23,15 +23,12 @@ class PropertyView extends GetView<PropertyController> {
           () {
             final list = controller.properties;
             if (list.isEmpty) {
-              return SingleChildScrollView(
-                padding: UiConstants.padding,
-                child: NoDataView(
-                  title: 'No properties yet',
-                  subtitle: 'Add your first property to book cleanings.',
-                  icon: IconsaxPlusLinear.home_2,
-                  actionLabel: 'Add Property',
-                  onAction: controller.goToAddProperty,
-                ),
+              return NoDataView(
+                title: 'No properties yet',
+                subtitle: 'Add your first property to book cleanings.',
+                icon: IconsaxPlusLinear.home_2,
+                actionLabel: 'Add Property',
+                onAction: controller.goToAddProperty,
               );
             }
             return SingleChildScrollView(

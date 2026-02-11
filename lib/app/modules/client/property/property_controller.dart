@@ -223,7 +223,11 @@ class PropertyController extends GetxController {
   }
 
   Future<void> addProperty() async {
+
+    log(runtimeType.toString(), "Validator : ${formKey.currentState?.validate()}");
+
     if (formKey.currentState?.validate() != true) return;
+
     if (isSaving.value) return;
     isSaving.value = true;
     try {

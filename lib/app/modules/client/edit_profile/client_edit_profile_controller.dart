@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:ccs_app/export.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../services/pref.dart';
+
 class ClientEditProfileController extends GetxController {
   final formKey = GlobalKey<FormState>();
 
@@ -52,6 +54,12 @@ class ClientEditProfileController extends GetxController {
   }
 
   @override
+  void onInit() {
+   showProfileData();
+    super.onInit();
+  }
+
+  @override
   void onClose() {
     firstNameCtrl.dispose();
     lastNameCtrl.dispose();
@@ -98,5 +106,16 @@ class ClientEditProfileController extends GetxController {
 
   void onDeleteAccount() {
     Notifier.info('Delete account (coming soon)');
+  }
+
+  void showProfileData() {
+    log(runtimeType.toString(), 'First Name => ${Prefs().getData(Prefs.firstName)}');
+
+    firstNameCtrl.text = Prefs().getData(Prefs.firstName);
+    lastNameCtrl.text = Prefs().getData(Prefs.lastName);
+    phoneCtrl.text = Prefs().getData(Prefs.phoneNumber);
+    emailCtrl.text = Prefs().getData(Prefs.email);
+    firstNameCtrl.text = Prefs().getData(Prefs.firstName);
+    firstNameCtrl.text = Prefs().getData(Prefs.firstName);
   }
 }

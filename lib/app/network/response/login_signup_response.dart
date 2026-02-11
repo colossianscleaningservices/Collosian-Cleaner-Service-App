@@ -8,7 +8,6 @@ class LoginSignupResponse extends BaseResponse {
 
   LoginSignupResponse.fromJson(dynamic json) {
     message = json['message'];
-    status = json['status'];
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
@@ -18,7 +17,6 @@ class LoginSignupResponse extends BaseResponse {
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['message'] = message;
-    map['status'] = status;
     if (data != null) {
       map['data'] = data?.toJson();
     }
@@ -29,19 +27,23 @@ class LoginSignupResponse extends BaseResponse {
 class Data {
   Data({
     this.user,
+    this.token,
   });
 
   Data.fromJson(dynamic json) {
     user = json['user'] != null ? User.fromJson(json['user']) : null;
+    token = json['token'];
   }
 
   User? user;
+  String? token;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     if (user != null) {
       map['user'] = user?.toJson();
     }
+    map['token'] = token;
     return map;
   }
 }

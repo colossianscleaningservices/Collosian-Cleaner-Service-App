@@ -91,7 +91,10 @@ class LoginView extends GetView<AuthController> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 CommonText.regular("Don't have an account? ", color: scheme.onSurfaceVariant),
-                                CommonText.regular('Sign up', color: scheme.primary, onTap: () => controller.goToRoleSelection(context)),
+                                CommonText.regular('Sign up', color: scheme.primary, onTap: () {
+                                  FocusScope.of(context).unfocus();
+                                  controller.goToRoleSelection(context);
+                                }),
                               ],
                             ),
                           ],

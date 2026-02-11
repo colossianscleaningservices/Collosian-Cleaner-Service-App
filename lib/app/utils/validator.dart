@@ -2,7 +2,8 @@ class Validator {
   Validator._();
 
   static String? requiredField(String? value, {String fieldName = 'This field'}) {
-    if ((value ?? '').trim().isEmpty) return '$fieldName is required';
+    final v = (value ?? '').trim();
+    if (v.isEmpty) return '$fieldName is required';
     return null;
   }
 

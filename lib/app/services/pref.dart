@@ -15,6 +15,7 @@ class Prefs {
   static const String email = 'email';
   static const String firstName = 'first_name';
   static const String lastName = 'last_name';
+  static const String phoneNumber = 'phone_number';
   static const String roleId = 'role_id';
   static const String timezone = 'timezone';
   static const String ipAddress = 'ip_address';
