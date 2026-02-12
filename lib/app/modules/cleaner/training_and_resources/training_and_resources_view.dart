@@ -17,6 +17,7 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
       body: SwipeRefresh(
         onRefresh: () => controller.refreshTraining(),
         child: SingleChildScrollView(
+          controller: controller.scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

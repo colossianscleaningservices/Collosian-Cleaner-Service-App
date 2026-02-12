@@ -12,9 +12,9 @@ class Loader {
         name: 'loader_dialog',
         barrierDismissible: false,
         Dialog(
+          constraints: const BoxConstraints(maxHeight: 74, maxWidth: 74),
           insetPadding: EdgeInsets.zero,
           child: Container(
-            constraints: const BoxConstraints(maxHeight: 74, maxWidth: 74),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Get.context?.colorScheme.surface,
@@ -42,4 +42,3 @@ class Loader {
     }
   }
 }
-

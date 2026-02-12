@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/network/request/save_cleaner_assessment_request.dart';
 import 'package:ccs_app/app/network/response/login_signup_response.dart';
 
 import '../../core/base/base_repository.dart';
@@ -179,6 +180,15 @@ class AuthRepository extends BaseRepository {
       endpoint: Endpoint.device,
       fromJson: (json) => BaseResponse.fromJson(json),
       data: payload,
+    );
+  }
+
+  /// POST save government verification code.
+  Future<NetworkResult<BaseResponse>> saveCleanerAssessment(SaveCleanerAssessmentRequest request) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.saveCleanerAssessment,
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data: request,
     );
   }
 }

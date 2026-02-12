@@ -67,6 +67,7 @@ class DualActionBottomBar extends StatelessWidget {
     this.backgroundColor,
     this.spacing = 16.0,
     this.showSecondary = true,
+    this.isLoading = false,
   });
 
   final String primaryLabel;
@@ -78,6 +79,7 @@ class DualActionBottomBar extends StatelessWidget {
   final Color? backgroundColor;
   final double spacing;
   final bool showSecondary;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) => BottomActionBar(
@@ -93,6 +95,7 @@ class DualActionBottomBar extends StatelessWidget {
             ),
           Expanded(
             child: AppButton(
+              isLoading: isLoading,
               label: primaryLabel,
               onPressed: primaryOnPressed,
               type: primaryButtonType,

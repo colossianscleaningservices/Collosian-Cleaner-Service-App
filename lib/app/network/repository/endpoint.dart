@@ -22,6 +22,7 @@ class Endpoint {
   static const String cleanerAssessmentCategories = '${root}cleaner/assessment/categories';
   static const String cleanerAssessmentForms = '${root}cleaner/assessment/questions';
   static const String cleanerAssessmentGovCode = '${root}cleaner/assessment/gov-code';
+  static const String saveCleanerAssessment = '${root}cleaner/assessment/answers';
 
   // ─── Cleaner - Dashboard ───────────────────────────────────────────────────
   static const String cleanerProfileCompletion = '${root}cleaner/profile-completion';
@@ -54,4 +55,6 @@ class Endpoint {
   // ─── Common - Support ─────────────────────────────────────────────────────
   static const String supportContact = '${root}shared/support/contact';
   static const String helpFaq = '${root}shared/help/faq';
+  static const String notifications = '${root}shared/notifications';
+  static const String trainingResources = '${root}shared/training-resources';
 }

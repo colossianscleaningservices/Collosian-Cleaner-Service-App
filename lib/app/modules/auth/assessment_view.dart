@@ -193,10 +193,12 @@ class AssessmentView extends GetView<AuthController> {
         ),
         bottomNavigationBar: DualActionBottomBar(
           primaryLabel: isLastStep ? 'Accept & continue' : 'Continue',
+          isLoading: controller.isSaveAssessment.value,
           primaryOnPressed: () {
             if (isStepComplete) {
               if (isLastStep) {
-                openUrl('http://staging-frontend.colossianscareservices.co.uk/');
+                controller.saveCleanerAssessment();
+                /*openUrl('http://staging-frontend.colossianscareservices.co.uk/');*/
               } else {
                 try {
                   controller.scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);

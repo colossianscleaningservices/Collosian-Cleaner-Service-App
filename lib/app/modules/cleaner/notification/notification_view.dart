@@ -11,72 +11,80 @@ class NotificationView extends GetView<NotificationController> {
     final scheme = context.colorScheme;
 
     // Dummy notification data (replace with controller.notifications when API is ready)
-    final notifications = _getDummyNotifications();
+    // final notifications = _getDummyNotifications();
 
     return AppScaffold(
       appBar: Header(title: 'Notifications'),
-      body: SafeArea(
-        child: notifications.isEmpty
-            ? _EmptyNotifications(scheme: scheme)
-            : ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                itemCount: notifications.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final notification = notifications[index];
-                  return _NotificationCard(
-                    notification: notification,
-                    scheme: scheme,
-                    onTap: () {
-                      // TODO: Mark as read and navigate to detail
-                      Notifier.info('Notification tapped');
-                    },
-                  );
-                },
-              ),
-      ),
+      body: Obx(() {
+        return SafeArea(
+          child: controller.notifications.isEmpty
+              ? _EmptyNotifications(scheme: scheme)
+              : Column(
+                  children: [
+                    ListView.separated(
+                      controller: controller.scrollController,
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                      itemCount: controller.notifications.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final notification = controller.notifications[index];
+                        return _NotificationCard(
+                          notification: notification,
+                          scheme: scheme,
+                          onTap: () {
+                            // TODO: Mark as read and navigate to detail
+                            Notifier.info('Notification tapped');
+                          },
+                        );
+                      },
+                    ),
+                    controller.moreLoading.value ? PageLoader() : SizedBox.shrink()
+                  ],
+                ),
+        );
+      }),
     );
   }
 
-  List<_NotificationData> _getDummyNotifications() {
+  List<NotificationData> _getDummyNotifications() {
     return [
-      _NotificationData(
-        type: _NotificationType.jobAssigned,
+      NotificationData(
+        type: NotificationType.jobAssigned,
         title: 'New job assigned',
         message: 'You have been assigned a cleaning job at 123 Oak Street for Feb 2, 2026.',
         timestamp: DateTime.now().subtract(const Duration(hours: 1)),
         isRead: false,
       ),
-      _NotificationData(
-        type: _NotificationType.jobUpdate,
+      NotificationData(
+        type: NotificationType.jobUpdate,
         title: 'Job rescheduled',
         message: 'Your cleaning job at 456 Maple Ave has been moved to Feb 5, 2026.',
         timestamp: DateTime.now().subtract(const Duration(hours: 3)),
         isRead: false,
       ),
-      _NotificationData(
-        type: _NotificationType.payment,
+      NotificationData(
+        type: NotificationType.payment,
         title: 'Payment received',
         message: 'You received £85.00 for job #1234. Check your earnings.',
         timestamp: DateTime.now().subtract(const Duration(days: 1)),
         isRead: true,
       ),
-      _NotificationData(
-        type: _NotificationType.reminder,
+      NotificationData(
+        type: NotificationType.reminder,
         title: 'Upcoming job reminder',
         message: 'You have a job tomorrow at 789 Pine Road at 10:00 AM.',
         timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 2)),
         isRead: true,
       ),
-      _NotificationData(
-        type: _NotificationType.message,
+      NotificationData(
+        type: NotificationType.message,
         title: 'New message from client',
         message: 'Sarah Johnson sent you a message about the cleaning supplies.',
         timestamp: DateTime.now().subtract(const Duration(days: 2)),
         isRead: true,
       ),
-      _NotificationData(
-        type: _NotificationType.jobUpdate,
+      NotificationData(
+        type: NotificationType.jobUpdate,
         title: 'Job completed',
         message: 'Great work! The client marked job #1230 as completed.',
         timestamp: DateTime.now().subtract(const Duration(days: 3)),
@@ -84,24 +92,6 @@ class NotificationView extends GetView<NotificationController> {
       ),
     ];
   }
-}
-
-enum _NotificationType { jobAssigned, jobUpdate, payment, message, reminder }
-
-class _NotificationData {
-  final _NotificationType type;
-  final String title;
-  final String message;
-  final DateTime timestamp;
-  final bool isRead;
-
-  _NotificationData({
-    required this.type,
-    required this.title,
-    required this.message,
-    required this.timestamp,
-    required this.isRead,
-  });
 }
 
 class _EmptyNotifications extends StatelessWidget {
@@ -153,51 +143,51 @@ class _NotificationCard extends StatelessWidget {
     required this.onTap,
   });
 
-  final _NotificationData notification;
+  final NotificationData notification;
   final ColorScheme scheme;
   final VoidCallback onTap;
 
   IconData _getIcon() {
     switch (notification.type) {
-      case _NotificationType.jobAssigned:
+      case NotificationType.jobAssigned:
         return IconsaxPlusLinear.task_square;
-      case _NotificationType.jobUpdate:
+      case NotificationType.jobUpdate:
         return IconsaxPlusLinear.refresh;
-      case _NotificationType.payment:
+      case NotificationType.payment:
         return IconsaxPlusLinear.wallet_money;
-      case _NotificationType.message:
+      case NotificationType.message:
         return IconsaxPlusLinear.message_text;
-      case _NotificationType.reminder:
+      case NotificationType.reminder:
         return IconsaxPlusLinear.clock;
     }
   }
 
   Color _getIconBgColor() {
     switch (notification.type) {
-      case _NotificationType.jobAssigned:
+      case NotificationType.jobAssigned:
         return scheme.primary.withValues(alpha: 0.15);
-      case _NotificationType.jobUpdate:
+      case NotificationType.jobUpdate:
         return scheme.secondary.withValues(alpha: 0.15);
-      case _NotificationType.payment:
+      case NotificationType.payment:
         return scheme.tertiary.withValues(alpha: 0.15);
-      case _NotificationType.message:
+      case NotificationType.message:
         return scheme.primaryContainer.withValues(alpha: 0.6);
-      case _NotificationType.reminder:
+      case NotificationType.reminder:
         return scheme.secondaryContainer.withValues(alpha: 0.6);
     }
   }
 
   Color _getIconColor() {
     switch (notification.type) {
-      case _NotificationType.jobAssigned:
+      case NotificationType.jobAssigned:
         return scheme.primary;
-      case _NotificationType.jobUpdate:
+      case NotificationType.jobUpdate:
         return scheme.secondary;
-      case _NotificationType.payment:
+      case NotificationType.payment:
         return scheme.tertiary;
-      case _NotificationType.message:
+      case NotificationType.message:
         return scheme.primary;
-      case _NotificationType.reminder:
+      case NotificationType.reminder:
         return scheme.secondary;
     }
   }
@@ -299,7 +289,7 @@ class _NotificationCard extends StatelessWidget {
                               'UNREAD',
                               size: 12,
                               color: context.colorScheme.onPrimary,
-                            ).paddingSymmetric(horizontal: 8,vertical: 6),
+                            ).paddingSymmetric(horizontal: 8, vertical: 6),
                           )
                   ],
                 ),

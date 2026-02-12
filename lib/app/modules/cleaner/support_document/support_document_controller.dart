@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:easy_pdf_viewer/easy_pdf_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -89,7 +88,7 @@ class SupportDocumentController extends GetxController {
   }
 
   Future<void> onViewFile(SupportDocumentItem item) async {
-    isPdfLoading.value = true;
+   /* isPdfLoading.value = true;
 
     PDFDocument? doc;
 
@@ -117,13 +116,13 @@ class SupportDocumentController extends GetxController {
                     ),
         );
       }),
-    );
+    );*/
 
-    /*if (item.fileUrl != null && item.fileUrl!.isNotEmpty) {
+    if (item.fileUrl != null && item.fileUrl!.isNotEmpty) {
       // TODO: Open file (e.g. url_launcher or file viewer)
     } else {
       Notifier.info('No file attached');
-    }*/
+    }
   }
 
   void onEditDocument(SupportDocumentItem item) {

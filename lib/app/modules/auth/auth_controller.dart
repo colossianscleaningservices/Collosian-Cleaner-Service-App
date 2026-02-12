@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
+import 'package:ccs_app/app/network/request/save_cleaner_assessment_request.dart';
 import 'package:ccs_app/app/network/response/assessment_category_response.dart';
 import 'package:ccs_app/app/network/response/assessment_question_response.dart' as aq;
 import 'package:ccs_app/app/network/response/base_response.dart';
@@ -56,6 +57,7 @@ class AuthController extends GetxController {
 
   // ─── Agreement (cleaner assessment steps) – API types only ───────────────
   final isAssessmentLoading = true.obs;
+  var isSaveAssessment = false.obs;
   late StepProgressController stepProgressController;
   var stepCurrentIndex = 0.obs;
   RxList<Categories> assessmentCategories = <Categories>[].obs;
@@ -219,6 +221,41 @@ class AuthController extends GetxController {
     stepProgressController.setCurrentStep(stepCurrentIndex.value);
   }
 
+  Future<void> saveCleanerAssessment() async {
+    List<Answers> answers = [];
+    selectedAgreementAnswers.value.forEach((key, value) {
+      if (assessmentQuestionsByStep[key].length == value.length) {
+        for (var item in assessmentQuestionsByStep[key]) {
+          answers.add(Answers(categoryId: item.categoryId, questionId: item.id, option: value[assessmentQuestionsByStep[key].indexOf(item)]));
+        }
+      }
+    });
+
+    isSaveAssessment.value = true;
+    try {
+      var request = SaveCleanerAssessmentRequest(answers: answers);
+      log(runtimeType.toString(), 'SAVE CLEANER REQUEST ${request.toJson()}');
+
+      final result = await _authRepository.saveCleanerAssessment(request);
+      result.when(
+        success: (value) {
+          Notifier.success(value.message ?? "Assessment Save Successfully");
+          Get.offAndToNamed(Routes.SIGN_UP);
+        },
+        error: (e) async {
+          await Notifier.apiError(e, contextTag: 'save_assessment');
+          resetAgreement();
+          stepCurrentIndex.value = 0;
+          stepProgressController.setCurrentStep(0);
+        },
+      );
+    } catch (e) {
+      Notifier.error('Failed to change password');
+    } finally {
+      isSaveAssessment.value = false;
+    }
+  }
+
   // ─── Change password (submit) ────────────────────────────────
 
   Future<void> submitChangePassword() async {
@@ -341,7 +378,7 @@ class AuthController extends GetxController {
   // ─── Forgot / reset password ──────────────────────────────────────────────
 
   Future<void> submitForgotPassword() async {
-    if(isForgotPassword.value) return;
+    if (isForgotPassword.value) return;
     if (!forgotEmailCtrl.text.trim().isNotEmpty) {
       Notifier.error('Please enter your email.');
       return;

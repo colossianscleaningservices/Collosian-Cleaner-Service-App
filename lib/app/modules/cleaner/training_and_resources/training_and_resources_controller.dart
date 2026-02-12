@@ -2,15 +2,20 @@ import 'package:ccs_app/app/model/common_model.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../export.dart';
+import '../../../network/repository/common_repository.dart';
 
 class TrainingAndResourcesController extends GetxController {
-  final count = 0.obs;
-
   var groupSearchFocus = FocusNode();
   var groupSearchController = TextEditingController();
   var searchTerm = ''.obs;
   RxList<CommonModel> filter = <CommonModel>[].obs;
   RxList<CommonModel> training = <CommonModel>[].obs;
+
+  final CommonRepository _commonRepository = CommonRepository();
+  ScrollController scrollController = ScrollController();
+  var totalPage = 1;
+  var currentPage = 1;
+  var moreLoading = false.obs;
 
   @override
   void onInit() {
@@ -30,7 +35,9 @@ class TrainingAndResourcesController extends GetxController {
     filter.add(CommonModel(type: "All", isSelected: true));
     filter.add(CommonModel(type: "Video"));
     filter.add(CommonModel(type: "Flyer"));
+  }
 
+  void addDummyData() {
     training.clear();
     final uriPrimary = Uri.parse(_videoUrlPrimary);
     final uriFallback = Uri.parse(_videoUrlFallback);
@@ -101,6 +108,7 @@ class TrainingAndResourcesController extends GetxController {
 
   @override
   void onReady() {
+    getTrainingResources();
     super.onReady();
   }
 
@@ -114,8 +122,6 @@ class TrainingAndResourcesController extends GetxController {
     super.onClose();
   }
 
-  void increment() => count.value++;
-
   /// Called by pull-to-refresh. Disposes existing video controllers and reloads the list.
   Future<void> refreshTraining() async {
     for (final item in training) {
@@ -124,5 +130,25 @@ class TrainingAndResourcesController extends GetxController {
     }
     initList();
     await Future<void>.delayed(const Duration(milliseconds: 400));
+  }
+
+  Future<void> getTrainingResources() async {
+    if (moreLoading.value == false) Loader.show();
+    try {
+      final result = await _commonRepository.getTrainingResources(page: currentPage);
+      result.when(
+        success: (value) {
+          if (currentPage == 1) training.clear();
+        },
+        error: (e) async {
+          await Notifier.apiError(e, contextTag: 'get_training_resources');
+        },
+      );
+    } catch (e) {
+      Notifier.error('Failed to fetch training resource');
+    } finally {
+      if (moreLoading.value == false) Loader.hide();
+      moreLoading.value = false;
+    }
   }
 }
