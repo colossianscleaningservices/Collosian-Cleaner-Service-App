@@ -44,17 +44,63 @@ class HelpSupportView extends GetView<HelpSupportController> {
               ),
               const SizedBox(height: 24),
 
-              // FAQs
-              CommonText.semiBold('FAQs', size: 16, color: scheme.onSurface),
-              const SizedBox(height: 12),
-              ..._buildFAQs(scheme),
-              const SizedBox(height: 24),
-
               // Contact info
               CommonText.semiBold('Contact information', size: 16, color: scheme.onSurface),
               const SizedBox(height: 12),
               _ContactInfoCard(scheme: scheme),
-              const SizedBox(height: 20),
+
+              // Contact Us
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Icon(IconsaxPlusLinear.message_text_1, size: 20, color: scheme.primary),
+                  const SizedBox(width: 8),
+                  CommonText.semiBold('Send a message', size: 16, color: scheme.onSurface),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Container(
+                decoration: BoxDecoration(
+                    color: context.colorScheme.onPrimary,
+                    borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+                    boxShadow: context.effectiveShadows()),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    CommonText.regular('Name', size: 14, color: scheme.onSurfaceVariant).marginOnly(bottom: 6),
+                    CommonTextField(
+                      hint: 'Your name',
+                      controller: controller.nameController,
+                      action: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 14),
+                    CommonText.regular('Email', size: 14, color: scheme.onSurfaceVariant).marginOnly(bottom: 6),
+                    CommonTextField(
+                      hint: 'your@email.com',
+                      controller: controller.emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      action: TextInputAction.next,
+                      isReadOnly: true,
+                    ),
+                    const SizedBox(height: 14),
+                    CommonText.regular('Message', size: 14, color: scheme.onSurfaceVariant).marginOnly(bottom: 6),
+                    CommonTextField(
+                      hint: 'How can we help?',
+                      controller: controller.messageController,
+                      maxLines: 4,
+                      action: TextInputAction.done,
+                    ),
+                    const SizedBox(height: 18),
+                    AppButton(
+                      label: 'Send message',
+                      onPressed: controller.onSubmitMessage,
+                      btnVerticalPadding: 14,
+                    ),
+                  ],
+                ).paddingAll(UiConstants.defaultPadding),
+              ),
+              const SizedBox(height: UiConstants.gap),
+
             ],
           ),
         ),
@@ -62,19 +108,6 @@ class HelpSupportView extends GetView<HelpSupportController> {
     );
   }
 
-  List<Widget> _buildFAQs(ColorScheme scheme) {
-    final faqs = [
-      {'q': 'How do I schedule a cleaning job?', 'a': 'Go to Calendar, tap "+", select date/time, and fill in details.'},
-      {'q': 'How do I update my profile?', 'a': 'Go to Profile tab, tap "Edit Profile", update info, and save.'},
-      {'q': 'How are payments processed?', 'a': 'Payments are processed after job completion. View earnings in the Earnings section.'},
-    ];
-
-    return faqs.map((faq) => _FAQItem(
-      question: faq['q']!,
-      answer: faq['a']!,
-      scheme: scheme,
-    )).toList();
-  }
 }
 
 class _QuickActionCard extends StatelessWidget {
@@ -105,52 +138,6 @@ class _QuickActionCard extends StatelessWidget {
           Icon(icon, size: 24, color: scheme.secondary),
           const SizedBox(height: 8),
           CommonText.medium(label, size: 12, color: scheme.onSurface),
-        ],
-      ),
-    );
-  }
-}
-
-class _FAQItem extends StatefulWidget {
-  const _FAQItem({required this.question, required this.answer, required this.scheme});
-
-  final String question;
-  final String answer;
-  final ColorScheme scheme;
-
-  @override
-  State<_FAQItem> createState() => _FAQItemState();
-}
-
-class _FAQItemState extends State<_FAQItem> {
-  bool _isExpanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      onTap: () => setState(() => _isExpanded = !_isExpanded),
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      borderWidth: 1,
-      borderColor: widget.scheme.outline.withValues(alpha: 0.12),
-      color: widget.scheme.surfaceContainerHighest,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(child: CommonText.medium(widget.question, size: 14, color: widget.scheme.onSurface)),
-              Icon(
-                _isExpanded ? IconsaxPlusLinear.arrow_up_1 : IconsaxPlusLinear.arrow_down,
-                size: 18,
-                color: widget.scheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-          if (_isExpanded) ...[
-            const SizedBox(height: 10),
-            CommonText.regular(widget.answer, size: 12, color: widget.scheme.onSurfaceVariant),
-          ],
         ],
       ),
     );

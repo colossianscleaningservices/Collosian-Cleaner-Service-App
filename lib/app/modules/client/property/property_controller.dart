@@ -211,6 +211,7 @@ class PropertyController extends GetxController {
     'Detached',
     'Semi-detached',
     'Bungalow',
+    'Bungalow',
     'Other',
   ];
   static const List<String> hooverOptions = ['No', 'Yes', 'I will get one'];
@@ -260,7 +261,7 @@ class PropertyController extends GetxController {
           return;
         }
       }
-      final result = await _clientRepository.createProperty(
+  /*    final result = await _clientRepository.createProperty(
         name: name.isNotEmpty ? name : 'Property',
         address: address,
         city: city,
@@ -275,7 +276,7 @@ class PropertyController extends GetxController {
           Get.back();
         },
         error: (e) async => await Notifier.apiError(e, contextTag: 'create_property'),
-      );
+      );*/
     } finally {
       isSaving.value = false;
     }

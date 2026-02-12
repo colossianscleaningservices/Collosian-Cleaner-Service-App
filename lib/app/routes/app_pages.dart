@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/modules/client/job/add_review.dart';
+import 'package:ccs_app/app/modules/common/help_support/faq_view.dart';
 import 'package:get/get.dart';
 
 import '../modules/auth/assessment_view.dart';
@@ -198,6 +199,11 @@ class AppPages {
       name: _Paths.AGREEMENT,
       page: () => const AssessmentView(),
       binding: AuthBinding(),
+    ),
+    GetPage(
+      name: _Paths.FAQ,
+      page: () => const FaqView(),
+      binding: HelpSupportBinding(),
     ),
   ];
 }

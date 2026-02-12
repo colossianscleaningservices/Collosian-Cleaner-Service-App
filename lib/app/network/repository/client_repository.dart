@@ -8,6 +8,62 @@ class ClientRepository extends BaseRepository {
   // ─── Properties ────────────────────────────────────────────────────────────
 
   /// GET list of client properties (optional [perPage], [search]).
+  /// POST create property. Required: name, address, city, postal_code, property_type.
+  /// Optional: type, animal_property, staff_preference (Male|Female|No Preference).
+  Future<NetworkResult<BaseResponse>> createProperty({
+    required String name,
+    required String businessType,
+    required String address,
+    required String city,
+    required String postalCode,
+    required String propertyType,
+    String? type,
+    int? noOfBedrooms,
+    int? noOfBathrooms,
+    int? noOfGuestToilet,
+    int? livingRoom,
+    int? office,
+    int? conservatory,
+    int? diningRoom,
+    String? haveHoover,
+    bool? provideCleaningProduct,
+    bool? haveWashingMachine,
+    String? staffPreference,
+    bool? haveDryer,
+    String? accessProperty,
+    bool? animalProperty,
+
+  }) async {
+    final payload = <String, dynamic>{
+      'name': name,
+      'address': businessType,
+      'address': address,
+      'city': city,
+      'postal_code': postalCode,
+      'property_type': propertyType,
+    };
+    if (type != null) payload['type'] = type;
+    if (noOfBedrooms != null) payload['type'] = noOfBedrooms;
+    if (noOfBathrooms != null) payload['type'] = noOfBathrooms;
+    if (noOfGuestToilet != null) payload['type'] = noOfGuestToilet;
+    if (livingRoom != null) payload['type'] = livingRoom;
+    if (office != null) payload['type'] = office;
+    if (conservatory != null) payload['type'] = conservatory;
+    if (diningRoom != null) payload['type'] = diningRoom;
+    if (haveHoover != null) payload['type'] = haveHoover;
+    if (provideCleaningProduct != null) payload['type'] = provideCleaningProduct;
+    if (haveWashingMachine != null) payload['type'] = haveWashingMachine;
+    if (staffPreference != null) payload['staff_preference'] = staffPreference;
+    if (haveDryer != null) payload['type'] = haveDryer;
+    if (accessProperty != null) payload['type'] = accessProperty;
+    if (animalProperty != null) payload['animal_property'] = animalProperty;
+    return post<BaseResponse>(
+      endpoint: Endpoint.clientProperties,
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data: payload,
+    );
+  }
+
   Future<NetworkResult<DataResponse>> listProperties({
     int? perPage,
     String? search,
@@ -27,35 +83,6 @@ class ClientRepository extends BaseRepository {
     return get<DataResponse>(
       endpoint: Endpoint.clientProperty(id),
       fromJson: (json) => DataResponse.fromJson(json),
-    );
-  }
-
-  /// POST create property. Required: name, address, city, postal_code, property_type.
-  /// Optional: type, animal_property, staff_preference (Male|Female|No Preference).
-  Future<NetworkResult<BaseResponse>> createProperty({
-    required String name,
-    required String address,
-    required String city,
-    required String postalCode,
-    required String propertyType,
-    String? type,
-    bool? animalProperty,
-    String? staffPreference,
-  }) async {
-    final payload = <String, dynamic>{
-      'name': name,
-      'address': address,
-      'city': city,
-      'postal_code': postalCode,
-      'property_type': propertyType,
-    };
-    if (type != null) payload['type'] = type;
-    if (animalProperty != null) payload['animal_property'] = animalProperty;
-    if (staffPreference != null) payload['staff_preference'] = staffPreference;
-    return post<BaseResponse>(
-      endpoint: Endpoint.clientProperties,
-      fromJson: (json) => BaseResponse.fromJson(json),
-      data: payload,
     );
   }
 

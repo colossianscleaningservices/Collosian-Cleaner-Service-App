@@ -74,6 +74,9 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                           case 6:
                             Get.toNamed(Routes.HELP_SUPPORT);
                             break;
+                          case 7:
+                            Get.toNamed(Routes.FAQ);
+                            break;
                           default:
                             Get.toNamed(Routes.HELP_SUPPORT);
                             break;

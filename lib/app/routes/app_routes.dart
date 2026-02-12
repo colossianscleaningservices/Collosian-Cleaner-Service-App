@@ -45,6 +45,7 @@ abstract class Routes {
   static const JOB_CHAT = _Paths.JOB_CHAT;
   static const SUPPORT_CHAT = _Paths.SUPPORT_CHAT;
   static const CONTACT_US = _Paths.CONTACT_US;
+  static const FAQ = _Paths.FAQ;
 }
 
 abstract class _Paths {
@@ -89,4 +90,5 @@ abstract class _Paths {
   static const JOB_CHAT = '/chat/job';
   static const SUPPORT_CHAT = '/chat/support';
   static const CONTACT_US = '/common/contact-us';
+  static const FAQ = '/common/faq';
 }
