@@ -20,40 +20,40 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
           controller: controller.scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _StatsRow(controller: controller, scheme: scheme).marginOnly(bottom: 20),
-            _SearchSection(controller: controller, scheme: scheme).marginOnly(bottom: 20),
-            CommonText.semiBold('Media type filter', color: scheme.onSurface).marginOnly(bottom: 10),
-            _FilterChips(controller: controller, scheme: scheme).marginOnly(bottom: 20),
-            CommonText.semiBold('Resources', color: scheme.onSurface).marginOnly(bottom: 12),
-            Obx(() {
-              final list = controller.training;
-              final selected = controller.filter.where((c) => c.isSelected).toList();
-              final selectedType = selected.isNotEmpty ? selected.first.type : 'All';
-              if (list.isEmpty) {
-                return _EmptyState(scheme: scheme);
-              }
-              final itemCount = list.length;
-              return ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: itemCount,
-                separatorBuilder: (_, __) => const SizedBox(height: 14),
-                itemBuilder: (context, index) {
-                  if (index < 0 || index >= itemCount) return const SizedBox.shrink();
-                  final item = list[index];
-                  return _TrainingCard(
-                    item: item,
-                    mediaTypeLabel: selectedType,
-                    scheme: scheme,
-                    ctrl: controller,
-                  );
-                },
-              );
-            }).marginOnly(bottom: 24),
-          ],
-        ).paddingAll(UiConstants.defaultPadding),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _StatsRow(controller: controller, scheme: scheme).marginOnly(bottom: 20),
+              _SearchSection(controller: controller, scheme: scheme).marginOnly(bottom: 20),
+              CommonText.semiBold('Media type filter', color: scheme.onSurface).marginOnly(bottom: 10),
+              _FilterChips(controller: controller, scheme: scheme).marginOnly(bottom: 20),
+              CommonText.semiBold('Resources', color: scheme.onSurface).marginOnly(bottom: 12),
+              Obx(() {
+                final list = controller.training;
+                final selected = controller.filter.where((c) => c.isSelected).toList();
+                final selectedType = selected.isNotEmpty ? selected.first.type : 'All';
+                if (list.isEmpty) {
+                  return _EmptyState(scheme: scheme);
+                }
+                final itemCount = list.length;
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: itemCount,
+                  separatorBuilder: (_, __) => const SizedBox(height: 14),
+                  itemBuilder: (context, index) {
+                    if (index < 0 || index >= itemCount) return const SizedBox.shrink();
+                    final item = list[index];
+                    return _TrainingCard(
+                      item: item,
+                      mediaTypeLabel: selectedType,
+                      scheme: scheme,
+                      ctrl: controller,
+                    );
+                  },
+                );
+              }).marginOnly(bottom: 24),
+            ],
+          ).paddingAll(UiConstants.defaultPadding),
         ),
       ),
     );
@@ -69,10 +69,9 @@ class _StatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final list = controller.training;
-      final unseen = list.where((e) => !e.isSeen).length;
-      final seen = list.where((e) => e.isSeen).length;
-      final total = list.length;
+      final unseen = controller.counts.value?.unseen ?? 0;
+      final seen = controller.counts.value?.seen ?? 0;
+      final total = controller.counts.value?.total ?? 0;
 
       return Row(
         children: [
@@ -115,7 +114,7 @@ class _StatChip extends StatelessWidget {
   });
 
   final String label;
-  final int value;
+  final num value;
   final ColorScheme scheme;
   final Color accentColor;
 
@@ -616,6 +615,7 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),

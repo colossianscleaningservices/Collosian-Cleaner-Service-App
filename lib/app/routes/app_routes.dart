@@ -45,6 +45,7 @@ abstract class Routes {
   static const JOB_CHAT = _Paths.JOB_CHAT;
   static const SUPPORT_CHAT = _Paths.SUPPORT_CHAT;
   static const CONTACT_US = _Paths.CONTACT_US;
+  static const NEWSLETTERS =  _Paths.NEWSLETTERS;
   static const FAQ = _Paths.FAQ;
 }
 
@@ -83,12 +84,14 @@ abstract class _Paths {
   static const SUPPORT_DOCUMENT = '/cleaner/support-document';
   static const ADD_DOCUMENT = '/cleaner/add-document';
   static const NOTIFICATION = '/cleaner/notification';
-  static const CLEANER_PAYOUT_COMPUTATION = '/cleaner/cleaner-payout-computation';
+  static const CLEANER_PAYOUT_COMPUTATION =
+      '/cleaner/cleaner-payout-computation';
   static const HELP_SUPPORT = '/common/help-support';
   static const CHANGE_PASSWORD = '/common/change-password';
   static const CLEANER_REVIEW = '/cleaner/cleaner-review';
   static const JOB_CHAT = '/chat/job';
   static const SUPPORT_CHAT = '/chat/support';
   static const CONTACT_US = '/common/contact-us';
+  static const NEWSLETTERS = '/newsletters';
   static const FAQ = '/common/faq';
 }

@@ -1,11 +1,12 @@
-import 'package:ccs_app/app/network/repository/training_resource_response.dart';
+import 'package:ccs_app/app/network/response/training_resource_response.dart';
 import 'package:ccs_app/app/network/response/base_response.dart';
 import 'package:ccs_app/app/network/response/faq_response.dart';
 
 import '../../core/base/base_repository.dart';
+import '../response/newsletter_response.dart';
 import '../utils/network_result.dart';
 import 'endpoint.dart';
-import 'notification_response.dart';
+import '../response/notification_response.dart';
 
 class CommonRepository extends BaseRepository {
   Future<NetworkResult<NotificationResponse>> getNotifications({int perPage = 15, int page = 1}) async {
@@ -21,6 +22,14 @@ class CommonRepository extends BaseRepository {
       endpoint: Endpoint.trainingResources,
       queryParameters: {'per_page': perPage, 'page': page},
       fromJson: (json) => TrainingResourceResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<NewsletterResponse>> getNewsletters({int perPage = 20, int page = 1}) async {
+    return get<NewsletterResponse>(
+      endpoint: Endpoint.newsletters,
+      queryParameters: {'per_page': perPage, 'page': page},
+      fromJson: (json) => NewsletterResponse.fromJson(json),
     );
   }
 

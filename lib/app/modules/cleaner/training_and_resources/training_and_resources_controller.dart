@@ -3,6 +3,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../../../export.dart';
 import '../../../network/repository/common_repository.dart';
+import '../../../network/response/training_resource_response.dart';
 
 class TrainingAndResourcesController extends GetxController {
   var groupSearchFocus = FocusNode();
@@ -13,6 +14,7 @@ class TrainingAndResourcesController extends GetxController {
 
   final CommonRepository _commonRepository = CommonRepository();
   ScrollController scrollController = ScrollController();
+  final Rxn<Counts> counts = Rxn<Counts>(null);
   var totalPage = 1;
   var currentPage = 1;
   var moreLoading = false.obs;
@@ -20,7 +22,24 @@ class TrainingAndResourcesController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    scrollController.addListener(() {
+      if (_isScrollBottom) {
+        if (currentPage <= totalPage) {
+          if (moreLoading.value) return;
+          moreLoading.value = true;
+          getTrainingResources();
+        }
+      }
+    });
+
     initList();
+  }
+
+  bool get _isScrollBottom {
+    if (!scrollController.hasClients) return false;
+    final maxScroll = scrollController.position.maxScrollExtent;
+    final currentScroll = scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   /// Primary demo video (720p H.264). Some devices fail with MediaCodec on this.
@@ -128,8 +147,8 @@ class TrainingAndResourcesController extends GetxController {
       item.videoPlayerController?.dispose();
       item.videoPlayerController = null;
     }
-    initList();
-    await Future<void>.delayed(const Duration(milliseconds: 400));
+    currentPage = 1;
+    getTrainingResources();
   }
 
   Future<void> getTrainingResources() async {
@@ -139,6 +158,14 @@ class TrainingAndResourcesController extends GetxController {
       result.when(
         success: (value) {
           if (currentPage == 1) training.clear();
+
+          totalPage = (value.data?.resources?.pagination?.totalPages ?? 1).toInt();
+
+          if (currentPage <= totalPage) {
+            currentPage++;
+          }
+
+          counts.value = value.data?.counts;
         },
         error: (e) async {
           await Notifier.apiError(e, contextTag: 'get_training_resources');

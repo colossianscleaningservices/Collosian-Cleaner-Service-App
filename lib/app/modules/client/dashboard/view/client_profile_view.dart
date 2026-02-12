@@ -69,12 +69,15 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                             Get.toNamed(Routes.TRAINING_AND_RESOURCES);
                             break;
                           case 5:
-                            Get.toNamed(Routes.SUPPORT_CHAT, arguments: {'type': ChatConstants.typeSupport});
+                            Get.toNamed(Routes.NEWSLETTERS);
                             break;
                           case 6:
-                            Get.toNamed(Routes.HELP_SUPPORT);
+                            Get.toNamed(Routes.SUPPORT_CHAT, arguments: {'type': ChatConstants.typeSupport});
                             break;
                           case 7:
+                            Get.toNamed(Routes.HELP_SUPPORT,arguments: {'from':'help_support'});
+                            break;
+                          case 8:
                             Get.toNamed(Routes.FAQ);
                             break;
                           default:

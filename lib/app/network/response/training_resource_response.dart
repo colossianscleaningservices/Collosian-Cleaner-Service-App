@@ -86,7 +86,7 @@ class Resources {
     if (json['trainings'] != null) {
       trainings = [];
       json['trainings'].forEach((v) {
-        // trainings?.add(Dynamic.fromJson(v));
+        // trainings?.add(Dynamic.fromJson(v));   //Data format not shown in API
       });
     }
     pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;

@@ -34,6 +34,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     MenuModel(icon: IconsaxPlusLinear.people, title: 'Preferred Staff', subtitle: "Manage your preferred staff members"),
     MenuModel(icon: IconsaxPlusLinear.notification, title: 'Notifications', subtitle: "View and manage notifications"),
     MenuModel(icon: IconsaxPlusLinear.trade, title: 'Training & Resources', subtitle: "View Training Resources & FAQs"),
+    MenuModel(icon: IconsaxPlusLinear.message_text, title: 'Newsletters', subtitle: "Get your news"),
     MenuModel(icon: IconsaxPlusLinear.message_text, title: 'Support chat', subtitle: "Message admin for help"),
     MenuModel(icon: IconsaxPlusLinear.message_question, title: 'Help & support', subtitle: "Get help and support"),
     MenuModel(icon: IconsaxPlusLinear.message_question, title: 'FAQs', subtitle: "Frequently asked questions"),

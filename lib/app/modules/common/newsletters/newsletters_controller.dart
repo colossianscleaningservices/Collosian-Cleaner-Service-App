@@ -1,10 +1,12 @@
 import 'package:ccs_app/app/network/repository/common_repository.dart';
 
 import '../../../../export.dart';
+import '../../../network/response/newsletter_response.dart';
 
-class NotificationController extends GetxController {
+class NewslettersController extends GetxController {
   final CommonRepository _commonRepository = CommonRepository();
-  RxList<NotificationData> notifications = <NotificationData>[].obs;
+
+  RxList<Newsletters> newsletters = <Newsletters>[].obs;
   ScrollController scrollController = ScrollController();
   var totalPage = 1;
   var currentPage = 1;
@@ -17,23 +19,17 @@ class NotificationController extends GetxController {
         if (currentPage <= totalPage) {
           if (moreLoading.value) return;
           moreLoading.value = true;
-          getNotifications();
+          loadNewsletters();
         }
       }
     });
-
     super.onInit();
   }
 
   @override
   void onReady() {
-    getNotifications();
+    loadNewsletters();
     super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
   }
 
   bool get _isScrollBottom {
@@ -43,55 +39,32 @@ class NotificationController extends GetxController {
     return currentScroll >= (maxScroll * 0.9);
   }
 
-  Future<void> getNotifications() async {
+  Future<void> loadNewsletters() async {
     if (moreLoading.value == false) Loader.show();
     try {
-      final result = await _commonRepository.getNotifications(page: currentPage);
+      final result = await _commonRepository.getNewsletters(page: currentPage);
       result.when(
         success: (value) {
-          if (currentPage == 1) notifications.clear();
-
+          if (currentPage == 1) newsletters.clear();
+          newsletters.addAll(value.data?.newsletters ?? []);
           totalPage = (value.data?.pagination?.totalPages ?? 1).toInt();
-
           if (currentPage <= totalPage) {
             currentPage++;
           }
         },
         error: (e) async {
-          await Notifier.apiError(e, contextTag: 'get_notifications');
+          await Notifier.apiError(e, contextTag: 'get_newsletters');
         },
       );
     } catch (e) {
-      Notifier.error('Failed to fetch notifications');
+      Notifier.error('Failed to load newsletters');
     } finally {
       if (moreLoading.value == false) Loader.hide();
       moreLoading.value = false;
     }
   }
 
-
-  /// Called by pull-to-refresh. Disposes existing video controllers and reloads the list.
-  Future<void> refreshNotification() async {
-    currentPage = 1;
-    getNotifications();
+  Future<void> refreshNewsletters() async {
+    await loadNewsletters();
   }
-
-}
-
-enum NotificationType { jobAssigned, jobUpdate, payment, message, reminder }
-
-class NotificationData {
-  final NotificationType type;
-  final String title;
-  final String message;
-  final DateTime timestamp;
-  final bool isRead;
-
-  NotificationData({
-    required this.type,
-    required this.title,
-    required this.message,
-    required this.timestamp,
-    required this.isRead,
-  });
 }

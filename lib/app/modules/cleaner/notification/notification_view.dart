@@ -16,31 +16,34 @@ class NotificationView extends GetView<NotificationController> {
     return AppScaffold(
       appBar: Header(title: 'Notifications'),
       body: Obx(() {
-        return SafeArea(
-          child: controller.notifications.isEmpty
-              ? _EmptyNotifications(scheme: scheme)
-              : Column(
-                  children: [
-                    ListView.separated(
-                      controller: controller.scrollController,
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                      itemCount: controller.notifications.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final notification = controller.notifications[index];
-                        return _NotificationCard(
-                          notification: notification,
-                          scheme: scheme,
-                          onTap: () {
-                            // TODO: Mark as read and navigate to detail
-                            Notifier.info('Notification tapped');
-                          },
-                        );
-                      },
-                    ),
-                    controller.moreLoading.value ? PageLoader() : SizedBox.shrink()
-                  ],
-                ),
+        return SwipeRefresh(
+          onRefresh: () => controller.refreshNotification(),
+          child: SafeArea(
+            child: controller.notifications.isEmpty
+                ? _EmptyNotifications(scheme: scheme)
+                : Column(
+                    children: [
+                      ListView.separated(
+                        controller: controller.scrollController,
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                        itemCount: controller.notifications.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final notification = controller.notifications[index];
+                          return _NotificationCard(
+                            notification: notification,
+                            scheme: scheme,
+                            onTap: () {
+                              // TODO: Mark as read and navigate to detail
+                              Notifier.info('Notification tapped');
+                            },
+                          );
+                        },
+                      ),
+                      controller.moreLoading.value ? PageLoader() : SizedBox.shrink()
+                    ],
+                  ),
+          ),
         );
       }),
     );
@@ -105,21 +108,15 @@ class _EmptyNotifications extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: scheme.outline.withValues(alpha: 0.15),
-                width: 1,
-              ),
-            ),
+          AppCard(
+            radius: 100,
+            color: scheme.secondary.withValues(alpha: 0.12),
+            enableShadows: false,
             child: Icon(
               IconsaxPlusLinear.notification,
               size: 48,
-              color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
-            ),
+              color: scheme.secondary,
+            ).paddingAll(24),
           ),
           const SizedBox(height: 20),
           CommonText.semiBold('No notifications', size: 18, color: scheme.onSurface),

@@ -36,7 +36,7 @@ class Data {
     if (json['notifications'] != null) {
       notifications = [];
       json['notifications'].forEach((v) {
-        // notifications?.add(Dynamic.fromJson(v));
+        // notifications?.add(Dynamic.fromJson(v)); //Data format not shown in API
       });
     }
     pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;

@@ -12,12 +12,11 @@ class FaqView extends GetView<HelpSupportController> {
       appBar: Header(title: 'FAQs'),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Obx(() {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 12),
                 ..._buildFAQs(context.colorScheme),
                 const SizedBox(height: 24),
               ],

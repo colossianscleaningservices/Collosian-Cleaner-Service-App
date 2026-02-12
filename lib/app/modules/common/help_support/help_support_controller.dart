@@ -8,29 +8,26 @@ class HelpSupportController extends GetxController {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final messageController = TextEditingController();
-
   final CommonRepository _commonRepository = CommonRepository();
-
   final RxList<Faq> faqList = <Faq>[].obs;
-
   final count = 0.obs;
+  var from = '';
 
   @override
   void onInit() {
     super.onInit();
-
     nameController.text = Prefs().userFullName.toTitleCase();
-
     emailController.text = Prefs().getData(Prefs.email);
 
-    getFaqs();
-
+    if (Get.arguments != null) {
+      if (Get.arguments.containsKey('from')) from = Get.arguments['from'];
+    }
   }
 
   @override
   void onReady() {
+    if (from.isEmpty) getFaqs();
     super.onReady();
-    Loader.show();
   }
 
   @override
@@ -61,6 +58,8 @@ class HelpSupportController extends GetxController {
     }
 
     try {
+      (Get.context as BuildContext).hideKeyboard();
+      Loader.show();
       final result = await _commonRepository.contactUs(name: name, email: email, message: message);
       result.when(
         success: (value) {
@@ -73,17 +72,20 @@ class HelpSupportController extends GetxController {
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'contact_support');
     } finally {
+      Loader.hide();
       messageController.clear();
+      Get.back();
     }
   }
 
   Future<void> getFaqs() async {
+    Loader.show();
     try {
       final result = await _commonRepository.getFaqs();
       result.when(
         success: (value) {
           final data = value.data?.faq;
-          if(data != null) faqList.addAll(data);
+          if (data != null) faqList.addAll(data);
         },
         error: (e) async {
           await Notifier.apiError(e, contextTag: 'get_faqs');
@@ -91,10 +93,8 @@ class HelpSupportController extends GetxController {
       );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'get_faqs');
-    } finally{
+    } finally {
       Loader.hide();
     }
   }
-
-
 }

@@ -1,6 +1,6 @@
+import 'package:get/get.dart';
 import 'package:ccs_app/app/modules/client/job/add_review.dart';
 import 'package:ccs_app/app/modules/common/help_support/faq_view.dart';
-import 'package:get/get.dart';
 
 import '../modules/auth/assessment_view.dart';
 import '../modules/auth/auth_binding.dart';
@@ -39,6 +39,7 @@ import '../modules/client/dashboard/client_dashboard_binding.dart';
 import '../modules/client/dashboard/client_dashboard_view.dart';
 import '../modules/client/edit_profile/client_edit_profile_binding.dart';
 import '../modules/client/edit_profile/client_edit_profile_view.dart';
+import '../modules/client/job/add_review.dart';
 import '../modules/client/job/client_job_detail_binding.dart';
 import '../modules/client/job/client_job_detail_view.dart';
 import '../modules/client/property/add_property_view.dart';
@@ -52,6 +53,8 @@ import '../modules/common/contact_us/contact_us_binding.dart';
 import '../modules/common/contact_us/contact_us_view.dart';
 import '../modules/common/help_support/help_support_binding.dart';
 import '../modules/common/help_support/help_support_view.dart';
+import '../modules/common/newsletters/newsletters_binding.dart';
+import '../modules/common/newsletters/newsletters_view.dart';
 import '../modules/splash/splash_binding.dart';
 import '../modules/splash/splash_view.dart';
 
@@ -65,19 +68,46 @@ class AppPages {
   static const INITIAL = Routes.SPLASH;
 
   static final routes = <GetPage>[
-    GetPage(name: _Paths.SPLASH, page: () => const SplashView(), binding: SplashBinding()),
+    GetPage(
+        name: _Paths.SPLASH,
+        page: () => const SplashView(),
+        binding: SplashBinding()),
 
     // Auth module (single binding/controller shared across auth screens)
-    GetPage(name: _Paths.AUTH, page: () => const AuthView(), binding: AuthBinding()),
-    GetPage(name: _Paths.LOGIN, page: () => const LoginView(), binding: AuthBinding()),
-    GetPage(name: _Paths.ROLE_SELECTION, page: () => const RoleSelectionView(), binding: AuthBinding()),
-    GetPage(name: _Paths.SIGN_UP, page: () => const SignupView(), binding: AuthBinding()),
-    GetPage(name: _Paths.FORGOT_PASSWORD, page: () => const ForgotPasswordView(), binding: AuthBinding()),
-    GetPage(name: _Paths.RESET_PASSWORD, page: () => const ResetPasswordView(), binding: AuthBinding()),
+    GetPage(
+        name: _Paths.AUTH,
+        page: () => const AuthView(),
+        binding: AuthBinding()),
+    GetPage(
+        name: _Paths.LOGIN,
+        page: () => const LoginView(),
+        binding: AuthBinding()),
+    GetPage(
+        name: _Paths.ROLE_SELECTION,
+        page: () => const RoleSelectionView(),
+        binding: AuthBinding()),
+    GetPage(
+        name: _Paths.SIGN_UP,
+        page: () => const SignupView(),
+        binding: AuthBinding()),
+    GetPage(
+        name: _Paths.FORGOT_PASSWORD,
+        page: () => const ForgotPasswordView(),
+        binding: AuthBinding()),
+    GetPage(
+        name: _Paths.RESET_PASSWORD,
+        page: () => const ResetPasswordView(),
+        binding: AuthBinding()),
 
     // Client module — register CREATE before DETAIL so /client/job/create opens CreateJobView, not JobDetail
-    GetPage(name: _Paths.CLIENT_DASHBOARD, page: () => const ClientDashboardView(), binding: ClientDashboardBinding()),
-    GetPage(name: _Paths.CLIENT_CREATE_JOB, page: () => const CreateJobView(), binding: CreateJobBinding()),
+    GetPage(
+        name: _Paths.CLIENT_DASHBOARD,
+        page: () => const ClientDashboardView(),
+        binding: ClientDashboardBinding()),
+    GetPage(
+        name: _Paths.CLIENT_CREATE_JOB,
+        page: () => const CreateJobView(),
+        binding: CreateJobBinding()),
     GetPage(
       name: _Paths.CLIENT_JOB_DETAIL,
       page: () => const ClientJobDetailView(),
@@ -92,14 +122,18 @@ class AppPages {
       name: _Paths.CLIENT_EDIT_PROFILE,
       page: () => const ClientEditProfileView(),
       binding: ClientEditProfileBinding(),
-    ), GetPage(
+    ),
+    GetPage(
       name: _Paths.ADD_REVIEW,
       page: () => const AddReview(),
       binding: ClientJobDetailBinding(),
     ),
 
     // Cleaner module
-    GetPage(name: _Paths.CLEANER_DASHBOARD, page: () => const CleanerDashboardView(), binding: CleanerDashboardBinding()),
+    GetPage(
+        name: _Paths.CLEANER_DASHBOARD,
+        page: () => const CleanerDashboardView(),
+        binding: CleanerDashboardBinding()),
     GetPage(
       name: _Paths.CLEANER_JOB_DETAIL,
       page: () => const CleanerJobDetailView(),
@@ -199,6 +233,11 @@ class AppPages {
       name: _Paths.AGREEMENT,
       page: () => const AssessmentView(),
       binding: AuthBinding(),
+    ),
+    GetPage(
+      name: _Paths.NEWSLETTERS,
+      page: () => const NewslettersView(),
+      binding: NewslettersBinding(),
     ),
     GetPage(
       name: _Paths.FAQ,
