@@ -221,7 +221,10 @@ class AuthController extends GetxController {
     stepProgressController.setCurrentStep(stepCurrentIndex.value);
   }
 
+  List<num?> answersId = [];
+
   Future<void> saveCleanerAssessment() async {
+    answersId.clear();
     List<Answers> answers = [];
     selectedAgreementAnswers.value.forEach((key, value) {
       if (assessmentQuestionsByStep[key].length == value.length) {
@@ -239,14 +242,35 @@ class AuthController extends GetxController {
       final result = await _authRepository.saveCleanerAssessment(request);
       result.when(
         success: (value) {
-          Notifier.success(value.message ?? "Assessment Save Successfully");
-          Get.offAndToNamed(Routes.SIGN_UP);
+          answersId.clear();
+          answersId.addAll(value.data?.answerIds as Iterable<num?>);
+          if (value.data?.overall?.status == "fail") {
+            Notifier.openSheet(
+              Get.context as BuildContext,
+              title: 'Failed',
+              message: 'You have not passed the assessment.',
+              showSecondaryButton: false,
+              onPrimaryPressed: () {
+                resetAgreement();
+                stepCurrentIndex.value = 0;
+                stepProgressController.setCurrentStep(0);
+              },
+            );
+          } else {
+            Notifier.openSheet(
+              Get.context as BuildContext,
+              title: 'Pass',
+              message: 'You have passed the assessment.',
+              showSecondaryButton: false,
+              primaryButtonLabel: 'Go to Sign Up',
+              onPrimaryPressed: () {
+                Get.offAndToNamed(Routes.SIGN_UP);
+              },
+            );
+          }
         },
         error: (e) async {
           await Notifier.apiError(e, contextTag: 'save_assessment');
-          resetAgreement();
-          stepCurrentIndex.value = 0;
-          stepProgressController.setCurrentStep(0);
         },
       );
     } catch (e) {
@@ -352,6 +376,8 @@ class AuthController extends GetxController {
         passwordConfirmation: signupPasswordCtrl.text,
         role: roleStr,
         phoneNumber: signupPhoneCtrl.text.trim().isNotEmpty ? signupPhoneCtrl.text.trim() : null,
+        verificationCode: role == UserRole.cleaner ? signupNiNumberCtrl.text.trim() : null,
+        answersId: role == UserRole.cleaner ? answersId : null,
       );
       result.when(
         success: (response) async {

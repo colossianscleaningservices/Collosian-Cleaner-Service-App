@@ -30,17 +30,7 @@ class JobCheckPhotoController extends GetxController {
   void onInit() {
     super.onInit();
     final args = Get.arguments;
-    job = ClientJob(
-      id: '',
-      clientName: '—',
-      jobType: '—',
-      date: DateTime.now(),
-      startTime: '—',
-      endTime: '—',
-      status: '—',
-      propertyOneLine: '—',
-    );
-    mode = JobCheckPhotoMode.checkIn;
+
     if (args is Map) {
       final j = args['job'];
       final m = args['mode'];
@@ -49,6 +39,18 @@ class JobCheckPhotoController extends GetxController {
     } else if (args is List && args.length >= 2) {
       if (args[0] is ClientJob) job = args[0] as ClientJob;
       if (args[1] is JobCheckPhotoMode) mode = args[1] as JobCheckPhotoMode;
+    } else {
+      job = ClientJob(
+        id: '',
+        clientName: '—',
+        jobType: '—',
+        date: DateTime.now(),
+        startTime: '—',
+        endTime: '—',
+        status: '—',
+        propertyOneLine: '—',
+      );
+      mode = JobCheckPhotoMode.checkIn;
     }
   }
 

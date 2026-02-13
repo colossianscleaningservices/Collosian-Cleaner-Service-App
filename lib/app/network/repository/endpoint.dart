@@ -19,20 +19,20 @@ class Endpoint {
   static const String profileChangePassword = '${root}shared/profile/change-password';
 
   // ─── Cleaner - Assessment ──────────────────────────────────────────────────
-  static const String cleanerAssessmentCategories = '${root}cleaner/assessment/categories';
-  static const String cleanerAssessmentForms = '${root}cleaner/assessment/questions';
-  static const String cleanerAssessmentGovCode = '${root}cleaner/assessment/gov-code';
-  static const String saveCleanerAssessment = '${root}cleaner/assessment/answers';
+  static const String cleanerAssessmentCategories = '${root}staff/assessment/categories';
+  static const String cleanerAssessmentForms = '${root}staff/assessment/questions';
+  static const String cleanerAssessmentGovCode = '${root}staff/assessment/gov-code';
+  static const String saveCleanerAssessment = '${root}staff/assessment/submit';
 
   // ─── Cleaner - Dashboard ───────────────────────────────────────────────────
-  static const String cleanerProfileCompletion = '${root}cleaner/profile-completion';
-  static const String cleanerActionNeeded = '${root}cleaner/action-needed';
+  static const String cleanerProfileCompletion = '${root}staff/profile-completion';
+  static const String cleanerActionNeeded = '${root}staff/action-needed';
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
-  static String cleanerJobDecline(int id) => '${root}cleaner/jobs/$id/decline';
+  static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';
   // Check-in/check-out: not in current OpenAPI spec; paths kept for app until backend adds them.
-  static const String cleanerJobCheckIn = '${root}cleaner/jobs/check-in';
-  static const String cleanerJobCheckOut = '${root}cleaner/jobs/check-out';
+  static const String cleanerJobCheckIn = '${root}staff/jobs/check-in';
+  static const String cleanerJobCheckOut = '${root}staff/jobs/check-out';
 
   // ─── Client - Jobs ────────────────────────────────────────────────────────
   static String clientJobCancel(int id) => '${root}client/jobs/$id/cancel';

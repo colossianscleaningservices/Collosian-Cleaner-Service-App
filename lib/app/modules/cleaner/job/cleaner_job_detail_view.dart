@@ -20,11 +20,11 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
         hasBackIcon: true,
         titleCentered: false,
         actions: [
-          IconButton(
+          /*IconButton(
             icon: Icon(IconsaxPlusLinear.map_1, size: 22),
             tooltip: 'Directions',
             onPressed: controller.onDirections,
-          ),
+          ),*/
           IconButton(
             icon: Icon(IconsaxPlusLinear.message_text, size: 22),
             tooltip: 'Contact',

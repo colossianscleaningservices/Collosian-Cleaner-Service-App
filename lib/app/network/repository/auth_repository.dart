@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/network/request/save_cleaner_assessment_request.dart';
 import 'package:ccs_app/app/network/response/login_signup_response.dart';
+import 'package:ccs_app/app/network/response/save_cleaner_assessment_response.dart';
 
 import '../../core/base/base_repository.dart';
 import '../response/assessment_category_response.dart';
@@ -32,6 +33,8 @@ class AuthRepository extends BaseRepository {
     required String passwordConfirmation,
     required String role,
     String? phoneNumber,
+    String? verificationCode,
+    List<num?>? answersId,
   }) async {
     final payload = <String, dynamic>{
       'first_name': firstName.trim(),
@@ -40,6 +43,8 @@ class AuthRepository extends BaseRepository {
       'password': password,
       'password_confirmation': passwordConfirmation,
       'role': role,
+      'verification_code': verificationCode,
+      'answer_ids': answersId
     };
     if (phoneNumber != null && phoneNumber.trim().isNotEmpty) {
       payload['phone_number'] = phoneNumber.trim();
@@ -184,10 +189,10 @@ class AuthRepository extends BaseRepository {
   }
 
   /// POST save government verification code.
-  Future<NetworkResult<BaseResponse>> saveCleanerAssessment(SaveCleanerAssessmentRequest request) async {
-    return post<BaseResponse>(
+  Future<NetworkResult<SaveCleanerAssessmentResponse>> saveCleanerAssessment(SaveCleanerAssessmentRequest request) async {
+    return post<SaveCleanerAssessmentResponse>(
       endpoint: Endpoint.saveCleanerAssessment,
-      fromJson: (json) => BaseResponse.fromJson(json),
+      fromJson: (json) => SaveCleanerAssessmentResponse.fromJson(json),
       data: request,
     );
   }
