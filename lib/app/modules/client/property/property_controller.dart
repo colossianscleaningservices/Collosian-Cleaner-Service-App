@@ -1,4 +1,6 @@
 import 'package:ccs_app/app/network/repository/client_repository.dart';
+import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
+import 'package:ccs_app/app/network/response/property_type_response.dart';
 import 'package:ccs_app/export.dart';
 
 /// Minimal model for property list items.
@@ -102,7 +104,7 @@ class PropertyController extends GetxController {
   }
 
   void clearHouseFields() {
-    subType.value = null;
+    selectedPropertySubType.value = null;
     numberOfBedroomsCtrl.text = '0';
     numberOfBathroomsCtrl.text = '0';
     numberOfGuestToiletCtrl.text = '0';
@@ -184,6 +186,8 @@ class PropertyController extends GetxController {
 
   final businessType = 'Residential'.obs;
   final propertyType = Rxn<String>();
+  final selectedPropertyType = Rxn<PropertyTypes>();
+  final selectedPropertySubType = Rxn<PropertySubtypes>();
   final subType = Rxn<String>();
   final hoover = 'No'.obs;
   final staffPreference = 'Male'.obs;
@@ -197,23 +201,9 @@ class PropertyController extends GetxController {
   final isSaving = false.obs;
 
   static const List<String> businessTypeOptions = ['Residential', 'Commercial'];
-  static const List<String> propertyTypeOptions = [
-    'House',
-    'Flat',
-    'Semi-detached',
-    'Detached',
-    'Bungalow',
-    'Other',
-  ];
-  static const List<String> houseSubTypeOptions = [
-    'Flat',
-    'Terrace',
-    'Detached',
-    'Semi-detached',
-    'Bungalow',
-    'Bungalow',
-    'Other',
-  ];
+  final RxList<PropertyTypes> propertyTypeOptions = <PropertyTypes>[].obs;
+  final RxList<PropertySubtypes> propertySubTypeOptions = <PropertySubtypes>[].obs;
+
   static const List<String> hooverOptions = ['No', 'Yes', 'I will get one'];
   static const List<String> staffPreferenceOptions = ['Male', 'Female', 'No preference'];
   static const List<String> accessOptions = ['Client Will Open', 'Reception/Concierge', 'Key', 'Other'];
@@ -224,7 +214,6 @@ class PropertyController extends GetxController {
   }
 
   Future<void> addProperty() async {
-
     log(runtimeType.toString(), "Validator : ${formKey.currentState?.validate()}");
 
     if (formKey.currentState?.validate() != true) return;
@@ -261,7 +250,7 @@ class PropertyController extends GetxController {
           return;
         }
       }
-  /*    final result = await _clientRepository.createProperty(
+      /*    final result = await _clientRepository.createProperty(
         name: name.isNotEmpty ? name : 'Property',
         address: address,
         city: city,
@@ -282,6 +271,46 @@ class PropertyController extends GetxController {
     }
   }
 
+  Future<void> getPropertyType() async {
+    Loader.show();
+    try {
+      final result = await _clientRepository.getPropertyType();
+      result.when(
+        success: (value) {
+          final data = value.data?.propertyTypes;
+          if (data != null) propertyTypeOptions.addAll(data);
+        },
+        error: (e) async {
+          await Notifier.apiError(e, contextTag: 'get-property-type');
+        },
+      );
+    } catch (e) {
+      await Notifier.apiError(e, contextTag: 'get-property-type');
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  Future<void> getPropertySubType(int propertyId) async {
+    Loader.show();
+    try {
+      final result = await _clientRepository.getPropertySubTypes(propertyId: propertyId);
+      result.when(
+        success: (value) {
+          final data = value.data?.propertySubtypes;
+          if (data != null) propertySubTypeOptions.addAll(data);
+        },
+        error: (e) async {
+          await Notifier.apiError(e, contextTag: 'get-property-type');
+        },
+      );
+    } catch (e) {
+      await Notifier.apiError(e, contextTag: 'get-property-type');
+    } finally {
+      Loader.hide();
+    }
+  }
+
   @override
   void onClose() {
     propertyNameCtrl.dispose();
@@ -296,5 +325,12 @@ class PropertyController extends GetxController {
     conservatoryCtrl.dispose();
     diningRoomCtrl.dispose();
     super.onClose();
+  }
+
+  @override
+  void onReady() {
+    getPropertyType();
+
+    super.onReady();
   }
 }
