@@ -42,6 +42,9 @@ class Endpoint {
   // ─── Client - Properties ───────────────────────────────────────────────────
   static const String clientProperties = '${root}client/properties';
   static String clientProperty(int id) => '${root}client/properties/$id';
+  static String getPropertyType = '${root}client/properties/types';
+  static String getPropertySubType(int id) => '${root}client/properties/types/$id/subtypes';
+
 
   // ─── Common - Chat ────────────────────────────────────────────────────────
   static const String chatThreads = '${root}shared/chat/threads';

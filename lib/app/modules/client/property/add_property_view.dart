@@ -1,7 +1,9 @@
+import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
 
+import '../../../network/response/property_type_response.dart';
 import 'property_controller.dart';
 
 Widget _buildNumberField(TextEditingController controller, String label) {
@@ -88,28 +90,36 @@ class AddPropertyView extends GetView<PropertyController> {
                           validator: (v) => controller.validateRequired(v, 'Postal code'),
                           prefixIcon: Icon(IconsaxPlusLinear.map_1, size: 20, color: scheme.onSurfaceVariant),
                         ),
-                        CommonDropDownField<String>(
+                        CommonDropDownField<PropertyTypes>(
                           label: 'Type of Property',
                           hint: 'Select Property Type',
-                          items: PropertyController.propertyTypeOptions,
-                          itemLabel: (v) => v,
-                          value: controller.propertyType.value,
+                          items: controller.propertyTypeOptions,
+                          itemLabel: (v) => v.name??"",
+                          value: controller.selectedPropertyType.value,
                           onChanged: (v) {
                             if (v != null) {
-                              if (v != 'House') controller.clearHouseFields();
-                              controller.propertyType.value = v;
+                              if (v.hasSubtypes == true){
+
+                                controller.getPropertySubType(v.id?.toInt() ?? 0 );
+
+                              }else{
+                                controller.clearHouseFields();
+                              }
+                              controller.selectedPropertyType.value = v;
                             }
                           },
                           validator: (v) => v == null ? 'Type of property is required' : null,
                         ),
-                        if (controller.propertyType.value == 'House') ...[
-                          CommonDropDownField<String>(
+                        if (controller.selectedPropertyType.value?.hasSubtypes == true) ...[
+                          CommonDropDownField<PropertySubtypes>(
                             label: 'Sub Type',
                             hint: 'Select',
-                            items: PropertyController.houseSubTypeOptions,
-                            itemLabel: (v) => v,
-                            value: controller.subType.value,
-                            onChanged: (v) => controller.subType.value = v,
+                            items: controller.propertySubTypeOptions,
+                            itemLabel: (v) => v.name ??'',
+                            value: controller.selectedPropertySubType.value,
+                            onChanged: (v) {
+
+                            }
                           ),
                           _buildNumberField(controller.numberOfBedroomsCtrl, 'Number of Bedrooms'),
                           _buildNumberField(controller.numberOfBathroomsCtrl, 'Number of Bathrooms'),

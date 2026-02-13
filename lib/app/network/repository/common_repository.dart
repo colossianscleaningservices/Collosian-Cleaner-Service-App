@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/network/response/property_type_response.dart';
 import 'package:ccs_app/app/network/response/training_resource_response.dart';
 import 'package:ccs_app/app/network/response/base_response.dart';
 import 'package:ccs_app/app/network/response/faq_response.dart';
