@@ -11,32 +11,31 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
 
   @override
   Widget build(BuildContext context) {
-    final c = controller;
     final scheme = context.colorScheme;
 
     return AppScaffold(
       appBar: Header(
-        title: c.job.jobType,
+        title: controller.job.jobType,
         headerLogoIcon: false,
         hasBackIcon: true,
         titleCentered: false,
         actions: [
           IconButton(
-            icon: Icon(IconsaxPlusLinear.map_1, size: 22, color: scheme.primary),
+            icon: Icon(IconsaxPlusLinear.map_1, size: 22),
             tooltip: 'Directions',
-            onPressed: c.onDirections,
+            onPressed: controller.onDirections,
           ),
           IconButton(
-            icon: Icon(IconsaxPlusLinear.message_text, size: 22, color: scheme.primary),
+            icon: Icon(IconsaxPlusLinear.message_text, size: 22),
             tooltip: 'Contact',
-            onPressed: c.onContactClient,
+            onPressed: controller.onContactClient,
           ),
         ],
       ),
       backgroundColor: scheme.surface,
       body: SafeArea(
         child: Obx(() {
-          final j = c.job;
+          final j = controller.job;
           return Column(
             children: [
               Expanded(
@@ -70,11 +69,11 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                               Row(
                                 children: [
                                   TextButton(
-                                    onPressed: c.onAccept,
+                                    onPressed: controller.onAccept,
                                     child: CommonText.regular('Accept', size: 14, color: scheme.primary),
                                   ),
                                   TextButton(
-                                    onPressed: c.onDecline,
+                                    onPressed: controller.onDecline,
                                     child: CommonText.regular('Decline', size: 14, color: scheme.error),
                                   ),
                                 ],
@@ -164,7 +163,7 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                     padding: const EdgeInsets.only(bottom: 10),
                     child: CleanerCard(
                       cleaner: cl,
-                      onShare: () => c.onShareCleanerProfile(cl),
+                      onShare: () => controller.onShareCleanerProfile(cl),
                       scheme: scheme,
                       onReview: () => {},
                     ),
@@ -176,11 +175,11 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                   ),
                 ),
               ),
-              if (c.bottomBarState != 0)
+              if (controller.bottomBarState != 0)
                 SingleActionBottomBar(
-                  label: c.bottomBarLabel,
-                  onPressed: c.bottomBarOnPressed ?? () {},
-                  buttonType: c.bottomBarButtonType,
+                  label: controller.bottomBarLabel,
+                  onPressed: controller.bottomBarOnPressed ?? () {},
+                  buttonType: controller.bottomBarButtonType,
                   backgroundColor: scheme.surface,
                 ),
             ],

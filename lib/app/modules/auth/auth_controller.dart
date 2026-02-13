@@ -210,7 +210,7 @@ class AuthController extends GetxController {
     final answers = selectedAgreementAnswers.value[sectionIndex];
     if (answers == null) return false;
     for (var i = 0; i < questions.length; i++) {
-      if (!answers.containsKey(i) || answers[i]!.isEmpty) return false;
+      if (questions[i].options?.isNotEmpty == true) if (!answers.containsKey(i) || answers[i]!.isEmpty) return false;
     }
     return true;
   }

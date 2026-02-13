@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../../../export.dart';
 
@@ -22,7 +23,6 @@ class SupportDocumentItem {
 }
 
 class SupportDocumentController extends GetxController {
-  //TODO: Implement SupportDocumentController
 
   final count = 0.obs;
   final document = Rxn<String>();
@@ -88,41 +88,24 @@ class SupportDocumentController extends GetxController {
   }
 
   Future<void> onViewFile(SupportDocumentItem item) async {
-   /* isPdfLoading.value = true;
+    final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
+    Notifier.openSheet(Get.context as BuildContext,
+        showIcon: false,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        body: Expanded(
+          child: SfPdfViewer.network(
+            'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
+            key: pdfViewerKey,
+            password: "1234",
+          ),
+        ));
 
-    PDFDocument? doc;
-
-    PDFDocument.fromURL('https://www.ecma-international.org/wp-content/uploads/ECMA-262_12th_edition_june_2021.pdf').then((value) {
-      doc = value;
-      isPdfLoading.value = false;
-    });
-
-    Notifier.openSheet(
-      Get.context as BuildContext,
-      showIcon: false,
-      showPrimaryButton: false,
-      showSecondaryButton: false,
-      body: Obx(() {
-        return Center(
-          child: isPdfLoading.value
-              ? Center(child: CircularProgressIndicator())
-              : doc == null
-                  ? SizedBox.square()
-                  : SizedBox(
-                      height: (Get.context as BuildContext).mediaQuerySize.height * .8,
-                      child: PDFViewer(
-                        document: doc!,backgroundColor: Colors.transparent,
-                      ),
-                    ),
-        );
-      }),
-    );*/
-
-    if (item.fileUrl != null && item.fileUrl!.isNotEmpty) {
+    /*if (item.fileUrl != null && item.fileUrl!.isNotEmpty) {
       // TODO: Open file (e.g. url_launcher or file viewer)
     } else {
       Notifier.info('No file attached');
-    }
+    }*/
   }
 
   void onEditDocument(SupportDocumentItem item) {
