@@ -237,7 +237,7 @@ class PropertyController extends GetxController {
         city: city,
         postalCode: code,
         propertyType: type,
-        staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null, businessType:,
+        staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null, businessType:'',
       );
 
       result.handle(
