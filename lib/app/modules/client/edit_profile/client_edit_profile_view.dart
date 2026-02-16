@@ -91,21 +91,17 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
                 suffixIcon: Icon(IconsaxPlusLinear.calendar_1, size: 20, color: colorScheme.primary),
               ),
               Obx(
-                () => CheckboxListTile(
-                  title: CommonText.regular('Enable reminders via email / SMS', size: 14, color: colorScheme.onSurface),
+                () => AppCheckBox(
+                  title: 'Enable reminders via email / SMS',
                   value: controller.enableReminders.value,
-                  onChanged: (v) => controller.enableReminders.value = v ?? false,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
+                  onChange: (v) => controller.enableReminders.value = v ?? false,
                 ),
               ),
               Obx(
-                () => CheckboxListTile(
-                  title: CommonText.regular('Change my password', size: 14, color: colorScheme.onSurface),
+                () => AppCheckBox(
+                  title: 'Change my password',
                   value: controller.changePassword.value,
-                  onChanged: (v) => controller.changePassword.value = v ?? false,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
+                  onChange: (v) => controller.changePassword.value = v ?? false,
                 ),
               ),
               CommonTextField(controller: controller.companyCtrl, label: 'Company', hint: 'Enter your company'),

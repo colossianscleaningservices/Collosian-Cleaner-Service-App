@@ -319,12 +319,13 @@ class AppSliverGrid extends StatelessWidget {
 }
 
 class MenuItem extends StatelessWidget {
-  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive, this.padding});
+  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive, this.padding, this.bgColor});
 
   final MenuModel item;
   final VoidCallback? onTap;
   final bool? isDestructive;
   final double? padding;
+  final Color? bgColor;
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +336,7 @@ class MenuItem extends StatelessWidget {
     return AppCard(
       radius: UiConstants.radiusLarge,
       enableShadows: false,
-      color: colorScheme.surfaceBright,
+      color: bgColor ?? colorScheme.surfaceBright,
       onTap: onTap,
       child: Row(
         spacing: 16,
@@ -466,60 +467,57 @@ class AppCheckBox extends StatelessWidget {
   }
 }
 
-void showPicker({required VoidCallback? galleryPicker, VoidCallback? cameraPicker, bool? isShowCameraOption, String? primaryText, primarySubtitle}) {
+void showPicker({
+  required VoidCallback? galleryPicker,
+  VoidCallback? cameraPicker,
+  bool? isShowCameraOption,
+  String? primaryText,
+  primarySubtitle,
+}) {
   final context = Get.context!;
-  showModalBottomSheet(
-    context: context,
-    clipBehavior: Clip.hardEdge,
-    useSafeArea: true,
-    showDragHandle: true,
-    useRootNavigator: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-    ),
-    backgroundColor: context.colorScheme.surface,
-    isScrollControlled: true,
-    builder: (builder) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          MenuItem(
-            MenuModel(
-              title: 'Choose from Gallery',
-              subtitle: 'Select from your photo library',
-              icon: IconsaxPlusLinear.gallery,
-            ),
-            onTap: () {
-              Get.back();
-              galleryPicker?.call();
-            },
-            padding: 12,
-          ).marginOnly(left: 16, right: 16),
-          if (isShowCameraOption ?? true) ...[
-            MenuItem(
-              MenuModel(
-                title: 'Take a Photo',
-                subtitle: 'Use camera to capture photo',
-                icon: IconsaxPlusLinear.camera,
-              ),
-              onTap: () {
-                Get.back();
-                cameraPicker?.call();
-              },
-              padding: 12,
-            ).marginOnly(left: 16, right: 16, top: 16),
-          ],
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: AppButton(
-              label: 'Cancel',
-              type: ButtonType.outline,
-              onPressed: Get.back,
-            ).paddingSymmetric(horizontal: 16, vertical: 8),
-          ),
-        ],
+
+  var content = Column(
+    spacing: 16,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      MenuItem(
+        MenuModel(
+          title: 'Choose from Gallery',
+          subtitle: 'Select from your photo library',
+          icon: IconsaxPlusLinear.gallery,
+        ),
+        bgColor: context.colorScheme.surfaceContainer,
+        onTap: () {
+          Get.back();
+          galleryPicker?.call();
+        },
+        padding: 12,
       ),
-    ),
+      if (isShowCameraOption ?? true) ...[
+        MenuItem(
+          MenuModel(
+            title: 'Take a Photo',
+            subtitle: 'Use camera to capture photo',
+            icon: IconsaxPlusLinear.camera,
+          ),
+          bgColor: context.colorScheme.surfaceContainer,
+          onTap: () {
+            Get.back();
+            cameraPicker?.call();
+          },
+          padding: 12,
+        ),
+      ],
+    ],
+  ).marginSymmetric(vertical: 16);
+
+  Notifier.openSheet(
+    context,
+    body: content,
+    showIcon: false,
+    showPrimaryButton: false,
+    showSecondaryButton: true,
+    secondaryButtonLabel: "Cancel",
+    onSecondaryPressed: () => Get.back(),
   );
 }

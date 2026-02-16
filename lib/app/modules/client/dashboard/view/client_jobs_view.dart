@@ -22,7 +22,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                   }),
                 )
               : AppGrid(
-                  maxExtent: 142,
+                  maxExtent: 160,
                   axisSpacing: 16,
                   phoneCount: 1,
                   tabletCount: 2,
@@ -33,8 +33,12 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                       dateTime: '${CcsDateUtils.shortDateNoYear(job.date)} · ${job.startTime} – ${job.endTime}',
                       status: job.status,
                       subtitle: job.clientName,
-                      property: job.propertyOneLine,
+                      propertyName: job.propertyLabel,
+                      address: job.propertyOneLine,
                       recurrence: job.recurrence,
+                      cleanerInfo: job.cleaners.isNotEmpty
+                          ? '${job.cleaners.length} of ${job.cleanersNeeded} assigned'
+                          : '${job.cleanersNeeded} cleaner${job.cleanersNeeded != 1 ? 's' : ''}',
                       onTap: () => controller.openDetail(job),
                     );
                   }).toList(),

@@ -161,7 +161,7 @@ class Notifier {
                       ),
                     ),
                 ],
-              ).marginOnly(right: 8),
+              ),
           ],
         ).paddingOnly(left: 24, right: 18, bottom: 18, top: 12),
       ).marginSymmetric(horizontal: 18, vertical: 24),

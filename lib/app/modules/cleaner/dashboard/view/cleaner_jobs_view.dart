@@ -86,8 +86,12 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                             dateTime: '${CcsDateUtils.shortDateNoYear(job.date)} · ${job.startTime} – ${job.endTime}',
                             status: job.status,
                             subtitle: job.clientName,
-                            property: job.propertyOneLine,
+                            propertyName: job.propertyLabel,
+                            address: job.propertyOneLine,
                             recurrence: job.recurrence,
+                            cleanerInfo: job.cleaners.isNotEmpty
+                                ? '${job.cleaners.length} of ${job.cleanersNeeded} assigned'
+                                : '${job.cleanersNeeded} cleaner${job.cleanersNeeded != 1 ? 's' : ''}',
                             onTap: () => controller.openDetail(job),
                           ),
                         )
@@ -113,8 +117,12 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                             dateTime: '${CcsDateUtils.shortDateNoYear(job.date)} · ${job.startTime} – ${job.endTime}',
                             status: job.status,
                             subtitle: job.clientName,
-                            property: job.propertyOneLine,
+                            propertyName: job.propertyLabel,
+                            address: job.propertyOneLine,
                             recurrence: job.recurrence,
+                            cleanerInfo: job.cleaners.isNotEmpty
+                                ? '${job.cleaners.length} of ${job.cleanersNeeded} assigned'
+                                : '${job.cleanersNeeded} cleaner${job.cleanersNeeded != 1 ? 's' : ''}',
                             onTap: () => controller.openDetail(job),
                           ),
                         )
