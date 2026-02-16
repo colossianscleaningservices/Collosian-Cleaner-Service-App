@@ -206,7 +206,7 @@ class PropertyController extends GetxController {
       final address = addressCtrl.text.trim();
       final city = cityCtrl.text.trim();
       final code = postalCodeCtrl.text.trim();
-      final type = propertyType.value ?? 'Residential';
+      final type = propertyType.value ?? '';
       final editing = editingProperty.value;
       if (editing != null) {
         final id = int.tryParse(editing.id);
@@ -231,35 +231,39 @@ class PropertyController extends GetxController {
           return;
         }
       }
-      /*    final result = await _clientRepository.createProperty(
+      final result = await _clientRepository.createProperty(
         name: name.isNotEmpty ? name : 'Property',
         address: address,
         city: city,
         postalCode: code,
         propertyType: type,
-        staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
+        staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null, businessType:,
       );
-      result.when(
+
+      result.handle(
         success: (_) async {
           await _loadProperties();
           clearEditing();
           Get.back();
         },
-        error: (e) async => await Notifier.apiError(e, contextTag: 'create_property'),
-      );*/
+        contextTag: 'create-property',
+      );
+
     } finally {
       isSaving.value = false;
     }
   }
 
-  Future<void> getPropertyType() async {
+  Future<void> getPropertyType(String businessType) async {
     Loader.show();
     try {
-      final result = await _clientRepository.getPropertyType();
+      final result = await _clientRepository.getPropertyType(businessType:businessType.toUpperCase());
       result.handle(
         success: (value) {
           final data = value.data?.propertyTypes;
+          propertyTypeOptions.clear();
           if (data != null) propertyTypeOptions.addAll(data);
+          propertyTypeOptions.refresh();
         },
         contextTag: 'get-property-type',
       );
@@ -306,7 +310,7 @@ class PropertyController extends GetxController {
 
   @override
   void onReady() {
-    getPropertyType();
+    getPropertyType('RESIDENTIAL');
 
     super.onReady();
   }

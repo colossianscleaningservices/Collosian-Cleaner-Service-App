@@ -171,13 +171,15 @@ class Notifier {
   static void _show({required String title, required String message, required ToastificationType type}) {
     toastification.show(
       type: type,
-      style: ToastificationStyle.flat,
+      style: ToastificationStyle.flatColored,
       alignment: Alignment.topCenter,
       autoCloseDuration: _duration,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      title: Text(title),
-      description: Text(message),
+      title: CommonText.medium(title),
+      description: CommonText.regular(message),
       closeButton: const ToastCloseButton(showType: CloseButtonShowType.none),
+      borderSide: BorderSide(color: Colors.transparent),
+      dismissDirection: DismissDirection.vertical,
     );
   }
 }

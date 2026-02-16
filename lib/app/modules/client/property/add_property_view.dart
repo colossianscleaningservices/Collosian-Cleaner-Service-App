@@ -66,7 +66,14 @@ class AddPropertyView extends GetView<PropertyController> {
                           items: PropertyController.businessTypeOptions,
                           itemLabel: (v) => v,
                           value: controller.businessType.value,
-                          onChanged: (v) => v != null ? controller.businessType.value = v : null,
+                          onChanged: (v) {
+                            if (v != null) {
+                              controller.getPropertyType(v.capitalize.toString());
+                              controller.selectedPropertyType.value = null;
+                              controller.clearHouseFields();
+                              controller.businessType.value = v;
+                            }
+                          },
                         ),
                         CommonTextField(
                           controller: controller.addressCtrl,
@@ -90,37 +97,34 @@ class AddPropertyView extends GetView<PropertyController> {
                           validator: (v) => controller.validateRequired(v, 'Postal code'),
                           prefixIcon: Icon(IconsaxPlusLinear.map_1, size: 20, color: scheme.onSurfaceVariant),
                         ),
-                        CommonDropDownField<PropertyTypes>(
-                          label: 'Type of Property',
-                          hint: 'Select Property Type',
-                          items: controller.propertyTypeOptions,
-                          itemLabel: (v) => v.name??"",
-                          value: controller.selectedPropertyType.value,
-                          onChanged: (v) {
-                            if (v != null) {
-                              if (v.hasSubtypes == true){
-
-                                controller.getPropertySubType(v.id?.toInt() ?? 0 );
-
-                              }else{
-                                controller.clearHouseFields();
+                        Obx(() {
+                          return CommonDropDownField<PropertyTypes>(
+                            label: 'Type of Property',
+                            hint: 'Select Property Type',
+                            itemLabel: (v) => v.name ?? "",
+                            value: controller.selectedPropertyType.value,
+                            items: controller.propertyTypeOptions.value,
+                            onChanged: (v) {
+                              if (v != null) {
+                                if (v.hasSubtypes == true) {
+                                  controller.getPropertySubType(v.id?.toInt() ?? 0);
+                                } else {
+                                  controller.clearHouseFields();
+                                }
+                                controller.selectedPropertyType.value = v;
                               }
-                              controller.selectedPropertyType.value = v;
-                            }
-                          },
-                          validator: (v) => v == null ? 'Type of property is required' : null,
-                        ),
+                            },
+                            validator: (v) => v == null ? 'Type of property is required' : null,
+                          );
+                        }),
                         if (controller.selectedPropertyType.value?.hasSubtypes == true) ...[
                           CommonDropDownField<PropertySubtypes>(
-                            label: 'Sub Type',
-                            hint: 'Select',
-                            items: controller.propertySubTypeOptions,
-                            itemLabel: (v) => v.name ??'',
-                            value: controller.selectedPropertySubType.value,
-                            onChanged: (v) {
-
-                            }
-                          ),
+                              label: 'Sub Type',
+                              hint: 'Select',
+                              items: controller.propertySubTypeOptions,
+                              itemLabel: (v) => v.name ?? '',
+                              value: controller.selectedPropertySubType.value,
+                              onChanged: (v) {}),
                           _buildNumberField(controller.numberOfBedroomsCtrl, 'Number of Bedrooms'),
                           _buildNumberField(controller.numberOfBathroomsCtrl, 'Number of Bathrooms'),
                           _buildNumberField(controller.numberOfGuestToiletCtrl, 'Number of Separate/Guest Toilet'),
@@ -188,10 +192,8 @@ class AddPropertyView extends GetView<PropertyController> {
           ),
         ),
         bottomNavigationBar: SingleActionBottomBar(
-          label: controller.isSaving.value ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save changes' : 'Add Property'),
-          onPressed: () => controller.isSaving.value ? null : controller.addProperty()
-
-        ),
+            label: controller.isSaving.value ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save changes' : 'Add Property'),
+            onPressed: () => controller.isSaving.value ? null : controller.addProperty()),
       ),
     );
   }

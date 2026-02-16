@@ -177,10 +177,16 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<PropertyTypeResponse>> getPropertyType() async {
+  Future<NetworkResult<PropertyTypeResponse>> getPropertyType({
+    required String businessType,
+}) async {
+    final payload = <String, dynamic>{
+      'business_type': businessType
+    };
     return get<PropertyTypeResponse>(
       endpoint: Endpoint.getPropertyType,
       fromJson: (json) => PropertyTypeResponse.fromJson(json),
+      queryParameters: payload
     );
   }
 
