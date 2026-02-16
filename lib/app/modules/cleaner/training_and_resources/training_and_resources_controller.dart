@@ -155,7 +155,7 @@ class TrainingAndResourcesController extends GetxController {
     if (moreLoading.value == false) Loader.show();
     try {
       final result = await _commonRepository.getTrainingResources(page: currentPage);
-      result.when(
+      result.handle(
         success: (value) {
           if (currentPage == 1) training.clear();
 
@@ -167,9 +167,7 @@ class TrainingAndResourcesController extends GetxController {
 
           counts.value = value.data?.counts;
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'get_training_resources');
-        },
+        contextTag: 'get_training_resources',
       );
     } catch (e) {
       Notifier.error('Failed to fetch training resource');

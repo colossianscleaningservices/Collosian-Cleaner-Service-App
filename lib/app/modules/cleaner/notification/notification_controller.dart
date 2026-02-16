@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/model/notification_data.dart';
 import 'package:ccs_app/app/network/repository/common_repository.dart';
 
 import '../../../../export.dart';
@@ -47,7 +48,7 @@ class NotificationController extends GetxController {
     if (moreLoading.value == false) Loader.show();
     try {
       final result = await _commonRepository.getNotifications(page: currentPage);
-      result.when(
+      result.handle(
         success: (value) {
           if (currentPage == 1) notifications.clear();
 
@@ -57,9 +58,7 @@ class NotificationController extends GetxController {
             currentPage++;
           }
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'get_notifications');
-        },
+        contextTag: 'get_notifications',
       );
     } catch (e) {
       Notifier.error('Failed to fetch notifications');
@@ -76,22 +75,4 @@ class NotificationController extends GetxController {
     getNotifications();
   }
 
-}
-
-enum NotificationType { jobAssigned, jobUpdate, payment, message, reminder }
-
-class NotificationData {
-  final NotificationType type;
-  final String title;
-  final String message;
-  final DateTime timestamp;
-  final bool isRead;
-
-  NotificationData({
-    required this.type,
-    required this.title,
-    required this.message,
-    required this.timestamp,
-    required this.isRead,
-  });
 }

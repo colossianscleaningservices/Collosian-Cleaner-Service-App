@@ -1,26 +1,8 @@
+import 'package:ccs_app/app/model/property_list_item.dart';
 import 'package:ccs_app/app/network/repository/client_repository.dart';
 import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
 import 'package:ccs_app/app/network/response/property_type_response.dart';
 import 'package:ccs_app/export.dart';
-
-/// Minimal model for property list items.
-class PropertyListItem {
-  const PropertyListItem({
-    required this.id,
-    required this.name,
-    required this.addressLine,
-    this.propertyType,
-    this.city,
-    this.postalCode,
-  });
-
-  final String id;
-  final String name;
-  final String addressLine;
-  final String? propertyType;
-  final String? city;
-  final String? postalCode;
-}
 
 class PropertyController extends GetxController {
   final ClientRepository _clientRepository = ClientRepository();
@@ -40,7 +22,7 @@ class PropertyController extends GetxController {
     isLoadingProperties.value = true;
     try {
       final result = await _clientRepository.listProperties();
-      result.when(
+      result.handle(
         success: (response) {
           final raw = response.data;
           List? list;
@@ -54,7 +36,6 @@ class PropertyController extends GetxController {
             properties.assignAll(_parsePropertyList(list));
           }
         },
-        error: (_) {},
       );
     } finally {
       isLoadingProperties.value = false;
@@ -160,13 +141,13 @@ class PropertyController extends GetxController {
       return;
     }
     final result = await _clientRepository.deleteProperty(jobId);
-    result.when(
+    result.handle(
       success: (_) {
         properties.removeWhere((p) => p.id == id);
         clearEditing();
         Get.back();
       },
-      error: (e) async => await Notifier.apiError(e, contextTag: 'delete_property'),
+      contextTag: 'delete_property',
     );
   }
 
@@ -239,13 +220,13 @@ class PropertyController extends GetxController {
             propertyType: type,
             staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
           );
-          result.when(
+          result.handle(
             success: (_) async {
               await _loadProperties();
               clearEditing();
               Get.back();
             },
-            error: (e) async => await Notifier.apiError(e, contextTag: 'update_property'),
+            contextTag: 'update_property',
           );
           return;
         }
@@ -275,14 +256,12 @@ class PropertyController extends GetxController {
     Loader.show();
     try {
       final result = await _clientRepository.getPropertyType();
-      result.when(
+      result.handle(
         success: (value) {
           final data = value.data?.propertyTypes;
           if (data != null) propertyTypeOptions.addAll(data);
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'get-property-type');
-        },
+        contextTag: 'get-property-type',
       );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'get-property-type');
@@ -295,14 +274,12 @@ class PropertyController extends GetxController {
     Loader.show();
     try {
       final result = await _clientRepository.getPropertySubTypes(propertyId: propertyId);
-      result.when(
+      result.handle(
         success: (value) {
           final data = value.data?.propertySubtypes;
           if (data != null) propertySubTypeOptions.addAll(data);
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'get-property-type');
-        },
+        contextTag: 'get-property-type',
       );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'get-property-type');

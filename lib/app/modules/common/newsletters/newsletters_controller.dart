@@ -43,7 +43,7 @@ class NewslettersController extends GetxController {
     if (moreLoading.value == false) Loader.show();
     try {
       final result = await _commonRepository.getNewsletters(page: currentPage);
-      result.when(
+      result.handle(
         success: (value) {
           if (currentPage == 1) newsletters.clear();
           newsletters.addAll(value.data?.newsletters ?? []);
@@ -52,9 +52,7 @@ class NewslettersController extends GetxController {
             currentPage++;
           }
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'get_newsletters');
-        },
+        contextTag: 'get_newsletters',
       );
     } catch (e) {
       Notifier.error('Failed to load newsletters');

@@ -5,6 +5,7 @@ import 'package:toastification/toastification.dart';
 import 'app/network/utils/api_handler.dart';
 import 'app/network/utils/dio_client.dart';
 import 'app/network/utils/system_ui_config.dart';
+import 'app/services/api_error_handler.dart';
 import 'app/services/crashlytics_service.dart';
 import 'app/services/env_service.dart';
 import 'app/services/network_monitor_service.dart';
@@ -39,8 +40,7 @@ Future<void> main() async {
     Get
       ..put(NetworkMonitorService(), permanent: true)
       ..put(ApiHandler(), tag: 'handler', permanent: true)
-      ..put(DioClient().getClient(), tag: 'dio_client', permanent: true)
-      ..put(SessionService(), permanent: true);
+      ..put(DioClient().getClient(), tag: 'dio_client', permanent: true)..put(SessionService(), permanent: true)..put(ApiErrorHandler(), permanent: true);
   });
 
   final savedThemeMode = await AdaptiveTheme.getThemeMode();

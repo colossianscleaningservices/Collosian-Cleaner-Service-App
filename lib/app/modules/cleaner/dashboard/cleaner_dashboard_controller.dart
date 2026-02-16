@@ -192,7 +192,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   Future<void> _fetchDashboardData() async {
     try {
       final compResult = await _cleanerRepository.getProfileCompletion();
-      compResult.when(
+      compResult.handle(
         success: (res) {
           final data = res.data;
           if (data is Map) {
@@ -204,17 +204,15 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
             }
           }
         },
-        error: (_) {},
       );
       final actionResult = await _cleanerRepository.getActionNeeded();
-      actionResult.when(
+      actionResult.handle(
         success: (res) {
           final data = res.data;
           if (data is Map && data['action_needed_count'] is int) {
             actionNeededCount.value = data['action_needed_count'] as int;
           }
         },
-        error: (_) {},
       );
     } catch (_) {}
   }

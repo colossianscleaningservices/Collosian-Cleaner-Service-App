@@ -6,21 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../../../export.dart';
-
-/// Represents a single supporting document for the list view.
-class SupportDocumentItem {
-  const SupportDocumentItem({
-    required this.type,
-    required this.number,
-    this.expiry,
-    this.fileUrl,
-  });
-
-  final String type;
-  final String number;
-  final DateTime? expiry;
-  final String? fileUrl;
-}
+import '../../../model/support_document_item.dart';
 
 class SupportDocumentController extends GetxController {
 

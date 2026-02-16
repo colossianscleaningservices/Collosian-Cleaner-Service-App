@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/model/notification_data.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 

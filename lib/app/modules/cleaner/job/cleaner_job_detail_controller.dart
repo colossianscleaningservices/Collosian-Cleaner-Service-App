@@ -208,12 +208,12 @@ class CleanerJobDetailController extends GetxController {
 
   Future<void> _declineJob(int jobId) async {
     final result = await _cleanerRepository.declineJob(jobId: jobId);
-    result.when(
+    result.handle(
       success: (_) {
         Notifier.success('Job declined');
         Get.back();
       },
-      error: (e) async => await Notifier.apiError(e, contextTag: 'decline_job'),
+      contextTag: 'decline_job',
     );
   }
 

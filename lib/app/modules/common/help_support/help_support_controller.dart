@@ -61,13 +61,11 @@ class HelpSupportController extends GetxController {
       (Get.context as BuildContext).hideKeyboard();
       Loader.show();
       final result = await _commonRepository.contactUs(name: name, email: email, message: message);
-      result.when(
+      result.handle(
         success: (value) {
           Notifier.success(value.message.toString());
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'contact_support');
-        },
+        contextTag: 'contact_support',
       );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'contact_support');
@@ -82,14 +80,12 @@ class HelpSupportController extends GetxController {
     Loader.show();
     try {
       final result = await _commonRepository.getFaqs();
-      result.when(
+      result.handle(
         success: (value) {
           final data = value.data?.faq;
           if (data != null) faqList.addAll(data);
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'get_faqs');
-        },
+        contextTag: 'get_faqs',
       );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'get_faqs');

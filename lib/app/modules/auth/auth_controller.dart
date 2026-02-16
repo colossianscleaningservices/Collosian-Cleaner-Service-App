@@ -130,7 +130,7 @@ class AuthController extends GetxController {
     try {
       final catResult = await _authRepository.getAssessmentCategories();
 
-      catResult.when(
+      catResult.handle(
         success: (value) async {
           final categories = value.data?.categories ?? [];
           if (categories.isEmpty) return;
@@ -143,14 +143,12 @@ class AuthController extends GetxController {
 
             final formResult = await _authRepository.getAssessmentForms(categoryId: id.toInt());
 
-            formResult.when(
+            formResult.handle(
               success: (value) async {
                 questionsByStep.add(value.data?.questions ?? []);
               },
-              error: (e) async {
-                questionsByStep.add([]);
-                await Notifier.apiError(e, contextTag: 'getAssessmentCategories');
-              },
+              contextTag: 'getAssessmentCategories',
+              onError: (_) => questionsByStep.add([]),
             );
           }
           assessmentCategories.assignAll(categories);
@@ -160,9 +158,7 @@ class AuthController extends GetxController {
           stepCurrentIndex.value = 0;
           stepProgressController.setCurrentStep(0);
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'getAssessmentCategories');
-        },
+        contextTag: 'getAssessmentCategories',
       );
     } finally {
       isAssessmentLoading.value = false;
@@ -240,7 +236,7 @@ class AuthController extends GetxController {
       log(runtimeType.toString(), 'SAVE CLEANER REQUEST ${request.toJson()}');
 
       final result = await _authRepository.saveCleanerAssessment(request);
-      result.when(
+      result.handle(
         success: (value) {
           answersId.clear();
           answersId.addAll(value.data?.answerIds as Iterable<num?>);
@@ -269,9 +265,7 @@ class AuthController extends GetxController {
             );
           }
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'save_assessment');
-        },
+        contextTag: 'save_assessment',
       );
     } catch (e) {
       Notifier.error('Failed to change password');
@@ -291,12 +285,12 @@ class AuthController extends GetxController {
         password: changePasswordNewCtrl.text,
         passwordConfirmation: changePasswordConfirmCtrl.text,
       );
-      result.when(
+      result.handle(
         success: (_) {
           Notifier.success('Password changed successfully');
           Get.back();
         },
-        error: (e) async => await Notifier.apiError(e, contextTag: 'change_password'),
+        contextTag: 'change_password',
       );
     } catch (e) {
       Notifier.error('Failed to change password');
@@ -316,7 +310,7 @@ class AuthController extends GetxController {
         email: loginEmailCtrl.text,
         password: loginPasswordCtrl.text,
       );
-      result.when(
+      result.handle(
         success: (value) async {
           final data = value.data;
           log('test', ' Response : $data ');
@@ -342,7 +336,7 @@ class AuthController extends GetxController {
             },
           );
         },
-        error: (e) async => await Notifier.apiError(e, contextTag: 'login'),
+        contextTag: 'login',
       );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'login');
@@ -379,7 +373,7 @@ class AuthController extends GetxController {
         verificationCode: role == UserRole.cleaner ? signupNiNumberCtrl.text.trim() : null,
         answersId: role == UserRole.cleaner ? answersId : null,
       );
-      result.when(
+      result.handle(
         success: (response) async {
           final data = response.data;
           if (data == null) throw Exception(response.message ?? 'Registration failed');
@@ -390,9 +384,7 @@ class AuthController extends GetxController {
             Get.offAllNamed(Routes.CLEANER_DASHBOARD);
           }
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'signup');
-        },
+        contextTag: 'signup',
       );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'signup');
@@ -413,7 +405,7 @@ class AuthController extends GetxController {
     isForgotPassword.value = true;
     try {
       final result = await _authRepository.forgotPassword(email: forgotEmailCtrl.text);
-      result.when(
+      result.handle(
         success: (_) {
           isForgotPassword.value = false;
           Notifier.success(
@@ -422,10 +414,8 @@ class AuthController extends GetxController {
           );
           Get.until((route) => Get.currentRoute == Routes.LOGIN);
         },
-        error: (e) async {
-          isForgotPassword.value = false;
-          await Notifier.apiError(e, contextTag: 'forgot_password');
-        },
+        contextTag: 'forgot_password',
+        onError: (_) => isForgotPassword.value = false,
       );
     } catch (e) {
       isForgotPassword.value = false;
@@ -456,14 +446,12 @@ class AuthController extends GetxController {
         password: password,
         passwordConfirmation: confirm,
       );
-      result.when(
+      result.handle(
         success: (_) {
           Notifier.success('Your password has been reset. You can sign in now.', title: 'Password reset');
           Get.offAllNamed(Routes.LOGIN);
         },
-        error: (e) async {
-          await Notifier.apiError(e, contextTag: 'reset_password');
-        },
+        contextTag: 'reset_password',
       );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'reset_password');

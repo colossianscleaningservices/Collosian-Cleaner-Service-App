@@ -88,12 +88,12 @@ class ClientJobDetailController extends GetxController {
 
   Future<void> _cancelJob(int jobId) async {
     final result = await _clientRepository.cancelJob(jobId: jobId);
-    result.when(
+    result.handle(
       success: (_) {
         Notifier.success('Job cancelled');
         Get.back();
       },
-      error: (e) async => await Notifier.apiError(e, contextTag: 'cancel_job'),
+      contextTag: 'cancel_job',
     );
   }
 
@@ -126,7 +126,7 @@ class ClientJobDetailController extends GetxController {
       endDate: endStr,
       copyCleaners: false,
     );
-    result.when(
+    result.handle(
       success: (_) {
         final startTimeStr = _formatTime(startTime);
         final endTimeStr = _formatTime(endTime);
@@ -139,7 +139,7 @@ class ClientJobDetailController extends GetxController {
         );
         Notifier.success('Job scheduled for ${CcsDateUtils.fullDate(startDate)}.');
       },
-      error: (e) async => await Notifier.apiError(e, contextTag: 'schedule_job'),
+      contextTag: 'schedule_job',
     );
   }
 
@@ -163,12 +163,12 @@ class ClientJobDetailController extends GetxController {
       feedback: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
       message: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
     );
-    result.when(
+    result.handle(
       success: (_) {
         Notifier.success('Thank you for your feedback');
         Get.back();
       },
-      error: (e) async => await Notifier.apiError(e, contextTag: 'submit_review'),
+      contextTag: 'submit_review',
     );
   }
 }

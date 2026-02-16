@@ -121,12 +121,12 @@ class JobCheckPhotoController extends GetxController {
       final result = isCheckIn
           ? await _cleanerRepository.checkIn(jobId: job.id, photos: photos.toList())
           : await _cleanerRepository.checkOut(jobId: job.id, photos: photos.toList());
-      result.when(
+      result.handle(
         success: (_) {
           Notifier.success(isCheckIn ? 'Job started' : 'Job completed');
           Get.back(result: true);
         },
-        error: (e) async => await Notifier.apiError(e, contextTag: 'job_check_photo'),
+        contextTag: 'job_check_photo',
       );
     } finally {
       isSubmitting.value = false;

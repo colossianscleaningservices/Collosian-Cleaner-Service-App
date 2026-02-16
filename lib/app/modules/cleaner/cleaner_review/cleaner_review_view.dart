@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/model/review_item.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
@@ -101,38 +102,38 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
     );
   }
 
-  List<_ReviewItem> _getDummyReviews() {
+  List<ReviewItem> _getDummyReviews() {
     final now = DateTime.now();
     return [
-      _ReviewItem(
+      ReviewItem(
         name: 'Sarah Johnson',
         clientName: 'Sarah Johnson',
         rating: 5,
         comment: 'Excellent deep clean. Very thorough and professional. Would definitely book again.',
         date: now.subtract(const Duration(days: 2)),
       ),
-      _ReviewItem(
+      ReviewItem(
         name: 'Michael Brown',
         clientName: 'Michael Brown',
         rating: 5,
         comment: 'Great job on the end-of-tenancy clean. The property was spotless.',
         date: now.subtract(const Duration(days: 5)),
       ),
-      _ReviewItem(
+      ReviewItem(
         name: 'Emma Wilson',
         clientName: 'Emma Wilson',
         rating: 4,
         comment: 'Good standard clean. A few missed spots but overall happy with the service.',
         date: now.subtract(const Duration(days: 10)),
       ),
-      _ReviewItem(
+      ReviewItem(
         name: 'James Taylor',
         clientName: 'James Taylor',
         rating: 5,
         comment: 'Prompt, friendly and left the place gleaming. Highly recommend.',
         date: now.subtract(const Duration(days: 14)),
       ),
-      _ReviewItem(
+      ReviewItem(
         name: 'Olivia Davis',
         clientName: 'Olivia Davis',
         rating: 4,
@@ -141,22 +142,6 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
       ),
     ];
   }
-}
-
-class _ReviewItem {
-  final String name;
-  final String clientName;
-  final int rating;
-  final String comment;
-  final DateTime date;
-
-  _ReviewItem({
-    required this.name,
-    required this.clientName,
-    required this.rating,
-    required this.comment,
-    required this.date,
-  });
 }
 
 class _StarRating extends StatelessWidget {
@@ -188,7 +173,7 @@ class _StarRating extends StatelessWidget {
 class _ReviewCard extends StatelessWidget {
   const _ReviewCard({required this.review, required this.scheme});
 
-  final _ReviewItem review;
+  final ReviewItem review;
   final ColorScheme scheme;
 
   String _formatDate(DateTime date) {
