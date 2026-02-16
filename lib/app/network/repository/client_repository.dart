@@ -45,19 +45,19 @@ class ClientRepository extends BaseRepository {
       'property_type': propertyType,
     };
     if (propertySubType != null) payload['sub_type'] = propertySubType;
-    if (noOfBedrooms != null) payload['bedrooms'] = noOfBedrooms;
-    if (noOfBathrooms != null) payload['bathrooms'] = noOfBathrooms;
-    if (noOfGuestToilet != null) payload['separate_guest_toilet'] = noOfGuestToilet;
-    if (livingRoom != null) payload['living_rooms'] = livingRoom;
-    if (office != null) payload['office'] = office;
-    if (conservatory != null) payload['conservatory'] = conservatory;
-    if (diningRoom != null) payload['dining_room'] = diningRoom;
-    if (haveHoover != null) payload['type'] = haveHoover;
-    if (provideCleaningProduct != null) payload['type'] = provideCleaningProduct;
-    if (haveWashingMachine != null) payload['type'] = haveWashingMachine;
+    if (noOfBedrooms != 0) payload['bedrooms'] = noOfBedrooms;
+    if (noOfBathrooms != 0) payload['bathrooms'] = noOfBathrooms;
+    if (noOfGuestToilet != 0) payload['separate_guest_toilet'] = noOfGuestToilet;
+    if (livingRoom != 0) payload['living_rooms'] = livingRoom;
+    if (office != 0) payload['office'] = office;
+    if (conservatory != 0) payload['conservatory'] = conservatory;
+    if (diningRoom != 0) payload['dining_room'] = diningRoom;
+    if (haveHoover != null) payload['hoover'] = haveHoover;
+    if (provideCleaningProduct != null) payload['provide_cleaning_products'] = provideCleaningProduct;
+    if (haveWashingMachine != null) payload['provide_washing_machine'] = haveWashingMachine;
     if (staffPreference != null) payload['staff_preference'] = staffPreference;
-    if (haveDryer != null) payload['type'] = haveDryer;
-    if (accessProperty != null) payload['type'] = accessProperty;
+    if (haveDryer != null) payload['provide_dryer'] = haveDryer;
+    if (accessProperty != null) payload['access_to_property'] = accessProperty;
     if (animalProperty != null) payload['animal_property'] = animalProperty;
     return post<BaseResponse>(
       endpoint: Endpoint.clientProperties,

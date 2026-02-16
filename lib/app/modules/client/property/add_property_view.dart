@@ -93,8 +93,9 @@ class AddPropertyView extends GetView<PropertyController> {
                           controller: controller.postalCodeCtrl,
                           label: 'Postal Code',
                           hint: 'Enter postal code',
-                          keyboardType: TextInputType.text,
+                          keyboardType: TextInputType.number,
                           validator: (v) => controller.validateRequired(v, 'Postal code'),
+                          maxLength: 6,
                           prefixIcon: Icon(IconsaxPlusLinear.map_1, size: 20, color: scheme.onSurfaceVariant),
                         ),
                         Obx(() {

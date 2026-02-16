@@ -48,7 +48,7 @@ class PropertyController extends GetxController {
       if (e is! Map) continue;
       final id = e['id']?.toString() ?? '';
       if (id.isEmpty) continue;
-      final name = e['name']?.toString() ?? '';
+      final name = e['property_name']?.toString() ?? '';
       final address = e['address']?.toString() ?? '';
       final city = e['city']?.toString();
       final postalCode = e['postal_code']?.toString();
@@ -206,7 +206,6 @@ class PropertyController extends GetxController {
       final address = addressCtrl.text.trim();
       final city = cityCtrl.text.trim();
       final code = postalCodeCtrl.text.trim();
-      final type = propertyType.value ?? '';
       final editing = editingProperty.value;
       if (editing != null) {
         final id = int.tryParse(editing.id);
@@ -217,7 +216,7 @@ class PropertyController extends GetxController {
             address: address.isNotEmpty ? address : null,
             city: city.isNotEmpty ? city : null,
             postalCode: code.isNotEmpty ? code : null,
-            propertyType: type,
+            propertyType: propertyType.value,
             staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
           );
           result.handle(
@@ -231,14 +230,29 @@ class PropertyController extends GetxController {
           return;
         }
       }
+
       final result = await _clientRepository.createProperty(
-        name: name.isNotEmpty ? name : 'Property',
-        address: address,
-        city: city,
-        postalCode: code,
-        propertyType: type,
-        staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null, businessType:'',
-      );
+          name: name.isNotEmpty ? name : 'Property',
+          businessType: businessType.value.toUpperCase(),
+          address: address,
+          city: city,
+          postalCode: code,
+          propertyType: selectedPropertyType.value?.name ?? "",
+          propertySubType: selectedPropertySubType.value?.name ?? '',
+          noOfBedrooms: numberOfBedroomsCtrl.text.toInt(),
+          noOfBathrooms: numberOfBathroomsCtrl.text.toInt(),
+          noOfGuestToilet: numberOfGuestToiletCtrl.text.toInt(),
+          livingRoom: livingRoomCtrl.text.toInt(),
+          office: officeCtrl.text.toInt(),
+          conservatory: conservatoryCtrl.text.toInt(),
+          diningRoom: diningRoomCtrl.text.toInt(),
+          haveHoover: hoover.value,
+          provideCleaningProduct: provideCleaningProducts.value,
+          haveWashingMachine: hasWashingMachine.value,
+          staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
+          haveDryer: hasDryer.value,
+          accessProperty: accessToProperty.value,
+          animalProperty: animals.value != 'No');
 
       result.handle(
         success: (_) async {
@@ -248,7 +262,6 @@ class PropertyController extends GetxController {
         },
         contextTag: 'create-property',
       );
-
     } finally {
       isSaving.value = false;
     }
@@ -257,7 +270,7 @@ class PropertyController extends GetxController {
   Future<void> getPropertyType(String businessType) async {
     Loader.show();
     try {
-      final result = await _clientRepository.getPropertyType(businessType:businessType.toUpperCase());
+      final result = await _clientRepository.getPropertyType(businessType: businessType.toUpperCase());
       result.handle(
         success: (value) {
           final data = value.data?.propertyTypes;
