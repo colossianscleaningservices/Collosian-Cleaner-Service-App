@@ -92,7 +92,7 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                 color: scheme.onSurfaceVariant,
               ),
             ),
-            CommonText.semiBold('Quick Actions', size: 16, color: scheme.onSurface),
+            /*CommonText.semiBold('Quick Actions', size: 16, color: scheme.onSurface),
             Row(
               children: [
                 Expanded(
@@ -115,7 +115,7 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                   ),
                 ),
               ],
-            ),
+            ),*/
           ],
         ),
       ),

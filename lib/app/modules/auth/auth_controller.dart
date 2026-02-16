@@ -65,6 +65,7 @@ class AuthController extends GetxController {
   ScrollController scrollController = ScrollController();
   ScrollController stepScrollController = ScrollController();
   final selectedAgreementAnswers = <int, Map<int, String>>{}.obs;
+  List<num?> answersId = [];
 
   // ─── Lifecycle ───────────────────────────────────────────────────────────
 
@@ -217,8 +218,6 @@ class AuthController extends GetxController {
     stepProgressController.setCurrentStep(stepCurrentIndex.value);
   }
 
-  List<num?> answersId = [];
-
   Future<void> saveCleanerAssessment() async {
     answersId.clear();
     List<Answers> answers = [];
@@ -240,7 +239,18 @@ class AuthController extends GetxController {
         success: (value) {
           answersId.clear();
           answersId.addAll(value.data?.answerIds as Iterable<num?>);
-          if (value.data?.overall?.status == "fail") {
+          if (value.data?.overall?.status == "pass") {
+            Notifier.openSheet(
+              Get.context as BuildContext,
+              title: 'Pass',
+              message: 'You have passed the assessment.',
+              showSecondaryButton: false,
+              primaryButtonLabel: 'Go to Sign Up',
+              onPrimaryPressed: () {
+                Get.offAndToNamed(Routes.SIGN_UP);
+              },
+            );
+          } else {
             Notifier.openSheet(
               Get.context as BuildContext,
               title: 'Failed',
@@ -250,17 +260,6 @@ class AuthController extends GetxController {
                 resetAgreement();
                 stepCurrentIndex.value = 0;
                 stepProgressController.setCurrentStep(0);
-              },
-            );
-          } else {
-            Notifier.openSheet(
-              Get.context as BuildContext,
-              title: 'Pass',
-              message: 'You have passed the assessment.',
-              showSecondaryButton: false,
-              primaryButtonLabel: 'Go to Sign Up',
-              onPrimaryPressed: () {
-                Get.offAndToNamed(Routes.SIGN_UP);
               },
             );
           }

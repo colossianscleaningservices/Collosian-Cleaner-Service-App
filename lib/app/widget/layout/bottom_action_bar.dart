@@ -40,17 +40,21 @@ class SingleActionBottomBar extends StatelessWidget {
     super.key,
     this.buttonType = ButtonType.primary,
     this.backgroundColor,
+    this.isLoading = false,
   });
 
   final String label;
   final VoidCallback onPressed;
   final ButtonType buttonType;
   final Color? backgroundColor;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) => BottomActionBar(
         backgroundColor: backgroundColor,
-        children: [Expanded(child: SizedBox(width: double.infinity, child: AppButton(label: label, onPressed: onPressed, type: buttonType)))],
+        children: [Expanded(child: SizedBox(width: double.infinity, child: AppButton(
+            isLoading: isLoading,
+            label: label, onPressed: onPressed, type: buttonType)))],
       );
 }
 

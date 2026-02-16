@@ -1,4 +1,4 @@
-import 'package:ccs_app/app/model/property_list_item.dart';
+import 'package:ccs_app/app/network/response/property_list_response.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
@@ -54,13 +54,17 @@ class PropertyView extends GetView<PropertyController> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: controller.goToAddProperty,
-        icon: const Icon(IconsaxPlusLinear.add),
-        label: const Text('Add Property'),
-        backgroundColor: scheme.primary,
-        foregroundColor: scheme.onPrimary,
-      ),
+      floatingActionButton: Obx((){
+        return controller.properties.isEmpty
+            ? SizedBox.shrink()
+            : FloatingActionButton.extended(
+          onPressed: controller.goToAddProperty,
+          icon: const Icon(IconsaxPlusLinear.add),
+          label: const Text('Add Property'),
+          backgroundColor: scheme.primary,
+          foregroundColor: scheme.onPrimary,
+        );
+      }),
     );
   }
 }
@@ -72,7 +76,7 @@ class _PropertyCard extends StatelessWidget {
     required this.scheme,
   });
 
-  final PropertyListItem property;
+  final PropertyModel property;
   final VoidCallback onTap;
   final ColorScheme scheme;
 
@@ -96,10 +100,10 @@ class _PropertyCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CommonText.semiBold(property.name, size: 18, color: scheme.onSurface),
+                CommonText.semiBold(property.propertyName ?? "N/A", size: 18, color: scheme.onSurface),
                 const SizedBox(height: 2),
                 CommonText.regular(
-                  property.addressLine,
+                  "${property.address}${property.address != null ? ', ' : ''}${property.city}",
                   size: 13,
                   color: scheme.onSurfaceVariant,
                   maxLines: 2,

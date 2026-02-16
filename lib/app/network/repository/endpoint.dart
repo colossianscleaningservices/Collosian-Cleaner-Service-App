@@ -30,6 +30,7 @@ class Endpoint {
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
   static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';
+
   // Check-in/check-out: not in current OpenAPI spec; paths kept for app until backend adds them.
   static const String cleanerJobCheckIn = '${root}staff/jobs/check-in';
   static const String cleanerJobCheckOut = '${root}staff/jobs/check-out';
@@ -38,18 +39,22 @@ class Endpoint {
   static String clientJobCancel(int id) => '${root}client/jobs/$id/cancel';
   static String clientJobSchedule(int id) => '${root}client/jobs/$id/schedule';
   static String clientJobReview(int id) => '${root}client/jobs/$id/review';
+  static const String clientJob = '${root}client/jobs';
 
   // ─── Client - Properties ───────────────────────────────────────────────────
   static const String clientProperties = '${root}client/properties';
+
   static String clientProperty(int id) => '${root}client/properties/$id';
   static String getPropertyType = '${root}client/properties/types';
-  static String getPropertySubType(int id) => '${root}client/properties/types/$id/subtypes';
 
+  static String getPropertySubType(int id) => '${root}client/properties/types/$id/subtypes';
 
   // ─── Common - Chat ────────────────────────────────────────────────────────
   static const String chatThreads = '${root}shared/chat/threads';
+
   static String chatThreadMessages(int userId) => '${root}shared/chat/threads/$userId/messages';
   static const String chatMessages = '${root}shared/chat/messages';
+
   static String chatMessage(int id) => '${root}shared/chat/messages/$id';
 
   // ─── Common - Device ──────────────────────────────────────────────────────

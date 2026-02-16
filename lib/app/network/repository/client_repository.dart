@@ -1,7 +1,9 @@
 import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
 
 import '../../core/base/base_repository.dart';
+import '../request/create_job_request.dart';
 import '../response/base_response.dart';
+import '../response/property_list_response.dart';
 import '../response/property_type_response.dart';
 import '../utils/network_result.dart';
 import 'endpoint.dart';
@@ -66,16 +68,16 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<DataResponse>> listProperties({
+  Future<NetworkResult<PropertyListResponse>> listProperties({
     int? perPage,
     String? search,
   }) async {
     final query = <String, dynamic>{};
     if (perPage != null) query['per_page'] = perPage;
     if (search != null && search.isNotEmpty) query['search'] = search;
-    return get<DataResponse>(
+    return get<PropertyListResponse>(
       endpoint: Endpoint.clientProperties,
-      fromJson: (json) => DataResponse.fromJson(json),
+      fromJson: (json) => PropertyListResponse.fromJson(json),
       queryParameters: query.isEmpty ? null : query,
     );
   }
@@ -91,24 +93,51 @@ class ClientRepository extends BaseRepository {
   /// PUT update property (partial: name, address, city, etc.).
   Future<NetworkResult<BaseResponse>> updateProperty({
     required int id,
-    String? name,
-    String? address,
-    String? city,
-    String? postalCode,
-    String? propertyType,
-    String? type,
-    bool? animalProperty,
+    required String name,
+    required String businessType,
+    required String address,
+    required String city,
+    required String postalCode,
+    required String propertyType,
+    String? propertySubType,
+    int? noOfBedrooms,
+    int? noOfBathrooms,
+    int? noOfGuestToilet,
+    int? livingRoom,
+    int? office,
+    int? conservatory,
+    int? diningRoom,
+    String? haveHoover,
+    bool? provideCleaningProduct,
+    bool? haveWashingMachine,
     String? staffPreference,
+    bool? haveDryer,
+    String? accessProperty,
+    String? animalProperty,
   }) async {
-    final payload = <String, dynamic>{};
-    if (name != null) payload['name'] = name;
-    if (address != null) payload['address'] = address;
-    if (city != null) payload['city'] = city;
-    if (postalCode != null) payload['postal_code'] = postalCode;
-    if (propertyType != null) payload['property_type'] = propertyType;
-    if (type != null) payload['type'] = type;
-    if (animalProperty != null) payload['animal_property'] = animalProperty;
+    final payload = <String, dynamic>{
+      'property_name': name,
+      'bussiness_type': businessType,
+      'address': address,
+      'city': city,
+      'postal_code': postalCode,
+      'property_type': propertyType,
+    };
+    if (propertySubType != null) payload['sub_type'] = propertySubType;
+    if (noOfBedrooms != 0) payload['bedrooms'] = noOfBedrooms;
+    if (noOfBathrooms != 0) payload['bathrooms'] = noOfBathrooms;
+    if (noOfGuestToilet != 0) payload['separate_guest_toilet'] = noOfGuestToilet;
+    if (livingRoom != 0) payload['living_rooms'] = livingRoom;
+    if (office != 0) payload['office'] = office;
+    if (conservatory != 0) payload['conservatory'] = conservatory;
+    if (diningRoom != 0) payload['dining_room'] = diningRoom;
+    if (haveHoover != null) payload['hoover'] = haveHoover;
+    if (provideCleaningProduct != null) payload['provide_cleaning_products'] = provideCleaningProduct;
+    if (haveWashingMachine != null) payload['provide_washing_machine'] = haveWashingMachine;
     if (staffPreference != null) payload['staff_preference'] = staffPreference;
+    if (haveDryer != null) payload['provide_dryer'] = haveDryer;
+    if (accessProperty != null) payload['access_to_property'] = accessProperty;
+    if (animalProperty != null) payload['animal_property'] = animalProperty;
     return put<BaseResponse>(
       endpoint: Endpoint.clientProperty(id),
       fromJson: (json) => BaseResponse.fromJson(json),
@@ -135,6 +164,21 @@ class ClientRepository extends BaseRepository {
       endpoint: Endpoint.clientJobCancel(jobId),
       fromJson: (json) => BaseResponse.fromJson(json),
       data: reason != null ? <String, dynamic>{'reason': reason} : null,
+    );
+  }
+
+  Future<NetworkResult<BaseResponse>> createJob(CreateJobRequest request) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.clientJob,
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data: request,
+    );
+  }
+
+  Future<NetworkResult<BaseResponse>> getJob() async {
+    return get<BaseResponse>(
+      endpoint: Endpoint.clientJob,
+      fromJson: (json) => BaseResponse.fromJson(json),
     );
   }
 
@@ -179,15 +223,9 @@ class ClientRepository extends BaseRepository {
 
   Future<NetworkResult<PropertyTypeResponse>> getPropertyType({
     required String businessType,
-}) async {
-    final payload = <String, dynamic>{
-      'business_type': businessType
-    };
-    return get<PropertyTypeResponse>(
-      endpoint: Endpoint.getPropertyType,
-      fromJson: (json) => PropertyTypeResponse.fromJson(json),
-      queryParameters: payload
-    );
+  }) async {
+    final payload = <String, dynamic>{'business_type': businessType};
+    return get<PropertyTypeResponse>(endpoint: Endpoint.getPropertyType, fromJson: (json) => PropertyTypeResponse.fromJson(json), queryParameters: payload);
   }
 
   Future<NetworkResult<PropertySubTypeResponse>> getPropertySubTypes({

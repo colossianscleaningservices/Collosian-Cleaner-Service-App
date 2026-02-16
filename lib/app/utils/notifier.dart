@@ -40,6 +40,7 @@ class Notifier {
     bool showPrimaryButton = true,
     bool showSecondaryButton = true,
     bool showIcon = true,
+    bool isShowCloseIcon = true,
     void Function()? onPrimaryPressed,
     void Function()? onSecondaryPressed,
   }) {
@@ -90,10 +91,11 @@ class Notifier {
                   width: 120,
                 ),
                 Spacer(),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(icon: const Icon(Icons.close), onPressed: closeSheet, style: filledIconButtonStyle(context)),
-                ),
+                if (isShowCloseIcon)
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(icon: const Icon(Icons.close), onPressed: closeSheet, style: filledIconButtonStyle(context)),
+                  ),
               ],
             ),
 

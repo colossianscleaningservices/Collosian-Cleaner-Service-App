@@ -36,15 +36,19 @@ class CreateJobView extends GetView<CreateJobController> {
                       spacing: 14,
                       children: [
                         CommonText.semiBold('Property & scheduling', size: 16, color: scheme.onSurface),
-                        CommonDropDownField<String>(
-                          label: 'Property',
-                          hint: 'Select',
-                          items: const ['Property 1', 'Property 2'],
-                          itemLabel: (v) => v,
-                          value: controller.selectedPropertyId.value,
-                          onChanged: (v) => controller.selectedPropertyId.value = v,
-                          validator: (v) => controller.validateProperty(v),
-                        ),
+                        Obx(() {
+                          return controller.isLoadingProperties.value
+                              ? Center(child: CircularProgressIndicator())
+                              : CommonDropDownField<String>(
+                                  label: 'Property',
+                                  hint: 'Select',
+                                  items: controller.properties.map((item) => item.propertyName ?? "").toList(),
+                                  itemLabel: (v) => v,
+                                  value: controller.selectedProperty.value,
+                                  onChanged: (v) => controller.selectedProperty.value = v,
+                                  validator: (v) => controller.validateProperty(v),
+                                );
+                        }),
                         CommonTextField(
                           controller: controller.dateDisplayController,
                           label: 'Job Start Date',
@@ -124,7 +128,7 @@ class CreateJobView extends GetView<CreateJobController> {
                         CommonDropDownField<String>(
                           label: 'Staff Preference',
                           hint: 'Select',
-                          items: const ['Male', 'Female', 'No preference'],
+                          items: const ['Male', 'Female', 'No Preference'],
                           itemLabel: (v) => v,
                           value: controller.staffPreference.value,
                           onChanged: (v) => controller.staffPreference.value = v ?? 'Male',
@@ -179,6 +183,7 @@ class CreateJobView extends GetView<CreateJobController> {
         ),
         bottomNavigationBar: SingleActionBottomBar(
           label: 'Create',
+          isLoading: controller.isSaving.value,
           onPressed: controller.submit,
         ),
       );

@@ -17,7 +17,9 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                   subtitle: 'Create a job or check back later.',
                   icon: IconsaxPlusLinear.briefcase,
                   actionLabel: 'Create job',
-                  onAction: () => Get.toNamed(Routes.CLIENT_CREATE_JOB),
+                  onAction: () => Get.toNamed(Routes.CLIENT_CREATE_JOB)?.then((value){
+                    log(runtimeType.toString(), value);
+                  }),
                 )
               : AppGrid(
                   maxExtent: 142,

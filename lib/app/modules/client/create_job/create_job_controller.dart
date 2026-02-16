@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:ccs_app/export.dart';
 
-import '../../../model/create_job_request.dart';
+import '../../../network/repository/client_repository.dart';
+import '../../../network/request/create_job_request.dart';
+import '../../../network/response/property_list_response.dart';
 
 class CreateJobController extends GetxController {
+  final ClientRepository _clientRepository = ClientRepository();
   final formKey = GlobalKey<FormState>();
   final notesController = TextEditingController();
   final dateDisplayController = TextEditingController();
@@ -10,7 +15,7 @@ class CreateJobController extends GetxController {
   final endTimeDisplayController = TextEditingController();
   final cleanersNeededController = TextEditingController();
 
-  final selectedPropertyId = Rxn<String>();
+  final selectedProperty = Rxn<String>();
   final jobStartDate = Rxn<DateTime>();
   final startTime = Rxn<TimeOfDay>();
   final endTime = Rxn<TimeOfDay>();
@@ -26,11 +31,15 @@ class CreateJobController extends GetxController {
 
   static const maxNotesLength = 100;
 
+  final isLoadingProperties = false.obs;
+  final properties = <PropertyModel>[].obs;
+
   @override
   void onInit() {
     super.onInit();
     notesController.addListener(() => notesLength.value = notesController.text.length);
     cleanersNeededController.text = '1';
+    _loadProperties();
   }
 
   @override
@@ -65,16 +74,12 @@ class CreateJobController extends GetxController {
 
   void setStartTime(TimeOfDay? t) {
     startTime.value = t;
-    startTimeDisplayController.text = t != null
-        ? '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}'
-        : '';
+    startTimeDisplayController.text = t != null ? '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}' : '';
   }
 
   void setEndTime(TimeOfDay? t) {
     endTime.value = t;
-    endTimeDisplayController.text = t != null
-        ? '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}'
-        : '';
+    endTimeDisplayController.text = t != null ? '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}' : '';
   }
 
   String? validateCleanersNeeded(String? v) {
@@ -93,37 +98,74 @@ class CreateJobController extends GetxController {
     }
   }
 
-  void submit() {
+  final isSaving = false.obs;
+
+  Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
-    final end = endTime.value;
-    final start = startTime.value;
-    if (start != null && end != null) {
-      final startM = start.hour * 60 + start.minute;
-      final endM = end.hour * 60 + end.minute;
-      if (endM <= startM) {
-        Notifier.info('End time must be after start time');
-        return;
+
+    if (isSaving.value) return;
+    isSaving.value = true;
+
+    try {
+      final end = endTime.value;
+      final start = startTime.value;
+      if (start != null && end != null) {
+        final startM = start.hour * 60 + start.minute;
+        final endM = end.hour * 60 + end.minute;
+        if (endM <= startM) {
+          Notifier.info('End time must be after start time');
+          return;
+        }
       }
+      final req = CreateJobRequest(
+        propertyId: properties.firstWhereOrNull((item) => item.propertyName?.toLowerCase() == selectedProperty.value?.toLowerCase())?.id,
+        date: jobStartDate.value?.toDisplayDate('yyyy-MM-dd'),
+        startTime: startTime.value != null ? '${startTime.value!.hour.toString().padLeft(2, '0')}:${startTime.value!.minute.toString().padLeft(2, '0')}' : null,
+        endTime: endTime.value != null ? '${endTime.value!.hour.toString().padLeft(2, '0')}:${endTime.value!.minute.toString().padLeft(2, '0')}' : null,
+        jobType: invoicePaymentSource.value.isEmpty ? null : invoicePaymentSource.value,
+        numberOfCleaners: cleanersNeeded.value,
+        staffPreference: staffPreference.value,
+        accessToProperty: accessToProperty.value,
+        hoover: hoover.value,
+        provideCleaningProducts: provideCleaningProducts.value,
+        provideWashingMachine: provideWashingMachine.value,
+        provideDryer: provideDryer.value,
+        additionalDetails: notesController.text.isEmpty ? null : notesController.text,
+      );
+      log(runtimeType.toString(), jsonEncode(req));
+
+      (Get.context as BuildContext).hideKeyboard();
+
+      final result = await _clientRepository.createJob(req);
+      result.handle(
+        success: (value) async {
+          Notifier.openSheet(Get.context as BuildContext, title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false,
+              showSecondaryButton: false,
+              onPrimaryPressed: () {
+            Get.back(result: {'isUpdate': true});
+          });
+        },
+        contextTag: 'create-job',
+      );
+    } finally {
+      isSaving.value = false;
     }
-    final req = CreateJobRequest(
-      propertyId: selectedPropertyId.value,
-      propertyLabel: selectedPropertyId.value == null ? null : 'Property',
-      jobStartDate: jobStartDate.value,
-      jobEndDate: jobStartDate.value,
-      startTime: startTime.value != null ? '${startTime.value!.hour}:${startTime.value!.minute.toString().padLeft(2, '0')}' : null,
-      endTime: endTime.value != null ? '${endTime.value!.hour}:${endTime.value!.minute.toString().padLeft(2, '0')}' : null,
-      invoicePaymentSource: invoicePaymentSource.value.isEmpty ? null : invoicePaymentSource.value,
-      cleanersNeeded: cleanersNeeded.value,
-      staffPreference: staffPreference.value,
-      accessToProperty: accessToProperty.value,
-      hoover: hoover.value,
-      provideCleaningProducts: provideCleaningProducts.value,
-      provideWashingMachine: provideWashingMachine.value,
-      provideDryer: provideDryer.value,
-      additionalNotes: notesController.text.isEmpty ? null : notesController.text,
-    );
-    // Placeholder: replace with API call
-    Notifier.success('Job created (API coming soon)');
-    Get.back();
+  }
+
+  Future<void> _loadProperties() async {
+    isLoadingProperties.value = true;
+    try {
+      final result = await _clientRepository.listProperties();
+      result.handle(
+        success: (response) {
+          final raw = response.data;
+          if (raw != null && raw.isNotEmpty) {
+            properties.assignAll(raw);
+          }
+        },
+      );
+    } finally {
+      isLoadingProperties.value = false;
+    }
   }
 }

@@ -119,13 +119,15 @@ class AddPropertyView extends GetView<PropertyController> {
                           );
                         }),
                         if (controller.selectedPropertyType.value?.hasSubtypes == true) ...[
-                          CommonDropDownField<PropertySubtypes>(
-                              label: 'Sub Type',
-                              hint: 'Select',
-                              items: controller.propertySubTypeOptions,
-                              itemLabel: (v) => v.name ?? '',
-                              value: controller.selectedPropertySubType.value,
-                              onChanged: (v) {}),
+                          Obx(() {
+                            return CommonDropDownField<PropertySubtypes>(
+                                label: 'Sub Type',
+                                hint: 'Select',
+                                items: controller.propertySubTypeOptions.value,
+                                itemLabel: (v) => v.name ?? '',
+                                value: controller.selectedPropertySubType.value,
+                                onChanged: (v) => controller.selectedPropertySubType.value = v);
+                          }),
                           _buildNumberField(controller.numberOfBedroomsCtrl, 'Number of Bedrooms'),
                           _buildNumberField(controller.numberOfBathroomsCtrl, 'Number of Bathrooms'),
                           _buildNumberField(controller.numberOfGuestToiletCtrl, 'Number of Separate/Guest Toilet'),
@@ -194,7 +196,7 @@ class AddPropertyView extends GetView<PropertyController> {
         ),
         bottomNavigationBar: SingleActionBottomBar(
             label: controller.isSaving.value ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save changes' : 'Add Property'),
-            onPressed: () => controller.isSaving.value ? null : controller.addProperty()),
+            onPressed: () => controller.isSaving.value ? null : controller.addUpdateProperty()),
       ),
     );
   }

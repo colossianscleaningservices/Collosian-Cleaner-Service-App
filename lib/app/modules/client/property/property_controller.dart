@@ -1,5 +1,5 @@
-import 'package:ccs_app/app/model/property_list_item.dart';
 import 'package:ccs_app/app/network/repository/client_repository.dart';
+import 'package:ccs_app/app/network/response/property_list_response.dart';
 import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
 import 'package:ccs_app/app/network/response/property_type_response.dart';
 import 'package:ccs_app/export.dart';
@@ -9,147 +9,8 @@ class PropertyController extends GetxController {
   final formKey = GlobalKey<FormState>();
 
   /// List of properties (from API; fallback to empty until response model is defined).
-  final properties = <PropertyListItem>[].obs;
+  final properties = <PropertyModel>[].obs;
   final isLoadingProperties = false.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    _loadProperties();
-  }
-
-  Future<void> _loadProperties() async {
-    isLoadingProperties.value = true;
-    try {
-      final result = await _clientRepository.listProperties();
-      result.handle(
-        success: (response) {
-          final raw = response.data;
-          List? list;
-          if (raw is Map) {
-            list = raw['properties'] ?? raw['data'];
-            if (list is! List) list = null;
-          } else if (raw is List) {
-            list = raw;
-          }
-          if (list != null && list.isNotEmpty) {
-            properties.assignAll(_parsePropertyList(list));
-          }
-        },
-      );
-    } finally {
-      isLoadingProperties.value = false;
-    }
-  }
-
-  List<PropertyListItem> _parsePropertyList(dynamic list) {
-    final out = <PropertyListItem>[];
-    for (final e in list as List) {
-      if (e is! Map) continue;
-      final id = e['id']?.toString() ?? '';
-      if (id.isEmpty) continue;
-      final name = e['property_name']?.toString() ?? '';
-      final address = e['address']?.toString() ?? '';
-      final city = e['city']?.toString();
-      final postalCode = e['postal_code']?.toString();
-      final type = e['property_type']?.toString();
-      final line = [address, city, postalCode].whereType<String>().where((x) => x.isNotEmpty).join(', ');
-      out.add(PropertyListItem(
-        id: id,
-        name: name.isNotEmpty ? name : 'Property',
-        addressLine: line.isNotEmpty ? line : address,
-        propertyType: type,
-        city: city,
-        postalCode: postalCode,
-      ));
-    }
-    return out;
-  }
-
-  /// When set, we're on Add Property screen in edit mode.
-  final editingProperty = Rxn<PropertyListItem>();
-
-  void goToAddProperty() {
-    clearEditing();
-    Get.toNamed(Routes.ADD_PROPERTY);
-  }
-
-  void goToEditProperty(PropertyListItem property) {
-    editingProperty.value = property;
-    propertyNameCtrl.text = property.name;
-    addressCtrl.text = property.addressLine;
-    cityCtrl.text = property.city ?? '';
-    postalCodeCtrl.text = property.postalCode ?? '';
-    propertyType.value = property.propertyType;
-    Get.toNamed(Routes.ADD_PROPERTY);
-  }
-
-  void clearHouseFields() {
-    selectedPropertySubType.value = null;
-    numberOfBedroomsCtrl.text = '0';
-    numberOfBathroomsCtrl.text = '0';
-    numberOfGuestToiletCtrl.text = '0';
-    livingRoomCtrl.text = '0';
-    officeCtrl.text = '0';
-    conservatoryCtrl.text = '0';
-    diningRoomCtrl.text = '0';
-  }
-
-  void clearEditing() {
-    editingProperty.value = null;
-    propertyNameCtrl.clear();
-    addressCtrl.clear();
-    cityCtrl.clear();
-    postalCodeCtrl.clear();
-    businessType.value = 'Residential';
-    propertyType.value = null;
-    clearHouseFields();
-    hoover.value = 'No';
-    staffPreference.value = 'Male';
-    accessToProperty.value = 'Client Will Open';
-    animals.value = 'No';
-    provideCleaningProducts.value = false;
-    hasWashingMachine.value = false;
-    hasDryer.value = false;
-  }
-
-  void confirmDeleteProperty(BuildContext context) {
-    final property = editingProperty.value;
-    if (property == null) return;
-    Notifier.openSheet(
-      context,
-      type: SheetType.error,
-      title: 'Delete property?',
-      icon: IconsaxPlusLinear.trash,
-      message: 'This will remove "${property.name}" from your properties. This action cannot be undone.',
-      primaryButtonLabel: 'Delete',
-      secondaryButtonLabel: 'Cancel',
-      showPrimaryButton: true,
-      showSecondaryButton: true,
-      onPrimaryPressed: () => deleteProperty(),
-    );
-  }
-
-  Future<void> deleteProperty() async {
-    final id = editingProperty.value?.id;
-    if (id == null) return;
-    final jobId = int.tryParse(id);
-    if (jobId == null) {
-      properties.removeWhere((p) => p.id == id);
-      clearEditing();
-      Get.back();
-      return;
-    }
-    final result = await _clientRepository.deleteProperty(jobId);
-    result.handle(
-      success: (_) {
-        properties.removeWhere((p) => p.id == id);
-        clearEditing();
-        Get.back();
-      },
-      contextTag: 'delete_property',
-    );
-  }
 
   final propertyNameCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
@@ -186,84 +47,59 @@ class PropertyController extends GetxController {
   final RxList<PropertySubtypes> propertySubTypeOptions = <PropertySubtypes>[].obs;
 
   static const List<String> hooverOptions = ['No', 'Yes', 'I will get one'];
-  static const List<String> staffPreferenceOptions = ['Male', 'Female', 'No preference'];
+  static const List<String> staffPreferenceOptions = ['Male', 'Female', 'No Preference'];
   static const List<String> accessOptions = ['Client Will Open', 'Reception/Concierge', 'Key', 'Other'];
   static const List<String> animalsOptions = ['No', 'Yes'];
+
+  /// When set, we're on Add Property screen in edit mode.
+  final editingProperty = Rxn<PropertyModel>();
+
+  @override
+  void onInit() {
+    super.onInit();
+    _loadProperties();
+  }
+
+  @override
+  void onClose() {
+    propertyNameCtrl.dispose();
+    addressCtrl.dispose();
+    cityCtrl.dispose();
+    postalCodeCtrl.dispose();
+    numberOfBedroomsCtrl.dispose();
+    numberOfBathroomsCtrl.dispose();
+    numberOfGuestToiletCtrl.dispose();
+    livingRoomCtrl.dispose();
+    officeCtrl.dispose();
+    conservatoryCtrl.dispose();
+    diningRoomCtrl.dispose();
+    super.onClose();
+  }
+
+  @override
+  void onReady() {
+    getPropertyType(businessType.value);
+    super.onReady();
+  }
 
   String? validateRequired(String? value, String fieldName) {
     return Validator.requiredField(value, fieldName: fieldName);
   }
 
-  Future<void> addProperty() async {
-    log(runtimeType.toString(), "Validator : ${formKey.currentState?.validate()}");
-
-    if (formKey.currentState?.validate() != true) return;
-
-    if (isSaving.value) return;
-    isSaving.value = true;
+  Future<void> _loadProperties() async {
+    isLoadingProperties.value = true;
     try {
-      final name = propertyNameCtrl.text.trim();
-      final address = addressCtrl.text.trim();
-      final city = cityCtrl.text.trim();
-      final code = postalCodeCtrl.text.trim();
-      final editing = editingProperty.value;
-      if (editing != null) {
-        final id = int.tryParse(editing.id);
-        if (id != null) {
-          final result = await _clientRepository.updateProperty(
-            id: id,
-            name: name.isNotEmpty ? name : null,
-            address: address.isNotEmpty ? address : null,
-            city: city.isNotEmpty ? city : null,
-            postalCode: code.isNotEmpty ? code : null,
-            propertyType: propertyType.value,
-            staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
-          );
-          result.handle(
-            success: (_) async {
-              await _loadProperties();
-              clearEditing();
-              Get.back();
-            },
-            contextTag: 'update_property',
-          );
-          return;
-        }
-      }
-
-      final result = await _clientRepository.createProperty(
-          name: name.isNotEmpty ? name : 'Property',
-          businessType: businessType.value.toUpperCase(),
-          address: address,
-          city: city,
-          postalCode: code,
-          propertyType: selectedPropertyType.value?.name ?? "",
-          propertySubType: selectedPropertySubType.value?.name ?? '',
-          noOfBedrooms: numberOfBedroomsCtrl.text.toInt(),
-          noOfBathrooms: numberOfBathroomsCtrl.text.toInt(),
-          noOfGuestToilet: numberOfGuestToiletCtrl.text.toInt(),
-          livingRoom: livingRoomCtrl.text.toInt(),
-          office: officeCtrl.text.toInt(),
-          conservatory: conservatoryCtrl.text.toInt(),
-          diningRoom: diningRoomCtrl.text.toInt(),
-          haveHoover: hoover.value,
-          provideCleaningProduct: provideCleaningProducts.value,
-          haveWashingMachine: hasWashingMachine.value,
-          staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
-          haveDryer: hasDryer.value,
-          accessProperty: accessToProperty.value,
-          animalProperty: animals.value != 'No');
-
+      final result = await _clientRepository.listProperties();
       result.handle(
-        success: (_) async {
-          await _loadProperties();
-          clearEditing();
-          Get.back();
+        success: (response) {
+          final raw = response.data;
+          if (raw != null && raw.isNotEmpty) {
+            properties.assignAll(raw);
+          }
         },
-        contextTag: 'create-property',
       );
     } finally {
-      isSaving.value = false;
+      isLoadingProperties.value = false;
     }
   }
 
@@ -295,6 +131,7 @@ class PropertyController extends GetxController {
         success: (value) {
           final data = value.data?.propertySubtypes;
           if (data != null) propertySubTypeOptions.addAll(data);
+          propertySubTypeOptions.refresh();
         },
         contextTag: 'get-property-type',
       );
@@ -305,26 +142,212 @@ class PropertyController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    propertyNameCtrl.dispose();
-    addressCtrl.dispose();
-    cityCtrl.dispose();
-    postalCodeCtrl.dispose();
-    numberOfBedroomsCtrl.dispose();
-    numberOfBathroomsCtrl.dispose();
-    numberOfGuestToiletCtrl.dispose();
-    livingRoomCtrl.dispose();
-    officeCtrl.dispose();
-    conservatoryCtrl.dispose();
-    diningRoomCtrl.dispose();
-    super.onClose();
+  Future<void> addUpdateProperty() async {
+    if (formKey.currentState?.validate() != true) return;
+
+    if (isSaving.value) return;
+    isSaving.value = true;
+    try {
+      final name = propertyNameCtrl.text.trim();
+      final address = addressCtrl.text.trim();
+      final city = cityCtrl.text.trim();
+      final code = postalCodeCtrl.text.trim();
+      final editing = editingProperty.value;
+      if (editing != null) {
+        final id = editing.id?.toInt();
+        if (id != null) {
+          final result = await _clientRepository.updateProperty(
+            id: id,
+            name: name.isNotEmpty ? name : '',
+            businessType: businessType.value.toUpperCase(),
+            address: address,
+            city: city,
+            postalCode: code,
+            propertyType: selectedPropertyType.value?.name ?? "",
+            propertySubType: selectedPropertySubType.value?.name ?? '',
+            noOfBedrooms: numberOfBedroomsCtrl.text.toInt(),
+            noOfBathrooms: numberOfBathroomsCtrl.text.toInt(),
+            noOfGuestToilet: numberOfGuestToiletCtrl.text.toInt(),
+            livingRoom: livingRoomCtrl.text.toInt(),
+            office: officeCtrl.text.toInt(),
+            conservatory: conservatoryCtrl.text.toInt(),
+            diningRoom: diningRoomCtrl.text.toInt(),
+            haveHoover: hoover.value,
+            provideCleaningProduct: provideCleaningProducts.value,
+            haveWashingMachine: hasWashingMachine.value,
+            staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
+            haveDryer: hasDryer.value,
+            accessProperty: accessToProperty.value,
+            animalProperty: animals.value,
+          );
+          result.handle(
+            success: (value) async {
+              Notifier.success(value.message ?? "Property updated Successfully!");
+              await _loadProperties();
+              resetForm();
+              Get.back();
+            },
+            contextTag: 'update_property',
+          );
+          return;
+        }
+      }
+
+      final result = await _clientRepository.createProperty(
+        name: name.isNotEmpty ? name : '',
+        businessType: businessType.value.toUpperCase(),
+        address: address,
+        city: city,
+        postalCode: code,
+        propertyType: selectedPropertyType.value?.name ?? "",
+        propertySubType: selectedPropertySubType.value?.name ?? '',
+        noOfBedrooms: numberOfBedroomsCtrl.text.toInt(),
+        noOfBathrooms: numberOfBathroomsCtrl.text.toInt(),
+        noOfGuestToilet: numberOfGuestToiletCtrl.text.toInt(),
+        livingRoom: livingRoomCtrl.text.toInt(),
+        office: officeCtrl.text.toInt(),
+        conservatory: conservatoryCtrl.text.toInt(),
+        diningRoom: diningRoomCtrl.text.toInt(),
+        haveHoover: hoover.value,
+        provideCleaningProduct: provideCleaningProducts.value,
+        haveWashingMachine: hasWashingMachine.value,
+        staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
+        haveDryer: hasDryer.value,
+        accessProperty: accessToProperty.value,
+        animalProperty: animals.value != 'No',
+      );
+
+      result.handle(
+        success: (value) async {
+          Notifier.success(value.message ?? "Property created Successfully!");
+          await _loadProperties();
+          resetForm();
+          Get.back();
+        },
+        contextTag: 'create-property',
+      );
+    } finally {
+      isSaving.value = false;
+    }
   }
 
-  @override
-  void onReady() {
-    getPropertyType('RESIDENTIAL');
+  void goToAddProperty() {
+    resetForm();
+    Get.toNamed(Routes.ADD_PROPERTY);
+  }
 
-    super.onReady();
+  Future<void> goToEditProperty(PropertyModel property) async {
+    resetForm();
+    editingProperty.value = property;
+    businessType.value = property.businessType?.capitalizeFirst ?? "Residential";
+
+    await getPropertyType(businessType.value);
+
+    propertyNameCtrl.text = property.propertyName ?? "";
+    addressCtrl.text = property.address ?? "";
+    cityCtrl.text = property.city ?? '';
+    postalCodeCtrl.text = property.postalCode ?? '';
+    propertyType.value = property.propertyType;
+    selectedPropertyType.value = propertyTypeOptions.firstWhereOrNull((e) => e.name == property.propertyType);
+    hasDryer.value = property.provideDryer ?? false;
+    hoover.value = property.hoover ?? "No";
+    provideCleaningProducts.value = property.provideCleaningProducts ?? false;
+    hasWashingMachine.value = property.provideWashingMachine ?? false;
+    staffPreference.value = property.staffPreference ?? 'Male';
+    accessToProperty.value = property.accessToProperty ?? 'Client Will Open';
+    animals.value = property.animalProperty == '1' ? 'Yes' : 'No';
+
+    var item = propertyTypeOptions.firstWhereOrNull((item) => item.name == propertyType.value);
+    var subId = item?.id;
+
+    if (item?.hasSubtypes == true) {
+      numberOfBedroomsCtrl.text = "${property.bedrooms}";
+      numberOfBathroomsCtrl.text = "${property.bathrooms}";
+      numberOfGuestToiletCtrl.text = "${property.separateGuestToilet}";
+      livingRoomCtrl.text = "${property.livingRooms}";
+      officeCtrl.text = "${property.office}";
+      conservatoryCtrl.text = "${property.conservatory}";
+      diningRoomCtrl.text = "${property.diningRoom}";
+
+      if (subId != null) {
+        await getPropertySubType(subId.toInt());
+        if (propertyTypeOptions.isNotEmpty) {
+          selectedPropertySubType.value = propertySubTypeOptions.firstWhereOrNull((item) => item.name?.toLowerCase() == property.subType?.toLowerCase());
+        }
+      }
+    }
+
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+
+    Get.toNamed(Routes.ADD_PROPERTY);
+  }
+
+  void confirmDeleteProperty(BuildContext context) {
+    final property = editingProperty.value;
+    if (property == null) return;
+    Notifier.openSheet(
+      context,
+      type: SheetType.error,
+      title: 'Delete property?',
+      icon: IconsaxPlusLinear.trash,
+      message: 'This will remove "${property.propertyName}" from your properties. This action cannot be undone.',
+      primaryButtonLabel: 'Delete',
+      secondaryButtonLabel: 'Cancel',
+      showPrimaryButton: true,
+      showSecondaryButton: true,
+      onPrimaryPressed: () => deleteProperty(),
+    );
+  }
+
+  Future<void> deleteProperty() async {
+    final id = editingProperty.value?.id;
+    if (id == null) return;
+    final jobId = id.toInt();
+    Get.back();
+    Loader.show();
+    final result = await _clientRepository.deleteProperty(jobId);
+    result.handle(
+      success: (value) async {
+        Loader.hide();
+        properties.removeWhere((p) => p.id == id);
+        resetForm();
+        Get.back();
+        Notifier.success(value.message ?? "Property deleted Successfully!");
+      },
+      onError: (value) {
+        Loader.hide();
+      },
+      contextTag: 'delete_property',
+    );
+  }
+
+  void resetForm() {
+    editingProperty.value = null;
+    propertyNameCtrl.clear();
+    addressCtrl.clear();
+    cityCtrl.clear();
+    postalCodeCtrl.clear();
+    businessType.value = 'Residential';
+    propertyType.value = null;
+    clearHouseFields();
+    hoover.value = 'No';
+    staffPreference.value = 'Male';
+    accessToProperty.value = 'Client Will Open';
+    animals.value = 'No';
+    provideCleaningProducts.value = false;
+    hasWashingMachine.value = false;
+    hasDryer.value = false;
+    selectedPropertyType.value = null;
+  }
+
+  void clearHouseFields() {
+    selectedPropertySubType.value = null;
+    numberOfBedroomsCtrl.text = '0';
+    numberOfBathroomsCtrl.text = '0';
+    numberOfGuestToiletCtrl.text = '0';
+    livingRoomCtrl.text = '0';
+    officeCtrl.text = '0';
+    conservatoryCtrl.text = '0';
+    diningRoomCtrl.text = '0';
   }
 }
