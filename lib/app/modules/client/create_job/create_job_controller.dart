@@ -4,6 +4,7 @@ import 'package:ccs_app/export.dart';
 
 import '../../../network/repository/client_repository.dart';
 import '../../../network/request/create_job_request.dart';
+import '../../../network/response/get_job_details_response.dart';
 import '../../../network/response/property_list_response.dart';
 
 class CreateJobController extends GetxController {
@@ -32,6 +33,9 @@ class CreateJobController extends GetxController {
   static const maxNotesLength = 100;
 
   final properties = <PropertyModel>[].obs;
+  var isEdit = false;
+  JobDetails? jobDetails;
+  var isLoading = false.obs;
 
   @override
   void onInit() {
@@ -39,6 +43,31 @@ class CreateJobController extends GetxController {
     notesController.addListener(() => notesLength.value = notesController.text.length);
     cleanersNeededController.text = '1';
     _loadProperties();
+
+    final arg = Get.arguments;
+    if (arg is JobDetails) {
+      jobDetails = arg;
+      isEdit = true;
+      log(runtimeType.toString(), 'JOB DETAILS ${jobDetails?.toJson()}');
+      initForm();
+    }
+  }
+
+  void initForm() {
+    if (jobDetails?.date != null) setJobStartDate(DateTime.parse(jobDetails?.date ?? ""));
+    if (jobDetails?.startTime != null) setStartTime(CcsDateUtils.parseTimeOfDay(jobDetails?.startTime ?? ""));
+    if (jobDetails?.endTime != null) setEndTime(CcsDateUtils.parseTimeOfDay(jobDetails?.endTime ?? ""));
+    invoicePaymentSource.value = jobDetails?.jobType?.capitalizeFirst ?? '';
+    cleanersNeededController.text = "${jobDetails?.numberOfCleaners.toString()}";
+    cleanersNeeded.value = jobDetails?.numberOfCleaners?.toInt() ?? 1;
+    staffPreference.value = jobDetails?.staffPreference ?? 'Male';
+    accessToProperty.value = jobDetails?.accessToProperty ?? 'Client Will Open';
+    hoover.value = jobDetails?.hoover ?? 'No';
+    provideCleaningProducts.value = jobDetails?.provideCleaningProducts ?? false;
+    provideWashingMachine.value = jobDetails?.provideWashingMachine ?? false;
+    provideDryer.value = jobDetails?.provideDryer ?? false;
+    notesController.text = jobDetails?.additionalDetails ?? '';
+    notesLength.value = notesController.text.length;
   }
 
   @override
@@ -131,27 +160,54 @@ class CreateJobController extends GetxController {
 
       (Get.context as BuildContext).hideKeyboard();
 
-      final result = await _clientRepository.createJob(req);
-      result.handle(
-        success: (value) {
-          // Defer sheet to next frame so Loader.hide() from finally can close the loader first
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (Get.context == null) return;
-            Notifier.openSheet(Get.context as BuildContext,
-                title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
-              Get.back(result: {'isUpdate': true});
+      if (isEdit) {
+        final result = await _clientRepository.updateJob(req, jobDetails?.id?.toInt());
+        result.handle(
+          success: (value) {
+            Loader.hide();
+            // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (Get.context == null) return;
+              Notifier.openSheet(Get.context as BuildContext,
+                  title: "Success",
+                  message: "${value.message}",
+                  isDismissable: false,
+                  isShowCloseIcon: false,
+                  showSecondaryButton: false, onPrimaryPressed: () {
+                Get.back(result: {'isUpdate': true});
+              });
             });
-          });
-        },
-        contextTag: 'create-job',
-      );
+          },
+          contextTag: 'update-job',
+        );
+      } else {
+        final result = await _clientRepository.createJob(req);
+        result.handle(
+          success: (value) {
+            Loader.hide();
+            // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (Get.context == null) return;
+              Notifier.openSheet(Get.context as BuildContext,
+                  title: "Success",
+                  message: "${value.message}",
+                  isDismissable: false,
+                  isShowCloseIcon: false,
+                  showSecondaryButton: false, onPrimaryPressed: () {
+                Get.back(result: {'isUpdate': true});
+              });
+            });
+          },
+          contextTag: 'create-job',
+        );
+      }
     } finally {
       Loader.hide();
     }
   }
 
   Future<void> _loadProperties() async {
-    Loader.show();
+    isLoading.value = true;
     try {
       final result = await _clientRepository.listProperties();
       result.handle(
@@ -160,10 +216,16 @@ class CreateJobController extends GetxController {
           if (raw != null && raw.isNotEmpty) {
             properties.assignAll(raw);
           }
+
+          if (properties.isNotEmpty) {
+            if (isEdit) {
+              selectedProperty.value = jobDetails?.property?.propertyName;
+            }
+          }
         },
       );
     } finally {
-      Loader.hide();
+      isLoading.value = false;
     }
   }
 }

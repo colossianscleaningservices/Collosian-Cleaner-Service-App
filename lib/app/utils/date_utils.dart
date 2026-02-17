@@ -128,6 +128,14 @@ class CcsDateUtils {
   /// Time from TimeOfDay (12h with am/pm)
   static String timeFromTimeOfDay(TimeOfDay t) =>
       DateFormat.jm().format(DateTime(2000, 1, 1, t.hour, t.minute));
+
+ static TimeOfDay parseTimeOfDay(String timeString) {
+    final parts = timeString.split(':');
+    return TimeOfDay(
+      hour: int.parse(parts[0]),
+      minute: int.parse(parts[1]),
+    );
+  }
 }
 
 extension CcsDateTimeX on DateTime {

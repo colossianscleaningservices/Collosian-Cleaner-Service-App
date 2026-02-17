@@ -2,21 +2,15 @@ import 'package:ccs_app/app/network/repository/client_repository.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../model/client_job.dart';
+import '../../../network/response/get_job_details_response.dart';
 import 'add_review.dart';
 
 class ClientJobDetailController extends GetxController {
   final ClientRepository _clientRepository = ClientRepository();
 
-  final job = Rx<ClientJob>(ClientJob(
-    id: '',
-    clientName: '',
-    jobType: '',
-    date: DateTime.now(),
-    startTime: '09:00',
-    endTime: '12:00',
-    status: 'Created',
-    propertyOneLine: '',
-  ));
+  final job = Rx<JobDetails?>(null);
+
+  num? jobId;
 
   Rx<Options?> arrive = Rx<Options?>(null);
   Rx<Options?> uniform = Rx<Options?>(null);
@@ -29,30 +23,47 @@ class ClientJobDetailController extends GetxController {
   void onInit() {
     super.onInit();
     final arg = Get.arguments;
-    if (arg is ClientJob) {
-      job.value = arg;
+    if (arg is num) {
+      jobId = arg;
     }
-    fetchJobDetails(job.value.id);
   }
 
-  Future<void> fetchJobDetails(String id) async {
+  @override
+  void onReady() {
+    fetchJobDetails();
+    super.onReady();
+  }
+
+  Future<void> fetchJobDetails() async {
+    if (jobId == null) return;
+    Loader.show();
     try {
-      // TODO: Call the job details API here
-    } catch (e) {
-      e.printError();
+      final result = await _clientRepository.getJobDetails(jobId!);
+      result.handle(
+        success: (response) {
+          final raw = response.data;
+          job.value = raw;
+        },
+      );
+    } finally {
+      Loader.hide();
     }
   }
 
   void onEdit() {
-    Notifier.info('Edit job (coming soon)');
+    Get.toNamed(Routes.CLIENT_CREATE_JOB, arguments: job.value)?.then((value) {
+      if (value != null) {
+        fetchJobDetails();
+      }
+    });
   }
 
   void confirmDeleteJob(BuildContext context) {
     Notifier.openSheet(
       context,
-      type: SheetType.info,
+      type: SheetType.error,
       title: 'Delete job?',
-      message: 'This will remove this "${job.value.jobType}" job. This action cannot be undone.',
+      message: 'This will remove this "${job.value?.jobType?.capitalizeFirst ?? "N/A"}" job. This action cannot be undone.',
       primaryButtonLabel: 'Delete',
       secondaryButtonLabel: 'Cancel',
       showPrimaryButton: true,
@@ -62,14 +73,30 @@ class ClientJobDetailController extends GetxController {
     );
   }
 
-  void deleteJob() {
-    // TODO: call API to delete job
-    Notifier.info('Job deleted');
-    Get.back();
+  Future<void> deleteJob() async {
+    if (jobId == null) return;
+    Loader.show();
+    try {
+      final result = await _clientRepository.deleteJob(jobId!);
+      result.handle(
+        success: (value) async {
+          Loader.hide();
+          // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (Get.context == null) return;
+            Notifier.success(value.message ?? "Job deleted Successfully!");
+            Get.back(result: {'job_id': jobId, 'action': 'delete'});
+          });
+        },
+        contextTag: 'delete_job',
+      );
+    } finally {
+      Loader.hide();
+    }
   }
 
   void onCancelJob() {
-    final jobId = int.tryParse(job.value.id);
+    final jobId = job.value?.id;
     if (jobId == null) {
       Notifier.info('Invalid job');
       return;
@@ -86,10 +113,10 @@ class ClientJobDetailController extends GetxController {
     );
   }
 
-  Future<void> _cancelJob(int jobId) async {
+  Future<void> _cancelJob(num jobId) async {
     Loader.show();
     try {
-      final result = await _clientRepository.cancelJob(jobId: jobId);
+      final result = await _clientRepository.cancelJob(jobId: jobId.toInt());
       result.handle(
         success: (_) {
           Notifier.success('Job cancelled');
@@ -117,7 +144,7 @@ class ClientJobDetailController extends GetxController {
     DateTime endDate,
     TimeOfDay endTime,
   ) async {
-    final jobId = int.tryParse(job.value.id);
+    final jobId = job.value?.id?.toInt();
     if (jobId == null) {
       Notifier.info('Invalid job');
       return;
@@ -137,13 +164,19 @@ class ClientJobDetailController extends GetxController {
         success: (_) {
           final startTimeStr = _formatTime(startTime);
           final endTimeStr = _formatTime(endTime);
-          job.value = job.value.copyWith(
+
+          /*job.value = job.value?.copyWith(
             status: 'Scheduled',
             date: startDate,
             startTime: startTimeStr,
             endTime: endTimeStr,
             jobEndDate: endDate,
-          );
+          );*/
+
+          job.value?.status = 'Scheduled';
+          job.value?.startTime = startTimeStr;
+          job.value?.endTime = endTimeStr;
+
           Notifier.success('Job scheduled for ${CcsDateUtils.fullDate(startDate)}.');
         },
         contextTag: 'schedule_job',
@@ -156,12 +189,13 @@ class ClientJobDetailController extends GetxController {
   void onShareCleanerProfile(ClientJobCleaner c) {
     Notifier.info('Share ${c.name} (coming soon)');
   }
+
   void onReviewCleanerProfile(ClientJobCleaner c) {
     Get.toNamed(Routes.ADD_REVIEW, arguments: job.value);
   }
 
   Future<void> submitReview() async {
-    final jobId = int.tryParse(job.value.id);
+    final jobId = job.value?.id?.toInt();
     if (jobId == null) {
       Notifier.info('Invalid job');
       return;

@@ -349,12 +349,12 @@ class PropertyController extends GetxController {
 
   void clearHouseFields() {
     selectedPropertySubType.value = null;
-    numberOfBedroomsCtrl.text = '0';
-    numberOfBathroomsCtrl.text = '0';
-    numberOfGuestToiletCtrl.text = '0';
-    livingRoomCtrl.text = '0';
-    officeCtrl.text = '0';
-    conservatoryCtrl.text = '0';
-    diningRoomCtrl.text = '0';
+    numberOfBedroomsCtrl.clear();
+    numberOfBathroomsCtrl.clear();
+    numberOfGuestToiletCtrl.clear();
+    livingRoomCtrl.clear();
+    officeCtrl.clear();
+    conservatoryCtrl.clear();
+    diningRoomCtrl.clear();
   }
 }

@@ -3,8 +3,10 @@ import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
+import '../../../model/client_job.dart';
 import 'client_job_detail_controller.dart';
 
+//Missing Info :- Client Name, Recurrence
 /// Client job detail: status, schedule, property, preferences, cleaners.
 class ClientJobDetailView extends GetView<ClientJobDetailController> {
   const ClientJobDetailView({super.key});
@@ -18,7 +20,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
       final j = c.job.value;
       return AppScaffold(
         appBar: Header(
-          title: j.jobType,
+          title: j?.jobType ?? "",
           headerLogoIcon: false,
           hasBackIcon: true,
           titleCentered: false,
@@ -29,11 +31,11 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
               onPressed: () {
                 final job = c.job.value;
                 final chatJob = ChatJob(
-                  id: job.id,
-                  jobType: job.jobType,
-                  propertyOneLine: job.propertyOneLine,
-                  date: job.date.toIso8601String(),
-                  clientName: job.clientName,
+                  id: job?.id.toString() ?? "",
+                  jobType: job?.jobType,
+                  propertyOneLine: job?.property?.propertyName,
+                  date: DateTime.parse(job?.date ?? "").toIso8601String(),
+                  clientName: /*job?.clientName*/ "",
                 );
                 final participants = <String, ChatParticipant>{};
                 // Current user (client)
@@ -41,12 +43,12 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                 final userName = Prefs().userFullName;
                 participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyClient);
                 // Assigned cleaners
-                for (final cleaner in job.cleaners) {
+                for (final cleaner in job?.cleaners ?? []) {
                   participants[cleaner.id] = ChatParticipant(id: cleaner.id, name: cleaner.name, role: RoleConstants.roleKeyCleaner);
                 }
                 Get.toNamed(Routes.JOB_CHAT, arguments: {
                   'type': ChatConstants.typeJob,
-                  'jobId': job.id,
+                  'jobId': job?.id.toString(),
                   'job': chatJob,
                   'participants': participants,
                 });
@@ -83,20 +85,28 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                         runSpacing: 8,
                         children: [
                           InfoChip(
-                            label: 'JOB SCHEDULED: ${j.isScheduled ? 'YES' : 'NO'}',
-                            backgroundColor: j.isScheduled ? scheme.primaryContainer : scheme.surfaceContainerHighest,
-                            foregroundColor: j.isScheduled ? scheme.primary : scheme.onSurfaceVariant,
+                            label: 'JOB SCHEDULED: ${(j?.isScheduled ?? false) ? 'YES' : 'NO'}',
+                            backgroundColor: (j?.isScheduled ?? false) ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+                            foregroundColor: (j?.isScheduled ?? false) ? scheme.primary : scheme.onSurfaceVariant,
                           ),
-                          InfoChip(label: 'Status: ${j.status.toUpperCase()}', backgroundColor: scheme.secondaryContainer, foregroundColor: scheme.secondary),
-                        if (j.recurrence != null) InfoChip(label: j.recurrence!, backgroundColor: scheme.tertiaryContainer, foregroundColor: scheme.tertiary),
+                          InfoChip(
+                              label: 'Status: ${j?.status?.toUpperCase() ?? "N/A"}',
+                              backgroundColor: scheme.secondaryContainer,
+                              foregroundColor: scheme.secondary),
+                          // if (j.recurrence != null) InfoChip(label: j.recurrence!, backgroundColor: scheme.tertiaryContainer, foregroundColor: scheme.tertiary),
                         ],
                       ),
                       const SizedBox(height: 12),
-                      LabelValueRow(label: 'Job start date', value: CcsDateUtils.fullDate(j.date), scheme: scheme),
-                      LabelValueRow(label: 'Job start time', value: j.startTime, scheme: scheme),
-                      LabelValueRow(label: 'Job end date', value: j.jobEndDate != null ? CcsDateUtils.fullDate(j.jobEndDate!) : '–', scheme: scheme),
-                      LabelValueRow(label: 'Job end time', value: j.endTime, scheme: scheme),
-                      if (!j.isScheduled) ...[
+                      if (j?.jobStartDate != null)
+                        LabelValueRow(label: 'Job start date', value: CcsDateUtils.fullDate(DateTime.parse(j?.jobStartDate ?? "")), scheme: scheme),
+                      LabelValueRow(label: 'Job start time', value: j?.startTime ?? "N/A", scheme: scheme),
+                      if (j?.jobEndDate != null)
+                        LabelValueRow(
+                            label: 'Job end date',
+                            value: j?.jobEndDate != null ? CcsDateUtils.fullDate(DateTime.parse(j?.jobEndDate ?? "")) : '–',
+                            scheme: scheme),
+                      LabelValueRow(label: 'Job end time', value: j?.endTime ?? "N/A", scheme: scheme),
+                      if (j?.isScheduled == false) ...[
                         const SizedBox(height: 16),
                         AppButton(
                           label: 'Schedule',
@@ -104,7 +114,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                           onPressed: c.onScheduleJob,
                         ),
                       ],
-                      if (j.isScheduled) ...[
+                      if (j?.isScheduled == true) ...[
                         const SizedBox(height: 12),
                         TextButton(
                           onPressed: c.onCancelJob,
@@ -114,100 +124,110 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                     ],
                   ).paddingAll(UiConstants.defaultPadding),
                 ),
-              const SizedBox(height: 16),
-
-              // Property & client
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CommonText.semiBold('Property & client', size: 16, color: scheme.onSurface),
-                    const SizedBox(height: 12),
-                    LabelValueRow(label: 'Client', value: j.clientName, scheme: scheme),
-                    LabelValueRow(label: 'Property', value: j.propertyOneLine, scheme: scheme),
-                    if (j.propertyLabel != null) LabelValueRow(label: 'Label', value: j.propertyLabel!, scheme: scheme),
-                    if (j.accessToProperty != null) LabelValueRow(label: 'Access', value: j.accessToProperty!, scheme: scheme),
-                    if (j.address != null || j.city != null || j.postalCode != null)
-                      LabelValueRow(
-                        label: 'Address',
-                        value: [j.address, j.city, j.postalCode].whereType<String>().join(', '),
-                        scheme: scheme,
-                      ),
-                    if (j.propertyType != null) LabelValueRow(label: 'Property type', value: j.propertyType!, scheme: scheme),
-                    if (j.propertySubtype != null) LabelValueRow(label: 'Subtype', value: j.propertySubtype!, scheme: scheme),
-                    if (j.animals != null) LabelValueRow(label: 'Animals', value: j.animals!, scheme: scheme),
-                  ],
-                ).paddingAll(UiConstants.defaultPadding),
-              ),
-              const SizedBox(height: 16),
-
-              // Preferences & equipment
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CommonText.semiBold('Preferences & equipment', size: 16, color: scheme.onSurface),
-                    const SizedBox(height: 12),
-                    if (j.staffPreference != null) LabelValueRow(label: 'Staff preference', value: j.staffPreference!, scheme: scheme),
-                    if (j.hoover != null) LabelValueRow(label: 'Hoover', value: j.hoover!, scheme: scheme),
-                    LabelValueRow(label: 'Cleaning products', value: j.provideCleaningProducts ? 'Yes' : 'No', scheme: scheme),
-                    LabelValueRow(label: 'Washing machine', value: j.provideWashingMachine ? 'Yes' : 'No', scheme: scheme),
-                    LabelValueRow(label: 'Dryer', value: j.provideDryer ? 'Yes' : 'No', scheme: scheme),
-                  ],
-                ).paddingAll(UiConstants.defaultPadding),
-              ),
-              const SizedBox(height: 16),
-
-              // Payment & staff
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CommonText.semiBold('Payment & staff', size: 16, color: scheme.onSurface),
-                    const SizedBox(height: 12),
-                    if (j.invoicePaymentSource != null) LabelValueRow(label: 'Payment source', value: j.invoicePaymentSource!, scheme: scheme),
-                    LabelValueRow(label: 'Cleaners needed', value: '${j.cleanersNeeded}', scheme: scheme),
-                  ],
-                ).paddingAll(UiConstants.defaultPadding),
-              ),
-
-              if (j.additionalNotes != null && j.additionalNotes!.isNotEmpty) ...[
                 const SizedBox(height: 16),
+
+                // Property & client
                 AppCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CommonText.semiBold('Additional notes', size: 16, color: scheme.onSurface),
-                      const SizedBox(height: 8),
-                      CommonText.regular(j.additionalNotes!, size: 14, color: scheme.onSurfaceVariant),
+                      CommonText.semiBold('Property & client', size: 16, color: scheme.onSurface),
+                      const SizedBox(height: 12),
+                      LabelValueRow(label: 'Client', value: /*j.clientName*/ "N/A", scheme: scheme),
+                      LabelValueRow(label: 'Property', value: j?.property?.propertyName ?? "N/A", scheme: scheme),
+                      if (j?.property?.propertyName != null) LabelValueRow(label: 'Label', value: j?.property?.propertyName ?? "", scheme: scheme),
+                      if (j?.accessToProperty != null) LabelValueRow(label: 'Access', value: j?.accessToProperty ?? "", scheme: scheme),
+                      if (j?.property?.address != null || j?.property?.city != null || j?.property?.postalCode != null)
+                        LabelValueRow(
+                          label: 'Address',
+                          value: [j?.property?.address, j?.property?.city, j?.property?.postalCode].whereType<String>().join(', '),
+                          scheme: scheme,
+                        ),
+                      if (j?.property?.propertyType != null) LabelValueRow(label: 'Property type', value: j?.property?.propertyType ?? "", scheme: scheme),
+                      if (j?.property?.subType != null) LabelValueRow(label: 'Subtype', value: j?.property?.subType ?? "", scheme: scheme),
+                      if (j?.property?.animalProperty != null) LabelValueRow(label: 'Animals', value: j?.property?.animalProperty ?? "", scheme: scheme),
                     ],
                   ).paddingAll(UiConstants.defaultPadding),
                 ),
-              ],
-
-              if (j.cleaners.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                CommonText.semiBold('Cleaners', size: 16, color: scheme.onSurface),
-                const SizedBox(height: 8),
-                ...j.cleaners.map(
-                  (cl) => Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: CleanerCard(
-                      cleaner: cl,
-                      isReview: true,
-                      onShare: () => c.onShareCleanerProfile(cl),
-                      scheme: scheme,
-                      onReview: () => c.onReviewCleanerProfile(cl),
-                    ),
-                  ),
+
+                // Preferences & equipment
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CommonText.semiBold('Preferences & equipment', size: 16, color: scheme.onSurface),
+                      const SizedBox(height: 12),
+                      if (j?.property?.staffPreference != null)
+                        LabelValueRow(label: 'Staff preference', value: j?.property?.staffPreference ?? "", scheme: scheme),
+                      if (j?.property?.hoover != null) LabelValueRow(label: 'Hoover', value: j?.property?.hoover ?? "", scheme: scheme),
+                      LabelValueRow(label: 'Cleaning products', value: j?.provideCleaningProducts == true ? 'Yes' : 'No', scheme: scheme),
+                      LabelValueRow(label: 'Washing machine', value: j?.provideWashingMachine == true ? 'Yes' : 'No', scheme: scheme),
+                      LabelValueRow(label: 'Dryer', value: j?.provideDryer == true ? 'Yes' : 'No', scheme: scheme),
+                    ],
+                  ).paddingAll(UiConstants.defaultPadding),
                 ),
+                const SizedBox(height: 16),
+
+                // Payment & staff
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CommonText.semiBold('Payment & staff', size: 16, color: scheme.onSurface),
+                      const SizedBox(height: 12),
+                      if (j?.jobType != null) LabelValueRow(label: 'Payment source', value: j?.jobType?.capitalizeFirst ?? "", scheme: scheme),
+                      LabelValueRow(label: 'Cleaners needed', value: '${j?.numberOfCleaners ?? 0}', scheme: scheme),
+                    ],
+                  ).paddingAll(UiConstants.defaultPadding),
+                ),
+
+                if (j?.additionalDetails != null && j?.additionalDetails?.isNotEmpty == true) ...[
+                  const SizedBox(height: 16),
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CommonText.semiBold('Additional notes', size: 16, color: scheme.onSurface),
+                        const SizedBox(height: 8),
+                        CommonText.regular(j?.additionalDetails ?? "", size: 14, color: scheme.onSurfaceVariant),
+                      ],
+                    ).paddingAll(UiConstants.defaultPadding),
+                  ),
+                ],
+
+                if (j?.cleaners?.isNotEmpty == true) ...[
+                  const SizedBox(height: 16),
+                  CommonText.semiBold('Cleaners', size: 16, color: scheme.onSurface),
+                  const SizedBox(height: 8),
+                  ...?j?.cleaners?.map(
+                    (cl) {
+                      var item = ClientJobCleaner(
+                        id: cl.id.toString(),
+                        avatarUrl: '',
+                        name: cl.name ?? "",
+                        status: '',
+                      );
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: CleanerCard(
+                          cleaner: item,
+                          isReview: true,
+                          onShare: () => c.onShareCleanerProfile(item),
+                          scheme: scheme,
+                          onReview: () => c.onReviewCleanerProfile(item),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+                const SizedBox(height: 24),
               ],
-              const SizedBox(height: 24),
-            ],
+            ),
           ),
         ),
-      ),
-    );
+      );
     });
   }
 }
