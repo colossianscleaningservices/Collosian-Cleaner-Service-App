@@ -21,13 +21,10 @@ class ForgotPasswordView extends GetView<AuthController> {
               validator: Validator.email,
             ),
             const SizedBox(height: 16),
-            Obx(() {
-              return AppButton(
-                label: 'Send reset link/code',
-                isLoading: controller.isForgotPassword.value,
-                onPressed: controller.submitForgotPassword,
-              );
-            }),
+            AppButton(
+              label: 'Send reset link/code',
+              onPressed: controller.submitForgotPassword,
+            ),
             const SizedBox(height: 12),
             AppButton(
               label: 'Back to login',

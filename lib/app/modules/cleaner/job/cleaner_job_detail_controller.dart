@@ -207,14 +207,19 @@ class CleanerJobDetailController extends GetxController {
   }
 
   Future<void> _declineJob(int jobId) async {
-    final result = await _cleanerRepository.declineJob(jobId: jobId);
-    result.handle(
-      success: (_) {
-        Notifier.success('Job declined');
-        Get.back();
-      },
-      contextTag: 'decline_job',
-    );
+    Loader.show();
+    try {
+      final result = await _cleanerRepository.declineJob(jobId: jobId);
+      result.handle(
+        success: (_) {
+          Notifier.success('Job declined');
+          Get.back();
+        },
+        contextTag: 'decline_job',
+      );
+    } finally {
+      Loader.hide();
+    }
   }
 
   void onShareCleanerProfile(ClientJobCleaner c) {

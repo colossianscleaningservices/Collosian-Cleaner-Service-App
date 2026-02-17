@@ -100,17 +100,15 @@ class ChangePasswordView extends GetView<AuthController> {
                       ),
                     )),
                 const SizedBox(height: 32),
-
-                Obx(() => SizedBox(
-                      width: double.infinity,
-                      child: AppButton(
-                        label: 'Update Password',
-                        type: ButtonType.primary,
-                        isLoading: controller.isChangingPassword.value,
-                        onPressed: controller.submitChangePassword,
-                        btnVerticalPadding: 14,
-                      ),
-                    )),
+                SizedBox(
+                  width: double.infinity,
+                  child: AppButton(
+                    label: 'Update Password',
+                    type: ButtonType.primary,
+                    onPressed: controller.submitChangePassword,
+                    btnVerticalPadding: 14,
+                  ),
+                ),
                 const SizedBox(height: 20),
               ],
             ),

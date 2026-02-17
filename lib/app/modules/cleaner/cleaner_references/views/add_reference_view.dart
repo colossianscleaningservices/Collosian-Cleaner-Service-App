@@ -47,8 +47,8 @@ class AddReferenceView extends GetView<CleanerReferencesController> {
       ),
       bottomNavigationBar: Obx(() {
         return SingleActionBottomBar(
-          label: controller.isSaving.value ? 'Saving...' : 'Add Reference',
-          onPressed: () => controller.isSaving.value ? null : controller.addReferences,
+          label: 'Add Reference',
+          onPressed: controller.addReferences,
         );
       }),
     );

@@ -126,8 +126,8 @@ class AddDocumentView extends GetView<SupportDocumentController> {
       ),
       bottomNavigationBar: Obx(() {
         return SingleActionBottomBar(
-          label: controller.isSaving.value ? 'Saving...' : 'Upload Document',
-          onPressed: () => controller.isSaving.value ? null : controller.addDocument,
+          label: 'Upload Document',
+          onPressed: controller.addDocument,
         );
       }),
     );

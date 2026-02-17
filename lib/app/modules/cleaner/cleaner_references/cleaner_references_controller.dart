@@ -12,7 +12,6 @@ class CleanerReferencesController extends GetxController {
   final companyNameCtrl = TextEditingController();
   final relationship = Rxn<String>();
   List<String> relationshipOptions = ['Aunt', 'Boyfriend', 'Friend', 'Brother', 'Sister', 'Other'];
-  final isSaving = false.obs;
 
   @override
   void onInit() {
@@ -47,8 +46,7 @@ class CleanerReferencesController extends GetxController {
       return;
     }
 
-    isSaving.value = true;
-
+    Loader.show();
     try {
       // TODO: Call API to update profile
       await Future.delayed(const Duration(seconds: 1)); // Simulate API call
@@ -57,7 +55,7 @@ class CleanerReferencesController extends GetxController {
     } catch (e) {
       Notifier.info('Failed to update profile: $e');
     } finally {
-      isSaving.value = false;
+      Loader.hide();
     }
   }
 }

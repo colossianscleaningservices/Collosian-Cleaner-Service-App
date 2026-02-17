@@ -17,13 +17,10 @@ class SupportDocumentController extends GetxController {
   List<String> documentTypeOptions = ['Passport', 'Visa', 'Driver License', 'Address Proof', 'Other'];
 
   RxList<File> pickedFiles = <File>[].obs;
-  final isSaving = false.obs;
 
   /// List of documents shown on the support document screen. Populate via API in loadDocuments.
   final RxList<SupportDocumentItem> documents = <SupportDocumentItem>[].obs;
 
-  /// Whether the document list is currently loading.
-  final isLoadingDocuments = false.obs;
   var isPdfLoading = false.obs;
 
   void setJobStartDate(DateTime? d) => jobStartDate.value = d;
@@ -39,7 +36,7 @@ class SupportDocumentController extends GetxController {
 
   /// Loads documents (e.g. from API). Replace with real API call.
   Future<void> loadDocuments() async {
-    isLoadingDocuments.value = true;
+    Loader.show();
     try {
       // TODO: Replace with API call
 
@@ -50,7 +47,7 @@ class SupportDocumentController extends GetxController {
       documents.add(SupportDocumentItem(type: 'Passport', number: '123456', expiry: DateTime.now()));
       documents.add(SupportDocumentItem(type: 'Visa', number: '12345689', expiry: DateTime.now()));
     } finally {
-      isLoadingDocuments.value = false;
+      Loader.hide();
     }
   }
 
@@ -215,8 +212,7 @@ class SupportDocumentController extends GetxController {
       return;
     }
 
-    isSaving.value = true;
-
+    Loader.show();
     try {
       // TODO: Call API to update profile
       await Future.delayed(const Duration(seconds: 1)); // Simulate API call
@@ -225,7 +221,7 @@ class SupportDocumentController extends GetxController {
     } catch (e) {
       Notifier.info('Failed to update profile: $e');
     } finally {
-      isSaving.value = false;
+      Loader.hide();
     }
   }
 }

@@ -108,8 +108,8 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
               const SizedBox(height: 32),
               Obx(
                 () => AppButton(
-                  label: controller.isSaving.value ? 'Saving...' : 'Save changes',
-                  onPressed: controller.isSaving.value ? null : controller.saveProfile,
+                  label: 'Save changes',
+                  onPressed: controller.saveProfile,
                 ),
               ),
             ],

@@ -54,7 +54,6 @@ class ResetPasswordView extends GetView<AuthController> {
                   onPressed: controller.resetToken.isEmpty
                       ? null
                       : () => controller.submitResetPassword(),
-                  isLoading: controller.isResettingPassword.value,
                 ),
               ),
             ],

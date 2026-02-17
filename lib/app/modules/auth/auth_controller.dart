@@ -19,7 +19,6 @@ class AuthController extends GetxController {
   final loginEmailCtrl = TextEditingController();
   final loginPasswordCtrl = TextEditingController();
   final loginObscure = true.obs;
-  final isLoggingIn = false.obs;
 
   // ─── Sign-up (shared) ────────────────────────────────────────────────────
   final signupFormKey = GlobalKey<FormState>();
@@ -29,7 +28,6 @@ class AuthController extends GetxController {
   final signupPhoneCtrl = TextEditingController();
   final signupPasswordCtrl = TextEditingController();
   final signupObscure = true.obs;
-  final isSigningUp = false.obs;
   final signupNiNumberCtrl = TextEditingController();
 
   // ─── Forgot / reset password ──────────────────────────────────────────────
@@ -38,8 +36,6 @@ class AuthController extends GetxController {
   final resetConfirmPasswordCtrl = TextEditingController();
   final resetObscure = true.obs;
   final resetFormKey = GlobalKey<FormState>();
-  final isResettingPassword = false.obs;
-  final isForgotPassword = false.obs;
 
   String get resetToken => Get.parameters['token'] ?? '';
 
@@ -53,11 +49,8 @@ class AuthController extends GetxController {
   final showChangeCurrentPassword = false.obs;
   final showChangeNewPassword = false.obs;
   final showChangeConfirmPassword = false.obs;
-  final isChangingPassword = false.obs;
 
   // ─── Agreement (cleaner assessment steps) – API types only ───────────────
-  final isAssessmentLoading = true.obs;
-  var isSaveAssessment = false.obs;
   late StepProgressController stepProgressController;
   var stepCurrentIndex = 0.obs;
   RxList<Categories> assessmentCategories = <Categories>[].obs;
@@ -125,7 +118,7 @@ class AuthController extends GetxController {
 
   /// Load categories (steps), then for each category fetch questions via getAssessmentForms(categoryId). Uses API types only.
   Future<void> loadAssessmentSections() async {
-    isAssessmentLoading.value = true;
+    Loader.show();
     assessmentCategories.clear();
     assessmentQuestionsByStep.clear();
     try {
@@ -162,7 +155,7 @@ class AuthController extends GetxController {
         contextTag: 'getAssessmentCategories',
       );
     } finally {
-      isAssessmentLoading.value = false;
+      Loader.hide();
     }
   }
 
@@ -229,7 +222,7 @@ class AuthController extends GetxController {
       }
     });
 
-    isSaveAssessment.value = true;
+    Loader.show();
     try {
       var request = SaveCleanerAssessmentRequest(answers: answers);
       log(runtimeType.toString(), 'SAVE CLEANER REQUEST ${request.toJson()}');
@@ -269,7 +262,7 @@ class AuthController extends GetxController {
     } catch (e) {
       Notifier.error('Failed to change password');
     } finally {
-      isSaveAssessment.value = false;
+      Loader.hide();
     }
   }
 
@@ -277,7 +270,7 @@ class AuthController extends GetxController {
 
   Future<void> submitChangePassword() async {
     if (!(changePasswordFormKey.currentState?.validate() ?? false)) return;
-    isChangingPassword.value = true;
+    Loader.show();
     try {
       final result = await _authRepository.changePassword(
         currentPassword: changePasswordCurrentCtrl.text,
@@ -294,21 +287,21 @@ class AuthController extends GetxController {
     } catch (e) {
       Notifier.error('Failed to change password');
     } finally {
-      isChangingPassword.value = false;
+      Loader.hide();
     }
   }
 
   // ─── Login & Sign-up ───────────────────────────────────────────────────────────────
 
   Future<void> login() async {
-    if (isLoggingIn.value) return;
     if (!(loginFormKey.currentState?.validate() ?? false)) return;
-    isLoggingIn.value = true;
+    Loader.show();
     try {
       final result = await _authRepository.login(
         email: loginEmailCtrl.text,
         password: loginPasswordCtrl.text,
       );
+
       result.handle(
         success: (value) async {
           final data = value.data;
@@ -318,34 +311,39 @@ class AuthController extends GetxController {
 
           await _saveUserData(data.user!);
 
-          Notifier.openSheet(
-            (Get.context as BuildContext),
-            type: SheetType.success,
-            title: "Success !",
-            message: value.message,
-            showSecondaryButton: false,
-            isDismissable: false,
-            icon: IconsaxPlusLinear.chart_success,
-            onPrimaryPressed: () {
-              if (RoleConstants.isClient(data.user?.roles?.first.id?.toInt())) {
-                Get.offAllNamed(Routes.CLIENT_DASHBOARD);
-              } else {
-                Get.offAllNamed(Routes.CLEANER_DASHBOARD);
-              }
-            },
-          );
+          // Defer sheet to next frame so Loader.hide() from finally can close the loader first.
+          // Otherwise Get.back() from Loader may pop the sheet instead of the loader.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (Get.context == null) return;
+            Notifier.openSheet(
+              Get.context as BuildContext,
+              type: SheetType.success,
+              title: "Success !",
+              message: value.message,
+              showSecondaryButton: false,
+              isDismissable: false,
+              icon: IconsaxPlusLinear.chart_success,
+              onPrimaryPressed: () {
+                if (RoleConstants.isClient(data.user?.roles?.first.id?.toInt())) {
+                  Get.offAllNamed(Routes.CLIENT_DASHBOARD);
+                } else {
+                  Get.offAllNamed(Routes.CLEANER_DASHBOARD);
+                }
+              },
+            );
+          });
         },
         contextTag: 'login',
       );
     } catch (e) {
+      Loader.hide();
       await Notifier.apiError(e, contextTag: 'login');
     } finally {
-      isLoggingIn.value = false;
+      Loader.hide();
     }
   }
 
   Future<void> signup() async {
-    if (isSigningUp.value) return;
     if (!(signupFormKey.currentState?.validate() ?? false)) return;
 
     final role = selectedRole.value;
@@ -355,8 +353,7 @@ class AuthController extends GetxController {
       return;
     }
 
-    isSigningUp.value = true;
-
+    Loader.show();
     try {
       final firstName = signupFirstNameCtrl.text.trim().isNotEmpty ? signupFirstNameCtrl.text.trim() : signupEmailCtrl.text.trim();
       final lastName = signupLastNameCtrl.text.trim().isNotEmpty ? signupLastNameCtrl.text.trim() : signupEmailCtrl.text.trim();
@@ -388,25 +385,23 @@ class AuthController extends GetxController {
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'signup');
     } finally {
-      isSigningUp.value = false;
+      Loader.hide();
     }
   }
 
   // ─── Forgot / reset password ──────────────────────────────────────────────
 
   Future<void> submitForgotPassword() async {
-    if (isForgotPassword.value) return;
     if (!forgotEmailCtrl.text.trim().isNotEmpty) {
       Notifier.error('Please enter your email.');
       return;
     }
     (Get.context as BuildContext).hideKeyboard();
-    isForgotPassword.value = true;
+    Loader.show();
     try {
       final result = await _authRepository.forgotPassword(email: forgotEmailCtrl.text);
       result.handle(
         success: (_) {
-          isForgotPassword.value = false;
           Notifier.success(
             'If an account exists for this email, you will receive a password reset link.',
             title: 'Check your email',
@@ -414,16 +409,15 @@ class AuthController extends GetxController {
           Get.until((route) => Get.currentRoute == Routes.LOGIN);
         },
         contextTag: 'forgot_password',
-        onError: (_) => isForgotPassword.value = false,
       );
     } catch (e) {
-      isForgotPassword.value = false;
       await Notifier.apiError(e, contextTag: 'forgot_password');
+    } finally {
+      Loader.hide();
     }
   }
 
   Future<void> submitResetPassword() async {
-    if (isResettingPassword.value) return;
     if (!(resetFormKey.currentState?.validate() ?? false)) return;
     final password = resetPasswordCtrl.text;
     final confirm = resetConfirmPasswordCtrl.text;
@@ -436,8 +430,7 @@ class AuthController extends GetxController {
       return;
     }
 
-    isResettingPassword.value = true;
-
+    Loader.show();
     try {
       final result = await _authRepository.resetPassword(
         token: resetToken,
@@ -455,7 +448,7 @@ class AuthController extends GetxController {
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'reset_password');
     } finally {
-      isResettingPassword.value = false;
+      Loader.hide();
     }
   }
 

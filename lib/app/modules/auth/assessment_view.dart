@@ -21,13 +21,6 @@ class AssessmentView extends GetView<AuthController> {
     final scheme = context.colorScheme;
 
     return Obx(() {
-      if (controller.isAssessmentLoading.value) {
-        return AppScaffold(
-          backgroundColor: scheme.surface,
-          appBar: Header(title: 'Assessment'),
-          body: const Center(child: CircularProgressIndicator()),
-        );
-      }
       final totalSteps = controller.assessmentCategories.length;
       if (totalSteps == 0) {
         return AppScaffold(
@@ -193,7 +186,6 @@ class AssessmentView extends GetView<AuthController> {
         ),
         bottomNavigationBar: DualActionBottomBar(
           primaryLabel: isLastStep ? 'Accept & continue' : 'Continue',
-          isLoading: controller.isSaveAssessment.value,
           primaryOnPressed: () {
             if (isStepComplete) {
               if (isLastStep) {

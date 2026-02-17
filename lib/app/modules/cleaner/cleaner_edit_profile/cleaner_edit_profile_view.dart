@@ -410,8 +410,7 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
         ),
       ),
       bottomNavigationBar: Obx(() {
-        return SingleActionBottomBar(
-            label: controller.isSaving.value ? 'Saving...' : 'Save changes', onPressed: () => controller.isSaving.value ? null : controller.saveProfile);
+        return SingleActionBottomBar(label: 'Save changes', onPressed: controller.saveProfile);
       }),
     );
   }

@@ -41,7 +41,6 @@ class CleanerEditProfileController extends GetxController {
   List<String> driverOptions = ['Yes, I have a car', "Yes, but I don't have a car", 'No'];
   List<String> immigrationStatusOptions = ['British Citizen / Right of Adobe', 'Settled Status', 'Other'];
 
-  final isSaving = false.obs;
   final deleteAccount = false.obs;
 
   RxList<CommonModel> kitchenList = <CommonModel>[].obs;
@@ -132,8 +131,7 @@ class CleanerEditProfileController extends GetxController {
       return;
     }
 
-    isSaving.value = true;
-
+    Loader.show();
     try {
       // TODO: Call API to update profile
       await Future.delayed(const Duration(seconds: 1)); // Simulate API call
@@ -142,7 +140,7 @@ class CleanerEditProfileController extends GetxController {
     } catch (e) {
       Notifier.info('Failed to update profile: $e');
     } finally {
-      isSaving.value = false;
+      Loader.hide();
     }
   }
 

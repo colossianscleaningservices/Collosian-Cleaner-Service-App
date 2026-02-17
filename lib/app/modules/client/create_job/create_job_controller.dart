@@ -31,7 +31,6 @@ class CreateJobController extends GetxController {
 
   static const maxNotesLength = 100;
 
-  final isLoadingProperties = false.obs;
   final properties = <PropertyModel>[].obs;
 
   @override
@@ -98,14 +97,10 @@ class CreateJobController extends GetxController {
     }
   }
 
-  final isSaving = false.obs;
-
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
 
-    if (isSaving.value) return;
-    isSaving.value = true;
-
+    Loader.show();
     try {
       final end = endTime.value;
       final start = startTime.value;
@@ -138,22 +133,25 @@ class CreateJobController extends GetxController {
 
       final result = await _clientRepository.createJob(req);
       result.handle(
-        success: (value) async {
-          Notifier.openSheet(Get.context as BuildContext, title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false,
-              showSecondaryButton: false,
-              onPrimaryPressed: () {
-            Get.back(result: {'isUpdate': true});
+        success: (value) {
+          // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (Get.context == null) return;
+            Notifier.openSheet(Get.context as BuildContext,
+                title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+              Get.back(result: {'isUpdate': true});
+            });
           });
         },
         contextTag: 'create-job',
       );
     } finally {
-      isSaving.value = false;
+      Loader.hide();
     }
   }
 
   Future<void> _loadProperties() async {
-    isLoadingProperties.value = true;
+    Loader.show();
     try {
       final result = await _clientRepository.listProperties();
       result.handle(
@@ -165,7 +163,7 @@ class CreateJobController extends GetxController {
         },
       );
     } finally {
-      isLoadingProperties.value = false;
+      Loader.hide();
     }
   }
 }

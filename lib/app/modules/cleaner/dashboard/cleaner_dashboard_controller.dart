@@ -190,6 +190,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   }
 
   Future<void> _fetchDashboardData() async {
+    Loader.show();
     try {
       final compResult = await _cleanerRepository.getProfileCompletion();
       compResult.handle(
@@ -214,7 +215,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           }
         },
       );
-    } catch (_) {}
+    } catch (_) {} finally {
+      Loader.hide();
+    }
   }
 
   void openDetail(ClientJob job) {

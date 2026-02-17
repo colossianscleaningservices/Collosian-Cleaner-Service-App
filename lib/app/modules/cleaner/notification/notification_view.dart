@@ -41,7 +41,7 @@ class NotificationView extends GetView<NotificationController> {
                           );
                         },
                       ),
-                      controller.moreLoading.value ? PageLoader() : SizedBox.shrink()
+                      SizedBox.shrink()
                     ],
                   ),
           ),

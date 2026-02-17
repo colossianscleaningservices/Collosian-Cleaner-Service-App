@@ -73,17 +73,14 @@ class LoginView extends GetView<AuthController> {
                             ),
                             const SizedBox(height: 24),
                             // Login button
-                            Obx(
-                              () => AppButton(
-                                label: 'Sign in',
-                                onPressed: () {
-                                  if (controller.loginFormKey.currentState?.validate() ?? false) {
-                                    FocusScope.of(context).unfocus();
-                                    controller.login();
-                                  }
-                                },
-                                isLoading: controller.isLoggingIn.value,
-                              ),
+                            AppButton(
+                              label: 'Sign in',
+                              onPressed: () {
+                                if (controller.loginFormKey.currentState?.validate() ?? false) {
+                                  FocusScope.of(context).unfocus();
+                                  controller.login();
+                                }
+                              },
                             ),
                             const SizedBox(height: 32),
                             // Sign up row

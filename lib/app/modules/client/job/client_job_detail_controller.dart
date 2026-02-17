@@ -87,14 +87,19 @@ class ClientJobDetailController extends GetxController {
   }
 
   Future<void> _cancelJob(int jobId) async {
-    final result = await _clientRepository.cancelJob(jobId: jobId);
-    result.handle(
-      success: (_) {
-        Notifier.success('Job cancelled');
-        Get.back();
-      },
-      contextTag: 'cancel_job',
-    );
+    Loader.show();
+    try {
+      final result = await _clientRepository.cancelJob(jobId: jobId);
+      result.handle(
+        success: (_) {
+          Notifier.success('Job cancelled');
+          Get.back();
+        },
+        contextTag: 'cancel_job',
+      );
+    } finally {
+      Loader.hide();
+    }
   }
 
   /// Navigates to the schedule-job page for a normal (one-off) job.
@@ -117,30 +122,35 @@ class ClientJobDetailController extends GetxController {
       Notifier.info('Invalid job');
       return;
     }
-    final startStr = '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}';
-    final endStr = '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}';
-    final result = await _clientRepository.scheduleJob(
-      jobId: jobId,
-      frequency: 'weekly',
-      startDate: startStr,
-      endDate: endStr,
-      copyCleaners: false,
-    );
-    result.handle(
-      success: (_) {
-        final startTimeStr = _formatTime(startTime);
-        final endTimeStr = _formatTime(endTime);
-        job.value = job.value.copyWith(
-          status: 'Scheduled',
-          date: startDate,
-          startTime: startTimeStr,
-          endTime: endTimeStr,
-          jobEndDate: endDate,
-        );
-        Notifier.success('Job scheduled for ${CcsDateUtils.fullDate(startDate)}.');
-      },
-      contextTag: 'schedule_job',
-    );
+    Loader.show();
+    try {
+      final startStr = '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}';
+      final endStr = '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}';
+      final result = await _clientRepository.scheduleJob(
+        jobId: jobId,
+        frequency: 'weekly',
+        startDate: startStr,
+        endDate: endStr,
+        copyCleaners: false,
+      );
+      result.handle(
+        success: (_) {
+          final startTimeStr = _formatTime(startTime);
+          final endTimeStr = _formatTime(endTime);
+          job.value = job.value.copyWith(
+            status: 'Scheduled',
+            date: startDate,
+            startTime: startTimeStr,
+            endTime: endTimeStr,
+            jobEndDate: endDate,
+          );
+          Notifier.success('Job scheduled for ${CcsDateUtils.fullDate(startDate)}.');
+        },
+        contextTag: 'schedule_job',
+      );
+    } finally {
+      Loader.hide();
+    }
   }
 
   void onShareCleanerProfile(ClientJobCleaner c) {
@@ -156,19 +166,24 @@ class ClientJobDetailController extends GetxController {
       Notifier.info('Invalid job');
       return;
     }
-    final r = rating.value.round().clamp(1, 5);
-    final result = await _clientRepository.submitJobReview(
-      jobId: jobId,
-      rating: r,
-      feedback: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
-      message: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
-    );
-    result.handle(
-      success: (_) {
-        Notifier.success('Thank you for your feedback');
-        Get.back();
-      },
-      contextTag: 'submit_review',
-    );
+    Loader.show();
+    try {
+      final r = rating.value.round().clamp(1, 5);
+      final result = await _clientRepository.submitJobReview(
+        jobId: jobId,
+        rating: r,
+        feedback: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
+        message: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
+      );
+      result.handle(
+        success: (_) {
+          Notifier.success('Thank you for your feedback');
+          Get.back();
+        },
+        contextTag: 'submit_review',
+      );
+    } finally {
+      Loader.hide();
+    }
   }
 }

@@ -77,8 +77,7 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
               child: Obx(
                 () => AppButton(
                   label: controller.submitLabel,
-                  onPressed: controller.isSubmitting.value ? null : controller.submit,
-                  isLoading: controller.isSubmitting.value,
+                  onPressed: controller.submit,
                 ),
               ),
             ),

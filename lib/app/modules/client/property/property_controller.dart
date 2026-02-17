@@ -10,7 +10,6 @@ class PropertyController extends GetxController {
 
   /// List of properties (from API; fallback to empty until response model is defined).
   final properties = <PropertyModel>[].obs;
-  final isLoadingProperties = false.obs;
 
   final propertyNameCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
@@ -39,8 +38,6 @@ class PropertyController extends GetxController {
   final provideCleaningProducts = false.obs;
   final hasWashingMachine = false.obs;
   final hasDryer = false.obs;
-
-  final isSaving = false.obs;
 
   static const List<String> businessTypeOptions = ['Residential', 'Commercial'];
   final RxList<PropertyTypes> propertyTypeOptions = <PropertyTypes>[].obs;
@@ -87,7 +84,7 @@ class PropertyController extends GetxController {
   }
 
   Future<void> _loadProperties() async {
-    isLoadingProperties.value = true;
+    Loader.show();
     try {
       final result = await _clientRepository.listProperties();
       result.handle(
@@ -99,7 +96,7 @@ class PropertyController extends GetxController {
         },
       );
     } finally {
-      isLoadingProperties.value = false;
+      Loader.hide();
     }
   }
 
@@ -145,8 +142,7 @@ class PropertyController extends GetxController {
   Future<void> addUpdateProperty() async {
     if (formKey.currentState?.validate() != true) return;
 
-    if (isSaving.value) return;
-    isSaving.value = true;
+    Loader.show();
     try {
       final name = propertyNameCtrl.text.trim();
       final address = addressCtrl.text.trim();
@@ -227,7 +223,7 @@ class PropertyController extends GetxController {
         contextTag: 'create-property',
       );
     } finally {
-      isSaving.value = false;
+      Loader.hide();
     }
   }
 
@@ -305,20 +301,20 @@ class PropertyController extends GetxController {
     final jobId = id.toInt();
     Get.back();
     Loader.show();
-    final result = await _clientRepository.deleteProperty(jobId);
-    result.handle(
-      success: (value) async {
-        Loader.hide();
-        properties.removeWhere((p) => p.id == id);
-        resetForm();
-        Get.back();
-        Notifier.success(value.message ?? "Property deleted Successfully!");
-      },
-      onError: (value) {
-        Loader.hide();
-      },
-      contextTag: 'delete_property',
-    );
+    try {
+      final result = await _clientRepository.deleteProperty(jobId);
+      result.handle(
+        success: (value) async {
+          properties.removeWhere((p) => p.id == id);
+          resetForm();
+          Get.back();
+          Notifier.success(value.message ?? "Property deleted Successfully!");
+        },
+        contextTag: 'delete_property',
+      );
+    } finally {
+      Loader.hide();
+    }
   }
 
   void resetForm() {

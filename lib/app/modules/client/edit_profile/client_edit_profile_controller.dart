@@ -25,8 +25,6 @@ class ClientEditProfileController extends GetxController {
   /// Picked profile image file, or null if none.
   final pickedImage = Rx<File?>(null);
 
-  final isSaving = false.obs;
-
   List<String> genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
 
   final _picker = ImagePicker();
@@ -90,8 +88,7 @@ class ClientEditProfileController extends GetxController {
       return;
     }
 
-    isSaving.value = true;
-
+    Loader.show();
     try {
       // TODO: Call API to update profile
       await Future.delayed(const Duration(seconds: 1)); // Simulate API call
@@ -100,7 +97,7 @@ class ClientEditProfileController extends GetxController {
     } catch (e) {
       Notifier.info('Failed to update profile: $e');
     } finally {
-      isSaving.value = false;
+      Loader.hide();
     }
   }
 

@@ -17,7 +17,6 @@ class JobCheckPhotoController extends GetxController {
   bool get isCheckIn => mode == JobCheckPhotoMode.checkIn;
 
   final RxList<XFile> photos = <XFile>[].obs;
-  final isSubmitting = false.obs;
   final ImagePicker picker = ImagePicker();
 
   String get pageTitle => isCheckIn ? 'Check-in' : 'Check-out';
@@ -116,7 +115,7 @@ class JobCheckPhotoController extends GetxController {
       Notifier.info('Add at least one photo');
       return;
     }
-    isSubmitting.value = true;
+    Loader.show();
     try {
       final result = isCheckIn
           ? await _cleanerRepository.checkIn(jobId: job.id, photos: photos.toList())
@@ -129,7 +128,7 @@ class JobCheckPhotoController extends GetxController {
         contextTag: 'job_check_photo',
       );
     } finally {
-      isSubmitting.value = false;
+      Loader.hide();
     }
   }
 }

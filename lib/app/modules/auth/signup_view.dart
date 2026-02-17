@@ -160,7 +160,6 @@ class SignupView extends GetView<AuthController> {
                   controller.signup();
                 }
               },
-              isLoading: controller.isSigningUp.value,
             ),
           ),
           const SizedBox(height: 24),

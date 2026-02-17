@@ -12,11 +12,6 @@ class SupportDocumentView extends GetView<SupportDocumentController> {
     return AppScaffold(
       appBar: Header(title: "Your Supporting Documents"),
       body: Obx(() {
-        if (controller.isLoadingDocuments.value && controller.documents.isEmpty) {
-          return const Center(
-            child: PageLoader(),
-          );
-        }
         if (controller.documents.isEmpty) {
           return _EmptyState(
             scheme: scheme,

@@ -1,7 +1,5 @@
-import 'package:get/get.dart';
+import 'package:ccs_app/export.dart';
 
-import '../network/utils/network_exception.dart';
-import '../utils/notifier.dart';
 import 'session_service.dart';
 
 /// Global API error handler. Runs for every API error unless explicitly bypassed.
@@ -19,6 +17,12 @@ class ApiErrorHandler extends GetxService {
     bool showAlert = true,
     String? contextTag,
   }) async {
+    try {
+      Loader.hide();
+    } catch (e) {
+      e.printError(info: contextTag ?? runtimeType.toString());
+    }
+
     if (showAlert && error.shouldShowApiError && !_isShowingError) {
       _isShowingError = true;
       try {
