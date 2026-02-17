@@ -107,7 +107,7 @@ class AppCard extends StatefulWidget {
     return AppCard(
       onTap: onTap,
       radius: UiConstants.radiusDefault,
-      color: colorScheme.primary.withValues(alpha: 0.1),
+      color: colorScheme.secondaryContainer,
       padding: padding ?? const EdgeInsets.all(12),
       enableShadows: false,
       child: size != null ? SizedBox(width: size, height: size, child: child) : child,

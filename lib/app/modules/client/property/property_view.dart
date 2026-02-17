@@ -37,33 +37,37 @@ class PropertyView extends GetView<PropertyController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ...list.map(
-                    (p) => Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: _PropertyCard(
-                        property: p,
-                        onTap: () => controller.goToEditProperty(p),
+                  AppGrid(
+                    maxExtent: 100,
+                    axisSpacing: 8,
+                    phoneCount: 1,
+                    tabletCount: 2,
+                    landscapeCount: 3,
+                    child: List.generate(
+                      controller.properties.length,
+                      (index) => _PropertyCard(
+                        property: controller.properties[index],
+                        onTap: () => controller.goToEditProperty(index),
                         scheme: scheme,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
                 ],
               ),
             );
           },
         ),
       ),
-      floatingActionButton: Obx((){
+      floatingActionButton: Obx(() {
         return controller.properties.isEmpty
             ? SizedBox.shrink()
             : FloatingActionButton.extended(
-          onPressed: controller.goToAddProperty,
-          icon: const Icon(IconsaxPlusLinear.add),
-          label: const Text('Add Property'),
-          backgroundColor: scheme.primary,
-          foregroundColor: scheme.onPrimary,
-        );
+                onPressed: controller.goToAddProperty,
+                icon: const Icon(IconsaxPlusLinear.add),
+                label: const Text('Add Property'),
+                backgroundColor: scheme.primary,
+                foregroundColor: scheme.onPrimary,
+              );
       }),
     );
   }
@@ -86,14 +90,9 @@ class _PropertyCard extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          Container(
-            height: 56,
-            width: 56,
-            decoration: BoxDecoration(
-              color: scheme.primaryContainer,
-              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-            ),
-            child: Icon(IconsaxPlusLinear.home_2, color: scheme.primary, size: 28),
+          AppCard.iconContainer(
+            context: context,
+            child: Icon(IconsaxPlusLinear.home_2, color: scheme.secondary, size: 28),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -111,10 +110,14 @@ class _PropertyCard extends StatelessWidget {
                 ),
                 if (property.propertyType != null) ...[
                   const SizedBox(height: 4),
-                  CommonText.regular(
-                    property.propertyType!,
-                    size: 12,
-                    color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
+                  AppCard(
+                    enableShadows: false,
+                    color: scheme.outlineVariant,
+                    child: CommonText.medium(
+                      ("${property.businessType!} ${Constants.bullet} ${property.propertyType!} ${Constants.bullet} ${property.subType}").toUpperCase(),
+                      size: 12,
+                      color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
+                    ).paddingSymmetric(horizontal: 10, vertical: 4),
                   ),
                 ],
               ],

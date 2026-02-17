@@ -4,6 +4,7 @@ class Constants {
   Constants._();
 
   static const appName = 'Colossians Cleaning Services';
+  static const bullet = '•';
 
   static const cleanerBottomBarItems = [
     NavigationDestination(icon: Icon(IconsaxPlusLinear.home), selectedIcon: Icon(IconsaxPlusBold.home), label: 'Dashboard'),

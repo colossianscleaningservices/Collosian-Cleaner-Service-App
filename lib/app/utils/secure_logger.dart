@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:flutter/foundation.dart';
@@ -116,14 +117,42 @@ class SecureLogger {
     );
   }
 
-  /// Log data/JSON with sanitization (only in debug mode)
+  /// Log data/JSON with sanitization (only in debug mode).
+  /// Outputs pretty-printed JSON with indentation and proper string quotes.
   static void logData(String tag, String label, dynamic data) {
     if (!kDebugMode) {
       return;
     }
 
     final sanitizedData = _sanitizeData(data);
-    dev.log('$label: $sanitizedData', name: tag.toUpperCase());
+    final String message = _toFormattedJson(label, sanitizedData);
+    dev.log(message, name: tag.toUpperCase());
+  }
+
+  /// Format data as "label: <pretty JSON>" so JSON keeps indentation, newlines and "".
+  static String _toFormattedJson(String label, dynamic data) {
+    if (data == null) {
+      return '$label: null';
+    }
+    if (data is String) {
+      // Try to parse and re-encode as pretty JSON for consistency
+      try {
+        final decoded = jsonDecode(data) as dynamic;
+        final pretty = const JsonEncoder.withIndent('  ').convert(decoded);
+        return '$label:\n$pretty';
+      } catch (_) {
+        return '$label: $data';
+      }
+    }
+    if (data is Map || data is List) {
+      try {
+        final pretty = const JsonEncoder.withIndent('  ').convert(data);
+        return '$label:\n$pretty';
+      } catch (_) {
+        return '$label: $data';
+      }
+    }
+    return '$label: $data';
   }
 
   /// Log error safely and report to Crashlytics in release mode

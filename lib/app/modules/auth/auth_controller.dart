@@ -174,12 +174,13 @@ class AuthController extends GetxController {
     required String currentPassword,
     required String password,
     required String passwordConfirmation,
-  }) =>
-      _authRepository.changePassword(
-        currentPassword: currentPassword,
+  }) {
+    return _authRepository.changePassword(
+      currentPassword: currentPassword,
         password: password,
         passwordConfirmation: passwordConfirmation,
       );
+  }
 
   // ─── Agreement (assessment steps) ─────────────────────────────────────────
 
@@ -189,9 +190,7 @@ class AuthController extends GetxController {
     selectedAgreementAnswers.refresh();
   }
 
-  String? getAgreementAnswer(int sectionIndex, int questionIndex) {
-    return selectedAgreementAnswers.value[sectionIndex]?[questionIndex];
-  }
+  String? getAgreementAnswer(int sectionIndex, int questionIndex) => selectedAgreementAnswers.value[sectionIndex]?[questionIndex];
 
   bool isAgreementStepComplete(int sectionIndex) {
     if (sectionIndex >= assessmentQuestionsByStep.length) return true;
