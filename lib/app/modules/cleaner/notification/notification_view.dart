@@ -21,7 +21,11 @@ class NotificationView extends GetView<NotificationController> {
           onRefresh: () => controller.refreshNotification(),
           child: SafeArea(
             child: controller.notifications.isEmpty
-                ? _EmptyNotifications(scheme: scheme)
+                ? NoDataView(
+              title: 'No notifications',
+              subtitle: "You're all caught up! We'll notify you when there's something new.",
+              icon: IconsaxPlusLinear.notification,
+            )
                 : Column(
                     children: [
                       ListView.separated(
@@ -95,42 +99,6 @@ class NotificationView extends GetView<NotificationController> {
         isRead: true,
       ),
     ];
-  }
-}
-
-class _EmptyNotifications extends StatelessWidget {
-  const _EmptyNotifications({required this.scheme});
-
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AppCard(
-            radius: 100,
-            color: scheme.secondary.withValues(alpha: 0.12),
-            enableShadows: false,
-            child: Icon(
-              IconsaxPlusLinear.notification,
-              size: 48,
-              color: scheme.secondary,
-            ).paddingAll(24),
-          ),
-          const SizedBox(height: 20),
-          CommonText.semiBold('No notifications', size: 18, color: scheme.onSurface),
-          const SizedBox(height: 8),
-          CommonText.regular(
-            'You\'re all caught up! We\'ll notify you\nwhen there\'s something new.',
-            size: 14,
-            color: scheme.onSurfaceVariant,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ).paddingSymmetric(horizontal: 32),
-    );
   }
 }
 

@@ -32,7 +32,11 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
                 final selected = controller.filter.where((c) => c.isSelected).toList();
                 final selectedType = selected.isNotEmpty ? selected.first.type : 'All';
                 if (list.isEmpty) {
-                  return _EmptyState(scheme: scheme);
+                  return NoDataView(
+                    title: 'No resources yet',
+                    subtitle: 'Training materials will appear here when available.',
+                    icon: IconsaxPlusLinear.document,
+                  );
                 }
                 final itemCount = list.length;
                 return ListView.separated(
@@ -607,42 +611,3 @@ class _TrainingCard extends StatelessWidget {
   }
 }
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({required this.scheme});
-
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(UiConstants.radiusLarge),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            IconsaxPlusLinear.document,
-            size: 48,
-            color: scheme.onSurfaceVariant.withValues(alpha: 0.6),
-          ),
-          const SizedBox(height: 16),
-          CommonText.medium(
-            'No resources yet',
-            size: 16,
-            color: scheme.onSurface,
-          ),
-          const SizedBox(height: 8),
-          CommonText.regular(
-            'Training materials will appear here when available.',
-            size: 14,
-            color: scheme.onSurfaceVariant,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}

@@ -13,9 +13,12 @@ class SupportDocumentView extends GetView<SupportDocumentController> {
       appBar: Header(title: "Your Supporting Documents"),
       body: Obx(() {
         if (controller.documents.isEmpty) {
-          return _EmptyState(
-            scheme: scheme,
-            onAddDocument: () => _navigateToAddDocument(context),
+          return NoDataView(
+            icon: Icons.description_outlined,
+            title: 'No documents yet',
+            subtitle: 'Add your passport, visa, or other supporting documents so they appear here.',
+            actionLabel: 'Add Document',
+            onAction: () => _navigateToAddDocument(context),
           );
         }
         return SwipeRefresh(
@@ -51,27 +54,6 @@ class SupportDocumentView extends GetView<SupportDocumentController> {
     Get.toNamed(Routes.ADD_DOCUMENT)?.then((result) {
       if (result == true) controller.refreshDocuments();
     });
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({
-    required this.scheme,
-    required this.onAddDocument,
-  });
-
-  final ColorScheme scheme;
-  final VoidCallback onAddDocument;
-
-  @override
-  Widget build(BuildContext context) {
-    return NoDataView(
-      icon: Icons.description_outlined,
-      title: 'No documents yet',
-      subtitle: 'Add your passport, visa, or other supporting documents so they appear here.',
-      actionLabel: 'Add Document',
-      onAction: onAddDocument,
-    );
   }
 }
 

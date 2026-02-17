@@ -18,7 +18,11 @@ class NewslettersView extends GetView<NewslettersController> {
           onRefresh: () => controller.refreshNewsletters(),
           child: SafeArea(
             child: controller.newsletters.isEmpty
-                ? _EmptyNewsletters(scheme: scheme)
+                ? NoDataView(
+              title: 'No newsletters',
+              subtitle: "We'll share updates and offers here when they're available.",
+              icon: IconsaxPlusLinear.sms_edit,
+            )
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                     itemCount: controller.newsletters.length,
@@ -105,42 +109,6 @@ class NewslettersView extends GetView<NewslettersController> {
     if (diff.inDays == 1) return 'Yesterday';
     if (diff.inDays < 7) return '${diff.inDays} days ago';
     return '${date.day}/${date.month}/${date.year}';
-  }
-}
-
-class _EmptyNewsletters extends StatelessWidget {
-  const _EmptyNewsletters({required this.scheme});
-
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AppCard(
-            radius: 100,
-            color: scheme.secondary.withValues(alpha: 0.12),
-            enableShadows: false,
-            child: Icon(
-              IconsaxPlusLinear.sms_edit,
-              size: 48,
-              color: scheme.secondary,
-            ).paddingAll(24),
-          ),
-          const SizedBox(height: 20),
-          CommonText.semiBold('No newsletters', size: 18, color: scheme.onSurface),
-          const SizedBox(height: 8),
-          CommonText.regular(
-            'We\'ll share updates and offers here when they\'re available.',
-            size: 14,
-            color: scheme.onSurfaceVariant,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ).paddingSymmetric(horizontal: 32),
-    );
   }
 }
 
