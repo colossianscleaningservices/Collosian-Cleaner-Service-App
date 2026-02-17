@@ -79,12 +79,9 @@ class PropertyController extends GetxController {
     super.onReady();
   }
 
-  String? validateRequired(String? value, String fieldName) {
-    return Validator.requiredField(value, fieldName: fieldName);
-  }
+  String? validateRequired(String? value, String fieldName) => Validator.requiredField(value, fieldName: fieldName);
 
   Future<void> _loadProperties() async {
-    Loader.show();
     try {
       final result = await _clientRepository.listProperties();
       result.handle(
@@ -95,13 +92,11 @@ class PropertyController extends GetxController {
           }
         },
       );
-    } finally {
-      Loader.hide();
-    }
+    } catch (_) {}
   }
 
-  Future<void> getPropertyType(String businessType) async {
-    Loader.show();
+  Future<void> getPropertyType(String businessType, {bool showLoader = true}) async {
+    if (showLoader) Loader.show();
     try {
       final result = await _clientRepository.getPropertyType(businessType: businessType.toUpperCase());
       result.handle(
@@ -116,12 +111,12 @@ class PropertyController extends GetxController {
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'get-property-type');
     } finally {
-      Loader.hide();
+      if (showLoader) Loader.hide();
     }
   }
 
-  Future<void> getPropertySubType(int propertyId) async {
-    Loader.show();
+  Future<void> getPropertySubType(int propertyId, {bool showLoader = true}) async {
+    if (showLoader) Loader.show();
     try {
       final result = await _clientRepository.getPropertySubTypes(propertyId: propertyId);
       result.handle(
@@ -135,7 +130,7 @@ class PropertyController extends GetxController {
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'get-property-type');
     } finally {
-      Loader.hide();
+      if (showLoader) Loader.hide();
     }
   }
 
@@ -232,50 +227,66 @@ class PropertyController extends GetxController {
     Get.toNamed(Routes.ADD_PROPERTY);
   }
 
-  Future<void> goToEditProperty(PropertyModel property) async {
-    resetForm();
+  void goToEditProperty(int index) {
+    if (index < 0 || index >= properties.length) return;
+    final property = properties[index];
     editingProperty.value = property;
-    businessType.value = property.businessType?.capitalizeFirst ?? "Residential";
+    Get.toNamed(Routes.ADD_PROPERTY);
+    // Load edit data on the detail page after navigation (loader shown there)
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadEditPropertyData());
+  }
 
-    await getPropertyType(businessType.value);
+  /// Called on the detail page after navigating to edit: shows loader and fetches property types, sub-types, then fills form.
+  Future<void> _loadEditPropertyData() async {
+    final property = editingProperty.value;
+    if (property == null) return;
 
-    propertyNameCtrl.text = property.propertyName ?? "";
-    addressCtrl.text = property.address ?? "";
-    cityCtrl.text = property.city ?? '';
-    postalCodeCtrl.text = property.postalCode ?? '';
-    propertyType.value = property.propertyType;
-    selectedPropertyType.value = propertyTypeOptions.firstWhereOrNull((e) => e.name == property.propertyType);
-    hasDryer.value = property.provideDryer ?? false;
-    hoover.value = property.hoover ?? "No";
-    provideCleaningProducts.value = property.provideCleaningProducts ?? false;
-    hasWashingMachine.value = property.provideWashingMachine ?? false;
-    staffPreference.value = property.staffPreference ?? 'Male';
-    accessToProperty.value = property.accessToProperty ?? 'Client Will Open';
-    animals.value = property.animalProperty == '1' ? 'Yes' : 'No';
+    Loader.show();
+    try {
+      resetForm();
+      editingProperty.value = property;
+      businessType.value = property.businessType?.capitalizeFirst ?? "Residential";
 
-    var item = propertyTypeOptions.firstWhereOrNull((item) => item.name == propertyType.value);
-    var subId = item?.id;
+      await getPropertyType(businessType.value, showLoader: false);
 
-    if (item?.hasSubtypes == true) {
-      numberOfBedroomsCtrl.text = "${property.bedrooms}";
-      numberOfBathroomsCtrl.text = "${property.bathrooms}";
-      numberOfGuestToiletCtrl.text = "${property.separateGuestToilet}";
-      livingRoomCtrl.text = "${property.livingRooms}";
-      officeCtrl.text = "${property.office}";
-      conservatoryCtrl.text = "${property.conservatory}";
-      diningRoomCtrl.text = "${property.diningRoom}";
+      propertyNameCtrl.text = property.propertyName ?? "";
+      addressCtrl.text = property.address ?? "";
+      cityCtrl.text = property.city ?? '';
+      postalCodeCtrl.text = property.postalCode ?? '';
+      propertyType.value = property.propertyType;
+      selectedPropertyType.value = propertyTypeOptions.firstWhereOrNull((e) => e.name == property.propertyType);
+      hasDryer.value = property.provideDryer ?? false;
+      hoover.value = property.hoover ?? "No";
+      provideCleaningProducts.value = property.provideCleaningProducts ?? false;
+      hasWashingMachine.value = property.provideWashingMachine ?? false;
+      staffPreference.value = property.staffPreference ?? 'Male';
+      accessToProperty.value = property.accessToProperty ?? 'Client Will Open';
+      animals.value = property.animalProperty == '1' ? 'Yes' : 'No';
 
-      if (subId != null) {
-        await getPropertySubType(subId.toInt());
-        if (propertyTypeOptions.isNotEmpty) {
-          selectedPropertySubType.value = propertySubTypeOptions.firstWhereOrNull((item) => item.name?.toLowerCase() == property.subType?.toLowerCase());
+      final item = propertyTypeOptions.firstWhereOrNull((item) => item.name == propertyType.value);
+      final subId = item?.id;
+
+      if (item?.hasSubtypes == true) {
+        numberOfBedroomsCtrl.text = "${property.bedrooms}";
+        numberOfBathroomsCtrl.text = "${property.bathrooms}";
+        numberOfGuestToiletCtrl.text = "${property.separateGuestToilet}";
+        livingRoomCtrl.text = "${property.livingRooms}";
+        officeCtrl.text = "${property.office}";
+        conservatoryCtrl.text = "${property.conservatory}";
+        diningRoomCtrl.text = "${property.diningRoom}";
+
+        if (subId != null) {
+          await getPropertySubType(subId.toInt(), showLoader: false);
+          if (propertyTypeOptions.isNotEmpty) {
+            selectedPropertySubType.value = propertySubTypeOptions.firstWhereOrNull((item) => item.name?.toLowerCase() == property.subType?.toLowerCase());
+          }
         }
       }
+    } catch (e) {
+      await Notifier.apiError(e, contextTag: 'load_edit_property');
+    } finally {
+      Loader.hide();
     }
-
-    await Future<void>.delayed(const Duration(milliseconds: 200));
-
-    Get.toNamed(Routes.ADD_PROPERTY);
   }
 
   void confirmDeleteProperty(BuildContext context) {
