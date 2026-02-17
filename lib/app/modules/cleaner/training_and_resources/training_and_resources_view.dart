@@ -52,6 +52,7 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
                   },
                 );
               }).marginOnly(bottom: 24),
+              Obx(() => controller.isMoreLoading.value ? PageLoader(): SizedBox.shrink())
             ],
           ).paddingAll(UiConstants.defaultPadding),
         ),

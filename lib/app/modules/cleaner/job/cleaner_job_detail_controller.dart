@@ -10,16 +10,18 @@ import 'job_check_photo_controller.dart';
 class CleanerJobDetailController extends GetxController {
   final CleanerRepository _cleanerRepository = CleanerRepository();
 
-  final Rx<ClientJob> _job = Rx<ClientJob>(ClientJob(
-    id: '',
-    clientName: '—',
-    jobType: '—',
-    date: DateTime.now(),
-    startTime: '—',
-    endTime: '—',
-    status: 'Unknown',
-    propertyOneLine: '—',
-  ));
+  final Rx<ClientJob> _job = Rx<ClientJob>(
+    ClientJob(
+      id: '',
+      clientName: '—',
+      jobType: '—',
+      date: DateTime.now(),
+      startTime: '—',
+      endTime: '—',
+      status: 'Unknown',
+      propertyOneLine: '—',
+    ),
+  );
 
   ClientJob get job => _job.value;
 

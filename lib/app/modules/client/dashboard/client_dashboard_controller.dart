@@ -1,15 +1,16 @@
 import 'dart:io' show Platform;
 
-import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/app/model/menu_model.dart';
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
+import 'package:ccs_app/app/network/response/get_client_job_response.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../model/calendar_event.dart';
+import '../../../network/repository/client_repository.dart';
+import '../../../services/session_service.dart';
 import 'view/client_calendar_view.dart';
 import 'view/client_dashboard_home.dart';
 import 'view/client_jobs_view.dart';
@@ -17,9 +18,11 @@ import 'view/client_profile_view.dart';
 
 class ClientDashboardController extends GetxController with GetSingleTickerProviderStateMixin {
   final AuthRepository _authRepository = AuthRepository();
+  final ClientRepository _clientRepository = ClientRepository();
 
   final tabIndex = 0.obs;
-  final jobs = <ClientJob>[].obs;
+
+  // final jobs = <ClientJob>[].obs;
   var appVersion = "".obs;
 
   List<Widget> get pages => const [
@@ -47,22 +50,44 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   static const modes = [CalendarViewMode.week, CalendarViewMode.month, CalendarViewMode.list];
   final mode = CalendarViewMode.month.obs;
 
+  //JOBS
+  RxList<Jobs> jobs = <Jobs>[].obs;
+  var jobCurrentPage = 1;
+  var jobTotalPage = 1;
+  RxBool isJobMoreLoading = false.obs;
+  ScrollController jobScrollController = ScrollController();
+
   @override
   void onInit() {
     super.onInit();
-   /* if (!Get.find<SessionService>().isLoggedIn) {
+    if (!Get.find<SessionService>().isLoggedIn) {
       Get.offAllNamed(Routes.LOGIN);
       return;
-    }*/
+    }
     final args = Get.arguments;
     if (args is Map && args['tab'] is int) {
       tabIndex.value = (args['tab'] as int).clamp(0, pages.length - 1);
     }
-    jobs.assignAll(ClientJob.demoJobs);
     tabController = TabController(length: 3, vsync: this, initialIndex: 1);
     tabController.addListener(_syncModeFromTab);
     getAppVersion();
     _registerDevice();
+
+    jobScrollController.addListener(() {
+      if (_isScrollBottom) {
+        if (jobCurrentPage <= jobTotalPage && !isJobMoreLoading.value) {
+          isJobMoreLoading.value = true;
+          fetchJobs();
+        }
+      }
+    });
+  }
+
+  bool get _isScrollBottom {
+    if (!jobScrollController.hasClients) return false;
+    final maxScroll = jobScrollController.position.maxScrollExtent;
+    final currentScroll = jobScrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   /// Call device registration API so latest app/device data is saved when dashboard opens.
@@ -152,9 +177,47 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
 
   void setTab(int index) {
     tabIndex.value = index.clamp(0, pages.length - 1);
+
+    if (tabIndex.value == 2) {
+      if (jobs.isEmpty) {
+        fetchJobs();
+      }
+    }
   }
 
-  void openDetail(ClientJob job) {
-    Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: job);
+  void openDetail(Jobs job) {
+    Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: job.id)?.then((value) {
+      if (value != null) {
+        log(runtimeType.toString(), "VLUE ${value}");
+        if (value.containsKey('action') && value['action'] == 'delete') {
+          jobs.removeWhere((p) => p.id == job.id);
+          jobs.refresh();
+        }
+      }
+    });
+  }
+
+  Future<void> fetchJobs() async {
+    if (!isJobMoreLoading.value) Loader.show();
+    try {
+      final result = await _clientRepository.getJob(page: jobCurrentPage);
+      result.handle(
+        success: (response) {
+          final raw = response.data;
+          if (jobCurrentPage == 1) jobs.clear();
+          if (raw != null && raw.jobs?.isNotEmpty == true) {
+            jobs.assignAll(raw.jobs as Iterable<Jobs>);
+          }
+          jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
+
+          if (jobCurrentPage <= jobTotalPage) {
+            jobCurrentPage++;
+          }
+        },
+      );
+    } finally {
+      if (!isJobMoreLoading.value) Loader.hide();
+      isJobMoreLoading.value = false;
+    }
   }
 }

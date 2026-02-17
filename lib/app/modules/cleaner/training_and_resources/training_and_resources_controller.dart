@@ -17,14 +17,15 @@ class TrainingAndResourcesController extends GetxController {
   final Rxn<Counts> counts = Rxn<Counts>(null);
   var totalPage = 1;
   var currentPage = 1;
-  bool _isLoading = false;
+  RxBool isMoreLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     scrollController.addListener(() {
       if (_isScrollBottom) {
-        if (currentPage <= totalPage && !_isLoading) {
+        if (currentPage <= totalPage && !isMoreLoading.value) {
+          isMoreLoading.value = true;
           getTrainingResources();
         }
       }
@@ -150,9 +151,8 @@ class TrainingAndResourcesController extends GetxController {
   }
 
   Future<void> getTrainingResources() async {
-    if (_isLoading) return;
-    _isLoading = true;
-    Loader.show();
+
+    if (!isMoreLoading.value) Loader.show();
     try {
       final result = await _commonRepository.getTrainingResources(page: currentPage);
       result.handle(
@@ -172,8 +172,8 @@ class TrainingAndResourcesController extends GetxController {
     } catch (e) {
       Notifier.error('Failed to fetch training resource');
     } finally {
-      Loader.hide();
-      _isLoading = false;
+      if (!isMoreLoading.value) Loader.hide();
+      isMoreLoading.value = false;
     }
   }
 }

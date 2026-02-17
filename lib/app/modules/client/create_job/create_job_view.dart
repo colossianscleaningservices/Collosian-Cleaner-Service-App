@@ -16,7 +16,7 @@ class CreateJobView extends GetView<CreateJobController> {
       controller.endTime.value;
       return AppScaffold(
         appBar: Header(
-          title: 'Create a Cleaning Job',
+          title: '${controller.isEdit ? "Update":"Create"} a Cleaning Job',
           hasBackIcon: true,
           headerLogoIcon: false,
           titleCentered: false,
@@ -36,7 +36,7 @@ class CreateJobView extends GetView<CreateJobController> {
                       spacing: 14,
                       children: [
                         CommonText.semiBold('Property & scheduling', size: 16, color: scheme.onSurface),
-                        Obx(() => CommonDropDownField<String>(
+                        Obx(() => controller.isLoading.value ? Center(child: CircularProgressIndicator()) : CommonDropDownField<String>(
                               label: 'Property',
                               hint: 'Select',
                               items: controller.properties.map((item) => item.propertyName ?? "").toList(),
@@ -62,7 +62,7 @@ class CreateJobView extends GetView<CreateJobController> {
                                   constraints: const BoxConstraints(),
                                   padding: const EdgeInsets.all(4),
                                 ),
-                              Icon(Icons.calendar_today, size: 20, color: scheme.primary),
+                              Icon(Icons.calendar_today, size: 20, color: scheme.primary).marginOnly(right: 12),
                             ],
                           ),
                         ),
@@ -178,7 +178,7 @@ class CreateJobView extends GetView<CreateJobController> {
           ),
         ),
         bottomNavigationBar: SingleActionBottomBar(
-          label: 'Create',
+          label: controller.isEdit ? "Update":"Create",
           onPressed: controller.submit,
         ),
       );
@@ -202,6 +202,7 @@ Future<void> _pickTime(BuildContext context, CreateJobController ctrl, {required
     context: context,
     initialTime: initial ?? const TimeOfDay(hour: 9, minute: 0),
   );
+
   if (t != null && context.mounted) {
     if (isStart) {
       ctrl.setStartTime(t);

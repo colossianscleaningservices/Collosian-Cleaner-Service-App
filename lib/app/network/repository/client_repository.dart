@@ -1,3 +1,5 @@
+import 'package:ccs_app/app/network/response/get_client_job_response.dart';
+import 'package:ccs_app/app/network/response/get_job_details_response.dart';
 import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
 
 import '../../core/base/base_repository.dart';
@@ -46,21 +48,21 @@ class ClientRepository extends BaseRepository {
       'postal_code': postalCode,
       'property_type': propertyType,
     };
-    if (propertySubType != null) payload['sub_type'] = propertySubType;
-    if (noOfBedrooms != 0) payload['bedrooms'] = noOfBedrooms;
-    if (noOfBathrooms != 0) payload['bathrooms'] = noOfBathrooms;
-    if (noOfGuestToilet != 0) payload['separate_guest_toilet'] = noOfGuestToilet;
-    if (livingRoom != 0) payload['living_rooms'] = livingRoom;
-    if (office != 0) payload['office'] = office;
-    if (conservatory != 0) payload['conservatory'] = conservatory;
-    if (diningRoom != 0) payload['dining_room'] = diningRoom;
-    if (haveHoover != null) payload['hoover'] = haveHoover;
-    if (provideCleaningProduct != null) payload['provide_cleaning_products'] = provideCleaningProduct;
-    if (haveWashingMachine != null) payload['provide_washing_machine'] = haveWashingMachine;
-    if (staffPreference != null) payload['staff_preference'] = staffPreference;
-    if (haveDryer != null) payload['provide_dryer'] = haveDryer;
-    if (accessProperty != null) payload['access_to_property'] = accessProperty;
-    if (animalProperty != null) payload['animal_property'] = animalProperty;
+    payload['sub_type'] = propertySubType;
+    payload['bedrooms'] = noOfBedrooms;
+    payload['bathrooms'] = noOfBathrooms;
+    payload['separate_guest_toilet'] = noOfGuestToilet;
+    payload['living_rooms'] = livingRoom;
+    payload['office'] = office;
+    payload['conservatory'] = conservatory;
+    payload['dining_room'] = diningRoom;
+    payload['hoover'] = haveHoover;
+    payload['provide_cleaning_products'] = provideCleaningProduct;
+    payload['provide_washing_machine'] = haveWashingMachine;
+    payload['staff_preference'] = staffPreference;
+    payload['provide_dryer'] = haveDryer;
+    payload['access_to_property'] = accessProperty;
+    payload['animal_property'] = animalProperty;
     return post<BaseResponse>(
       endpoint: Endpoint.clientProperties,
       fromJson: (json) => BaseResponse.fromJson(json),
@@ -123,21 +125,21 @@ class ClientRepository extends BaseRepository {
       'postal_code': postalCode,
       'property_type': propertyType,
     };
-    if (propertySubType != null) payload['sub_type'] = propertySubType;
-    if (noOfBedrooms != 0) payload['bedrooms'] = noOfBedrooms;
-    if (noOfBathrooms != 0) payload['bathrooms'] = noOfBathrooms;
-    if (noOfGuestToilet != 0) payload['separate_guest_toilet'] = noOfGuestToilet;
-    if (livingRoom != 0) payload['living_rooms'] = livingRoom;
-    if (office != 0) payload['office'] = office;
-    if (conservatory != 0) payload['conservatory'] = conservatory;
-    if (diningRoom != 0) payload['dining_room'] = diningRoom;
-    if (haveHoover != null) payload['hoover'] = haveHoover;
-    if (provideCleaningProduct != null) payload['provide_cleaning_products'] = provideCleaningProduct;
-    if (haveWashingMachine != null) payload['provide_washing_machine'] = haveWashingMachine;
-    if (staffPreference != null) payload['staff_preference'] = staffPreference;
-    if (haveDryer != null) payload['provide_dryer'] = haveDryer;
-    if (accessProperty != null) payload['access_to_property'] = accessProperty;
-    if (animalProperty != null) payload['animal_property'] = animalProperty;
+    payload['sub_type'] = propertySubType;
+    payload['bedrooms'] = noOfBedrooms;
+    payload['bathrooms'] = noOfBathrooms;
+    payload['separate_guest_toilet'] = noOfGuestToilet;
+    payload['living_rooms'] = livingRoom;
+    payload['office'] = office;
+    payload['conservatory'] = conservatory;
+    payload['dining_room'] = diningRoom;
+    payload['hoover'] = haveHoover;
+    payload['provide_cleaning_products'] = provideCleaningProduct;
+    payload['provide_washing_machine'] = haveWashingMachine;
+    payload['staff_preference'] = staffPreference;
+    payload['provide_dryer'] = haveDryer;
+    payload['access_to_property'] = accessProperty;
+    payload['animal_property'] = animalProperty;
     return put<BaseResponse>(
       endpoint: Endpoint.clientProperty(id),
       fromJson: (json) => BaseResponse.fromJson(json),
@@ -175,9 +177,32 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<BaseResponse>> getJob() async {
-    return get<BaseResponse>(
+  Future<NetworkResult<BaseResponse>> updateJob(CreateJobRequest request, int? jobId) async {
+    return put<BaseResponse>(
+      endpoint: "${Endpoint.clientJob}/$jobId",
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data: request,
+    );
+  }
+
+  Future<NetworkResult<GetClientJobResponse>> getJob({int page = 1}) async {
+    return get<GetClientJobResponse>(
+      queryParameters: {'page': page},
       endpoint: Endpoint.clientJob,
+      fromJson: (json) => GetClientJobResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<GetJobDetailsResponse>> getJobDetails(num jobId) async {
+    return get<GetJobDetailsResponse>(
+      endpoint: "${Endpoint.clientJob}/$jobId",
+      fromJson: (json) => GetJobDetailsResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<BaseResponse>> deleteJob(num jobId) async {
+    return delete<BaseResponse>(
+      endpoint: "${Endpoint.clientJob}/$jobId",
       fromJson: (json) => BaseResponse.fromJson(json),
     );
   }
