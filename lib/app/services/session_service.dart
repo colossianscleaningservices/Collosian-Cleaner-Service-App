@@ -27,6 +27,11 @@ class SessionService extends GetxService {
     return email.isNotEmpty ? email : 'User';
   }
 
+  String get userDisplayImage {
+    final image = _prefs.getData(Prefs.image);
+    return image.isNotEmpty ? image : '';
+  }
+
   Future<void> logout() async {
     try {
       await AuthRepository().logout();

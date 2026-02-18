@@ -37,7 +37,7 @@ class CreateJobRequest {
   String? endTime;
   String? jobType;
   num? numberOfCleaners;
-  String? cleaningType;
+  num? cleaningType;
   String? accessToProperty;
   bool? provideCleaningProducts;
   bool? provideWashingMachine;

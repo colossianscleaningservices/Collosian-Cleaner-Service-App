@@ -146,7 +146,7 @@ class Jobs {
     userId = json['user_id'];
     pricingChartId = json['pricing_chart_id'];
     isDeleted = json['is_deleted'];
-    cleaningType = json['cleaning_type'];
+    cleaningType = json['cleaning_type'] != null ? CleaningType.fromJson(json['cleaning_type']) : null;
     additionalDetails = json['additional_details'];
     hoover = json['hoover'];
     provideWashingMachine = json['provide_washing_machine'];
@@ -187,7 +187,7 @@ class Jobs {
   num? userId;
   dynamic pricingChartId;
   bool? isDeleted;
-  dynamic cleaningType;
+  CleaningType? cleaningType;
   dynamic additionalDetails;
   String? hoover;
   bool? provideWashingMachine;
@@ -225,7 +225,9 @@ class Jobs {
     map['user_id'] = userId;
     map['pricing_chart_id'] = pricingChartId;
     map['is_deleted'] = isDeleted;
-    map['cleaning_type'] = cleaningType;
+    if (cleaningType != null) {
+      map['cleaning_type'] = cleaningType?.toJson();
+    }
     map['additional_details'] = additionalDetails;
     map['hoover'] = hoover;
     map['provide_washing_machine'] = provideWashingMachine;
@@ -247,6 +249,48 @@ class Jobs {
     if (cleaners != null) {
       map['cleaners'] = cleaners?.map((v) => v.toJson()).toList();
     }
+    map['created_at'] = createdAt;
+    map['updated_at'] = updatedAt;
+    return map;
+  }
+
+}
+
+
+class CleaningType {
+  CleaningType({
+    this.id,
+    this.name,
+    this.description,
+    this.isActive,
+    this.sortOrder,
+    this.createdAt,
+    this.updatedAt,});
+
+  CleaningType.fromJson(dynamic json) {
+    id = json['id'];
+    name = json['name'];
+    description = json['description'];
+    isActive = json['is_active'];
+    sortOrder = json['sort_order'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+  num? id;
+  String? name;
+  String? description;
+  bool? isActive;
+  num? sortOrder;
+  String? createdAt;
+  String? updatedAt;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    map['name'] = name;
+    map['description'] = description;
+    map['is_active'] = isActive;
+    map['sort_order'] = sortOrder;
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
     return map;

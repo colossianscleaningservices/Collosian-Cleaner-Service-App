@@ -20,7 +20,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
       final j = c.job.value;
       return AppScaffold(
         appBar: Header(
-          title: j?.jobType ?? "",
+          title: j?.cleaningType?.name ?? "",
           headerLogoIcon: false,
           hasBackIcon: true,
           titleCentered: false,

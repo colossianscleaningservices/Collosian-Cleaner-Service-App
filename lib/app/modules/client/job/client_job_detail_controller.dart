@@ -3,6 +3,7 @@ import 'package:ccs_app/export.dart';
 
 import '../../../model/client_job.dart';
 import '../../../network/response/get_job_details_response.dart';
+import '../dashboard/client_dashboard_controller.dart';
 import 'add_review.dart';
 
 class ClientJobDetailController extends GetxController {
@@ -54,6 +55,12 @@ class ClientJobDetailController extends GetxController {
     Get.toNamed(Routes.CLIENT_CREATE_JOB, arguments: job.value)?.then((value) {
       if (value != null) {
         fetchJobDetails();
+        bool isControllerRegistered = Get.isRegistered<ClientDashboardController>();
+        if (isControllerRegistered) {
+          ClientDashboardController ctrl = Get.find();
+          ctrl.jobCurrentPage = 1;
+          ctrl.fetchJobs(isLoaderShown: false);
+        }
       }
     });
   }

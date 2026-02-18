@@ -66,4 +66,6 @@ class Endpoint {
   static const String notifications = '${root}shared/notifications';
   static const String trainingResources = '${root}shared/training-resources';
   static const String newsletters = '${root}shared/newsletters';
+  static const String cleaningTypes = '${root}shared/cleaning-types';
+  static const String mediaUpload = '${root}shared/media/upload';
 }

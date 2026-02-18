@@ -3,18 +3,22 @@ import 'dart:convert';
 import 'package:ccs_app/export.dart';
 
 import '../../../network/repository/client_repository.dart';
+import '../../../network/repository/common_repository.dart';
 import '../../../network/request/create_job_request.dart';
+import '../../../network/response/cleaning_type_response.dart';
 import '../../../network/response/get_job_details_response.dart';
 import '../../../network/response/property_list_response.dart';
 
 class CreateJobController extends GetxController {
   final ClientRepository _clientRepository = ClientRepository();
+  final CommonRepository _commonRepository = CommonRepository();
   final formKey = GlobalKey<FormState>();
   final notesController = TextEditingController();
   final dateDisplayController = TextEditingController();
   final startTimeDisplayController = TextEditingController();
   final endTimeDisplayController = TextEditingController();
   final cleanersNeededController = TextEditingController();
+  final cleaningTypeCtrl = TextEditingController();
 
   final selectedProperty = Rxn<String>();
   final jobStartDate = Rxn<DateTime>();
@@ -33,16 +37,22 @@ class CreateJobController extends GetxController {
   static const maxNotesLength = 100;
 
   final properties = <PropertyModel>[].obs;
+  final cleaningTypeList = <CleaningTypeModel>[].obs;
+  final mainCleaningTypeList = <CleaningTypeModel>[].obs;
   var isEdit = false;
   JobDetails? jobDetails;
   var isLoading = false.obs;
+  var isLoadingCleaningType = false.obs;
+  var searchFocus = FocusNode();
+  var searchController = TextEditingController();
+  var searchTerm = ''.obs;
+  var prevSearch = '';
 
   @override
   void onInit() {
     super.onInit();
     notesController.addListener(() => notesLength.value = notesController.text.length);
     cleanersNeededController.text = '1';
-    _loadProperties();
 
     final arg = Get.arguments;
     if (arg is JobDetails) {
@@ -51,6 +61,23 @@ class CreateJobController extends GetxController {
       log(runtimeType.toString(), 'JOB DETAILS ${jobDetails?.toJson()}');
       initForm();
     }
+
+    _loadProperties();
+    _loadCleaningType(isFromInit: true);
+
+    searchController.addListener(() {
+      if (searchController.text.trim().length > 2) {
+        if (searchController.text.isNotEmpty) {
+          if (prevSearch == searchController.text.trim()) return;
+        }
+        _loadCleaningType(isFromSearch: true);
+      } else if (searchController.text.isEmpty) {
+        if (mainCleaningTypeList.isNotEmpty) {
+          cleaningTypeList.clear();
+          cleaningTypeList.addAll(mainCleaningTypeList);
+        }
+      }
+    });
   }
 
   void initForm() {
@@ -155,6 +182,7 @@ class CreateJobController extends GetxController {
         provideWashingMachine: provideWashingMachine.value,
         provideDryer: provideDryer.value,
         additionalDetails: notesController.text.isEmpty ? null : notesController.text,
+        cleaningType: cleaningTypeList.firstWhereOrNull((item) => item.name == cleaningTypeCtrl.text)?.id,
       );
       log(runtimeType.toString(), jsonEncode(req));
 
@@ -226,6 +254,47 @@ class CreateJobController extends GetxController {
       );
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> _loadCleaningType({bool isFromSearch = false, bool isFromInit = false}) async {
+    isLoadingCleaningType.value = true;
+    try {
+      final result = await _commonRepository.getCleaningTypes(search: searchController.text);
+      result.handle(
+        success: (response) {
+          final raw = response.data;
+          cleaningTypeList.clear();
+          if (!isFromSearch) {
+            mainCleaningTypeList.clear();
+          } else {
+            prevSearch = searchController.text.trim();
+          }
+          if (raw != null && raw.isNotEmpty) {
+            cleaningTypeList.assignAll(raw);
+            if (!isFromSearch) {
+              mainCleaningTypeList.assignAll(cleaningTypeList);
+            }
+          }
+
+          if (searchController.text.isEmpty) {
+            cleaningTypeList.clear();
+            cleaningTypeList.addAll(mainCleaningTypeList);
+          }
+
+          if (isEdit && isFromInit) {
+            var item = cleaningTypeList.firstWhereOrNull((item) => item.name == (jobDetails?.cleaningType?.name ?? ''));
+            if (item != null) {
+              cleaningTypeCtrl.text = item.name ?? '';
+              var index = cleaningTypeList.indexOf(item);
+              cleaningTypeList[index].isSelect = true;
+              if (cleaningTypeList.length == mainCleaningTypeList.length) mainCleaningTypeList[index].isSelect = true;
+            }
+          }
+        },
+      );
+    } finally {
+      isLoadingCleaningType.value = false;
     }
   }
 }

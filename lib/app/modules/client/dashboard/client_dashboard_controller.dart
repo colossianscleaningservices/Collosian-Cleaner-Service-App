@@ -21,8 +21,6 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   final ClientRepository _clientRepository = ClientRepository();
 
   final tabIndex = 0.obs;
-
-  // final jobs = <ClientJob>[].obs;
   var appVersion = "".obs;
 
   List<Widget> get pages => const [
@@ -50,6 +48,9 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   static const modes = [CalendarViewMode.week, CalendarViewMode.month, CalendarViewMode.list];
   final mode = CalendarViewMode.month.obs;
 
+  var userDisplayName = ''.obs;
+  var userDisplayImage = ''.obs;
+
   //JOBS
   RxList<Jobs> jobs = <Jobs>[].obs;
   var jobCurrentPage = 1;
@@ -72,6 +73,9 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     tabController.addListener(_syncModeFromTab);
     getAppVersion();
     _registerDevice();
+
+    userDisplayName.value =  Get.find<SessionService>().userDisplayName;
+    userDisplayImage.value =  Get.find<SessionService>().userDisplayImage;
 
     jobScrollController.addListener(() {
       if (_isScrollBottom) {
@@ -197,8 +201,8 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     });
   }
 
-  Future<void> fetchJobs() async {
-    if (!isJobMoreLoading.value) Loader.show();
+  Future<void> fetchJobs({bool isLoaderShown = false}) async {
+    if (!isJobMoreLoading.value && isLoaderShown) Loader.show();
     try {
       final result = await _clientRepository.getJob(page: jobCurrentPage);
       result.handle(
@@ -216,8 +220,21 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
         },
       );
     } finally {
-      if (!isJobMoreLoading.value) Loader.hide();
+      if (!isJobMoreLoading.value && isLoaderShown) Loader.hide();
       isJobMoreLoading.value = false;
     }
+  }
+
+  void goToCreateJob() {
+    Get.toNamed(Routes.CLIENT_CREATE_JOB)?.then((value) {
+      if (value != null) {
+        if (value['isUpdate'] != null) {
+          if (value['isUpdate']) {
+            jobCurrentPage = 1;
+            fetchJobs();
+          }
+        }
+      }
+    });
   }
 }

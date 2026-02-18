@@ -16,7 +16,7 @@ class CreateJobView extends GetView<CreateJobController> {
       controller.endTime.value;
       return AppScaffold(
         appBar: Header(
-          title: '${controller.isEdit ? "Update":"Create"} a Cleaning Job',
+          title: '${controller.isEdit ? "Update" : "Create"} a Cleaning Job',
           hasBackIcon: true,
           headerLogoIcon: false,
           titleCentered: false,
@@ -36,15 +36,17 @@ class CreateJobView extends GetView<CreateJobController> {
                       spacing: 14,
                       children: [
                         CommonText.semiBold('Property & scheduling', size: 16, color: scheme.onSurface),
-                        Obx(() => controller.isLoading.value ? Center(child: CircularProgressIndicator()) : CommonDropDownField<String>(
-                              label: 'Property',
-                              hint: 'Select',
-                              items: controller.properties.map((item) => item.propertyName ?? "").toList(),
-                              itemLabel: (v) => v,
-                              value: controller.selectedProperty.value,
-                              onChanged: (v) => controller.selectedProperty.value = v,
-                              validator: (v) => controller.validateProperty(v),
-                            )),
+                        Obx(() => controller.isLoading.value
+                            ? Center(child: CircularProgressIndicator())
+                            : CommonDropDownField<String>(
+                                label: 'Property',
+                                hint: 'Select',
+                                items: controller.properties.map((item) => item.propertyName ?? "").toList(),
+                                itemLabel: (v) => v,
+                                value: controller.selectedProperty.value,
+                                onChanged: (v) => controller.selectedProperty.value = v,
+                                validator: (v) => controller.validateProperty(v),
+                              )),
                         CommonTextField(
                           controller: controller.dateDisplayController,
                           label: 'Job Start Date',
@@ -112,6 +114,76 @@ class CreateJobView extends GetView<CreateJobController> {
                             FilteringTextInputFormatter.digitsOnly,
                           ],
                         ),
+                        CommonTextField(
+                          controller: controller.cleaningTypeCtrl,
+                          label: 'Cleaning Type',
+                          isReadOnly: true,
+                          hint: 'Select Cleaning Type',
+                          keyboardType: TextInputType.text,
+                          onTap: () {
+                            Notifier.openSheet(
+                              context,
+                              showPrimaryButton: false,
+                              showSecondaryButton: false,
+                              showIcon: false,
+                              body: Expanded(
+                                child: Column(
+                                  children: [
+                                    _SearchSection(controller: controller, scheme: scheme).marginOnly(bottom: 8),
+                                    Obx(() {
+                                      return controller.isLoadingCleaningType.value
+                                          ? Center(child: CircularProgressIndicator())
+                                          : controller.cleaningTypeList.isEmpty
+                                              ? Flexible(
+                                                  child: Center(
+                                                    child: NoDataView(
+                                                      title: 'No Cleaning Type Found',
+                                                    ),
+                                                  ),
+                                                )
+                                              : Flexible(
+                                                  child: ListView.builder(
+                                                    shrinkWrap: true,
+                                                    itemCount: controller.cleaningTypeList.length,
+                                                    itemBuilder: (context, index) {
+                                                      final item = controller.cleaningTypeList[index];
+                                                      return AppCard(
+                                                        color: item.isSelect ? scheme.secondaryContainer : scheme.onPrimary,
+                                                        borderWidth: item.isSelect ? 1.5 : 0,
+                                                        borderColor: item.isSelect ? scheme.secondary : Colors.transparent,
+                                                        onTap: () {
+                                                          controller.cleaningTypeCtrl.text = item.name ?? "";
+                                                          for (var cl in controller.cleaningTypeList) {
+                                                            cl.isSelect = false;
+                                                          }
+                                                          for (var cl in controller.mainCleaningTypeList) {
+                                                            cl.isSelect = false;
+                                                          }
+                                                          controller.mainCleaningTypeList.firstWhereOrNull((element) => element.name == item.name)?.isSelect =
+                                                              true;
+                                                          item.isSelect = true;
+                                                          controller.cleaningTypeList.refresh();
+                                                          Get.back();
+                                                        },
+                                                        child: Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            CommonText.semiBold(item.name ?? "").marginOnly(bottom: 4),
+                                                            CommonText.regular(item.description ?? ""),
+                                                          ],
+                                                        ).paddingAll(16),
+                                                      ).marginAll(8);
+                                                    },
+                                                  ),
+                                                );
+                                    }),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          validator: (v) => controller.validateRequired(v, 'Cleaning Type'),
+                        ),
                       ],
                     ).paddingSymmetric(horizontal: 18, vertical: 16),
                   ),
@@ -178,11 +250,50 @@ class CreateJobView extends GetView<CreateJobController> {
           ),
         ),
         bottomNavigationBar: SingleActionBottomBar(
-          label: controller.isEdit ? "Update":"Create",
+          label: controller.isEdit ? "Update" : "Create",
           onPressed: controller.submit,
         ),
       );
     });
+  }
+}
+
+class _SearchSection extends StatelessWidget {
+  const _SearchSection({required this.controller, required this.scheme});
+
+  final CreateJobController controller;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => CommonTextField(
+        hint: 'Search by name or description',
+        label: 'Search',
+        controller: controller.searchController,
+        borderColor: scheme.outline.withValues(alpha: 0.2),
+        focus: controller.searchFocus,
+        onChanged: (value) => controller.searchTerm.value = value,
+        prefixIcon: Icon(
+          Icons.search_rounded,
+          size: 22,
+          color: scheme.onSurfaceVariant,
+        ),
+        suffixIcon: controller.searchTerm.isNotEmpty
+            ? IconButton(
+                icon: Icon(
+                  Icons.clear_rounded,
+                  size: 20,
+                  color: scheme.primary,
+                ),
+                onPressed: () {
+                  controller.searchController.clear();
+                  controller.searchTerm.value = '';
+                },
+              )
+            : const SizedBox.shrink(),
+      ),
+    );
   }
 }
 

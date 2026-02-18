@@ -90,7 +90,7 @@ class JobDetails {
     userId = json['user_id'];
     pricingChartId = json['pricing_chart_id'];
     isDeleted = json['is_deleted'];
-    cleaningType = json['cleaning_type'];
+    cleaningType = json['cleaning_type'] != null ? CleaningType.fromJson(json['cleaning_type']) : null;
     additionalDetails = json['additional_details'];
     hoover = json['hoover'];
     provideWashingMachine = json['provide_washing_machine'];
@@ -132,7 +132,7 @@ class JobDetails {
   num? userId;
   dynamic pricingChartId;
   bool? isDeleted;
-  dynamic cleaningType;
+  CleaningType? cleaningType;
   String? additionalDetails;
   String? hoover;
   bool? provideWashingMachine;
@@ -170,7 +170,9 @@ class JobDetails {
     map['user_id'] = userId;
     map['pricing_chart_id'] = pricingChartId;
     map['is_deleted'] = isDeleted;
-    map['cleaning_type'] = cleaningType;
+    if (cleaningType != null) {
+      map['cleaning_type'] = cleaningType?.toJson();
+    }
     map['additional_details'] = additionalDetails;
     map['hoover'] = hoover;
     map['provide_washing_machine'] = provideWashingMachine;

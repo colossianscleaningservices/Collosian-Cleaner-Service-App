@@ -89,6 +89,7 @@ class _PropertyCard extends StatelessWidget {
     return AppCard(
       onTap: onTap,
       child: Row(
+    crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           AppCard.iconContainer(
             context: context,

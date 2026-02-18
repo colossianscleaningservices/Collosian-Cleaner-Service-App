@@ -13,9 +13,9 @@ class ClientJobsView extends GetView<ClientDashboardController> {
         return controller.jobs.isEmpty
             ? SizedBox.shrink()
             : FloatingActionButton.extended(
-                onPressed: () => Get.toNamed(Routes.CLIENT_CREATE_JOB),
+                onPressed: () => controller.goToCreateJob(),
                 icon: const Icon(IconsaxPlusLinear.add),
-                label: const Text('Create job'),
+                label: CommonText.regular('Create job'),
               );
       }),
       body: SafeArea(
@@ -30,16 +30,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                       subtitle: 'Create a job or check back later.',
                       icon: IconsaxPlusLinear.briefcase,
                       actionLabel: 'Create job',
-                      onAction: () => Get.toNamed(Routes.CLIENT_CREATE_JOB)?.then((value) {
-                        if (value != null) {
-                          if (value['isUpdate'] != null) {
-                            if (value['isUpdate']) {
-                              controller.jobCurrentPage = 1;
-                              controller.fetchJobs();
-                            }
-                          }
-                        }
-                      }),
+                      onAction: () => controller.goToCreateJob(),
                     ),
                   )
                 : Column(
@@ -52,7 +43,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                         landscapeCount: 3,
                         child: controller.jobs.map((job) {
                           return JobCard(
-                            title: job.jobType ?? "N/A",
+                            title: job.cleaningType?.name ?? "N/A",
                             dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
                             status: job.status ?? "N/A",
                             subtitle: /*job.clientName*/ job.cleaners?.map((item) => "${item.name}").toList().join(','),
