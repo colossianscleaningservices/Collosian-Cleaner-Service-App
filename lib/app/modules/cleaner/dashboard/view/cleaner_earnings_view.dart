@@ -47,7 +47,7 @@ class CleanerEarningsView extends GetView<CleanerDashboardController> {
                         children: [
                           CommonText.regular('Total earnings', size: 14, color: scheme.onSurfaceVariant),
                           const SizedBox(height: 6),
-                          CommonText.extraBold(c.earningsTotal, size: 26, color: scheme.onSurface),
+                          CommonText.extraBold(c.earningsTotal.value, size: 26, color: scheme.onSurface),
                           const SizedBox(height: 4),
                           CommonText.regular('Current balance', size: 12, color: scheme.onSurfaceVariant),
                         ],

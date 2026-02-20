@@ -1,9 +1,8 @@
+import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/export.dart';
 
-import '../../../../widget/quick_action.dart';
 import '../cleaner_dashboard_controller.dart';
 import 'cleaner_earnings_view.dart';
-import 'cleaner_notifications_view.dart';
 
 /// Cleaner home: dashboard layout with jobs hero, earnings, action needed, quick actions.
 /// Title/subtitle come from [Header] via [Constants.cleanerTopHeading].
@@ -13,7 +12,17 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    final upcoming = controller.upcomingJobsForDashboard;
+    /*final upcoming = controller.upcomingJobsForDashboard;
+    final hasJobs = upcoming.isNotEmpty;
+    final nextJob = hasJobs ? upcoming.first : null;
+    final jobCount = upcoming.length;*/
+
+    List<UpcomingJob?> upcomingJobs =  [];
+
+    upcomingJobs.add(controller.staffDash.value?.upcomingJob);
+
+
+    final upcoming = upcomingJobs;
     final hasJobs = upcoming.isNotEmpty;
     final nextJob = hasJobs ? upcoming.first : null;
     final jobCount = upcoming.length;
@@ -91,69 +100,71 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                               color: scheme.onPrimary,
                             ),
                             const SizedBox(width: 4),
-                            CommonText.regular(
-                              CcsDateUtils.shortDateNoYear(nextJob.$1),
-                              size: 12,
-                              color: scheme.onPrimary,
-                            ),
+                            // CommonText.regular(
+                            //   CcsDateUtils.shortDateNoYear(nextJob.$1),
+                            //   size: 12,
+                            //   color: scheme.onPrimary,
+                            // ),
                           ],
                         ),
                         const SizedBox(height: 12),
-                        CommonText.semiBold(nextJob.$2.title, size: 16, color: scheme.onPrimary),
-                        if (nextJob.$2.timeRange.isNotEmpty) ...[
-                          const SizedBox(height: 6),
-                          Row(
-                            children: [
-                              Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onPrimary.withValues(alpha: 0.6)),
-                              const SizedBox(width: 6),
-                              CommonText.regular(
-                                nextJob.$2.timeRange,
-                                size: 13,
-                                color: scheme.onPrimary.withValues(alpha: 0.6),
-                              ),
-                            ],
-                          ),
-                        ],
+                        // CommonText.semiBold(nextJob.$2.title, size: 16, color: scheme.onPrimary),
+                        // if (nextJob.$2.timeRange.isNotEmpty) ...[
+                        //   const SizedBox(height: 6),
+                        //   Row(
+                        //     children: [
+                        //       Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onPrimary.withValues(alpha: 0.6)),
+                        //       const SizedBox(width: 6),
+                        //       CommonText.regular(
+                        //         nextJob.$2.timeRange,
+                        //         size: 13,
+                        //         color: scheme.onPrimary.withValues(alpha: 0.6),
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ],
                       ],
                     ).paddingSymmetric(horizontal: 16, vertical: 14),
                   ),
-                ] else ...[
-                  AppCard(
-                    color: scheme.primaryContainer.withValues(alpha: 0.2),
-                    child: Column(
-                      children: [
-                        Icon(
-                          IconsaxPlusLinear.briefcase,
-                          size: 48,
-                          color: scheme.onPrimary,
-                        ),
-                        const SizedBox(height: 12),
-                        CommonText.medium(
-                          'No upcoming jobs',
-                          size: 16,
-                          color: scheme.onPrimary.withValues(alpha: 0.6),
-                        ),
-                        const SizedBox(height: 6),
-                        CommonText.regular(
-                          'Update your availability to get more assignments',
-                          size: 13,
-                          color: scheme.onPrimary,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        AppButton(
-                          label: 'Edit availability',
-                          type: ButtonType.tonal,
-                          icon: IconsaxPlusLinear.clock,
-                          onPressed: () => controller.setTab(3),
-                          btnVerticalPadding: 12,
-                          btnHorizontalPadding: 16,
-                          textSize: 14,
-                        ),
-                      ],
-                    ).paddingOnly(top: 8, left: 20, right: 20),
-                  ),
-                ],
+                ] else
+                  ...[
+                    AppCard(
+                      onTap: null ,
+                      color: scheme.primaryContainer.withValues(alpha: 0.2),
+                      child: Column(
+                        children: [
+                          Icon(
+                            IconsaxPlusLinear.briefcase,
+                            size: 48,
+                            color: scheme.onPrimary,
+                          ),
+                          const SizedBox(height: 12),
+                          CommonText.medium(
+                            'No upcoming jobs',
+                            size: 16,
+                            color: scheme.onPrimary.withValues(alpha: 0.6),
+                          ),
+                          const SizedBox(height: 6),
+                          CommonText.regular(
+                            'Update your availability to get more assignments',
+                            size: 13,
+                            color: scheme.onPrimary,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          AppButton(
+                            label: 'Edit availability',
+                            type: ButtonType.tonal,
+                            icon: IconsaxPlusLinear.clock,
+                            onPressed: () => controller.setTab(3),
+                            btnVerticalPadding: 12,
+                            btnHorizontalPadding: 16,
+                            textSize: 14,
+                          ).marginOnly(bottom: 12),
+                        ],
+                      ).paddingOnly(top: 8, left: 20, right: 20),
+                    ),
+                  ],
               ],
             ).paddingAll(16),
           ),
@@ -175,7 +186,9 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                     spacing: 4,
                     children: [
                       CommonText.regular('Total Earnings', size: 13, color: scheme.onSurfaceVariant),
-                      CommonText.bold(controller.earningsTotal, size: 22, color: scheme.onSurface),
+                      Obx(() {
+                        return CommonText.bold(controller.earningsTotal.value, size: 22, color: scheme.onSurface);
+                      }),
                       CommonText.regular("View details and history", size: 12, color: scheme.onSurfaceVariant),
                     ],
                   ),
@@ -193,7 +206,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
           ),
 
           // Enhanced action needed card
-          Obx(() {
+          /*Obx(() {
             final count = controller.actionNeededCount.value;
             if (count <= 0) return const SizedBox.shrink();
             return AppCard(
@@ -241,7 +254,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                 ],
               ),
             );
-          }),
+          }),*/
 
           // Enhanced profile completion card
           Obx(() {
@@ -292,7 +305,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
           }),
 
           // Enhanced quick actions section
-          Row(
+          /*Row(
             children: [
               CommonText.semiBold('Quick actions', size: 16, color: scheme.onSurface),
               const Spacer(),
@@ -326,7 +339,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                     )),
               ),
             ],
-          ),
+          ),*/
         ],
       ),
     );
@@ -341,12 +354,14 @@ class _GreetingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hour = DateTime.now().hour;
+    final hour = DateTime
+        .now()
+        .hour;
     final greeting = hour < 12
         ? 'Good morning'
         : hour < 17
-            ? 'Good afternoon'
-            : 'Good evening';
+        ? 'Good afternoon'
+        : 'Good evening';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,7 +382,7 @@ class _GreetingSection extends StatelessWidget {
                 ],
               ),
             ),
-            Container(
+            /*Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -383,7 +398,7 @@ class _GreetingSection extends StatelessWidget {
                 size: 20,
                 color: scheme.primary,
               ),
-            ),
+            ),*/
           ],
         ),
       ],

@@ -23,9 +23,11 @@ dependencies:
   video_player: ^2.10.1
   step_progress: ^2.7.1
   url_launcher: ^6.3.2
-#  easy_pdf_viewer: ^1.0.8
   flutter_rating: ^2.0.2
   syncfusion_flutter_pdfviewer: ^32.2.4
+  image: ^4.7.0
+  image_watermark: ^0.1.0
+  easy_image_viewer: ^1.5.1
 
   # Platform + utilities
   connectivity_plus: ^7.0.0
@@ -93,6 +95,7 @@ flutter:
   assets:
     - assets/images/
     - assets/launcher/
+    - assets/fonts/
     - .env
 
 flutter_native_splash:

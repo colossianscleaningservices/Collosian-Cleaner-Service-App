@@ -2,6 +2,7 @@ import 'package:ccs_app/app/model/notification_data.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
+import '../../../network/response/notification_response.dart';
 import 'notification_controller.dart';
 
 class NotificationView extends GetView<NotificationController> {
@@ -28,22 +29,24 @@ class NotificationView extends GetView<NotificationController> {
             )
                 : Column(
                     children: [
-                      ListView.separated(
-                        controller: controller.scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                        itemCount: controller.notifications.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final notification = controller.notifications[index];
-                          return _NotificationCard(
-                            notification: notification,
-                            scheme: scheme,
-                            onTap: () {
-                              // TODO: Mark as read and navigate to detail
-                              Notifier.info('Notification tapped');
-                            },
-                          );
-                        },
+                      Expanded(
+                        child: ListView.separated(
+                          controller: controller.scrollController,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                          itemCount: controller.notifications.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            final notification = controller.notifications[index];
+                            return _NotificationCard(
+                              notification: notification,
+                              scheme: scheme,
+                              onTap: () {
+                                // TODO: Mark as read and navigate to detail
+                                Notifier.info('Notification tapped');
+                              },
+                            );
+                          },
+                        ),
                       ),
                       SizedBox.shrink()
                     ],
@@ -109,12 +112,13 @@ class _NotificationCard extends StatelessWidget {
     required this.onTap,
   });
 
-  final NotificationData notification;
+  // final NotificationData notification;
+  final Notifications notification;
   final ColorScheme scheme;
   final VoidCallback onTap;
 
   IconData _getIcon() {
-    switch (notification.type) {
+    switch (/*notification.type*/ NotificationType.message) {
       case NotificationType.jobAssigned:
         return IconsaxPlusLinear.task_square;
       case NotificationType.jobUpdate:
@@ -129,7 +133,7 @@ class _NotificationCard extends StatelessWidget {
   }
 
   Color _getIconBgColor() {
-    switch (notification.type) {
+    switch (/*notification.type*/ NotificationType.message) {
       case NotificationType.jobAssigned:
         return scheme.primary.withValues(alpha: 0.15);
       case NotificationType.jobUpdate:
@@ -144,7 +148,7 @@ class _NotificationCard extends StatelessWidget {
   }
 
   Color _getIconColor() {
-    switch (notification.type) {
+    switch (/*notification.type*/ NotificationType.message) {
       case NotificationType.jobAssigned:
         return scheme.primary;
       case NotificationType.jobUpdate:
@@ -160,7 +164,7 @@ class _NotificationCard extends StatelessWidget {
 
   String _getTimeAgo() {
     final now = DateTime.now();
-    final difference = now.difference(notification.timestamp);
+    final difference = now.difference(DateTime.parse(notification.createdAt ?? ""));
 
     if (difference.inMinutes < 1) return 'Just now';
     if (difference.inMinutes < 60) return '${difference.inMinutes}m ago';
@@ -177,7 +181,7 @@ class _NotificationCard extends StatelessWidget {
       margin: EdgeInsets.zero,
       padding: const EdgeInsets.all(16),
       borderWidth: 1,
-      borderColor: notification.isRead ? scheme.outline.withValues(alpha: 0.08) : scheme.error,
+      borderColor: notification.isRead == true ? scheme.outline.withValues(alpha: 0.08) : scheme.error,
       enableShadows: true,
       color: scheme.onPrimary,
       child: Row(
@@ -203,7 +207,7 @@ class _NotificationCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    if (!notification.isRead) ...[
+                    if (!(notification.isRead ?? false)) ...[
                       Container(
                         width: 8,
                         height: 8,
@@ -216,7 +220,7 @@ class _NotificationCard extends StatelessWidget {
                     ],
                     Expanded(
                       child: CommonText.semiBold(
-                        notification.title,
+                        /*notification.title*/ "N/A",
                         size: 16,
                         color: scheme.onSurface,
                       ),
@@ -225,7 +229,7 @@ class _NotificationCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 CommonText.regular(
-                  notification.message,
+                  notification.message ?? "",
                   size: 14,
                   color: scheme.onSurface.withValues(alpha: 0.85),
                   maxLines: 2,
@@ -246,7 +250,7 @@ class _NotificationCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    notification.isRead
+                    notification.isRead == true
                         ? SizedBox.shrink()
                         : AppCard(
                             radius: 8,

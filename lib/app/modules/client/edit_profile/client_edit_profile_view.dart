@@ -29,13 +29,26 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
                       Obx(() {
                         return AppCard(
                           borderColor: context.colorScheme.outline,
-                          borderWidth: controller.pickedImage.value != null ? 0 : 2,
+                          borderWidth: (controller.pickedImage.value == null && controller.imageUrl.value.isEmpty) ? 2 : 0,
                           radius: 100,
                           color: context.colorScheme.primaryContainer,
                           child: Obx(() {
                             final file = controller.pickedImage.value;
                             if (file != null) {
                               return Image.file(file, width: 120, height: 120, fit: BoxFit.cover);
+                            }
+
+                            if (controller.imageUrl.value.isNotEmpty) {
+                              return Image.network(
+                                height: 120,
+                                width: 120,
+                                frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                                  if (wasSynchronouslyLoaded) return child;
+                                  return frame == null ? const Center(child: CircularProgressIndicator()) : child;
+                                },
+                                controller.imageUrl.value,
+                                fit: BoxFit.cover,
+                              );
                             }
                             return SizedBox(width: 120, height: 120, child: Icon(IconsaxPlusLinear.user, size: 48, color: context.colorScheme.primary));
                           }),
@@ -122,7 +135,7 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
                   () => AppCheckBox(
                     title: 'Enable reminders via email / SMS',
                     value: controller.enableReminders.value,
-                    onChange: (v) => controller.enableReminders.value = v ?? false,
+                    onChange: (v) => controller.enableReminders.value = v,
                   ),
                 ),
                 CommonTextField(

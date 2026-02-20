@@ -64,8 +64,8 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
 
               final now = DateTime.now();
               final today = DateTime(now.year, now.month, now.day);
-              final upcoming = list.where((j) => j.date.isAfter(today) || _isSameDay(j.date, today)).toList();
-              final past = list.where((j) => j.date.isBefore(today)).toList();
+              final upcoming = list.where((j) => DateTime.parse(j.date ?? "").isAfter(today) || _isSameDay(DateTime.parse(j.date ?? ""), today)).toList();
+              final past = list.where((j) => DateTime.parse(j.date ?? "").isBefore(today)).toList();
 
               final slivers = <Widget>[
                 if (upcoming.isNotEmpty) ...[
@@ -73,7 +73,8 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: _SectionLabel(label: 'Upcoming', count: upcoming.length, scheme: scheme).marginOnly(left: 18, right: 18, bottom: 8),
                   ),
                   AppSliverGrid(
-                    maxExtent: 150,
+                    maxExtent: 172,
+                    controller: controller.jobScrollController,
                     axisSpacing: 12,
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     phoneCount: 1,
@@ -82,16 +83,16 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: upcoming
                         .map(
                           (job) => JobCard(
-                            title: job.jobType,
-                            dateTime: '${CcsDateUtils.shortDateNoYear(job.date)} · ${job.startTime} – ${job.endTime}',
-                            status: job.status,
-                            subtitle: job.clientName,
-                            propertyName: job.propertyLabel,
-                            address: job.propertyOneLine,
-                            recurrence: job.recurrence,
-                            cleanerInfo: job.cleaners.isNotEmpty
-                                ? '${job.cleaners.length} of ${job.cleanersNeeded} assigned'
-                                : '${job.cleanersNeeded} cleaner${job.cleanersNeeded != 1 ? 's' : ''}',
+                            title: job.cleaningType ?? "N/A",
+                            dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
+                            status: job.status ?? "N/A",
+                            subtitle:  (job.cleaners ==null || job.cleaners?.isEmpty == true) ? ' - ' : job.cleaners?.map((item) => item.name ?? " - ").toList().join(',') ?? ' - ',
+                            propertyName: job.property?.propertyName ?? "N/A",
+                            address: job.property?.address ?? "N/A",
+                            recurrence: /*job.recurrence*/ "N/A",
+                            cleanerInfo: job.cleaners?.isNotEmpty == true
+                                ? '${job.cleaners?.length} of ${job.numberOfCleaners} assigned'
+                                : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
                             onTap: () => controller.openDetail(job),
                           ),
                         )
@@ -104,7 +105,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: _SectionLabel(label: 'Past', count: past.length, scheme: scheme).marginOnly(left: 18, right: 18, bottom: 8),
                   ),
                   AppSliverGrid(
-                    maxExtent: 150,
+                    maxExtent: 172,
                     axisSpacing: 12,
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     phoneCount: 1,
@@ -113,16 +114,16 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: past
                         .map(
                           (job) => JobCard(
-                            title: job.jobType,
-                            dateTime: '${CcsDateUtils.shortDateNoYear(job.date)} · ${job.startTime} – ${job.endTime}',
-                            status: job.status,
-                            subtitle: job.clientName,
-                            propertyName: job.propertyLabel,
-                            address: job.propertyOneLine,
-                            recurrence: job.recurrence,
-                            cleanerInfo: job.cleaners.isNotEmpty
-                                ? '${job.cleaners.length} of ${job.cleanersNeeded} assigned'
-                                : '${job.cleanersNeeded} cleaner${job.cleanersNeeded != 1 ? 's' : ''}',
+                            title: job.cleaningType ?? "N/A",
+                            dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
+                            status: job.status ?? "N/A",
+                            subtitle: /*job.clientName*/ job.cleaners?.map((item) => "${item.name}").toList().join(','),
+                            propertyName: job.property?.propertyName ?? "N/A",
+                            address: job.property?.address ?? "N/A",
+                            recurrence: /*job.recurrence*/ "N/A",
+                            cleanerInfo: job.cleaners?.isNotEmpty == true
+                                ? '${job.cleaners?.length} of ${job.numberOfCleaners} assigned'
+                                : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
                             onTap: () => controller.openDetail(job),
                           ),
                         )

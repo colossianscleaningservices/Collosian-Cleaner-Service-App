@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
+import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:image_picker/image_picker.dart';
 
 import 'job_check_photo_controller.dart';
@@ -74,11 +77,9 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
             ),
             Padding(
               padding: UiConstants.padding,
-              child: Obx(
-                () => AppButton(
-                  label: controller.submitLabel,
-                  onPressed: controller.submit,
-                ),
+              child: AppButton(
+                label: controller.submitLabel,
+                onPressed: controller.submit,
               ),
             ),
           ],
@@ -105,17 +106,34 @@ class _PhotoThumbnail extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(UiConstants.radiusMedium),
-            child: FutureBuilder<Uint8List>(
-              future: file.readAsBytes(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data != null) {
-                  return Image.memory(
-                    snapshot.data!,
-                    fit: BoxFit.cover,
-                  );
-                }
-                return Container(color: scheme.surfaceContainerHighest, child: const Center(child: CircularProgressIndicator()));
+            child: GestureDetector(
+              onTap: (){
+                var multiImageProvider = MultiImageProvider(
+                  [FileImage(File(file.path))].toList(),
+                  initialIndex: 0,
+                );
+                showImageViewerPager(
+                  context,
+                  useSafeArea: true,
+                  multiImageProvider,
+                  swipeDismissible: true,
+                  backgroundColor: context.colorScheme.surface,
+                  closeButtonColor: context.colorScheme.secondary,
+                  doubleTapZoomable: true,
+                );
               },
+              child: FutureBuilder<Uint8List>(
+                future: file.readAsBytes(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return Image.memory(
+                      snapshot.data!,
+                      fit: BoxFit.cover,
+                    );
+                  }
+                  return Container(color: scheme.surfaceContainerHighest, child: const Center(child: CircularProgressIndicator()));
+                },
+              ),
             ),
           ),
           Positioned(

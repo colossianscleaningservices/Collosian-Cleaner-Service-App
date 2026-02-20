@@ -1,20 +1,20 @@
-class GetClientJobResponse {
-  GetClientJobResponse({
+class StaffDashboardResponse {
+  StaffDashboardResponse({
       this.message, 
       this.version, 
       this.code, 
       this.data,});
 
-  GetClientJobResponse.fromJson(dynamic json) {
+  StaffDashboardResponse.fromJson(dynamic json) {
     message = json['message'];
     version = json['version'];
     code = json['code'];
-    data = json['data'] != null ? Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? StaffDashModel.fromJson(json['data']) : null;
   }
   String? message;
   String? version;
   num? code;
-  Data? data;
+  StaffDashModel? data;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -29,71 +29,66 @@ class GetClientJobResponse {
 
 }
 
-class Data {
-  Data({
-      this.jobs, 
-      this.pagination,});
+class StaffDashModel {
+  StaffDashModel({
+      this.totalSchedules, 
+      this.upcomingJob, 
+      this.totalEarnings, 
+      this.profileCompletion, 
+      this.actionNeededCount,});
 
-  Data.fromJson(dynamic json) {
-    if (json['jobs'] != null) {
-      jobs = [];
-      json['jobs'].forEach((v) {
-        jobs?.add(Jobs.fromJson(v));
-      });
-    }
-    pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
+  StaffDashModel.fromJson(dynamic json) {
+    totalSchedules = json['total_schedules'];
+    upcomingJob = json['upcoming_job'] != null ? UpcomingJob.fromJson(json['upcoming_job']) : null;
+    totalEarnings = json['total_earnings'];
+    profileCompletion = json['profile_completion'] != null ? ProfileCompletion.fromJson(json['profile_completion']) : null;
+    actionNeededCount = json['action_needed_count'];
   }
-  List<Jobs>? jobs;
-  Pagination? pagination;
+  num? totalSchedules;
+  UpcomingJob? upcomingJob;
+  num? totalEarnings;
+  ProfileCompletion? profileCompletion;
+  num? actionNeededCount;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    if (jobs != null) {
-      map['jobs'] = jobs?.map((v) => v.toJson()).toList();
+    map['total_schedules'] = totalSchedules;
+    if (upcomingJob != null) {
+      map['upcoming_job'] = upcomingJob?.toJson();
     }
-    if (pagination != null) {
-      map['pagination'] = pagination?.toJson();
+    map['total_earnings'] = totalEarnings;
+    if (profileCompletion != null) {
+      map['profile_completion'] = profileCompletion?.toJson();
     }
+    map['action_needed_count'] = actionNeededCount;
     return map;
   }
 
 }
 
-class Pagination {
-  Pagination({
-      this.total, 
-      this.count, 
-      this.perPage, 
-      this.currentPage, 
-      this.totalPages,});
+class ProfileCompletion {
+  ProfileCompletion({
+      this.percentage, 
+      this.status,});
 
-  Pagination.fromJson(dynamic json) {
-    total = json['total'];
-    count = json['count'];
-    perPage = json['per_page'];
-    currentPage = json['current_page'];
-    totalPages = json['total_pages'];
+  ProfileCompletion.fromJson(dynamic json) {
+    percentage = json['percentage'];
+    status = json['status'];
   }
-  num? total;
-  num? count;
-  num? perPage;
-  num? currentPage;
-  num? totalPages;
+  num? percentage;
+  String? status;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    map['total'] = total;
-    map['count'] = count;
-    map['per_page'] = perPage;
-    map['current_page'] = currentPage;
-    map['total_pages'] = totalPages;
+    map['percentage'] = percentage;
+    map['status'] = status;
     return map;
   }
 
 }
 
-class Jobs {
-  Jobs({
+class UpcomingJob {
+  UpcomingJob({
       this.id, 
       this.date, 
       this.startTime, 
@@ -124,13 +119,11 @@ class Jobs {
       this.numberOfGuests, 
       this.celebrationType, 
       this.venueAddress, 
-      this.property, 
-      this.pricingChart, 
-      this.cleaners, 
       this.createdAt, 
-      this.updatedAt,});
+      this.updatedAt, 
+      this.property,});
 
-  Jobs.fromJson(dynamic json) {
+  UpcomingJob.fromJson(dynamic json) {
     id = json['id'];
     date = json['date'];
     startTime = json['start_time'];
@@ -146,7 +139,7 @@ class Jobs {
     userId = json['user_id'];
     pricingChartId = json['pricing_chart_id'];
     isDeleted = json['is_deleted'];
-    cleaningType = json['cleaning_type'] != null ? CleaningType.fromJson(json['cleaning_type']) : null;
+    cleaningType = json['cleaning_type'];
     additionalDetails = json['additional_details'];
     hoover = json['hoover'];
     provideWashingMachine = json['provide_washing_machine'];
@@ -154,23 +147,16 @@ class Jobs {
     additionalData = json['additional_data'];
     notified = json['notified'];
     scheduleId = json['schedule_id'];
-    jobStartDate = json['job_start_date'];
+    jobStartDate = json['job_start_Date'];
     jobEndDate = json['job_end_date'];
     jobType = json['job_type'];
     numberOfCleaners = json['number_of_cleaners'];
     numberOfGuests = json['number_of_guests'];
     celebrationType = json['celebration_type'];
     venueAddress = json['venue_address'];
-    property = json['property'] != null ? Property.fromJson(json['property']) : null;
-    pricingChart = json['pricing_chart'];
-    if (json['cleaners'] != null) {
-      cleaners = [];
-      json['cleaners'].forEach((v) {
-        cleaners?.add(Cleaners.fromJson(v));
-      });
-    }
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    property = json['property'] != null ? Property.fromJson(json['property']) : null;
   }
   num? id;
   String? date;
@@ -187,7 +173,7 @@ class Jobs {
   num? userId;
   dynamic pricingChartId;
   bool? isDeleted;
-  CleaningType? cleaningType;
+  String? cleaningType;
   dynamic additionalDetails;
   String? hoover;
   bool? provideWashingMachine;
@@ -202,11 +188,9 @@ class Jobs {
   dynamic numberOfGuests;
   dynamic celebrationType;
   dynamic venueAddress;
-  Property? property;
-  dynamic pricingChart;
-  List<Cleaners>? cleaners;
   String? createdAt;
   String? updatedAt;
+  Property? property;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -225,9 +209,7 @@ class Jobs {
     map['user_id'] = userId;
     map['pricing_chart_id'] = pricingChartId;
     map['is_deleted'] = isDeleted;
-    if (cleaningType != null) {
-      map['cleaning_type'] = cleaningType?.toJson();
-    }
+    map['cleaning_type'] = cleaningType;
     map['additional_details'] = additionalDetails;
     map['hoover'] = hoover;
     map['provide_washing_machine'] = provideWashingMachine;
@@ -235,64 +217,18 @@ class Jobs {
     map['additional_data'] = additionalData;
     map['notified'] = notified;
     map['schedule_id'] = scheduleId;
-    map['job_start_date'] = jobStartDate;
+    map['job_start_Date'] = jobStartDate;
     map['job_end_date'] = jobEndDate;
     map['job_type'] = jobType;
     map['number_of_cleaners'] = numberOfCleaners;
     map['number_of_guests'] = numberOfGuests;
     map['celebration_type'] = celebrationType;
     map['venue_address'] = venueAddress;
+    map['created_at'] = createdAt;
+    map['updated_at'] = updatedAt;
     if (property != null) {
       map['property'] = property?.toJson();
     }
-    map['pricing_chart'] = pricingChart;
-    if (cleaners != null) {
-      map['cleaners'] = cleaners?.map((v) => v.toJson()).toList();
-    }
-    map['created_at'] = createdAt;
-    map['updated_at'] = updatedAt;
-    return map;
-  }
-
-}
-
-
-class CleaningType {
-  CleaningType({
-    this.id,
-    this.name,
-    this.description,
-    this.isActive,
-    this.sortOrder,
-    this.createdAt,
-    this.updatedAt,});
-
-  CleaningType.fromJson(dynamic json) {
-    id = json['id'];
-    name = json['name'];
-    description = json['description'];
-    isActive = json['is_active'];
-    sortOrder = json['sort_order'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-  }
-  num? id;
-  String? name;
-  String? description;
-  bool? isActive;
-  num? sortOrder;
-  String? createdAt;
-  String? updatedAt;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['id'] = id;
-    map['name'] = name;
-    map['description'] = description;
-    map['is_active'] = isActive;
-    map['sort_order'] = sortOrder;
-    map['created_at'] = createdAt;
-    map['updated_at'] = updatedAt;
     return map;
   }
 
@@ -301,52 +237,54 @@ class CleaningType {
 class Property {
   Property({
       this.id, 
-      this.userId, 
       this.propertyName, 
-      this.address, 
       this.city, 
       this.postalCode, 
-      this.bussinessType, 
+      this.animalProperty, 
+      this.userId, 
       this.propertyType, 
       this.subType, 
-      this.animalProperty, 
+      this.isDeleted, 
+      this.address, 
+      this.additionalDetails, 
+      this.accessToProperty, 
       this.hoover, 
       this.provideCleaningProducts, 
       this.provideWashingMachine, 
       this.provideDryer, 
       this.staffPreference, 
-      this.accessToProperty, 
-      this.additionalDetails, 
-      this.isDeleted, 
+      this.bussinessType, 
+      this.createdAt, 
+      this.updatedAt, 
       this.bedrooms, 
       this.bathrooms, 
       this.separateGuestToilet, 
       this.livingRooms, 
       this.office, 
       this.conservatory, 
-      this.diningRoom, 
-      this.createdAt, 
-      this.updatedAt,});
+      this.diningRoom,});
 
   Property.fromJson(dynamic json) {
     id = json['id'];
-    userId = json['user_id'];
     propertyName = json['property_name'];
-    address = json['address'];
     city = json['city'];
     postalCode = json['postal_code'];
-    bussinessType = json['bussiness_type'];
+    animalProperty = json['animal_property'];
+    userId = json['user_id'];
     propertyType = json['property_type'];
     subType = json['sub_type'];
-    animalProperty = json['animal_property'];
+    isDeleted = json['is_deleted'];
+    address = json['address'];
+    additionalDetails = json['additional_details'];
+    accessToProperty = json['access_to_property'];
     hoover = json['hoover'];
     provideCleaningProducts = json['provide_cleaning_products'];
     provideWashingMachine = json['provide_washing_machine'];
     provideDryer = json['provide_dryer'];
     staffPreference = json['staff_preference'];
-    accessToProperty = json['access_to_property'];
-    additionalDetails = json['additional_details'];
-    isDeleted = json['is_deleted'];
+    bussinessType = json['bussiness_type'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
     bedrooms = json['bedrooms'];
     bathrooms = json['bathrooms'];
     separateGuestToilet = json['separate_guest_toilet'];
@@ -354,27 +292,27 @@ class Property {
     office = json['office'];
     conservatory = json['conservatory'];
     diningRoom = json['dining_room'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
   }
   num? id;
-  num? userId;
   String? propertyName;
-  String? address;
   String? city;
   String? postalCode;
-  String? bussinessType;
+  String? animalProperty;
+  num? userId;
   String? propertyType;
   String? subType;
-  String? animalProperty;
+  bool? isDeleted;
+  String? address;
+  dynamic additionalDetails;
+  String? accessToProperty;
   String? hoover;
   bool? provideCleaningProducts;
   bool? provideWashingMachine;
   bool? provideDryer;
   String? staffPreference;
-  String? accessToProperty;
-  dynamic additionalDetails;
-  bool? isDeleted;
+  String? bussinessType;
+  String? createdAt;
+  String? updatedAt;
   num? bedrooms;
   num? bathrooms;
   num? separateGuestToilet;
@@ -382,29 +320,29 @@ class Property {
   num? office;
   num? conservatory;
   num? diningRoom;
-  String? createdAt;
-  String? updatedAt;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = id;
-    map['user_id'] = userId;
     map['property_name'] = propertyName;
-    map['address'] = address;
     map['city'] = city;
     map['postal_code'] = postalCode;
-    map['bussiness_type'] = bussinessType;
+    map['animal_property'] = animalProperty;
+    map['user_id'] = userId;
     map['property_type'] = propertyType;
     map['sub_type'] = subType;
-    map['animal_property'] = animalProperty;
+    map['is_deleted'] = isDeleted;
+    map['address'] = address;
+    map['additional_details'] = additionalDetails;
+    map['access_to_property'] = accessToProperty;
     map['hoover'] = hoover;
     map['provide_cleaning_products'] = provideCleaningProducts;
     map['provide_washing_machine'] = provideWashingMachine;
     map['provide_dryer'] = provideDryer;
     map['staff_preference'] = staffPreference;
-    map['access_to_property'] = accessToProperty;
-    map['additional_details'] = additionalDetails;
-    map['is_deleted'] = isDeleted;
+    map['bussiness_type'] = bussinessType;
+    map['created_at'] = createdAt;
+    map['updated_at'] = updatedAt;
     map['bedrooms'] = bedrooms;
     map['bathrooms'] = bathrooms;
     map['separate_guest_toilet'] = separateGuestToilet;
@@ -412,102 +350,6 @@ class Property {
     map['office'] = office;
     map['conservatory'] = conservatory;
     map['dining_room'] = diningRoom;
-    map['created_at'] = createdAt;
-    map['updated_at'] = updatedAt;
-    return map;
-  }
-
-}
-
-class Cleaners {
-  Cleaners({
-    this.id,
-    this.firstName,
-    this.lastName,
-    this.name,
-    this.email,
-    this.phoneNumber,
-    this.roles,
-    this.emailVerifiedAt,
-    this.status,
-    this.createdAt,
-    this.imageUrl,
-    this.updatedAt,
-    this.token,});
-
-  Cleaners.fromJson(dynamic json) {
-    id = json['id'];
-    firstName = json['first_name'];
-    lastName = json['last_name'];
-    name = json['name'];
-    email = json['email'];
-    status = json['status'];
-    imageUrl = json['image_url'];
-    phoneNumber = json['phone_number'];
-    if (json['roles'] != null) {
-      roles = [];
-      json['roles'].forEach((v) {
-        roles?.add(Roles.fromJson(v));
-      });
-    }
-    emailVerifiedAt = json['email_verified_at'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    token = json['token'];
-  }
-  num? id;
-  String? firstName;
-  String? lastName;
-  String? status;
-  String? name;
-  String? email;
-  String? imageUrl;
-  String? phoneNumber;
-  List<Roles>? roles;
-  String? emailVerifiedAt;
-  String? createdAt;
-  String? updatedAt;
-  String? token;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['id'] = id;
-    map['first_name'] = firstName;
-    map['last_name'] = lastName;
-    map['status'] = status;
-    map['name'] = name;
-    map['image_url'] = imageUrl;
-    map['email'] = email;
-    map['phone_number'] = phoneNumber;
-    if (roles != null) {
-      map['roles'] = roles?.map((v) => v.toJson()).toList();
-    }
-    map['email_verified_at'] = emailVerifiedAt;
-    map['created_at'] = createdAt;
-    map['updated_at'] = updatedAt;
-    map['token'] = token;
-    return map;
-  }
-
-}
-
-
-class Roles {
-  Roles({
-    this.id,
-    this.name,});
-
-  Roles.fromJson(dynamic json) {
-    id = json['id'];
-    name = json['name'];
-  }
-  num? id;
-  String? name;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['id'] = id;
-    map['name'] = name;
     return map;
   }
 

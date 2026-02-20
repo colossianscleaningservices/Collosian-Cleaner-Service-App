@@ -1,4 +1,3 @@
-import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../widget/layout/app_scaffold.dart';
@@ -23,19 +22,29 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    AppCard(
-                      borderColor: context.colorScheme.outline,
-                      borderWidth: 2,
-                      radius: 100,
-                      color: context.colorScheme.primaryContainer,
-                      child: Obx(() {
-                        final file = controller.pickedImage.value;
-                        if (file != null) {
-                          return Image.file(file, width: 120, height: 120, fit: BoxFit.cover);
-                        }
-                        return SizedBox(width: 120, height: 120, child: Icon(IconsaxPlusLinear.user, size: 48, color: context.colorScheme.primary));
-                      }),
-                    ),
+                    Obx(() {
+                      final file = controller.pickedImage.value;
+                      return AppCard(
+                        borderColor: context.colorScheme.outline,
+                        borderWidth: (controller.pickedImage.value == null && controller.imageUrl.value.isEmpty) ? 2 : 0,
+                        radius: 100,
+                        color: context.colorScheme.primaryContainer,
+                        child: file != null
+                            ? Image.file(file, width: 120, height: 120, fit: BoxFit.cover)
+                            : controller.imageUrl.value.isNotEmpty
+                            ? Image.network(
+                          height: 120,
+                          width: 120,
+                          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                            if (wasSynchronouslyLoaded) return child;
+                            return frame == null ? const Center(child: CircularProgressIndicator()) : child;
+                          },
+                          controller.imageUrl.value,
+                          fit: BoxFit.cover,
+                        )
+                            : SizedBox(width: 120, height: 120, child: Icon(IconsaxPlusLinear.user, size: 48, color: context.colorScheme.primary)),
+                      );
+                    }),
                     Positioned(
                       bottom: -12,
                       right: -12,
@@ -71,18 +80,21 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 controller: controller.postalCodeCtrl,
                 label: 'Postal Code',
                 hint: 'Enter your postal code',
+                maxLength: 6,
                 keyboardType: TextInputType.numberWithOptions(),
               ).marginOnly(bottom: 18),
-              CommonDropDownField(
-                itemLabel: (value) => value.toString(),
-                hint: 'Select Gender',
-                label: "Gender",
-                onChanged: (value) {
-                  if (value != null) controller.gender.value = value;
-                },
-                items: controller.genderOptions,
-                value: controller.gender.value,
-              ).marginOnly(bottom: 18),
+              Obx(() {
+                return CommonDropDownField(
+                  itemLabel: (value) => value.toString(),
+                  hint: 'Select Gender',
+                  label: "Gender",
+                  onChanged: (value) {
+                    if (value != null) controller.gender.value = value;
+                  },
+                  items: controller.genderOptions,
+                  value: controller.gender.value,
+                );
+              }).marginOnly(bottom: 18),
               CommonTextField(
                 controller: controller.dobCtrl,
                 label: 'Date of Birth',
@@ -91,34 +103,37 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 suffixIcon: Icon(IconsaxPlusLinear.calendar_1, size: 20, color: colorScheme.primary),
               ).marginOnly(bottom: 18),
               Obx(
-                () => CheckboxListTile(
-                  dense: true,
-                  visualDensity: VisualDensity.compact,
-                  title: CommonText.regular('Enable reminders via email / SMS', size: 14, color: colorScheme.onSurface),
-                  value: controller.enableReminders.value,
-                  onChanged: (v) => controller.enableReminders.value = v ?? false,
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                ).marginOnly(bottom: 16),
+                    () =>
+                    CheckboxListTile(
+                      dense: true,
+                      visualDensity: VisualDensity.compact,
+                      title: CommonText.regular('Enable reminders via email / SMS', size: 14, color: colorScheme.onSurface),
+                      value: controller.enableReminders.value,
+                      onChanged: (v) => controller.enableReminders.value = v ?? false,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                    ).marginOnly(bottom: 16),
               ),
-
-              CommonTextField(controller: controller.companyCtrl, label: 'Company', hint: 'Enter your company').marginOnly(bottom: 24),
 
               //PERSONAL INFO
               CommonText.bold(
                 'Personal Info',
                 size: 20,
               ).marginOnly(bottom: 18),
-              CommonDropDownField(
-                itemLabel: (value) => value.toString(),
-                hint: 'Select your immigration status',
-                label: "Immigration status",
-                onChanged: (value) {
-                  if (value != null) controller.immigrationStatus.value = value;
-                },
-                items: controller.immigrationStatusOptions,
-                value: controller.immigrationStatus.value,
-              ).marginOnly(bottom: 18),
+              Obx(() {
+                return controller.isImmigrationsFetching.value
+                    ? Center(child: CircularProgressIndicator())
+                    : CommonDropDownField(
+                  itemLabel: (value) => value.toString(),
+                  hint: 'Select your immigration status',
+                  label: "Immigration status",
+                  onChanged: (value) {
+                    if (value != null) controller.immigrationStatus.value = value;
+                  },
+                  items: controller.immigrationList.map((item) => item.name ?? "").toList(),
+                  value: controller.immigrationStatus.value,
+                );
+              }).marginOnly(bottom: 18),
 
               CommonText.semiBold(
                 'National Insurance Number / Share Code *',
@@ -191,10 +206,22 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 label: 'Hobbies',
                 hint: 'Enter your hobbies and interests',
                 keyboardType: TextInputType.text,
-                isReadOnly: true,
                 minLines: 4,
                 maxLines: 8,
-              ).marginOnly(bottom: 24),
+              ).marginOnly(bottom: 18),
+
+              Obx(
+                    () =>
+                    CheckboxListTile(
+                      dense: true,
+                      visualDensity: VisualDensity.compact,
+                      title: CommonText.regular('Are you a student?', size: 14, color: colorScheme.onSurface),
+                      value: controller.isStudent.value,
+                      onChanged: (v) => controller.isStudent.value = v ?? false,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                    ).marginOnly(bottom: 24),
+              ),
 
               //Your next of kin
               CommonText.bold(
@@ -204,16 +231,18 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
 
               CommonTextField(controller: controller.fullNameCtrl, label: 'Full Name', hint: 'Enter your full name').marginOnly(bottom: 18),
 
-              CommonDropDownField(
-                itemLabel: (value) => value.toString(),
-                hint: 'Select Relationship',
-                label: "Relationship",
-                onChanged: (value) {
-                  if (value != null) controller.relationship.value = value;
-                },
-                items: controller.relationshipOptions,
-                value: controller.relationship.value,
-              ).marginOnly(bottom: 18),
+              Obx(() {
+                return CommonDropDownField(
+                  itemLabel: (value) => value.toString(),
+                  hint: 'Select Relationship',
+                  label: "Relationship",
+                  onChanged: (value) {
+                    if (value != null) controller.relationship.value = value;
+                  },
+                  items: controller.relationshipOptions,
+                  value: controller.relationship.value,
+                );
+              }).marginOnly(bottom: 18),
 
               CommonTextField(
                 controller: controller.contactCtrl,
@@ -228,30 +257,34 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 size: 20,
               ).marginOnly(bottom: 18),
 
-              CommonDropDownField(
-                itemLabel: (value) => value.toString(),
-                hint: 'Select',
-                label: "Do you drive?",
-                onChanged: (value) {
-                  if (value != null) controller.driver.value = value;
-                },
-                items: controller.driverOptions,
-                value: controller.driver.value,
-              ).marginOnly(bottom: 18),
+              Obx(() {
+                return CommonDropDownField(
+                  itemLabel: (value) => value.toString(),
+                  hint: 'Select',
+                  label: "Do you drive?",
+                  onChanged: (value) {
+                    if (value != null) controller.driver.value = value;
+                  },
+                  items: controller.driverOptions,
+                  value: controller.driver.value,
+                );
+              }).marginOnly(bottom: 18),
 
-              CommonTextField(controller: controller.firstNameCtrl, label: 'Local working areas', hint: 'Enter your local working areas')
+              CommonTextField(controller: controller.localWorkingAreaCtrl, label: 'Local working areas', hint: 'Enter your local working areas')
                   .marginOnly(bottom: 18),
 
-              CommonDropDownField(
-                itemLabel: (value) => value.toString(),
-                hint: 'Select',
-                label: "Do you have children?",
-                onChanged: (value) {
-                  if (value != null) controller.children.value = value;
-                },
-                items: controller.childrenOptions,
-                value: controller.children.value,
-              ).marginOnly(bottom: 18),
+              Obx(() {
+                return CommonDropDownField(
+                  itemLabel: (value) => value.toString(),
+                  hint: 'Select',
+                  label: "Do you have children?",
+                  onChanged: (value) {
+                    if (value != null) controller.children.value = value;
+                  },
+                  items: controller.childrenOptions,
+                  value: controller.children.value,
+                );
+              }).marginOnly(bottom: 18),
 
               CommonText.semiBold(
                 'Employment Start Date',
@@ -271,112 +304,49 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 size: 20,
               ).marginOnly(bottom: 18),
 
-              CommonText.semiBold(
-                'KITCHEN AREA',
-                size: 16,
-              ).marginOnly(bottom: 6),
-
               Obx(() {
-                return ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: controller.kitchenList.length,
+                return controller.isCleaningServicesFetching.value
+                    ? Center(child: CircularProgressIndicator())
+                    : ListView.builder(
                     shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      var item = controller.kitchenList[index];
-                      return CheckboxListTile(
-                        dense: true,
-                        visualDensity: VisualDensity.compact,
-                        title: CommonText.regular(item.type, size: 14, color: colorScheme.onSurface),
-                        value: item.isSelected,
-                        onChanged: (v) {
-                          item.isSelected = v ?? false;
-                          controller.kitchenList.refresh();
-                        },
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: EdgeInsets.zero,
-                      );
-                    }).marginOnly(bottom: 12);
-              }),
-
-              CommonText.semiBold(
-                'BATHROOM / TOILET',
-                size: 16,
-              ).marginOnly(bottom: 6),
-
-              Obx(() {
-                return ListView.builder(
+                    itemCount: controller.cleaningServices.length,
                     physics: NeverScrollableScrollPhysics(),
-                    itemCount: controller.bathroomList.length,
-                    shrinkWrap: true,
                     itemBuilder: (context, index) {
-                      var item = controller.bathroomList[index];
-                      return CheckboxListTile(
-                        dense: true,
-                        visualDensity: VisualDensity.compact,
-                        title: CommonText.regular(item.type, size: 14, color: colorScheme.onSurface),
-                        value: item.isSelected,
-                        onChanged: (v) {
-                          item.isSelected = v ?? false;
-                          controller.bathroomList.refresh();
-                        },
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: EdgeInsets.zero,
+                      var service = controller.cleaningServices[index];
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CommonText.semiBold(
+                            service.name ?? "",
+                            size: 16,
+                          ).marginOnly(bottom: 6),
+                          service.options?.isEmpty == true
+                              ? NoDataView(
+                            title: '${service.name ?? ""} Options not found',
+                          )
+                              : ListView.builder(
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: service.options?.length ?? 0,
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                var item = service.options?[index];
+                                return CheckboxListTile(
+                                  dense: true,
+                                  visualDensity: VisualDensity.compact,
+                                  title: CommonText.regular(item?.name ?? "", size: 14, color: colorScheme.onSurface),
+                                  value: item?.isSelected,
+                                  onChanged: (v) {
+                                    item?.isSelected = v ?? false;
+                                    controller.cleaningServices.refresh();
+                                  },
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  contentPadding: EdgeInsets.zero,
+                                );
+                              }).marginOnly(bottom: 12)
+                        ],
                       );
-                    }).marginOnly(bottom: 12);
-              }),
-
-              CommonText.semiBold(
-                'BEDROOM / LIVING ROOM AREA',
-                size: 16,
-              ).marginOnly(bottom: 6),
-
-              Obx(() {
-                return ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: controller.bedroomList.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      var item = controller.bedroomList[index];
-                      return CheckboxListTile(
-                        dense: true,
-                        visualDensity: VisualDensity.compact,
-                        title: CommonText.regular(item.type, size: 14, color: colorScheme.onSurface),
-                        value: item.isSelected,
-                        onChanged: (v) {
-                          item.isSelected = v ?? false;
-                          controller.bedroomList.refresh();
-                        },
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: EdgeInsets.zero,
-                      );
-                    }).marginOnly(bottom: 12);
-              }),
-
-              CommonText.semiBold(
-                'IRONING SERVICES',
-                size: 16,
-              ).marginOnly(bottom: 6),
-
-              Obx(() {
-                return ListView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: controller.ignoringList.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      var item = controller.ignoringList[index];
-                      return CheckboxListTile(
-                        dense: true,
-                        visualDensity: VisualDensity.compact,
-                        title: CommonText.regular(item.type, size: 14, color: colorScheme.onSurface),
-                        value: item.isSelected,
-                        onChanged: (v) {
-                          item.isSelected = v ?? false;
-                          controller.ignoringList.refresh();
-                        },
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: EdgeInsets.zero,
-                      );
-                    }).marginOnly(bottom: 18);
+                    });
               }),
 
               //Bank Details
@@ -388,30 +358,51 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
               CommonTextField(controller: controller.bankNameCtrl, label: 'Bank Name', hint: 'Enter your bank name').marginOnly(bottom: 18),
               CommonTextField(controller: controller.yourNameCtrl, label: 'Your Name', hint: 'Enter your name').marginOnly(bottom: 18),
               CommonTextField(
-                      controller: controller.accountNumberCtrl, label: 'Account Number', hint: 'Enter your account Number', keyboardType: TextInputType.number)
+                  controller: controller.accountNumberCtrl, label: 'Account Number', hint: 'Enter your account Number', keyboardType: TextInputType.number)
                   .marginOnly(bottom: 18),
-              CommonTextField(controller: controller.sortCodeCtrl, label: 'Sort Code', hint: 'Enter your sort Code').marginOnly(bottom: 18),
-
-              Obx(() {
-                return CheckboxListTile(
-                  dense: true,
-                  visualDensity: VisualDensity.compact,
-                  title: CommonText.regular('Delete My Account', size: 14, color: colorScheme.error),
-                  value: controller.deleteAccount.value,
-                  onChanged: (v) {
-                    controller.deleteAccount.value = v ?? false;
-                  },
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                );
-              }),
+              CommonTextField(controller: controller.sortCodeCtrl, label: 'Sort Code', hint: 'Enter your sort Code'),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: Obx(() {
-        return SingleActionBottomBar(label: 'Save changes', onPressed: controller.saveProfile);
-      }),
+      bottomNavigationBar: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        color: Colors.transparent,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                label: 'Delete Account',
+                onPressed: () {
+                  Notifier.openSheet(
+                    context,
+                    type: SheetType.error,
+                    message: 'Are you sure you want to delete your account?',
+                    showPrimaryButton: true,
+                    icon: IconsaxPlusLinear.profile_delete,
+                    showSecondaryButton: true,
+                    onPrimaryPressed: () => controller.deleteProfile(),
+                  );
+                },
+                bgColor: context.colorScheme.errorContainer,
+                txtClr: context.colorScheme.error,
+                type: ButtonType.tonal,
+              ),
+            ).marginOnly(bottom: 16),
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                label: 'Save changes',
+                onPressed: controller.saveProfile,
+                type: ButtonType.primary,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

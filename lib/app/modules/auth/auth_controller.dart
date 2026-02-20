@@ -59,14 +59,26 @@ class AuthController extends GetxController {
   ScrollController stepScrollController = ScrollController();
   final selectedAgreementAnswers = <int, Map<int, String>>{}.obs;
   List<num?> answersId = [];
+  var from = '';
 
   // ─── Lifecycle ───────────────────────────────────────────────────────────
 
   @override
   void onInit() {
     stepProgressController = StepProgressController(initialStep: 0, totalSteps: 1);
-    loadAssessmentSections();
+
+    if (Get.arguments != null) {
+      if (Get.arguments['from'] != null) {
+        from = Get.arguments['from'];
+      }
+    }
     super.onInit();
+  }
+
+  @override
+  void onReady() {
+    if (from.isEmpty) loadAssessmentSections();
+    super.onReady();
   }
 
   @override
@@ -177,9 +189,9 @@ class AuthController extends GetxController {
   }) {
     return _authRepository.changePassword(
       currentPassword: currentPassword,
-        password: password,
-        passwordConfirmation: passwordConfirmation,
-      );
+      password: password,
+      passwordConfirmation: passwordConfirmation,
+    );
   }
 
   // ─── Agreement (assessment steps) ─────────────────────────────────────────
@@ -464,5 +476,9 @@ class AuthController extends GetxController {
     if (data.firstName != null && data.firstName!.isNotEmpty) prefs.putData(Prefs.firstName, data.firstName!);
     if (data.lastName != null && data.lastName!.isNotEmpty) prefs.putData(Prefs.lastName, data.lastName!);
     if (data.roles?.first.id != null) prefs.putData(Prefs.roleId, data.roles!.first.id.toString());
+
+    if (data.imageUrl != null && data.imageUrl?.isNotEmpty == true) {
+      prefs.putData(Prefs.image, data.imageUrl ?? "");
+    }
   }
 }

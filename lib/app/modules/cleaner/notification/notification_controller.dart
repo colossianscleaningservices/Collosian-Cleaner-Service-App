@@ -1,11 +1,12 @@
-import 'package:ccs_app/app/model/notification_data.dart';
 import 'package:ccs_app/app/network/repository/common_repository.dart';
 
 import '../../../../export.dart';
+import '../../../network/response/notification_response.dart';
 
 class NotificationController extends GetxController {
   final CommonRepository _commonRepository = CommonRepository();
-  RxList<NotificationData> notifications = <NotificationData>[].obs;
+  // RxList<NotificationData> notifications = <NotificationData>[].obs;
+  RxList<Notifications> notifications = <Notifications>[].obs;
   ScrollController scrollController = ScrollController();
   var totalPage = 1;
   var currentPage = 1;
@@ -51,6 +52,8 @@ class NotificationController extends GetxController {
       result.handle(
         success: (value) {
           if (currentPage == 1) notifications.clear();
+
+          notifications.addAll(value.data?.notifications as Iterable<Notifications>);
 
           totalPage = (value.data?.pagination?.totalPages ?? 1).toInt();
 

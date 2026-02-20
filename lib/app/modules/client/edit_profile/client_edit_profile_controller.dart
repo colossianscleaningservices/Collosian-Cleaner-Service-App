@@ -27,7 +27,7 @@ class ClientEditProfileController extends GetxController {
 
   final gender = Rxn<String>();
   final enableReminders = false.obs;
-  String? imageUrl;
+  RxString imageUrl = "".obs;
 
   /// Picked profile image file, or null if none.
   final pickedImage = Rx<File?>(null);
@@ -125,7 +125,7 @@ class ClientEditProfileController extends GetxController {
         result.handle(
           success: (value) {
             Loader.hide();
-            imageUrl = value.data?.fileUrl;
+            imageUrl.value= value.data?.fileUrl ?? '';
           },
           onError: (_) {
             Loader.hide();
@@ -148,7 +148,7 @@ class ClientEditProfileController extends GetxController {
           gender: gender.value,
           company: companyCtrl.text.isEmpty ? null : companyCtrl.text.trim(),
           enableReminder: enableReminders.value,
-          imageUrl: imageUrl,
+          imageUrl: imageUrl.value,
         );
 
         log(runtimeType.toString(), 'Request => ${request.toJson()}');
@@ -251,7 +251,7 @@ class ClientEditProfileController extends GetxController {
           }
           if (value.data?.user?.imageUrl != null && value.data?.user?.imageUrl?.isNotEmpty == true) {
             prefs.putData(Prefs.image, value.data?.user?.imageUrl ?? "");
-            imageUrl = value.data?.user?.imageUrl;
+            imageUrl.value = value.data?.user?.imageUrl ?? "";
           }
           showProfileData(profile: value.data?.user);
         },

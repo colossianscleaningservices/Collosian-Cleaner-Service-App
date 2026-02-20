@@ -4,14 +4,7 @@ import 'package:ccs_app/export.dart';
 /// Job detail cleaner row: avatar, name, status, Share button.
 /// Used in both client and cleaner job detail views.
 class CleanerCard extends StatelessWidget {
-  const CleanerCard({
-    super.key,
-    required this.cleaner,
-    required this.onShare,
-    required this.onReview,
-    required this.scheme,
-    this.isReview = false
-  });
+  const CleanerCard({super.key, required this.cleaner, required this.onShare, required this.onReview, required this.scheme, this.isReview = false});
 
   final ClientJobCleaner cleaner;
   final VoidCallback onShare, onReview;
@@ -23,7 +16,11 @@ class CleanerCard extends StatelessWidget {
     return AppCard(
       child: Row(
         children: [
-          AppAvatar(imageUrl: cleaner.avatarUrl, name: cleaner.name),
+          AppAvatar(
+            imageUrl: cleaner.avatarUrl,
+            name: cleaner.name,
+            radius: 8,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -39,10 +36,11 @@ class CleanerCard extends StatelessWidget {
             onPressed: onShare,
             child: CommonText.regular('Share', size: 14, color: scheme.primary),
           ),
-          if(isReview) TextButton(
-            onPressed: onReview,
-            child: CommonText.regular('Review', size: 14, color: scheme.primary),
-          ),
+          if (isReview)
+            TextButton(
+              onPressed: onReview,
+              child: CommonText.regular('Review', size: 14, color: scheme.primary),
+            ),
         ],
       ).paddingAll(UiConstants.defaultPadding),
     );

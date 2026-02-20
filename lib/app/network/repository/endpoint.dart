@@ -27,13 +27,20 @@ class Endpoint {
   // ─── Cleaner - Dashboard ───────────────────────────────────────────────────
   static const String cleanerProfileCompletion = '${root}staff/profile-completion';
   static const String cleanerActionNeeded = '${root}staff/action-needed';
+  static const String cleanerDashboard = '${root}staff/dashboard';
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
   static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';
+  static const String cleanerJob = '${root}staff/jobs';
 
   // Check-in/check-out: not in current OpenAPI spec; paths kept for app until backend adds them.
   static const String cleanerJobCheckIn = '${root}staff/jobs/check-in';
   static const String cleanerJobCheckOut = '${root}staff/jobs/check-out';
+
+  // ---- Cleaner - Profile ---------
+  static const String cleaningServices = '${root}staff/cleaning-services';
+  static const String immigrations = '${root}staff/immigrations';
+  static const String staffProfile = '${root}staff/profile';
 
   // ─── Client - Jobs ────────────────────────────────────────────────────────
   static String clientJobCancel(int id) => '${root}client/jobs/$id/cancel';

@@ -1,8 +1,15 @@
+import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
+import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
+import 'package:ccs_app/app/network/response/update_profile_response.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../core/base/base_repository.dart';
+import '../request/staff_edit_profile_request.dart';
 import '../response/base_response.dart';
+import '../response/get_cleaning_service_response.dart';
+import '../response/get_immigrations_response.dart';
+import '../response/profile_response.dart';
 import '../utils/network_result.dart';
 import 'endpoint.dart';
 
@@ -16,6 +23,13 @@ class CleanerRepository extends BaseRepository {
     return get<DataResponse>(
       endpoint: Endpoint.cleanerProfileCompletion,
       fromJson: (json) => DataResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<StaffDashboardResponse>> getCleanerDashboard() async {
+    return get<StaffDashboardResponse>(
+      endpoint: Endpoint.cleanerDashboard,
+      fromJson: (json) => StaffDashboardResponse.fromJson(json),
     );
   }
 
@@ -38,6 +52,13 @@ class CleanerRepository extends BaseRepository {
       endpoint: Endpoint.cleanerJobDecline(jobId),
       fromJson: (json) => BaseResponse.fromJson(json),
       data: reason != null ? <String, dynamic>{'reason': reason} : null,
+    );
+  }
+
+  Future<NetworkResult<CleanerJobResponse>> getCleanerJob() async {
+    return get<CleanerJobResponse>(
+      endpoint: Endpoint.cleanerJob,
+      fromJson: (json) => CleanerJobResponse.fromJson(json),
     );
   }
 
@@ -76,4 +97,28 @@ class CleanerRepository extends BaseRepository {
       fromJson: (j) => BaseResponse.fromJson(j),
     );
   }
+
+  Future<NetworkResult<UpdateProfileResponse>> updateProfile(StaffEditProfileRequest request) async {
+    return put<UpdateProfileResponse>(
+      endpoint: Endpoint.staffProfile,
+      data: request,
+      fromJson: (json) => UpdateProfileResponse.fromJson(json),
+    );
+  }
+
+
+  Future<NetworkResult<GetCleaningServiceResponse>> getCleaningServices() async {
+    return get<GetCleaningServiceResponse>(
+      endpoint: Endpoint.cleaningServices,
+      fromJson: (json) => GetCleaningServiceResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<GetImmigrationsResponse>> getImmigrations() async {
+    return get<GetImmigrationsResponse>(
+      endpoint: Endpoint.immigrations,
+      fromJson: (json) => GetImmigrationsResponse.fromJson(json),
+    );
+  }
+
 }

@@ -33,6 +33,7 @@ class SessionService extends GetxService {
   }
 
   Future<void> logout() async {
+    Loader.show();
     try {
       await AuthRepository().logout();
     } catch (_) {
@@ -40,6 +41,7 @@ class SessionService extends GetxService {
     }
     OneSignalService.logout();
     await _prefs.clearAll();
+    Loader.hide();
     Get.offAllNamed(Routes.LOGIN);
   }
 }

@@ -23,6 +23,7 @@ class User {
     this.id,
     this.firstName,
     this.lastName,
+    this.imageUrl,
     this.name,
     this.email,
     this.phoneNumber,
@@ -38,6 +39,7 @@ class User {
     firstName = json['first_name'];
     lastName = json['last_name'];
     name = json['name'];
+    imageUrl = json['image_url'];
     email = json['email'];
     phoneNumber = json['phone_number'];
     // roles = json['roles'] != null ? json['roles'].cast<String>() : [];
@@ -51,6 +53,7 @@ class User {
   num? id;
   String? firstName;
   String? lastName;
+  String? imageUrl;
   String? name;
   String? email;
   String? phoneNumber;
@@ -65,6 +68,7 @@ class User {
     map['id'] = id;
     map['first_name'] = firstName;
     map['last_name'] = lastName;
+    map['image_url'] = imageUrl;
     map['name'] = name;
     map['email'] = email;
     map['phone_number'] = phoneNumber;

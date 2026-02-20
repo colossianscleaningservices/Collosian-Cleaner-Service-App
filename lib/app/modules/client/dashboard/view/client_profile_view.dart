@@ -31,6 +31,10 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                                   child: Image.network(
                                     controller.userDisplayImage.value,
                                     fit: BoxFit.cover,
+                                    frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                                      if (wasSynchronouslyLoaded) return child;
+                                      return frame == null ? const Center(child: CircularProgressIndicator()) : child;
+                                    },
                                   ),
                                 )
                               : Icon(IconsaxPlusLinear.user, color: scheme.primary, size: 28);
@@ -66,7 +70,7 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                       return MenuItem(controller.profileItems[index], onTap: () {
                         switch (index) {
                           case 0:
-                            Get.toNamed(Routes.CHANGE_PASSWORD);
+                            Get.toNamed(Routes.CHANGE_PASSWORD, arguments: {'from': ' dash'});
                             break;
                           case 1:
                             Get.toNamed(Routes.PROPERTY);

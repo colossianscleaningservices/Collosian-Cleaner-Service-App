@@ -13,6 +13,9 @@ import '../../../model/calendar_event.dart';
 import '../../../model/common_model.dart';
 import '../../../model/menu_model.dart';
 import '../../../network/repository/cleaner_repository.dart';
+import '../../../network/response/cleaner_job_response.dart';
+import '../../../network/response/staff_dashboard_response.dart';
+import '../../../services/session_service.dart';
 import 'view/cleaner_availability_view.dart';
 import 'view/cleaner_calendar_view.dart';
 import 'view/cleaner_dashboard_content.dart';
@@ -74,7 +77,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   }
 
   /// Placeholder. Replace with API/session.
-  String get earningsTotal => '£0.00';
+  RxString earningsTotal = '£0.00'.obs;
+
+  var userDisplayName = ''.obs;
+  var userDisplayImage = ''.obs;
 
   /// From API (profile-completion, action-needed). Updated when dashboard loads.
   final actionNeededCount = 0.obs;
@@ -126,15 +132,25 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
   // This will hold the suggestions that will be used in the typeahead field
   final SuggestionsController<String> suggestionsController = SuggestionsController<String>();
-  final jobs = <ClientJob>[].obs;
+  // final jobs = <ClientJob>[].obs;
+  final jobs = <Jobs>[].obs;
+
+  final Rxn<StaffDashModel> staffDash = Rxn<StaffDashModel>(null);
+
+  //JOBS
+  // RxList<Jobs> jobs = <Jobs>[].obs;
+  var jobCurrentPage = 1;
+  var jobTotalPage = 1;
+  RxBool isJobMoreLoading = false.obs;
+  ScrollController jobScrollController = ScrollController();
 
   @override
   void onInit() {
     super.onInit();
-    /*if (!Get.find<SessionService>().isLoggedIn) {
+    if (!Get.find<SessionService>().isLoggedIn) {
       Get.offAllNamed(Routes.LOGIN);
       return;
-    }*/
+    }
     selectedDay.value = DateTime.now();
     if (weeklySchedule.isEmpty) {
       weeklySchedule.assignAll(List.generate(7, DayAvailability.getDefault));
@@ -150,6 +166,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     filter.add(CommonModel(type: "All Jobs", isSelected: true));
     filter.add(CommonModel(type: "Pending"));
     filter.add(CommonModel(type: "Approved"));
+
+    userDisplayName.value =  Get.find<SessionService>().userDisplayName;
+    userDisplayImage.value =  Get.find<SessionService>().userDisplayImage;
 
     getAppVersion();
     _registerDevice();
@@ -185,25 +204,20 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   @override
   void onReady() {
     super.onReady();
-    jobs.assignAll(ClientJob.demoJobs);
+    // jobs.assignAll(ClientJob.demoJobs);
     _fetchDashboardData();
   }
 
   Future<void> _fetchDashboardData() async {
     Loader.show();
     try {
-      final compResult = await _cleanerRepository.getProfileCompletion();
+      final compResult = await _cleanerRepository.getCleanerDashboard();
       compResult.handle(
         success: (res) {
-          final data = res.data;
-          if (data is Map) {
-            final pc = data['profile_completion'];
-            if (pc is Map) {
-              final pct = pc['percentage'];
-              if (pct is int) profileCompletionPercentage.value = pct;
-              isProfileComplete.value = pct == 100;
-            }
-          }
+          staffDash.value = res.data;
+          profileCompletionPercentage.value = staffDash.value?.profileCompletion?.percentage?.toInt() ?? 0;
+          isProfileComplete.value = profileCompletionPercentage.value == 100;
+          earningsTotal.value = "£${staffDash.value?.totalEarnings?.toString()}";
         },
       );
       final actionResult = await _cleanerRepository.getActionNeeded();
@@ -215,13 +229,14 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           }
         },
       );
-    } catch (_) {} finally {
+    } catch (_) {
+    } finally {
       Loader.hide();
     }
   }
 
-  void openDetail(ClientJob job) {
-    final path = Routes.CLEANER_JOB_DETAIL.replaceFirst(':id', job.id);
+  void openDetail(Jobs job) {
+    final path = Routes.CLEANER_JOB_DETAIL.replaceFirst(':id', job.id.toString());
     Get.toNamed(path, arguments: job);
   }
 
@@ -264,6 +279,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
   void setTab(int index) {
     tabIndex.value = index.clamp(0, pages.length - 1);
+
+    if(index == 2){
+      fetchJobs();
+    }
   }
 
   // --- Availability (weekly: Mon–Sun, toggle + slots; + blocked dates) ---
@@ -440,5 +459,29 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
         ),
       ],
     );
+  }
+
+  Future<void> fetchJobs({bool isLoaderShown = true}) async {
+    if (!isJobMoreLoading.value && isLoaderShown) Loader.show();
+    try {
+      final result = await _cleanerRepository.getCleanerJob();
+      result.handle(
+        success: (response) {
+          final raw = response.data;
+          if (jobCurrentPage == 1) jobs.clear();
+          if (raw != null && raw.jobs?.isNotEmpty == true) {
+            jobs.assignAll(raw.jobs as Iterable<Jobs>);
+          }
+          jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
+
+          if (jobCurrentPage <= jobTotalPage) {
+            jobCurrentPage++;
+          }
+        },
+      );
+    } finally {
+      if (!isJobMoreLoading.value && isLoaderShown) Loader.hide();
+      isJobMoreLoading.value = false;
+    }
   }
 }

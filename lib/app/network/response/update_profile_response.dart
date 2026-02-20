@@ -1,18 +1,16 @@
-class ProfileResponse {
-  ProfileResponse({
-    this.message,
-    this.version,
-    this.code,
-    this.data,
-  });
+class UpdateProfileResponse {
+  UpdateProfileResponse({
+      this.message, 
+      this.version, 
+      this.code, 
+      this.data,});
 
-  ProfileResponse.fromJson(dynamic json) {
+  UpdateProfileResponse.fromJson(dynamic json) {
     message = json['message'];
     version = json['version'];
     code = json['code'];
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
-
   String? message;
   String? version;
   num? code;
@@ -28,83 +26,58 @@ class ProfileResponse {
     }
     return map;
   }
+
 }
 
 class Data {
   Data({
-    this.user,
-    this.profileCompletion,
-  });
+      this.id, 
+      this.firstName, 
+      this.lastName, 
+      this.name, 
+      this.email, 
+      this.phoneNumber, 
+      this.dob, 
+      this.gender, 
+      this.company, 
+      this.address, 
+      this.city, 
+      this.postalCode, 
+      this.country, 
+      this.nextOfKinName, 
+      this.nextOfKinRelationship, 
+      this.nextOfKinContact, 
+      this.preferredStartDate, 
+      this.drives, 
+      this.localAreas, 
+      this.hasChildren, 
+      this.bankName, 
+      this.accountHolderName, 
+      this.accountNumber, 
+      this.sortCode, 
+      this.immigrationStatus, 
+      this.immigration, 
+      this.status, 
+      this.firstLogin, 
+      this.isDeleted, 
+      this.isVerified, 
+      this.isStudent, 
+      this.isActive, 
+      this.isHide, 
+      this.enableReminder, 
+      this.extraFields, 
+      this.emailSubscriptions, 
+      this.shareCode, 
+      this.hobbies, 
+      this.interests, 
+      this.imageUrl, 
+      this.roles, 
+      this.cleaningServices, 
+      this.emailVerifiedAt, 
+      this.createdAt, 
+      this.updatedAt,});
 
   Data.fromJson(dynamic json) {
-    user = json['user'] != null ? User.fromJson(json['user']) : null;
-    profileCompletion = json['profile_completion'];
-  }
-
-  User? user;
-  num? profileCompletion;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    if (user != null) {
-      map['user'] = user?.toJson();
-    }
-    map['profile_completion'] = profileCompletion;
-    return map;
-  }
-}
-
-class User {
-  User({
-    this.id,
-    this.firstName,
-    this.lastName,
-    this.name,
-    this.email,
-    this.phoneNumber,
-    this.dob,
-    this.gender,
-    this.company,
-    this.address,
-    this.city,
-    this.postalCode,
-    this.country,
-    this.nextOfKinName,
-    this.nextOfKinRelationship,
-    this.nextOfKinContact,
-    this.preferredStartDate,
-    this.drives,
-    this.localAreas,
-    this.hasChildren,
-    this.bankName,
-    this.accountHolderName,
-    this.accountNumber,
-    this.sortCode,
-    this.immigrationStatus,
-    this.immigration,
-    this.status,
-    this.firstLogin,
-    this.isDeleted,
-    this.isVerified,
-    this.isStudent,
-    this.isActive,
-    this.isHide,
-    this.nationalInsuranceNumber,
-    this.enableReminder,
-    this.extraFields,
-    this.emailSubscriptions,
-    this.shareCode,
-    this.hobbies,
-    this.interests,
-    this.imageUrl,
-    this.roles,
-    this.cleaningServices,
-    this.emailVerifiedAt,
-    this.createdAt,
-    this.updatedAt,
-  });
-
-  User.fromJson(dynamic json) {
     id = json['id'];
     firstName = json['first_name'];
     lastName = json['last_name'];
@@ -133,7 +106,6 @@ class User {
     immigration = json['immigration'] != null ? Immigration.fromJson(json['immigration']) : null;
     status = json['status'];
     firstLogin = json['first_login'];
-    nationalInsuranceNumber = json['national_insurance_number'];
     isDeleted = json['is_deleted'];
     isVerified = json['is_verified'];
     isStudent = json['is_student'];
@@ -162,7 +134,6 @@ class User {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
-
   num? id;
   String? firstName;
   String? lastName;
@@ -171,14 +142,13 @@ class User {
   String? phoneNumber;
   String? dob;
   String? gender;
-  String? company;
+  dynamic company;
   String? address;
   String? city;
   String? postalCode;
   dynamic country;
   String? nextOfKinName;
   String? nextOfKinRelationship;
-  String? nationalInsuranceNumber;
   String? nextOfKinContact;
   String? preferredStartDate;
   String? drives;
@@ -199,7 +169,7 @@ class User {
   bool? isHide;
   bool? enableReminder;
   ExtraFields? extraFields;
-  dynamic emailSubscriptions;
+  String? emailSubscriptions;
   dynamic shareCode;
   String? hobbies;
   dynamic interests;
@@ -229,7 +199,6 @@ class User {
     map['next_of_kin_relationship'] = nextOfKinRelationship;
     map['next_of_kin_contact'] = nextOfKinContact;
     map['preferred_start_date'] = preferredStartDate;
-    map['national_insurance_number'] = nationalInsuranceNumber;
     map['drives'] = drives;
     map['local_areas'] = localAreas;
     map['has_children'] = hasChildren;
@@ -268,14 +237,14 @@ class User {
     map['updated_at'] = updatedAt;
     return map;
   }
+
 }
 
 class CleaningServices {
   CleaningServices({
-    this.id,
-    this.name,
-    this.options,
-  });
+      this.id, 
+      this.name, 
+      this.options,});
 
   CleaningServices.fromJson(dynamic json) {
     id = json['id'];
@@ -287,7 +256,6 @@ class CleaningServices {
       });
     }
   }
-
   num? id;
   String? name;
   List<Options>? options;
@@ -301,21 +269,20 @@ class CleaningServices {
     }
     return map;
   }
+
 }
 
 class Options {
   Options({
-    this.id,
-    this.name,
-    this.area,
-  });
+      this.id, 
+      this.name, 
+      this.area,});
 
   Options.fromJson(dynamic json) {
     id = json['id'];
     name = json['name'];
     area = json['area'];
   }
-
   num? id;
   String? name;
   dynamic area;
@@ -327,19 +294,18 @@ class Options {
     map['area'] = area;
     return map;
   }
+
 }
 
 class Roles {
   Roles({
-    this.id,
-    this.name,
-  });
+      this.id, 
+      this.name,});
 
   Roles.fromJson(dynamic json) {
     id = json['id'];
     name = json['name'];
   }
-
   num? id;
   String? name;
 
@@ -349,17 +315,16 @@ class Roles {
     map['name'] = name;
     return map;
   }
+
 }
 
 class ExtraFields {
   ExtraFields({
-    this.device,
-  });
+      this.device,});
 
   ExtraFields.fromJson(dynamic json) {
     device = json['device'] != null ? Device.fromJson(json['device']) : null;
   }
-
   Device? device;
 
   Map<String, dynamic> toJson() {
@@ -369,18 +334,18 @@ class ExtraFields {
     }
     return map;
   }
+
 }
 
 class Device {
   Device({
-    this.platform,
-    this.appVersion,
-    this.debug,
-    this.ip,
-    this.timezone,
-    this.onesignalPlayerId,
-    this.lastUpdated,
-  });
+      this.platform, 
+      this.appVersion, 
+      this.debug, 
+      this.ip, 
+      this.timezone, 
+      this.onesignalPlayerId, 
+      this.lastUpdated,});
 
   Device.fromJson(dynamic json) {
     platform = json['platform'];
@@ -391,7 +356,6 @@ class Device {
     onesignalPlayerId = json['onesignal_player_id'];
     lastUpdated = json['last_updated'];
   }
-
   String? platform;
   String? appVersion;
   bool? debug;
@@ -411,21 +375,20 @@ class Device {
     map['last_updated'] = lastUpdated;
     return map;
   }
+
 }
 
 class Immigration {
   Immigration({
-    this.id,
-    this.name,
-    this.isActive,
-  });
+      this.id, 
+      this.name, 
+      this.isActive,});
 
   Immigration.fromJson(dynamic json) {
     id = json['id'];
     name = json['name'];
     isActive = json['is_active'];
   }
-
   num? id;
   String? name;
   num? isActive;
@@ -437,4 +400,5 @@ class Immigration {
     map['is_active'] = isActive;
     return map;
   }
+
 }

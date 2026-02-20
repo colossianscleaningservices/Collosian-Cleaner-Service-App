@@ -300,7 +300,7 @@ class _SearchSection extends StatelessWidget {
 Future<void> _pickDate(BuildContext context, CreateJobController ctrl) async {
   final d = await showDatePicker(
     context: context,
-    initialDate: ctrl.jobStartDate.value ?? DateTime.now(),
+    initialDate: ctrl.jobStartDate.value?.isBefore(DateTime.now()) == true ? DateTime.now() :  ctrl.jobStartDate.value ?? DateTime.now(),
     firstDate: DateTime.now(),
     lastDate: DateTime(2030, 12, 31),
   );

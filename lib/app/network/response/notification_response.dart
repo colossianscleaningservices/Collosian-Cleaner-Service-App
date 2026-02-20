@@ -36,13 +36,13 @@ class Data {
     if (json['notifications'] != null) {
       notifications = [];
       json['notifications'].forEach((v) {
-        // notifications?.add(Dynamic.fromJson(v)); //Data format not shown in API
+        notifications?.add(Notifications.fromJson(v)); //Data format not shown in API
       });
     }
     pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
     unreadCount = json['unread_count'];
   }
-  List<dynamic>? notifications;
+  List<Notifications>? notifications;
   Pagination? pagination;
   num? unreadCount;
 
@@ -88,6 +88,51 @@ class Pagination {
     map['per_page'] = perPage;
     map['current_page'] = currentPage;
     map['total_pages'] = totalPages;
+    return map;
+  }
+
+}
+
+class Notifications {
+  Notifications({
+    this.id,
+    this.userId,
+    this.message,
+    this.isRead,
+    this.count,
+    this.flag,
+    this.createdAt,
+    this.updatedAt,});
+
+  Notifications.fromJson(dynamic json) {
+    id = json['id'];
+    userId = json['user_id'];
+    message = json['message'];
+    isRead = json['is_read'];
+    count = json['count'];
+    flag = json['flag'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+  num? id;
+  num? userId;
+  String? message;
+  bool? isRead;
+  dynamic count;
+  dynamic flag;
+  String? createdAt;
+  String? updatedAt;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    map['user_id'] = userId;
+    map['message'] = message;
+    map['is_read'] = isRead;
+    map['count'] = count;
+    map['flag'] = flag;
+    map['created_at'] = createdAt;
+    map['updated_at'] = updatedAt;
     return map;
   }
 

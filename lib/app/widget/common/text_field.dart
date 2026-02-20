@@ -206,10 +206,11 @@ class CommonDropDownField<T> extends StatelessWidget {
       children: [
         if (label.isNotEmpty) ...[Text(label, style: labelStyle), const SizedBox(height: 6)],
         DropdownButtonFormField2<T>(
+          isExpanded: true,
           validator: validator,
           onChanged: onChanged,
           value: value,
-          hint: Text(hint, style: hintStyle),
+          hint: Text(hint, style: hintStyle, overflow: TextOverflow.ellipsis),
           decoration: buildCommonDecoration(
             borderColor: borderColor,
             prefixIcon: prefixIcon,
@@ -225,7 +226,13 @@ class CommonDropDownField<T> extends StatelessWidget {
               .map(
                 (e) => DropdownMenuItem(
                   value: e,
-                  child: CommonText.regular(itemLabel(e), maxLines: 2, overflow: TextOverflow.ellipsis, size: 14, color: colorScheme.onSurface),
+                  child: CommonText.regular(
+                    itemLabel(e),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    size: 14,
+                    color: colorScheme.onSurface,
+                  ),
                 ),
               )
               .toList(),
@@ -299,7 +306,6 @@ class CommonTypeAheadField<T> extends StatelessWidget {
         borderColor: borderColor,
         fillColor: fillColor,
         keyboardType: TextInputType.text,
-
       ),
       suggestionsCallback: suggestionsCallback,
       itemBuilder: (context, item) => Container(

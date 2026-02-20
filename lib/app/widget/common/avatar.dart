@@ -8,6 +8,7 @@ class AppAvatar extends StatelessWidget {
     this.imageUrl,
     this.initial,
     this.name,
+    this.radius = 16,
   });
 
   final String? imageUrl;
@@ -15,7 +16,7 @@ class AppAvatar extends StatelessWidget {
   final String? name;
 
   static const double size = 48;
-  static const double radius = 16;
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class AppAvatar extends StatelessWidget {
       width: size,
       decoration: BoxDecoration(
         color: scheme.primaryContainer,
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: BorderRadius.circular(radius ),
       ),
       clipBehavior: Clip.antiAlias,
       child: imageUrl != null && imageUrl!.isNotEmpty

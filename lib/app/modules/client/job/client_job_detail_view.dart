@@ -204,9 +204,9 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                     (cl) {
                       var item = ClientJobCleaner(
                         id: cl.id.toString(),
-                        avatarUrl: '',
+                        avatarUrl: cl.imageUrl,
                         name: cl.name ?? "",
-                        status: '',
+                        status: cl.status ??"N/A",
                       );
 
                       return Padding(

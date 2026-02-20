@@ -1,11 +1,13 @@
-class GetClientJobResponse {
-  GetClientJobResponse({
+import 'package:ccs_app/app/network/response/profile_response.dart';
+
+class CleanerJobResponse {
+  CleanerJobResponse({
       this.message, 
       this.version, 
       this.code, 
       this.data,});
 
-  GetClientJobResponse.fromJson(dynamic json) {
+  CleanerJobResponse.fromJson(dynamic json) {
     message = json['message'];
     version = json['version'];
     code = json['code'];
@@ -104,12 +106,12 @@ class Jobs {
       this.staffPreference, 
       this.before, 
       this.after, 
-      this.status, 
+      this.cleaners,
+      this.status,
       this.propertyId, 
       this.userId, 
       this.pricingChartId, 
       this.isDeleted, 
-      this.cleaningType, 
       this.additionalDetails, 
       this.hoover, 
       this.provideWashingMachine, 
@@ -124,9 +126,9 @@ class Jobs {
       this.numberOfGuests, 
       this.celebrationType, 
       this.venueAddress, 
+      this.cleaningType,
+      this.user,
       this.property, 
-      this.pricingChart, 
-      this.cleaners, 
       this.createdAt, 
       this.updatedAt,});
 
@@ -144,9 +146,14 @@ class Jobs {
     status = json['status'];
     propertyId = json['property_id'];
     userId = json['user_id'];
+    if (json['cleaners'] != null) {
+      cleaners = [];
+      json['cleaners'].forEach((v) {
+        cleaners?.add(Cleaners.fromJson(v));
+      });
+    }
     pricingChartId = json['pricing_chart_id'];
     isDeleted = json['is_deleted'];
-    cleaningType = json['cleaning_type'] != null ? CleaningType.fromJson(json['cleaning_type']) : null;
     additionalDetails = json['additional_details'];
     hoover = json['hoover'];
     provideWashingMachine = json['provide_washing_machine'];
@@ -157,18 +164,13 @@ class Jobs {
     jobStartDate = json['job_start_date'];
     jobEndDate = json['job_end_date'];
     jobType = json['job_type'];
+    cleaningType = json['cleaning_type'];
     numberOfCleaners = json['number_of_cleaners'];
     numberOfGuests = json['number_of_guests'];
     celebrationType = json['celebration_type'];
     venueAddress = json['venue_address'];
+    user = json['user'] != null ? User.fromJson(json['user']) : null;
     property = json['property'] != null ? Property.fromJson(json['property']) : null;
-    pricingChart = json['pricing_chart'];
-    if (json['cleaners'] != null) {
-      cleaners = [];
-      json['cleaners'].forEach((v) {
-        cleaners?.add(Cleaners.fromJson(v));
-      });
-    }
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
@@ -187,7 +189,7 @@ class Jobs {
   num? userId;
   dynamic pricingChartId;
   bool? isDeleted;
-  CleaningType? cleaningType;
+  String? cleaningType;
   dynamic additionalDetails;
   String? hoover;
   bool? provideWashingMachine;
@@ -202,11 +204,11 @@ class Jobs {
   dynamic numberOfGuests;
   dynamic celebrationType;
   dynamic venueAddress;
+  User? user;
   Property? property;
-  dynamic pricingChart;
-  List<Cleaners>? cleaners;
   String? createdAt;
   String? updatedAt;
+  List<Cleaners>? cleaners;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -223,11 +225,9 @@ class Jobs {
     map['status'] = status;
     map['property_id'] = propertyId;
     map['user_id'] = userId;
+    map['cleaning_type'] = cleaningType;
     map['pricing_chart_id'] = pricingChartId;
     map['is_deleted'] = isDeleted;
-    if (cleaningType != null) {
-      map['cleaning_type'] = cleaningType?.toJson();
-    }
     map['additional_details'] = additionalDetails;
     map['hoover'] = hoover;
     map['provide_washing_machine'] = provideWashingMachine;
@@ -242,55 +242,15 @@ class Jobs {
     map['number_of_guests'] = numberOfGuests;
     map['celebration_type'] = celebrationType;
     map['venue_address'] = venueAddress;
-    if (property != null) {
-      map['property'] = property?.toJson();
-    }
-    map['pricing_chart'] = pricingChart;
     if (cleaners != null) {
       map['cleaners'] = cleaners?.map((v) => v.toJson()).toList();
     }
-    map['created_at'] = createdAt;
-    map['updated_at'] = updatedAt;
-    return map;
-  }
-
-}
-
-
-class CleaningType {
-  CleaningType({
-    this.id,
-    this.name,
-    this.description,
-    this.isActive,
-    this.sortOrder,
-    this.createdAt,
-    this.updatedAt,});
-
-  CleaningType.fromJson(dynamic json) {
-    id = json['id'];
-    name = json['name'];
-    description = json['description'];
-    isActive = json['is_active'];
-    sortOrder = json['sort_order'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-  }
-  num? id;
-  String? name;
-  String? description;
-  bool? isActive;
-  num? sortOrder;
-  String? createdAt;
-  String? updatedAt;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['id'] = id;
-    map['name'] = name;
-    map['description'] = description;
-    map['is_active'] = isActive;
-    map['sort_order'] = sortOrder;
+    if (user != null) {
+      map['user'] = user?.toJson();
+    }
+    if (property != null) {
+      map['property'] = property?.toJson();
+    }
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
     return map;
@@ -419,6 +379,297 @@ class Property {
 
 }
 
+class User {
+  User({
+      this.id, 
+      this.firstName, 
+      this.lastName, 
+      this.name, 
+      this.email, 
+      this.phoneNumber, 
+      this.dob, 
+      this.gender, 
+      this.company, 
+      this.address, 
+      this.city, 
+      this.postalCode, 
+      this.country, 
+      this.nextOfKinName, 
+      this.nextOfKinRelationship, 
+      this.nextOfKinContact, 
+      this.preferredStartDate, 
+      this.drives, 
+      this.localAreas, 
+      this.hasChildren, 
+      this.bankName, 
+      this.accountHolderName, 
+      this.accountNumber, 
+      this.sortCode, 
+      this.immigrationStatus, 
+      this.immigration, 
+      this.status, 
+      this.firstLogin, 
+      this.isDeleted, 
+      this.isVerified, 
+      this.isStudent, 
+      this.isActive, 
+      this.isHide, 
+      this.enableReminder, 
+      this.extraFields, 
+      this.emailSubscriptions, 
+      this.shareCode, 
+      this.hobbies, 
+      this.interests, 
+      this.imageUrl, 
+      this.roles, 
+      this.cleaningServices, 
+      this.emailVerifiedAt, 
+      this.createdAt, 
+      this.updatedAt,});
+
+  User.fromJson(dynamic json) {
+    id = json['id'];
+    firstName = json['first_name'];
+    lastName = json['last_name'];
+    name = json['name'];
+    email = json['email'];
+    phoneNumber = json['phone_number'];
+    dob = json['dob'];
+    gender = json['gender'];
+    company = json['company'];
+    address = json['address'];
+    city = json['city'];
+    postalCode = json['postal_code'];
+    country = json['country'];
+    nextOfKinName = json['next_of_kin_name'];
+    nextOfKinRelationship = json['next_of_kin_relationship'];
+    nextOfKinContact = json['next_of_kin_contact'];
+    preferredStartDate = json['preferred_start_date'];
+    drives = json['drives'];
+    localAreas = json['local_areas'];
+    hasChildren = json['has_children'];
+    bankName = json['bank_name'];
+    accountHolderName = json['account_holder_name'];
+    accountNumber = json['account_number'];
+    sortCode = json['sort_code'];
+    immigrationStatus = json['immigration_status'];
+    immigration = json['immigration'];
+    status = json['status'];
+    firstLogin = json['first_login'];
+    isDeleted = json['is_deleted'];
+    isVerified = json['is_verified'];
+    isStudent = json['is_student'];
+    isActive = json['is_active'];
+    isHide = json['is_hide'];
+    enableReminder = json['enable_reminder'];
+    extraFields = json['extra_fields'] != null ? ExtraFields.fromJson(json['extra_fields']) : null;
+    emailSubscriptions = json['email_subscriptions'];
+    shareCode = json['share_code'];
+    hobbies = json['hobbies'];
+    interests = json['interests'];
+    imageUrl = json['image_url'];
+    if (json['roles'] != null) {
+      roles = [];
+      json['roles'].forEach((v) {
+        roles?.add(Roles.fromJson(v));
+      });
+    }
+    if (json['cleaning_services'] != null) {
+      cleaningServices = [];
+      json['cleaning_services'].forEach((v) {
+        cleaningServices?.add(CleaningServices.fromJson(v));
+      });
+    }
+    emailVerifiedAt = json['email_verified_at'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+  num? id;
+  String? firstName;
+  String? lastName;
+  String? name;
+  String? email;
+  String? phoneNumber;
+  String? dob;
+  String? gender;
+  String? company;
+  String? address;
+  String? city;
+  String? postalCode;
+  dynamic country;
+  dynamic nextOfKinName;
+  dynamic nextOfKinRelationship;
+  dynamic nextOfKinContact;
+  dynamic preferredStartDate;
+  dynamic drives;
+  dynamic localAreas;
+  dynamic hasChildren;
+  dynamic bankName;
+  dynamic accountHolderName;
+  dynamic accountNumber;
+  dynamic sortCode;
+  dynamic immigrationStatus;
+  dynamic immigration;
+  dynamic status;
+  dynamic firstLogin;
+  bool? isDeleted;
+  bool? isVerified;
+  bool? isStudent;
+  bool? isActive;
+  bool? isHide;
+  bool? enableReminder;
+  ExtraFields? extraFields;
+  String? emailSubscriptions;
+  dynamic shareCode;
+  dynamic hobbies;
+  dynamic interests;
+  String? imageUrl;
+  List<Roles>? roles;
+  List<dynamic>? cleaningServices;
+  String? emailVerifiedAt;
+  String? createdAt;
+  String? updatedAt;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    map['first_name'] = firstName;
+    map['last_name'] = lastName;
+    map['name'] = name;
+    map['email'] = email;
+    map['phone_number'] = phoneNumber;
+    map['dob'] = dob;
+    map['gender'] = gender;
+    map['company'] = company;
+    map['address'] = address;
+    map['city'] = city;
+    map['postal_code'] = postalCode;
+    map['country'] = country;
+    map['next_of_kin_name'] = nextOfKinName;
+    map['next_of_kin_relationship'] = nextOfKinRelationship;
+    map['next_of_kin_contact'] = nextOfKinContact;
+    map['preferred_start_date'] = preferredStartDate;
+    map['drives'] = drives;
+    map['local_areas'] = localAreas;
+    map['has_children'] = hasChildren;
+    map['bank_name'] = bankName;
+    map['account_holder_name'] = accountHolderName;
+    map['account_number'] = accountNumber;
+    map['sort_code'] = sortCode;
+    map['immigration_status'] = immigrationStatus;
+    map['immigration'] = immigration;
+    map['status'] = status;
+    map['first_login'] = firstLogin;
+    map['is_deleted'] = isDeleted;
+    map['is_verified'] = isVerified;
+    map['is_student'] = isStudent;
+    map['is_active'] = isActive;
+    map['is_hide'] = isHide;
+    map['enable_reminder'] = enableReminder;
+    if (extraFields != null) {
+      map['extra_fields'] = extraFields?.toJson();
+    }
+    map['email_subscriptions'] = emailSubscriptions;
+    map['share_code'] = shareCode;
+    map['hobbies'] = hobbies;
+    map['interests'] = interests;
+    map['image_url'] = imageUrl;
+    if (roles != null) {
+      map['roles'] = roles?.map((v) => v.toJson()).toList();
+    }
+    if (cleaningServices != null) {
+      map['cleaning_services'] = cleaningServices?.map((v) => v.toJson()).toList();
+    }
+    map['email_verified_at'] = emailVerifiedAt;
+    map['created_at'] = createdAt;
+    map['updated_at'] = updatedAt;
+    return map;
+  }
+
+}
+
+class Roles {
+  Roles({
+      this.id, 
+      this.name,});
+
+  Roles.fromJson(dynamic json) {
+    id = json['id'];
+    name = json['name'];
+  }
+  num? id;
+  String? name;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    map['name'] = name;
+    return map;
+  }
+
+}
+
+class ExtraFields {
+  ExtraFields({
+      this.device,});
+
+  ExtraFields.fromJson(dynamic json) {
+    device = json['device'] != null ? Device.fromJson(json['device']) : null;
+  }
+  Device? device;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (device != null) {
+      map['device'] = device?.toJson();
+    }
+    return map;
+  }
+
+}
+
+class Device {
+  Device({
+      this.platform, 
+      this.appVersion, 
+      this.debug, 
+      this.ip, 
+      this.timezone, 
+      this.onesignalPlayerId, 
+      this.lastUpdated,});
+
+  Device.fromJson(dynamic json) {
+    platform = json['platform'];
+    appVersion = json['app_version'];
+    debug = json['debug'];
+    ip = json['ip'];
+    timezone = json['timezone'];
+    onesignalPlayerId = json['onesignal_player_id'];
+    lastUpdated = json['last_updated'];
+  }
+  String? platform;
+  String? appVersion;
+  bool? debug;
+  String? ip;
+  String? timezone;
+  String? onesignalPlayerId;
+  String? lastUpdated;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['platform'] = platform;
+    map['app_version'] = appVersion;
+    map['debug'] = debug;
+    map['ip'] = ip;
+    map['timezone'] = timezone;
+    map['onesignal_player_id'] = onesignalPlayerId;
+    map['last_updated'] = lastUpdated;
+    return map;
+  }
+
+}
+
+
 class Cleaners {
   Cleaners({
     this.id,
@@ -429,9 +680,7 @@ class Cleaners {
     this.phoneNumber,
     this.roles,
     this.emailVerifiedAt,
-    this.status,
     this.createdAt,
-    this.imageUrl,
     this.updatedAt,
     this.token,});
 
@@ -441,8 +690,6 @@ class Cleaners {
     lastName = json['last_name'];
     name = json['name'];
     email = json['email'];
-    status = json['status'];
-    imageUrl = json['image_url'];
     phoneNumber = json['phone_number'];
     if (json['roles'] != null) {
       roles = [];
@@ -458,10 +705,8 @@ class Cleaners {
   num? id;
   String? firstName;
   String? lastName;
-  String? status;
   String? name;
   String? email;
-  String? imageUrl;
   String? phoneNumber;
   List<Roles>? roles;
   String? emailVerifiedAt;
@@ -474,9 +719,7 @@ class Cleaners {
     map['id'] = id;
     map['first_name'] = firstName;
     map['last_name'] = lastName;
-    map['status'] = status;
     map['name'] = name;
-    map['image_url'] = imageUrl;
     map['email'] = email;
     map['phone_number'] = phoneNumber;
     if (roles != null) {
@@ -486,28 +729,6 @@ class Cleaners {
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
     map['token'] = token;
-    return map;
-  }
-
-}
-
-
-class Roles {
-  Roles({
-    this.id,
-    this.name,});
-
-  Roles.fromJson(dynamic json) {
-    id = json['id'];
-    name = json['name'];
-  }
-  num? id;
-  String? name;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['id'] = id;
-    map['name'] = name;
     return map;
   }
 

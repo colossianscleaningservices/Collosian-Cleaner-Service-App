@@ -201,7 +201,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     });
   }
 
-  Future<void> fetchJobs({bool isLoaderShown = false}) async {
+  Future<void> fetchJobs({bool isLoaderShown = true}) async {
     if (!isJobMoreLoading.value && isLoaderShown) Loader.show();
     try {
       final result = await _clientRepository.getJob(page: jobCurrentPage);

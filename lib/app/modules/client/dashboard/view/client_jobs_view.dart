@@ -20,8 +20,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
       }),
       body: SafeArea(
         child: Obx(() {
-          return SingleChildScrollView(
-            controller: controller.jobScrollController,
+          return Container(
             padding: UiConstants.padding,
             child: controller.jobs.isEmpty
                 ? Center(
@@ -33,32 +32,35 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                       onAction: () => controller.goToCreateJob(),
                     ),
                   )
-                : Column(
-                    children: [
-                      AppGrid(
-                        maxExtent: 172,
-                        axisSpacing: 16,
-                        phoneCount: 1,
-                        tabletCount: 2,
-                        landscapeCount: 3,
-                        child: controller.jobs.map((job) {
-                          return JobCard(
-                            title: job.cleaningType?.name ?? "N/A",
-                            dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
-                            status: job.status ?? "N/A",
-                            subtitle: /*job.clientName*/ job.cleaners?.map((item) => "${item.name}").toList().join(','),
-                            propertyName: job.property?.propertyName ?? "N/A",
-                            address: job.property?.address ?? "N/A",
-                            recurrence: /*job.recurrence*/ "N/A",
-                            cleanerInfo: job.cleaners?.isNotEmpty == true
-                                ? '${job.cleaners?.length} of ${job.numberOfCleaners} assigned'
-                                : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
-                            onTap: () => controller.openDetail(job),
-                          );
-                        }).toList(),
-                      ),
-                      controller.isJobMoreLoading.value ? PageLoader() : SizedBox.shrink()
-                    ],
+                : SingleChildScrollView(
+                    controller: controller.jobScrollController,
+                    child: Column(
+                      children: [
+                        AppGrid(
+                          maxExtent: 172,
+                          axisSpacing: 16,
+                          phoneCount: 1,
+                          tabletCount: 2,
+                          landscapeCount: 3,
+                          child: controller.jobs.map((job) {
+                            return JobCard(
+                              title: job.cleaningType?.name ?? "N/A",
+                              dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
+                              status: job.status ?? "N/A",
+                              subtitle:  (job.cleaners ==null || job.cleaners?.isEmpty == true) ? ' - ' : job.cleaners?.map((item) => item.name ?? " - ").toList().join(',') ?? ' - ',
+                              propertyName: job.property?.propertyName ?? "N/A",
+                              address: job.property?.address ?? "N/A",
+                              recurrence: /*job.recurrence*/ "N/A",
+                              cleanerInfo: job.cleaners?.isNotEmpty == true
+                                  ? '${job.cleaners?.length} of ${job.numberOfCleaners} assigned'
+                                  : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
+                              onTap: () => controller.openDetail(job),
+                            );
+                          }).toList(),
+                        ),
+                        controller.isJobMoreLoading.value ? PageLoader() : SizedBox.shrink()
+                      ],
+                    ),
                   ),
           );
         }),

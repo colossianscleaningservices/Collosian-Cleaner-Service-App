@@ -25,18 +25,31 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                         height: 56,
                         width: 56,
                         decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(UiConstants.radiusDefault)),
-                        child: Icon(IconsaxPlusLinear.user, color: scheme.primary, size: 28),
+                        child: Obx(() {
+                          return (controller.userDisplayImage.isNotEmpty)
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+                                  child: Image.network(
+                                    controller.userDisplayImage.value,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Icon(IconsaxPlusLinear.user, color: scheme.primary, size: 28);
+                        }),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CommonText.semiBold(
-                              Get.find<SessionService>().userDisplayName,
-                              size: 18,
-                              color: scheme.onSurface,
-                            ),
+                            Obx(() {
+
+                              return CommonText.semiBold(
+                                controller.userDisplayName.value,
+                                size: 18,
+                                color: scheme.onSurface,
+                              );
+                            }),
                             const SizedBox(height: 2),
                             CommonText.regular('Manage your account and preferences', size: 13, color: scheme.onSurfaceVariant),
                           ],
@@ -69,7 +82,7 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                           _ => Routes.CHANGE_PASSWORD
                         };
 
-                        Get.toNamed(route);
+                        Get.toNamed(route, arguments: {'from': ' dash'});
                       });
                     }),
                   ).paddingSymmetric(horizontal: 18, vertical: 8),

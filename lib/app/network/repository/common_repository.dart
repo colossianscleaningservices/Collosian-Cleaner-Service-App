@@ -81,6 +81,15 @@ class CommonRepository extends BaseRepository {
     );
   }
 
+  Future<NetworkResult<BaseResponse>> deleteProfile() async {
+    return delete<BaseResponse>(
+      endpoint: Endpoint.profile,
+      data: {'confirm': true},
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
+
   Future<NetworkResult<MediaUploadResponse>> mediaUpload(Map<String, dynamic> data) async {
     return post<MediaUploadResponse>(
       endpoint: Endpoint.mediaUpload,

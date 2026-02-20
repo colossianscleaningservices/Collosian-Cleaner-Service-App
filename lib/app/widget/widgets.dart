@@ -518,6 +518,5 @@ void showPicker({
     showPrimaryButton: false,
     showSecondaryButton: true,
     secondaryButtonLabel: "Cancel",
-    onSecondaryPressed: () => Get.back(),
   );
 }
