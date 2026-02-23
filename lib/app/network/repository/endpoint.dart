@@ -31,6 +31,7 @@ class Endpoint {
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
   static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';
+  static String cleanerJobAccept(int id) => '${root}staff/jobs/$id/accept';
   static const String cleanerJob = '${root}staff/jobs';
 
   // Check-in/check-out: not in current OpenAPI spec; paths kept for app until backend adds them.
@@ -47,6 +48,9 @@ class Endpoint {
   static String clientJobSchedule(int id) => '${root}client/jobs/$id/schedule';
   static String clientJobReview(int id) => '${root}client/jobs/$id/review';
   static const String clientJob = '${root}client/jobs';
+
+  // ------ Client - Calender ---------
+  static const String clientCalender = '${root}client/calendar/jobs-by-date';
 
   // ─── Client - Properties ───────────────────────────────────────────────────
   static const String clientProperties = '${root}client/properties';

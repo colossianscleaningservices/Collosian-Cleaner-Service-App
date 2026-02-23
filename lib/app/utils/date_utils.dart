@@ -46,9 +46,7 @@ DateTime parseUtcToLocal(String? dateString) {
 
   try {
     // ISO formats with timezone markers.
-    if (dateString.contains('Z') ||
-        dateString.contains('+') ||
-        (dateString.length > 19 && dateString[10] == 'T')) {
+    if (dateString.contains('Z') || dateString.contains('+') || (dateString.length > 19 && dateString[10] == 'T')) {
       final parsed = DateTime.tryParse(dateString);
       if (parsed != null) return parsed.toLocal();
     }
@@ -74,14 +72,11 @@ String formatDateString(String? dateString) {
   }
 }
 
-String formatDateWithTime(DateTime date) =>
-    DateFormat('dd/MM/yyyy hh:mm a').format(date);
+String formatDateWithTime(DateTime date) => DateFormat('dd/MM/yyyy hh:mm a').format(date);
 
-String formatDateOnly(DateTime date) =>
-    DateFormat('dd/MM/yyyy').format(date);
+String formatDateOnly(DateTime date) => DateFormat('dd/MM/yyyy').format(date);
 
-String formatDateShort(DateTime date) =>
-    DateFormat('dd MMM yyyy').format(date);
+String formatDateShort(DateTime date) => DateFormat('dd MMM yyyy').format(date);
 
 /// Common date formats used across the app. Prefer these over direct DateFormat.
 class CcsDateUtils {
@@ -93,8 +88,7 @@ class CcsDateUtils {
   static String fullDate(DateTime date) => _fmt('EEE d MMM yyyy').format(date);
 
   /// Short date without year: "Tue 28 Jan"
-  static String shortDateNoYear(DateTime date) =>
-      _fmt('EEE d MMM').format(date);
+  static String shortDateNoYear(DateTime date) => _fmt('EEE d MMM').format(date);
 
   /// Short date: "28 Jan 2025"
   static String shortDate(DateTime date) => _fmt('dd MMM yyyy').format(date);
@@ -103,38 +97,39 @@ class CcsDateUtils {
   static String monthYear(DateTime date) => _fmt('MMM yyyy').format(date);
 
   /// Full month and year: "January 2025"
-  static String fullMonthYear(DateTime date) =>
-      _fmt('MMMM yyyy').format(date);
+  static String fullMonthYear(DateTime date) => _fmt('MMMM yyyy').format(date);
 
   /// Long date: "Tuesday, 28 January 2025"
-  static String longDate(DateTime date) =>
-      _fmt('EEEE, d MMMM yyyy').format(date);
+  static String longDate(DateTime date) => _fmt('EEEE, d MMMM yyyy').format(date);
 
   /// Short with weekday: "Tue, 28 Jan 2025"
-  static String shortWithWeekday(DateTime date) =>
-      _fmt('EEE, d MMM yyyy').format(date);
+  static String shortWithWeekday(DateTime date) => _fmt('EEE, d MMM yyyy').format(date);
 
   /// Day and month: "28 Jan"
   static String dayMonth(DateTime date) => _fmt('d MMM').format(date);
 
   /// For form inputs / expiry display: "dd/MM/yyyy"
-  static String forInput(DateTime? date) =>
-      date != null ? _fmt('dd/MM/yyyy').format(date) : '';
+  static String forInput(DateTime? date) => date != null ? _fmt('dd/MM/yyyy').format(date) : '';
 
   /// Date range: "1–15 Jan 2025"
-  static String dateRange(DateTime start, DateTime end) =>
-      '${start.day}–${end.day} ${monthYear(start)}';
+  static String dateRange(DateTime start, DateTime end) => '${start.day}–${end.day} ${monthYear(start)}';
 
   /// Time from TimeOfDay (12h with am/pm)
-  static String timeFromTimeOfDay(TimeOfDay t) =>
-      DateFormat.jm().format(DateTime(2000, 1, 1, t.hour, t.minute));
+  static String timeFromTimeOfDay(TimeOfDay t) => DateFormat.jm().format(DateTime(2000, 1, 1, t.hour, t.minute));
 
- static TimeOfDay parseTimeOfDay(String timeString) {
+  static TimeOfDay parseTimeOfDay(String timeString) {
     final parts = timeString.split(':');
     return TimeOfDay(
       hour: int.parse(parts[0]),
       minute: int.parse(parts[1]),
     );
+  }
+
+  static String parseTimeRange(String startTime, String endTime) {
+    var start = CcsDateUtils.parseTimeOfDay(startTime);
+    var end = CcsDateUtils.parseTimeOfDay(endTime);
+
+    return ("${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')} - ${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}");
   }
 }
 
@@ -144,15 +139,11 @@ extension CcsDateTimeX on DateTime {
     return day == now.day && month == now.month && year == now.year;
   }
 
-  bool isSameDay(DateTime other) =>
-      day == other.day && month == other.month && year == other.year;
+  bool isSameDay(DateTime other) => day == other.day && month == other.month && year == other.year;
 
-  String toLocalString([String format = 'yyyy-MM-dd HH:mm:ss']) =>
-      DateFormat(format).format(toLocal());
+  String toLocalString([String format = 'yyyy-MM-dd HH:mm:ss']) => DateFormat(format).format(toLocal());
 
-  String toUtcString([String format = 'yyyy-MM-dd HH:mm:ss']) =>
-      DateFormat(format).format(toUtc());
+  String toUtcString([String format = 'yyyy-MM-dd HH:mm:ss']) => DateFormat(format).format(toUtc());
 
-  String toDisplayDate([String format = 'MMM yyyy, hh:mm a']) =>
-      DateFormat(format).format(toLocal());
+  String toDisplayDate([String format = 'MMM yyyy, hh:mm a']) => DateFormat(format).format(toLocal());
 }

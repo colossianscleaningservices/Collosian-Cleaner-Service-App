@@ -9,7 +9,7 @@ import '../request/staff_edit_profile_request.dart';
 import '../response/base_response.dart';
 import '../response/get_cleaning_service_response.dart';
 import '../response/get_immigrations_response.dart';
-import '../response/profile_response.dart';
+import '../response/get_staff_job_details_response.dart';
 import '../utils/network_result.dart';
 import 'endpoint.dart';
 
@@ -55,10 +55,26 @@ class CleanerRepository extends BaseRepository {
     );
   }
 
+  Future<NetworkResult<BaseResponse>> acceptJob({
+    required int jobId,
+  }) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.cleanerJobAccept(jobId),
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
   Future<NetworkResult<CleanerJobResponse>> getCleanerJob() async {
     return get<CleanerJobResponse>(
       endpoint: Endpoint.cleanerJob,
       fromJson: (json) => CleanerJobResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<GetStaffJobDetailsResponse>> getCleanerJobDetails(int jobId) async {
+    return get<GetStaffJobDetailsResponse>(
+      endpoint: "${Endpoint.cleanerJob}/$jobId",
+      fromJson: (json) => GetStaffJobDetailsResponse.fromJson(json),
     );
   }
 
@@ -105,7 +121,6 @@ class CleanerRepository extends BaseRepository {
       fromJson: (json) => UpdateProfileResponse.fromJson(json),
     );
   }
-
 
   Future<NetworkResult<GetCleaningServiceResponse>> getCleaningServices() async {
     return get<GetCleaningServiceResponse>(

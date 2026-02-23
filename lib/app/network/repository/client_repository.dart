@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/network/response/get_client_calender_response.dart';
 import 'package:ccs_app/app/network/response/get_client_job_response.dart';
 import 'package:ccs_app/app/network/response/get_job_details_response.dart';
 import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
@@ -259,6 +260,18 @@ class ClientRepository extends BaseRepository {
     return get<PropertySubTypeResponse>(
       endpoint: Endpoint.getPropertySubType(propertyId),
       fromJson: (json) => PropertySubTypeResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<GetClientCalenderResponse>> getClientCalender({
+    String? date,
+    String? dateFrom,
+    String? dateTo,
+  }) async {
+    return get<GetClientCalenderResponse>(
+      endpoint: Endpoint.clientCalender,
+      queryParameters: {'date': date, 'date_from': dateFrom, 'date_to': dateTo},
+      fromJson: (json) => GetClientCalenderResponse.fromJson(json),
     );
   }
 }

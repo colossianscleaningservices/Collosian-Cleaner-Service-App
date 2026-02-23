@@ -1,6 +1,5 @@
 import 'dart:io' show Platform;
 
-import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
@@ -220,7 +219,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           earningsTotal.value = "£${staffDash.value?.totalEarnings?.toString()}";
         },
       );
-      final actionResult = await _cleanerRepository.getActionNeeded();
+      /*final actionResult = await _cleanerRepository.getActionNeeded();
       actionResult.handle(
         success: (res) {
           final data = res.data;
@@ -228,7 +227,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
             actionNeededCount.value = data['action_needed_count'] as int;
           }
         },
-      );
+      );*/
     } catch (_) {
     } finally {
       Loader.hide();

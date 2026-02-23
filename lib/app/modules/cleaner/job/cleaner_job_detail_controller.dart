@@ -1,8 +1,10 @@
 import 'package:ccs_app/app/network/repository/cleaner_repository.dart';
+import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../model/chat_message.dart';
 import '../../../model/client_job.dart';
+import '../../../network/response/get_staff_job_details_response.dart';
 import '../../../services/pref.dart';
 import 'job_check_photo_controller.dart';
 
@@ -10,36 +12,23 @@ import 'job_check_photo_controller.dart';
 class CleanerJobDetailController extends GetxController {
   final CleanerRepository _cleanerRepository = CleanerRepository();
 
-  final Rx<ClientJob> _job = Rx<ClientJob>(
-    ClientJob(
-      id: '',
-      clientName: '—',
-      jobType: '—',
-      date: DateTime.now(),
-      startTime: '—',
-      endTime: '—',
-      status: 'Unknown',
-      propertyOneLine: '—',
-    ),
-  );
-
-  ClientJob get job => _job.value;
+  final job = Rx<JobDetails?>(null);
 
   /// True when cleaner can tap "Start job" (e.g. Scheduled, Accepted).
   bool get canStartJob {
-    final s = _job.value.status.toLowerCase();
+    final s = job.value?.status?.toLowerCase();
     return s == 'scheduled' || s == 'accepted';
   }
 
   /// True when cleaner can tap "Stop job" (job in progress).
   bool get canStopJob {
-    final s = _job.value.status.toLowerCase();
+    final s = job.value?.status?.toLowerCase();
     return s == 'in progress' || s == 'in_progress';
   }
 
   /// True when job is completed and cleaner can tap "Review".
   bool get canShowReview {
-    final s = _job.value.status.toLowerCase();
+    final s = job.value?.status?.toLowerCase();
     return s == 'completed';
   }
 
@@ -90,56 +79,34 @@ class CleanerJobDetailController extends GetxController {
     }
   }
 
+  num? jobId;
+
   @override
   void onInit() {
     super.onInit();
     final args = Get.arguments;
-    final id = Get.parameters['id'];
-    ClientJob initial;
-    if (args is ClientJob) {
-      initial = args;
-    } else if (id != null) {
-      final found = ClientJob.byId(id);
-      if (found != null) {
-        initial = found;
-      } else {
-        initial = ClientJob(
-          id: id,
-          clientName: '—',
-          jobType: '—',
-          date: DateTime.now(),
-          startTime: '—',
-          endTime: '—',
-          status: 'Unknown',
-          propertyOneLine: '—',
-        );
-      }
-    } else {
-      initial = ClientJob(
-        id: '',
-        clientName: '—',
-        jobType: '—',
-        date: DateTime.now(),
-        startTime: '—',
-        endTime: '—',
-        status: 'Unknown',
-        propertyOneLine: '—',
-      );
+    if (args is Jobs) {
+      jobId = args.id;
     }
-    _job.value = initial;
+  }
+
+  @override
+  void onReady() {
+    fetchJobDetails();
+    super.onReady();
   }
 
   /// Navigate to check-in photo screen; on success update job status to in progress.
   void onStartJob() {
     Get.toNamed(Routes.CLEANER_JOB_CHECKIN, arguments: {'job': job, 'mode': JobCheckPhotoMode.checkIn})?.then((result) {
-      if (result == true) _job.value = job.copyWith(status: 'In progress');
+      if (result == true) job.value?.status = 'In progress';
     });
   }
 
   /// Navigate to check-out photo screen; on success update job status to completed.
   void onStopJob() {
     Get.toNamed(Routes.CLEANER_JOB_CHECKOUT, arguments: {'job': job, 'mode': JobCheckPhotoMode.checkOut})?.then((result) {
-      if (result == true) _job.value = job.copyWith(status: 'Completed');
+      if (result == true) job.value?.status = 'Completed';
     });
   }
 
@@ -149,18 +116,18 @@ class CleanerJobDetailController extends GetxController {
 
   void onContactClient() {
     final chatJob = ChatJob(
-      id: job.id,
-      jobType: job.jobType,
-      propertyOneLine: job.propertyOneLine,
-      date: job.date.toIso8601String(),
-      clientName: job.clientName,
+      id: job.value?.id.toString() ?? "",
+      jobType: job.value?.jobType,
+      propertyOneLine: job.value?.property?.propertyName,
+      date: DateTime.parse(job.value?.date ?? "").toIso8601String(),
+      clientName: job.value?.user?.name ?? "",
     );
     final participants = <String, ChatParticipant>{};
     // Client
-    if (job.clientId != null && job.clientId!.isNotEmpty) {
-      participants[job.clientId!] = ChatParticipant(
-        id: job.clientId!,
-        name: job.clientName,
+    if (job.value?.user?.id != null) {
+      participants[job.value?.user?.id.toString() ?? ""] = ChatParticipant(
+        id: job.value?.user?.id.toString() ?? "",
+        name: job.value?.user?.name ?? "",
         role: RoleConstants.roleKeyClient,
       );
     }
@@ -169,7 +136,7 @@ class CleanerJobDetailController extends GetxController {
     final userName = Prefs().userFullName;
     participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyCleaner);
     // Other cleaners on the same job
-    for (final cleaner in job.cleaners) {
+    /*for (final cleaner in job.cleaners) {
       if (cleaner.id != userId) {
         participants[cleaner.id] = ChatParticipant(
           id: cleaner.id,
@@ -177,47 +144,98 @@ class CleanerJobDetailController extends GetxController {
           role: RoleConstants.roleKeyCleaner,
         );
       }
-    }
+    }*/
     Get.toNamed(Routes.JOB_CHAT, arguments: {
       'type': ChatConstants.typeJob,
-      'jobId': job.id,
+      'jobId': job.value?.id.toString(),
       'job': chatJob,
       'participants': participants,
     });
   }
 
   void onAccept() {
-    Notifier.info('Accept job (coming soon)');
-  }
-
-  void onDecline() {
-    final jobId = int.tryParse(job.id);
+    final jobId = job.value?.id;
     if (jobId == null) {
       Notifier.info('Invalid job');
       return;
     }
+    final messageController = TextEditingController();
+    Notifier.openSheet(
+      Get.context!,
+      title: 'Accept job?',
+      message: 'Are you sure want to accept this job?',
+      showPrimaryButton: true,
+      showSecondaryButton: true,
+      primaryButtonLabel: 'Accept',
+      secondaryButtonLabel: 'Cancel',
+      onPrimaryPressed: () => _acceptJob(jobId.toInt()),
+    );
+  }
+
+  void onDecline() {
+    final jobId = job.value?.id;
+    if (jobId == null) {
+      Notifier.info('Invalid job');
+      return;
+    }
+    final scheme = (Get.context as BuildContext).colorScheme;
+    final messageController = TextEditingController();
     Notifier.openSheet(
       Get.context!,
       title: 'Decline job?',
       message: 'You can add a reason (optional).',
       showPrimaryButton: true,
+      body: Column(
+        spacing: 8,
+        children: [
+          CommonText.bold('Decline job?', size: 24, color: scheme.primary, fontWeight: FontWeight.w900),
+          CommonTextField(
+            hint: 'You can add a reason (optional).',
+            controller: messageController,
+            maxLines: 4,
+            minLines: 2,
+            action: TextInputAction.done,
+          ),
+        ],
+      ).marginSymmetric(vertical: 8),
+      type: SheetType.error,
       showSecondaryButton: true,
       primaryButtonLabel: 'Decline',
       secondaryButtonLabel: 'Keep',
-      onPrimaryPressed: () => _declineJob(jobId),
+      onPrimaryPressed: () => _declineJob(jobId.toInt(), messageController.text),
     );
   }
 
-  Future<void> _declineJob(int jobId) async {
+  Future<void> _declineJob(int jobId, String msg) async {
     Loader.show();
     try {
-      final result = await _cleanerRepository.declineJob(jobId: jobId);
+      final result = await _cleanerRepository.declineJob(jobId: jobId, reason: msg);
       result.handle(
-        success: (_) {
-          Notifier.success('Job declined');
-          Get.back();
+        success: (value) {
+          Notifier.success(value.message ?? 'Job declined');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Get.back();
+          });
         },
         contextTag: 'decline_job',
+      );
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  Future<void> _acceptJob(int jobId) async {
+    Loader.show();
+    try {
+      final result = await _cleanerRepository.acceptJob(jobId: jobId);
+      result.handle(
+        success: (value) {
+          Notifier.success(value.message ?? 'Job Accepted');
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            fetchJobDetails();
+          });
+        },
+        contextTag: 'accept_job',
       );
     } finally {
       Loader.hide();
@@ -231,5 +249,21 @@ class CleanerJobDetailController extends GetxController {
   /// Navigate to review/feedback screen (completed jobs).
   void onReview() {
     Notifier.info('Review (coming soon)');
+  }
+
+  Future<void> fetchJobDetails() async {
+    if (jobId == null) return;
+    Loader.show();
+    try {
+      final result = await _cleanerRepository.getCleanerJobDetails(jobId!.toInt());
+      result.handle(
+        success: (response) {
+          final raw = response.data;
+          job.value = raw;
+        },
+      );
+    } finally {
+      Loader.hide();
+    }
   }
 }

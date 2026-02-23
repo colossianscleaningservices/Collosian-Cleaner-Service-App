@@ -58,6 +58,9 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   RxBool isJobMoreLoading = false.obs;
   ScrollController jobScrollController = ScrollController();
 
+  /// Calendar events from getClientCalender() API, keyed by date (date-only).
+  final calendarEventsMap = Rx<Map<DateTime, List<CalendarEvent>>>({});
+
   @override
   void onInit() {
     super.onInit();
@@ -74,8 +77,8 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     getAppVersion();
     _registerDevice();
 
-    userDisplayName.value =  Get.find<SessionService>().userDisplayName;
-    userDisplayImage.value =  Get.find<SessionService>().userDisplayImage;
+    userDisplayName.value = Get.find<SessionService>().userDisplayName;
+    userDisplayImage.value = Get.find<SessionService>().userDisplayImage;
 
     jobScrollController.addListener(() {
       if (_isScrollBottom) {
@@ -137,16 +140,8 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     return CcsDateUtils.fullMonthYear(focusedDay.value);
   }
 
-  /// Placeholder events. Replace with API-backed source.
-  Map<DateTime, List<CalendarEvent>> get eventsMap {
-    final now = DateTime.now();
-    final t = DateTime(now.year, now.month, now.day);
-    return {
-      t: [CalendarEvent(title: 'Residential clean')],
-      t.add(const Duration(days: 2)): [CalendarEvent(title: 'Office – Clerkenwell Road', status: 'Pending')],
-      t.add(const Duration(days: 5)): [CalendarEvent(title: 'Nellie – 8 The Grove')],
-    };
-  }
+  /// Calendar events (from getClientCalender()). Reactive so view updates when API returns.
+  Map<DateTime, List<CalendarEvent>> get eventsMap => calendarEventsMap.value;
 
   void _syncModeFromTab() {
     mode.value = modes[tabController.index];
@@ -155,10 +150,13 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   void onCalendarDaySelected(DateTime? selected, DateTime focused) {
     selectedDay.value = selected;
     focusedDay.value = focused;
+    final day = selected ?? focused;
+    getClientCalender(forDate: day, singleDay: true);
   }
 
   void onCalendarPageChanged(DateTime focused) {
     focusedDay.value = focused;
+    getClientCalender(forDate: focused, forWeek: mode.value == CalendarViewMode.week);
   }
 
   void onCalendarPrev() {
@@ -168,6 +166,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       focusedDay.value = DateTime(focusedDay.value.year, focusedDay.value.month - 1, focusedDay.value.day);
     }
     if (focusedDay.value.isBefore(kCalendarFirstDay)) focusedDay.value = kCalendarFirstDay;
+    getClientCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
   }
 
   void onCalendarNext() {
@@ -177,6 +176,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       focusedDay.value = DateTime(focusedDay.value.year, focusedDay.value.month + 1, focusedDay.value.day);
     }
     if (focusedDay.value.isAfter(kCalendarLastDay)) focusedDay.value = kCalendarLastDay;
+    getClientCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
   }
 
   void setTab(int index) {
@@ -186,17 +186,27 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       if (jobs.isEmpty) {
         fetchJobs();
       }
+    } else if (tabIndex.value == 1) {
+      getClientCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
     }
   }
 
   void openDetail(Jobs job) {
     Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: job.id)?.then((value) {
       if (value != null) {
-        log(runtimeType.toString(), "VLUE ${value}");
         if (value.containsKey('action') && value['action'] == 'delete') {
           jobs.removeWhere((p) => p.id == job.id);
           jobs.refresh();
         }
+      }
+    });
+  }
+
+  /// Navigate to job detail from calendar (by id only). Refreshes calendar on delete.
+  void openCalendarJobDetail(num jobId) {
+    Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: jobId)?.then((value) {
+      if (value != null && value is Map && value['action'] == 'delete') {
+        getClientCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
       }
     });
   }
@@ -237,4 +247,80 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       }
     });
   }
+
+  /// Fetches calendar jobs. [singleDay] = that day only; [forWeek] = that week (Mon–Sun); else that month.
+  Future<void> getClientCalender({DateTime? forDate, bool singleDay = false, bool forWeek = false}) async {
+    Loader.show();
+    try {
+      String? dateFrom;
+      String? dateTo;
+      if (forDate != null) {
+        if (singleDay) {
+          final d = DateTime(forDate.year, forDate.month, forDate.day);
+          dateFrom = _formatDateForApi(d);
+          dateTo = dateFrom;
+        } else if (forWeek) {
+          final weekStart = forDate.subtract(Duration(days: forDate.weekday - 1));
+          final weekEnd = weekStart.add(const Duration(days: 6));
+          dateFrom = _formatDateForApi(DateTime(weekStart.year, weekStart.month, weekStart.day));
+          dateTo = _formatDateForApi(DateTime(weekEnd.year, weekEnd.month, weekEnd.day));
+        } else {
+          final start = DateTime(forDate.year, forDate.month, 1);
+          final end = DateTime(forDate.year, forDate.month + 1, 0);
+          dateFrom = _formatDateForApi(start);
+          dateTo = _formatDateForApi(end);
+        }
+      }
+      final result = await _clientRepository.getClientCalender(dateFrom: dateFrom, dateTo: dateTo);
+      result.handle(
+        success: (value) {
+          final list = value.data?.jobs?.jobs;
+          if (list == null || list.isEmpty) {
+            calendarEventsMap.value = {};
+            return;
+          }
+          final map = <DateTime, List<CalendarEvent>>{};
+          for (final item in list) {
+            final dateKey = _parseCalendarDate(item.date);
+            if (dateKey == null) continue;
+            final event = CalendarEvent(
+              title: item.cleaningTypeName ?? item.propertyName ?? 'Job',
+              timeRange: _formatTimeRange(item.startTime, item.endTime),
+              status: item.status ?? 'Pending',
+              jobId: item.id,
+              propertyName: item.propertyName,
+              address: item.address,
+              subtitle: item.subtitle,
+              cleanerInfo: item.cleanerInfo,
+            );
+            map.putIfAbsent(dateKey, () => []).add(event);
+          }
+          calendarEventsMap.value = map;
+        },
+        contextTag: 'get-client-calender',
+      );
+    } catch (e) {
+      await Notifier.apiError(e, contextTag: 'get-client-calender');
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  /// Parses API date string to date-only [DateTime] for calendar key.
+  DateTime? _parseCalendarDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return null;
+    final parsed = DateTime.tryParse(dateStr);
+    if (parsed == null) return null;
+    return DateTime(parsed.year, parsed.month, parsed.day);
+  }
+
+  String _formatTimeRange(String? start, String? end) {
+    if (start != null && end != null) return '$start – $end';
+    if (start != null) return start;
+    if (end != null) return end;
+    return '09:00 – 11:00';
+  }
+
+  static String _formatDateForApi(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 }

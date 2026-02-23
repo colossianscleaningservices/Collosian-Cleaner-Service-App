@@ -17,16 +17,6 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
     final nextJob = hasJobs ? upcoming.first : null;
     final jobCount = upcoming.length;*/
 
-    List<UpcomingJob?> upcomingJobs =  [];
-
-    upcomingJobs.add(controller.staffDash.value?.upcomingJob);
-
-
-    final upcoming = upcomingJobs;
-    final hasJobs = upcoming.isNotEmpty;
-    final nextJob = hasJobs ? upcoming.first : null;
-    final jobCount = upcoming.length;
-
     return SingleChildScrollView(
       padding: UiConstants.padding,
       child: Column(
@@ -37,137 +27,150 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
           _GreetingSection(scheme: scheme),
 
           // Enhanced jobs hero card
-          AppCard(
-            color: scheme.primary,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
+          Obx(() {
+            controller.staffDash.value;
+
+            List<UpcomingJob?> upcomingJobs = [];
+            upcomingJobs.add(controller.staffDash.value?.upcomingJob);
+            final upcoming = upcomingJobs;
+            final hasJobs = upcoming.isNotEmpty;
+            final nextJob = hasJobs ? upcoming.first : null;
+
+            return AppCard(
+              color: scheme.primary,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    children: [
+                      AppCard(
+                        color: scheme.primaryContainer.withValues(alpha: 0.2),
+                        padding: const EdgeInsets.all(12),
+                        child: Icon(IconsaxPlusLinear.briefcase, size: 24, color: scheme.onPrimary),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CommonText.semiBold('Upcoming jobs', size: 16, color: scheme.onPrimary),
+                            if (hasJobs)
+                              CommonText.regular(
+                                '${upcoming.length} ${upcoming.length == 1 ? 'job' : 'jobs'} scheduled',
+                                size: 12,
+                                color: scheme.onPrimary.withValues(alpha: 0.6),
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (hasJobs)
+                        AppCard(
+                          color: scheme.primaryContainer.withValues(alpha: 0.2),
+                          onTap: () => controller.setTab(2),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CommonText.medium('View all', size: 13, color: scheme.onPrimary),
+                              const SizedBox(width: 4),
+                              Icon(IconsaxPlusLinear.arrow_right_2, size: 14, color: scheme.onPrimary),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                  SizedBox(height: hasJobs ? 16 : 12),
+                  if (hasJobs && nextJob != null) ...[
                     AppCard(
                       color: scheme.primaryContainer.withValues(alpha: 0.2),
-                      padding: const EdgeInsets.all(12),
-                      child: Icon(IconsaxPlusLinear.briefcase, size: 24, color: scheme.onPrimary),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CommonText.semiBold('Upcoming jobs', size: 16, color: scheme.onPrimary),
-                          if (hasJobs)
-                            CommonText.regular(
-                              '$jobCount ${jobCount == 1 ? 'job' : 'jobs'} scheduled',
-                              size: 12,
-                              color: scheme.onPrimary.withValues(alpha: 0.6),
-                            ),
-                        ],
-                      ),
-                    ),
-                    if (hasJobs)
-                      AppCard(
-                        color: scheme.primaryContainer.withValues(alpha: 0.2),
-                        onTap: () => controller.setTab(2),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CommonText.medium('View all', size: 13, color: scheme.onPrimary),
-                            const SizedBox(width: 4),
-                            Icon(IconsaxPlusLinear.arrow_right_2, size: 14, color: scheme.onPrimary),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-                SizedBox(height: hasJobs ? 16 : 12),
-                if (hasJobs && nextJob != null) ...[
-                  AppCard(
-                    color: scheme.primaryContainer.withValues(alpha: 0.2),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            AppCard(
-                              color: scheme.primaryContainer.withValues(alpha: 0.2),
-                              child: CommonText.medium('Next', size: 11, color: scheme.onPrimary).paddingSymmetric(horizontal: 12, vertical: 6),
-                            ),
-                            const Spacer(),
-                            Icon(
-                              IconsaxPlusLinear.calendar_1,
-                              size: 16,
-                              color: scheme.onPrimary,
-                            ),
-                            const SizedBox(width: 4),
-                            // CommonText.regular(
-                            //   CcsDateUtils.shortDateNoYear(nextJob.$1),
-                            //   size: 12,
-                            //   color: scheme.onPrimary,
-                            // ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        // CommonText.semiBold(nextJob.$2.title, size: 16, color: scheme.onPrimary),
-                        // if (nextJob.$2.timeRange.isNotEmpty) ...[
-                        //   const SizedBox(height: 6),
-                        //   Row(
-                        //     children: [
-                        //       Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onPrimary.withValues(alpha: 0.6)),
-                        //       const SizedBox(width: 6),
-                        //       CommonText.regular(
-                        //         nextJob.$2.timeRange,
-                        //         size: 13,
-                        //         color: scheme.onPrimary.withValues(alpha: 0.6),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ],
-                      ],
-                    ).paddingSymmetric(horizontal: 16, vertical: 14),
-                  ),
-                ] else
-                  ...[
-                    AppCard(
-                      onTap: null ,
-                      color: scheme.primaryContainer.withValues(alpha: 0.2),
-                      child: Column(
-                        children: [
-                          Icon(
-                            IconsaxPlusLinear.briefcase,
-                            size: 48,
-                            color: scheme.onPrimary,
+                          Row(
+                            children: [
+                              AppCard(
+                                color: scheme.primaryContainer.withValues(alpha: 0.2),
+                                child: CommonText.medium('Next', size: 11, color: scheme.onPrimary).paddingSymmetric(horizontal: 12, vertical: 6),
+                              ),
+                              const Spacer(),
+                              Icon(
+                                IconsaxPlusLinear.calendar_1,
+                                size: 16,
+                                color: scheme.onPrimary,
+                              ),
+                              const SizedBox(width: 4),
+                              if (nextJob.date?.isNullOrEmpty == false)
+                                CommonText.regular(
+                                  CcsDateUtils.shortDateNoYear(DateTime.parse(nextJob.date ?? "")),
+                                  size: 12,
+                                  color: scheme.onPrimary,
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 12),
-                          CommonText.medium(
-                            'No upcoming jobs',
-                            size: 16,
-                            color: scheme.onPrimary.withValues(alpha: 0.6),
-                          ),
-                          const SizedBox(height: 6),
-                          CommonText.regular(
-                            'Update your availability to get more assignments',
-                            size: 13,
-                            color: scheme.onPrimary,
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          AppButton(
-                            label: 'Edit availability',
-                            type: ButtonType.tonal,
-                            icon: IconsaxPlusLinear.clock,
-                            onPressed: () => controller.setTab(3),
-                            btnVerticalPadding: 12,
-                            btnHorizontalPadding: 16,
-                            textSize: 14,
-                          ).marginOnly(bottom: 12),
+                          CommonText.semiBold(nextJob.cleaningType?.name ?? " - ", size: 16, color: scheme.onPrimary),
+                          if (nextJob.startTime?.isNullOrEmpty == false && nextJob.endTime?.isNullOrEmpty == false) ...[
+                            const SizedBox(height: 6),
+                            Row(
+                              children: [
+                                Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onPrimary.withValues(alpha: 0.6)),
+                                const SizedBox(width: 6),
+                                CommonText.regular(
+                                  CcsDateUtils.parseTimeRange(nextJob.startTime ?? "", nextJob.endTime ?? ""),
+                                  size: 13,
+                                  color: scheme.onPrimary.withValues(alpha: 0.6),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
-                      ).paddingOnly(top: 8, left: 20, right: 20),
+                      ).paddingSymmetric(horizontal: 16, vertical: 14),
+                    ),
+                  ] else ...[
+                    AppCard(
+                      onTap: null,
+                      color: scheme.primaryContainer.withValues(alpha: 0.2),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          children: [
+                            Icon(
+                              IconsaxPlusLinear.briefcase,
+                              size: 48,
+                              color: scheme.onPrimary,
+                            ),
+                            const SizedBox(height: 12),
+                            CommonText.medium(
+                              'No upcoming jobs',
+                              size: 16,
+                              color: scheme.onPrimary.withValues(alpha: 0.6),
+                            ),
+                            const SizedBox(height: 6),
+                            CommonText.regular(
+                              'Update your availability to get more assignments',
+                              size: 13,
+                              color: scheme.onPrimary,
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            AppButton(
+                              label: 'Edit availability',
+                              type: ButtonType.tonal,
+                              icon: IconsaxPlusLinear.clock,
+                              onPressed: () => controller.setTab(3),
+                              btnVerticalPadding: 12,
+                              btnHorizontalPadding: 16,
+                              textSize: 14,
+                            ).marginOnly(bottom: 12),
+                          ],
+                        ).paddingOnly(top: 8, left: 20, right: 20),
+                      ),
                     ),
                   ],
-              ],
-            ).paddingAll(16),
-          ),
+                ],
+              ).paddingAll(16),
+            );
+          }),
 
           AppCard(
             onTap: () => Get.to(() => const CleanerEarningsView()),
@@ -354,14 +357,12 @@ class _GreetingSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hour = DateTime
-        .now()
-        .hour;
+    final hour = DateTime.now().hour;
     final greeting = hour < 12
         ? 'Good morning'
         : hour < 17
-        ? 'Good afternoon'
-        : 'Good evening';
+            ? 'Good afternoon'
+            : 'Good evening';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,22 +1,22 @@
 import 'package:ccs_app/app/network/response/profile_response.dart';
 
-class CleanerJobResponse {
-  CleanerJobResponse({
+class GetStaffJobDetailsResponse {
+  GetStaffJobDetailsResponse({
       this.message, 
       this.version, 
       this.code, 
       this.data,});
 
-  CleanerJobResponse.fromJson(dynamic json) {
+  GetStaffJobDetailsResponse.fromJson(dynamic json) {
     message = json['message'];
     version = json['version'];
     code = json['code'];
-    data = json['data'] != null ? Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? JobDetails.fromJson(json['data']) : null;
   }
   String? message;
   String? version;
   num? code;
-  Data? data;
+  JobDetails? data;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -31,71 +31,8 @@ class CleanerJobResponse {
 
 }
 
-class Data {
-  Data({
-      this.jobs, 
-      this.pagination,});
-
-  Data.fromJson(dynamic json) {
-    if (json['jobs'] != null) {
-      jobs = [];
-      json['jobs'].forEach((v) {
-        jobs?.add(Jobs.fromJson(v));
-      });
-    }
-    pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
-  }
-  List<Jobs>? jobs;
-  Pagination? pagination;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    if (jobs != null) {
-      map['jobs'] = jobs?.map((v) => v.toJson()).toList();
-    }
-    if (pagination != null) {
-      map['pagination'] = pagination?.toJson();
-    }
-    return map;
-  }
-
-}
-
-class Pagination {
-  Pagination({
-      this.total, 
-      this.count, 
-      this.perPage, 
-      this.currentPage, 
-      this.totalPages,});
-
-  Pagination.fromJson(dynamic json) {
-    total = json['total'];
-    count = json['count'];
-    perPage = json['per_page'];
-    currentPage = json['current_page'];
-    totalPages = json['total_pages'];
-  }
-  num? total;
-  num? count;
-  num? perPage;
-  num? currentPage;
-  num? totalPages;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['total'] = total;
-    map['count'] = count;
-    map['per_page'] = perPage;
-    map['current_page'] = currentPage;
-    map['total_pages'] = totalPages;
-    return map;
-  }
-
-}
-
-class Jobs {
-  Jobs({
+class JobDetails {
+  JobDetails({
       this.id, 
       this.date, 
       this.startTime, 
@@ -106,12 +43,12 @@ class Jobs {
       this.staffPreference, 
       this.before, 
       this.after, 
-      this.cleaners,
-      this.status,
+      this.status, 
       this.propertyId, 
       this.userId, 
       this.pricingChartId, 
       this.isDeleted, 
+      this.cleaningType, 
       this.additionalDetails, 
       this.hoover, 
       this.provideWashingMachine, 
@@ -126,13 +63,12 @@ class Jobs {
       this.numberOfGuests, 
       this.celebrationType, 
       this.venueAddress, 
-      this.cleaningType,
-      this.user,
+      this.user, 
       this.property, 
       this.createdAt, 
       this.updatedAt,});
 
-  Jobs.fromJson(dynamic json) {
+  JobDetails.fromJson(dynamic json) {
     id = json['id'];
     date = json['date'];
     startTime = json['start_time'];
@@ -146,14 +82,9 @@ class Jobs {
     status = json['status'];
     propertyId = json['property_id'];
     userId = json['user_id'];
-    if (json['cleaners'] != null) {
-      cleaners = [];
-      json['cleaners'].forEach((v) {
-        cleaners?.add(Cleaners.fromJson(v));
-      });
-    }
     pricingChartId = json['pricing_chart_id'];
     isDeleted = json['is_deleted'];
+    cleaningType = json['cleaning_type'] != null ? CleaningType.fromJson(json['cleaning_type']) : null;
     additionalDetails = json['additional_details'];
     hoover = json['hoover'];
     provideWashingMachine = json['provide_washing_machine'];
@@ -164,7 +95,6 @@ class Jobs {
     jobStartDate = json['job_start_date'];
     jobEndDate = json['job_end_date'];
     jobType = json['job_type'];
-    cleaningType = json['cleaning_type'] != null ? CleaningType.fromJson(json['cleaning_type']) : null;
     numberOfCleaners = json['number_of_cleaners'];
     numberOfGuests = json['number_of_guests'];
     celebrationType = json['celebration_type'];
@@ -208,7 +138,6 @@ class Jobs {
   Property? property;
   String? createdAt;
   String? updatedAt;
-  List<Cleaners>? cleaners;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -225,11 +154,11 @@ class Jobs {
     map['status'] = status;
     map['property_id'] = propertyId;
     map['user_id'] = userId;
+    map['pricing_chart_id'] = pricingChartId;
+    map['is_deleted'] = isDeleted;
     if (cleaningType != null) {
       map['cleaning_type'] = cleaningType?.toJson();
     }
-    map['pricing_chart_id'] = pricingChartId;
-    map['is_deleted'] = isDeleted;
     map['additional_details'] = additionalDetails;
     map['hoover'] = hoover;
     map['provide_washing_machine'] = provideWashingMachine;
@@ -244,9 +173,6 @@ class Jobs {
     map['number_of_guests'] = numberOfGuests;
     map['celebration_type'] = celebrationType;
     map['venue_address'] = venueAddress;
-    if (cleaners != null) {
-      map['cleaners'] = cleaners?.map((v) => v.toJson()).toList();
-    }
     if (user != null) {
       map['user'] = user?.toJson();
     }
@@ -527,7 +453,7 @@ class User {
   dynamic interests;
   String? imageUrl;
   List<Roles>? roles;
-  List<dynamic>? cleaningServices;
+  List<CleaningServices>? cleaningServices;
   String? emailVerifiedAt;
   String? createdAt;
   String? updatedAt;
@@ -671,79 +597,15 @@ class Device {
 
 }
 
-class Cleaners {
-  Cleaners({
-    this.id,
-    this.firstName,
-    this.lastName,
-    this.name,
-    this.email,
-    this.phoneNumber,
-    this.roles,
-    this.emailVerifiedAt,
-    this.createdAt,
-    this.updatedAt,
-    this.token,});
-
-  Cleaners.fromJson(dynamic json) {
-    id = json['id'];
-    firstName = json['first_name'];
-    lastName = json['last_name'];
-    name = json['name'];
-    email = json['email'];
-    phoneNumber = json['phone_number'];
-    if (json['roles'] != null) {
-      roles = [];
-      json['roles'].forEach((v) {
-        roles?.add(Roles.fromJson(v));
-      });
-    }
-    emailVerifiedAt = json['email_verified_at'];
-    createdAt = json['created_at'];
-    updatedAt = json['updated_at'];
-    token = json['token'];
-  }
-  num? id;
-  String? firstName;
-  String? lastName;
-  String? name;
-  String? email;
-  String? phoneNumber;
-  List<Roles>? roles;
-  String? emailVerifiedAt;
-  String? createdAt;
-  String? updatedAt;
-  String? token;
-
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['id'] = id;
-    map['first_name'] = firstName;
-    map['last_name'] = lastName;
-    map['name'] = name;
-    map['email'] = email;
-    map['phone_number'] = phoneNumber;
-    if (roles != null) {
-      map['roles'] = roles?.map((v) => v.toJson()).toList();
-    }
-    map['email_verified_at'] = emailVerifiedAt;
-    map['created_at'] = createdAt;
-    map['updated_at'] = updatedAt;
-    map['token'] = token;
-    return map;
-  }
-
-}
-
 class CleaningType {
   CleaningType({
-    this.id,
-    this.name,
-    this.description,
-    this.isActive,
-    this.sortOrder,
-    this.createdAt,
-    this.updatedAt,});
+      this.id, 
+      this.name, 
+      this.description, 
+      this.isActive, 
+      this.sortOrder, 
+      this.createdAt, 
+      this.updatedAt,});
 
   CleaningType.fromJson(dynamic json) {
     id = json['id'];

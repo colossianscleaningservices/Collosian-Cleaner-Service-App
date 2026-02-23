@@ -12,8 +12,8 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CommonText.bold('Job Status',size: 18, color: scheme.onSurface).marginOnly(bottom: 10,left: 18,right: 18),
-          _FilterChips(controller: controller, scheme: scheme).marginOnly(left: 18,right: 18),
+          CommonText.bold('Job Status', size: 18, color: scheme.onSurface).marginOnly(bottom: 10, left: 18, right: 18),
+          _FilterChips(controller: controller, scheme: scheme).marginOnly(left: 18, right: 18),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -83,10 +83,12 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: upcoming
                         .map(
                           (job) => JobCard(
-                            title: job.cleaningType ?? "N/A",
+                            title: job.cleaningType?.name ?? "N/A",
                             dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
                             status: job.status ?? "N/A",
-                            subtitle:  (job.cleaners ==null || job.cleaners?.isEmpty == true) ? ' - ' : job.cleaners?.map((item) => item.name ?? " - ").toList().join(',') ?? ' - ',
+                            subtitle: /*job.user?.name?? "" */ (job.cleaners == null || job.cleaners?.isEmpty == true)
+                                ? ' - '
+                                : job.cleaners?.map((item) => item.name ?? " - ").toList().join(',') ?? ' - ',
                             propertyName: job.property?.propertyName ?? "N/A",
                             address: job.property?.address ?? "N/A",
                             recurrence: /*job.recurrence*/ "N/A",
@@ -114,10 +116,10 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: past
                         .map(
                           (job) => JobCard(
-                            title: job.cleaningType ?? "N/A",
+                            title: job.cleaningType?.name ?? "N/A",
                             dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
                             status: job.status ?? "N/A",
-                            subtitle: /*job.clientName*/ job.cleaners?.map((item) => "${item.name}").toList().join(','),
+                            subtitle: job.user?.name ?? "" /*job.cleaners?.map((item) => "${item.name}").toList().join(',')*/,
                             propertyName: job.property?.propertyName ?? "N/A",
                             address: job.property?.address ?? "N/A",
                             recurrence: /*job.recurrence*/ "N/A",
@@ -154,7 +156,7 @@ class _FilterChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(
-          () => Wrap(
+      () => Wrap(
         spacing: 10,
         runSpacing: 10,
         children: controller.filter.map((category) {
@@ -193,7 +195,6 @@ class _FilterChips extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _SectionLabel extends StatelessWidget {

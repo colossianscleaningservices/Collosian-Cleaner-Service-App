@@ -44,7 +44,8 @@ class Notifier {
     void Function()? onPrimaryPressed,
     void Function()? onSecondaryPressed,
   }) {
-    var scheme = context.colorScheme;
+
+    final scheme = context.colorScheme;
 
     Color bg;
     Color fg;
