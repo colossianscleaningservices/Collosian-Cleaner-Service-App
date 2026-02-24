@@ -1,8 +1,8 @@
-import 'package:ccs_app/app/model/common_model.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../../network/response/training_resource_response.dart';
 import 'training_and_resources_controller.dart';
 
 class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
@@ -28,7 +28,7 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
               _FilterChips(controller: controller, scheme: scheme).marginOnly(bottom: 20),
               CommonText.semiBold('Resources', color: scheme.onSurface).marginOnly(bottom: 12),
               Obx(() {
-                final list = controller.training;
+                final list = controller.trainingList.value;
                 final selected = controller.filter.where((c) => c.isSelected).toList();
                 final selectedType = selected.isNotEmpty ? selected.first.type : 'All';
                 if (list.isEmpty) {
@@ -56,7 +56,7 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
                   },
                 );
               }).marginOnly(bottom: 24),
-              Obx(() => controller.isMoreLoading.value ? PageLoader(): SizedBox.shrink())
+              Obx(() => controller.isMoreLoading.value ? PageLoader() : SizedBox.shrink())
             ],
           ).paddingAll(UiConstants.defaultPadding),
         ),
@@ -163,9 +163,9 @@ class _SearchSection extends StatelessWidget {
       () => CommonTextField(
         hint: 'Search by title or description',
         label: 'Search',
-        controller: controller.groupSearchController,
+        controller: controller.searchController,
         borderColor: scheme.outline.withValues(alpha: 0.2),
-        focus: controller.groupSearchFocus,
+        focus: controller.searchFocus,
         onChanged: (value) => controller.searchTerm.value = value,
         prefixIcon: Icon(
           Icons.search_rounded,
@@ -180,7 +180,7 @@ class _SearchSection extends StatelessWidget {
                   color: scheme.primary,
                 ),
                 onPressed: () {
-                  controller.groupSearchController.clear();
+                  controller.searchController.clear();
                   controller.searchTerm.value = '';
                 },
               )
@@ -213,6 +213,8 @@ class _FilterChips extends StatelessWidget {
                 }
                 category.isSelected = true;
                 controller.filter.refresh();
+                controller.currentPage = 1;
+                controller.getTrainingResources();
               },
               borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
               child: AnimatedContainer(
@@ -278,6 +280,13 @@ class _VideoPlaceholder extends StatelessWidget {
       return _videoFallback(scheme: scheme, icon: IconsaxPlusLinear.video_play);
     }
     final ctrl = controller!;
+
+    if (ctrl.value.isInitialized == false) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await ctrl.initialize();
+      });
+    }
+
     return ListenableBuilder(
       listenable: ctrl,
       builder: (_, __) {
@@ -470,19 +479,26 @@ class _TrainingCard extends StatelessWidget {
     required this.ctrl,
   });
 
-  final CommonModel item;
+  final Trainings item;
   final String mediaTypeLabel;
   final ColorScheme scheme;
   final TrainingAndResourcesController ctrl;
 
   @override
   Widget build(BuildContext context) {
-    final isSeen = item.isSeen;
+    final isSeen = item.isSeen ?? false;
 
     return AppCard(
+      onTap: () {
+        // if (isSeen == false && item.id != null) {
+        ctrl.seenTrainingResources(item.id!.toInt(), ctrl.trainingList.indexOf(item));
+        // }
+      },
       radius: UiConstants.radiusLarge,
       enableShadows: true,
       shadowOpacity: 0.06,
+      borderWidth: 1.5,
+      borderColor: isSeen == true ? scheme.outline.withValues(alpha: 0.08) : scheme.error,
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -492,7 +508,7 @@ class _TrainingCard extends StatelessWidget {
               topLeft: Radius.circular(UiConstants.radiusLarge),
               topRight: Radius.circular(UiConstants.radiusLarge),
             ),
-            child: item.type == 'Video'
+            child: item.contentType?.toLowerCase() == 'video'
                 ? _VideoPlaceholder(
                     controller: item.videoPlayerController,
                     scheme: scheme,
@@ -518,7 +534,7 @@ class _TrainingCard extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          _iconForMediaType(item.type),
+                          _iconForMediaType(item.contentType ?? ""),
                           size: 40,
                           color: scheme.primary,
                         ),
@@ -542,7 +558,7 @@ class _TrainingCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
                       ),
                       child: CommonText.medium(
-                        item.type,
+                        item.contentType ?? "",
                         size: 12,
                         color: scheme.onSecondaryContainer,
                       ),
@@ -611,4 +627,3 @@ class _TrainingCard extends StatelessWidget {
     }
   }
 }
-

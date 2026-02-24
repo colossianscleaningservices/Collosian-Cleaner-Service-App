@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/network/response/base_response.dart';
+import 'package:video_player/video_player.dart';
 
 class TrainingResourceResponse extends BaseResponse {
   TrainingResourceResponse({
@@ -86,12 +87,12 @@ class Resources {
     if (json['trainings'] != null) {
       trainings = [];
       json['trainings'].forEach((v) {
-        // trainings?.add(Dynamic.fromJson(v));   //Data format not shown in API
+        trainings?.add(Trainings.fromJson(v));   //Data format not shown in API
       });
     }
     pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
   }
-  List<dynamic>? trainings;
+  List<Trainings>? trainings;
   Pagination? pagination;
 
   Map<String, dynamic> toJson() {
@@ -135,6 +136,63 @@ class Pagination {
     map['per_page'] = perPage;
     map['current_page'] = currentPage;
     map['total_pages'] = totalPages;
+    return map;
+  }
+
+}
+
+class Trainings {
+  Trainings({
+    this.id,
+    this.title,
+    this.fileUrl,
+    this.description,
+    this.content,
+    this.allowedTypes,
+    this.contentType,
+    this.isSelected = false,
+    this.isSeen,
+    this.createdAt,
+    this.videoPlayerController,
+    this.updatedAt,});
+
+  Trainings.fromJson(dynamic json) {
+    id = json['id'];
+    title = json['title'];
+    fileUrl = json['file_url'];
+    description = json['description'];
+    content = json['content'];
+    allowedTypes = json['allowed_types'];
+    contentType = json['content_type'];
+    isSeen = json['is_seen'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+  num? id;
+  String? title;
+  String? fileUrl;
+  String? description;
+  dynamic content;
+  dynamic allowedTypes;
+  String? contentType;
+  bool? isSeen;
+  String? createdAt;
+  String? updatedAt;
+  bool? isSelected;
+  VideoPlayerController? videoPlayerController;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    map['title'] = title;
+    map['file_url'] = fileUrl;
+    map['description'] = description;
+    map['content'] = content;
+    map['allowed_types'] = allowedTypes;
+    map['content_type'] = contentType;
+    map['is_seen'] = isSeen;
+    map['created_at'] = createdAt;
+    map['updated_at'] = updatedAt;
     return map;
   }
 

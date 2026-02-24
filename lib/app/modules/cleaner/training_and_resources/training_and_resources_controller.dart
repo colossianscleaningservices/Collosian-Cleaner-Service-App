@@ -6,11 +6,12 @@ import '../../../network/repository/common_repository.dart';
 import '../../../network/response/training_resource_response.dart';
 
 class TrainingAndResourcesController extends GetxController {
-  var groupSearchFocus = FocusNode();
-  var groupSearchController = TextEditingController();
+  var searchFocus = FocusNode();
+  var searchController = TextEditingController();
   var searchTerm = ''.obs;
   RxList<CommonModel> filter = <CommonModel>[].obs;
-  RxList<CommonModel> training = <CommonModel>[].obs;
+  RxList<Trainings> trainingList = <Trainings>[].obs;
+  RxList<Trainings> mainTrainingList = <Trainings>[].obs;
 
   final CommonRepository _commonRepository = CommonRepository();
   ScrollController scrollController = ScrollController();
@@ -18,6 +19,7 @@ class TrainingAndResourcesController extends GetxController {
   var totalPage = 1;
   var currentPage = 1;
   RxBool isMoreLoading = false.obs;
+  var prevSearch = '';
 
   @override
   void onInit() {
@@ -27,6 +29,21 @@ class TrainingAndResourcesController extends GetxController {
         if (currentPage <= totalPage && !isMoreLoading.value) {
           isMoreLoading.value = true;
           getTrainingResources();
+        }
+      }
+    });
+
+    searchController.addListener(() {
+      if (searchController.text.trim().length > 2) {
+        if (searchController.text.isNotEmpty) {
+          if (prevSearch == searchController.text.trim()) return;
+        }
+        currentPage = 1;
+        getTrainingResources(isFromSearch: true);
+      } else if (searchController.text.isEmpty) {
+        if (mainTrainingList.isNotEmpty) {
+          trainingList.clear();
+          trainingList.addAll(mainTrainingList);
         }
       }
     });
@@ -41,87 +58,11 @@ class TrainingAndResourcesController extends GetxController {
     return currentScroll >= (maxScroll * 0.9);
   }
 
-  /// Primary demo video (720p H.264). Some devices fail with MediaCodec on this.
-  static const String _videoUrlPrimary = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4';
-  static const String _videoUrlSecondary = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4';
-
-  /// Fallback: smaller / more compatible encoding for devices that fail on primary.
-  static const String _videoUrlFallback = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
-
   void initList() {
     filter.clear();
     filter.add(CommonModel(type: "All", isSelected: true));
     filter.add(CommonModel(type: "Video"));
     filter.add(CommonModel(type: "Flyer"));
-  }
-
-  void addDummyData() {
-    training.clear();
-    final uriPrimary = Uri.parse(_videoUrlPrimary);
-    final uriFallback = Uri.parse(_videoUrlFallback);
-
-    final ctrl1 = VideoPlayerController.networkUrl(uriPrimary);
-    _initializeWithFallback(ctrl1, uriFallback, (newCtrl) {
-      final i = _indexOfController(ctrl1);
-      if (i >= 0) _replaceVideoControllerAt(i, newCtrl);
-    });
-    training.add(CommonModel(type: "Video", videoPlayerController: ctrl1));
-
-    final ctrl2 = VideoPlayerController.networkUrl(Uri.parse(_videoUrlSecondary));
-    Future.delayed(const Duration(milliseconds: 400), () {
-      if (!ctrl2.value.isInitialized && !ctrl2.value.hasError) {
-        _initializeWithFallback(ctrl2, uriFallback, (newCtrl) {
-          final i = _indexOfController(ctrl2);
-          if (i >= 0) _replaceVideoControllerAt(i, newCtrl);
-        });
-      }
-    });
-    training.add(CommonModel(type: "Video", videoPlayerController: ctrl2));
-
-    training.add(CommonModel(type: 'flyer'));
-    training.add(CommonModel(type: 'flyer'));
-    training.add(CommonModel(type: 'flyer'));
-    training.add(CommonModel(type: 'flyer'));
-    training.add(CommonModel(type: 'flyer'));
-    training.add(CommonModel(type: 'flyer'));
-  }
-
-  int _indexOfController(VideoPlayerController ctrl) {
-    final len = training.length;
-    for (var i = 0; i < len; i++) {
-      if (training[i].videoPlayerController == ctrl) return i;
-    }
-    return -1;
-  }
-
-  void _replaceVideoControllerAt(int index, VideoPlayerController? newCtrl) {
-    final len = training.length;
-    if (index < 0 || index >= len) return;
-    final item = training[index];
-    item.videoPlayerController?.dispose();
-    item.videoPlayerController = newCtrl;
-    training.refresh();
-  }
-
-  /// Initialize video; on codec/network error try fallback URL (often more compatible).
-  void _initializeWithFallback(
-    VideoPlayerController ctrl,
-    Uri fallbackUri,
-    void Function(VideoPlayerController? newCtrl) onFallbackReady,
-  ) {
-    ctrl.initialize().then((_) {
-      // Success with primary
-    }).catchError((Object e, StackTrace st) {
-      debugPrint('Video init failed, trying fallback: $e');
-      final fallback = VideoPlayerController.networkUrl(fallbackUri);
-      fallback.initialize().then((_) {
-        onFallbackReady(fallback);
-      }).catchError((Object e2, StackTrace st2) {
-        debugPrint('Fallback video also failed: $e2');
-        fallback.dispose();
-        onFallbackReady(null);
-      });
-    });
   }
 
   @override
@@ -132,17 +73,17 @@ class TrainingAndResourcesController extends GetxController {
 
   @override
   void onClose() {
-    for (final item in training) {
+    for (final item in trainingList) {
       item.videoPlayerController?.dispose();
     }
-    groupSearchFocus.dispose();
-    groupSearchController.dispose();
+    searchFocus.dispose();
+    searchController.dispose();
     super.onClose();
   }
 
   /// Called by pull-to-refresh. Disposes existing video controllers and reloads the list.
   Future<void> refreshTraining() async {
-    for (final item in training) {
+    for (final item in trainingList) {
       item.videoPlayerController?.dispose();
       item.videoPlayerController = null;
     }
@@ -150,14 +91,44 @@ class TrainingAndResourcesController extends GetxController {
     getTrainingResources();
   }
 
-  Future<void> getTrainingResources() async {
-
-    if (!isMoreLoading.value) Loader.show();
+  Future<void> getTrainingResources({bool isFromSearch = false}) async {
+    if (!isMoreLoading.value && !isFromSearch) Loader.show();
     try {
-      final result = await _commonRepository.getTrainingResources(page: currentPage);
+      String? filterItem;
+      filterItem = filter.firstWhereOrNull((item) => item.isSelected)?.type;
+
+      final result =
+          await _commonRepository.getTrainingResources(page: currentPage, filter: filterItem == "All" ? null : filterItem, search: searchController.text);
       result.handle(
-        success: (value) {
-          if (currentPage == 1) training.clear();
+        success: (value) async {
+          if (currentPage == 1) trainingList.clear();
+
+          if (!isFromSearch) {
+            mainTrainingList.clear();
+          } else {
+            prevSearch = searchController.text.trim();
+          }
+
+          value.data?.resources?.trainings?.forEach((item) async {
+            if (trainingList.firstWhereOrNull((tr) => tr.id == item.id) == null) {
+              if (item.contentType?.toLowerCase() == 'video') {
+                final ctrl = VideoPlayerController.networkUrl(Uri.parse(item.fileUrl ?? ""));
+                item.videoPlayerController = ctrl;
+              }
+              trainingList.add(item);
+            }
+          });
+
+          trainingList.refresh();
+
+          if (!isFromSearch) {
+            mainTrainingList.addAll(trainingList);
+          }
+
+          if (searchController.text.isEmpty) {
+            trainingList.clear();
+            trainingList.addAll(mainTrainingList);
+          }
 
           totalPage = (value.data?.resources?.pagination?.totalPages ?? 1).toInt();
 
@@ -172,8 +143,25 @@ class TrainingAndResourcesController extends GetxController {
     } catch (e) {
       Notifier.error('Failed to fetch training resource');
     } finally {
-      if (!isMoreLoading.value) Loader.hide();
+      if (!isMoreLoading.value && !isFromSearch) Loader.hide();
       isMoreLoading.value = false;
     }
+  }
+
+  Future<void> seenTrainingResources(int id, int index) async {
+    try {
+      final result = await _commonRepository.seenTrainingResources(id);
+      result.handle(
+        success: (value) {
+          trainingList[index].isSeen = true;
+          counts.value?.seen = ((counts.value?.seen ?? 0) + 1);
+          counts.value?.unseen = ((counts.value?.unseen ?? 1) - 1);
+          trainingList.refresh();
+        },
+        contextTag: 'seenTrainingResources',
+      );
+    } catch (e) {
+      Notifier.error('Failed to mark as seen');
+    } finally {}
   }
 }

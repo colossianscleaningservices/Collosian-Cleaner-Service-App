@@ -39,7 +39,6 @@ import '../modules/client/dashboard/client_dashboard_binding.dart';
 import '../modules/client/dashboard/client_dashboard_view.dart';
 import '../modules/client/edit_profile/client_edit_profile_binding.dart';
 import '../modules/client/edit_profile/client_edit_profile_view.dart';
-import '../modules/client/job/add_review.dart';
 import '../modules/client/job/client_job_detail_binding.dart';
 import '../modules/client/job/client_job_detail_view.dart';
 import '../modules/client/property/add_property_view.dart';

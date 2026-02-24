@@ -133,7 +133,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   final Rxn<StaffDashModel> staffDash = Rxn<StaffDashModel>(null);
 
   //JOBS
-  // RxList<Jobs> jobs = <Jobs>[].obs;
   var jobCurrentPage = 1;
   var jobTotalPage = 1;
   RxBool isJobMoreLoading = false.obs;
@@ -199,7 +198,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   @override
   void onReady() {
     super.onReady();
-    // jobs.assignAll(ClientJob.demoJobs);
     _fetchDashboardData();
   }
 
@@ -497,8 +495,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       if (forDate != null) {
         if (singleDay) {
           final d = DateTime(forDate.year, forDate.month, forDate.day);
-          dateFrom = _formatDateForApi(d);
-          dateTo = dateFrom;
+          date = _formatDateForApi(d);
         } else if (forWeek) {
           final weekStart = forDate.subtract(Duration(days: forDate.weekday - 1));
           final weekEnd = weekStart.add(const Duration(days: 6));
@@ -537,10 +534,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           }
           calendarEventsMap.value = map;
         },
-        contextTag: 'get-client-calender',
+        contextTag: 'get-cleaner-calender',
       );
     } catch (e) {
-      await Notifier.apiError(e, contextTag: 'get-client-calender');
+      await Notifier.apiError(e, contextTag: 'get-cleaner-calender');
     } finally {
       Loader.hide();
     }

@@ -9,6 +9,7 @@ class ClientCalendarView extends GetView<ClientDashboardController> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
+
     return SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,6 +114,7 @@ class _CalendarSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(ctrl.eventsMap.length);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,

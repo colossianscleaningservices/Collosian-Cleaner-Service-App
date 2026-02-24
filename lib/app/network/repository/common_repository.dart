@@ -23,17 +23,31 @@ class CommonRepository extends BaseRepository {
   }
 
   Future<NetworkResult<BaseResponse>> readNotifications(int id) async {
-    return get<BaseResponse>(
+    return put<BaseResponse>(
       endpoint: "${Endpoint.notifications}/$id/read",
       fromJson: (json) => BaseResponse.fromJson(json),
     );
   }
 
-  Future<NetworkResult<TrainingResourceResponse>> getTrainingResources({int perPage = 15, int page = 1}) async {
+  Future<NetworkResult<BaseResponse>> readAllNotifications() async {
+    return put<BaseResponse>(
+      endpoint: Endpoint.readAllNotifications,
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<TrainingResourceResponse>> getTrainingResources({int perPage = 15, int page = 1, String? filter, String? search}) async {
     return get<TrainingResourceResponse>(
       endpoint: Endpoint.trainingResources,
-      queryParameters: {'per_page': perPage, 'page': page},
+      queryParameters: {'per_page': perPage, 'page': page, 'content_type': filter, 'search': search},
       fromJson: (json) => TrainingResourceResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<BaseResponse>> seenTrainingResources(int id) async {
+    return put<BaseResponse>(
+      endpoint: Endpoint.seenTrainingResources(id),
+      fromJson: (json) => BaseResponse.fromJson(json),
     );
   }
 

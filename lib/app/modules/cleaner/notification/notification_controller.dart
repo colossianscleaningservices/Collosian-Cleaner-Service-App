@@ -5,6 +5,7 @@ import '../../../network/response/notification_response.dart';
 
 class NotificationController extends GetxController {
   final CommonRepository _commonRepository = CommonRepository();
+
   // RxList<NotificationData> notifications = <NotificationData>[].obs;
   RxList<Notifications> notifications = <Notifications>[].obs;
   ScrollController scrollController = ScrollController();
@@ -71,11 +72,46 @@ class NotificationController extends GetxController {
     }
   }
 
+  Future<void> markAsRead(int notificationId, int index) async {
+    try {
+      final result = await _commonRepository.readNotifications(notificationId);
+      result.handle(
+        success: (value) {
+          notifications[index].isRead = true;
+          notifications.refresh();
+        },
+        contextTag: 'read_notifications',
+      );
+    } catch (e) {
+      Notifier.error('Failed to mark as read');
+    } finally {}
+  }
+
+  Future<void> readAllNotifications() async {
+    Loader.show();
+    try {
+      final result = await _commonRepository.readAllNotifications();
+      result.handle(
+        success: (value) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            for (var item in notifications) {
+              item.isRead = true;
+            }
+            notifications.refresh();
+          });
+        },
+        contextTag: 'read_notifications',
+      );
+    } catch (e) {
+      Notifier.error('Failed to mark all as read');
+    } finally {
+      Loader.hide();
+    }
+  }
 
   /// Called by pull-to-refresh. Disposes existing video controllers and reloads the list.
   Future<void> refreshNotification() async {
     currentPage = 1;
     getNotifications();
   }
-
 }

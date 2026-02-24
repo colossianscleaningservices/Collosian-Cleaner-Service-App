@@ -81,7 +81,9 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                       )),
                 ),
                 SingleChildScrollView(
-                  child: _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap),
+                  child: Obx(() {
+                    return _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap);
+                  }),
                 ),
               ],
             ),
@@ -164,11 +166,65 @@ class _CalendarSection extends StatelessWidget {
         SizedBox(height: UiConstants.gap),
         CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface).marginSymmetric(horizontal: 24),
         const SizedBox(height: 8),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2)),
-        ),
+        _UpcomingEvents(
+          scheme: scheme,
+          eventsMap: eventsMap,
+          selectedDay: selectedDay,
+          focusedDay: focusedDay,
+          onMyJobsPressed: () => ctrl.setTab(2),
+          onJobTap: (event) {
+            // if (event.jobId != null) ctrl.openCalendarJobDetail(event.jobId!);
+          },
+        ).marginSymmetric(horizontal: 16),
       ],
+    );
+  }
+}
+
+/// Shows events for the selected (or focused) day, or empty state.
+class _UpcomingEvents extends StatelessWidget {
+  const _UpcomingEvents({
+    required this.scheme,
+    this.eventsMap,
+    this.selectedDay,
+    required this.focusedDay,
+    required this.onMyJobsPressed,
+    required this.onJobTap,
+  });
+
+  final ColorScheme scheme;
+  final Map<DateTime, List<CalendarEvent>>? eventsMap;
+  final DateTime? selectedDay;
+  final DateTime focusedDay;
+  final VoidCallback onMyJobsPressed;
+  final void Function(CalendarEvent) onJobTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final day = selectedDay ?? focusedDay;
+    final dateKey = DateTime(day.year, day.month, day.day);
+    final events = eventsMap?[dateKey] ?? [];
+
+    if (events.isEmpty) {
+      return CalendarEmptyCard(scheme: scheme, onMyJobsPressed: onMyJobsPressed);
+    }
+    return AppGrid(
+      maxExtent: 130,
+      axisSpacing: 8,
+      phoneCount: 1,
+      tabletCount: 2,
+      landscapeCount: 3,
+      child: List.generate(
+        events.length,
+        (i) => JobCard(
+          title: events[i].title,
+          dateTime: '${CcsDateUtils.shortDateNoYear(dateKey)} · ${events[i].timeRange}',
+          status: events[i].status,
+          propertyName: events[i].propertyName,
+          address: events[i].address,
+          onTap: () => onJobTap(events[i]),
+        ),
+      ),
     );
   }
 }
@@ -200,7 +256,7 @@ class _ListContentView extends StatelessWidget {
         const SizedBox(height: 8),
         if (list.isEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+            padding: const EdgeInsets.symmetric(horizontal: 0),
             child: CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2)),
           )
         else
@@ -216,6 +272,8 @@ class _ListContentView extends StatelessWidget {
                 title: list[i].$2.title,
                 dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
                 status: list[i].$2.status,
+                propertyName: list[i].$2.propertyName,
+                address: list[i].$2.address,
                 onTap: () => Notifier.info('Job details (coming soon)'),
               ),
             ),

@@ -15,18 +15,37 @@ class NotificationView extends GetView<NotificationController> {
     // Dummy notification data (replace with controller.notifications when API is ready)
     // final notifications = _getDummyNotifications();
 
-    return AppScaffold(
-      appBar: Header(title: 'Notifications'),
-      body: Obx(() {
-        return SwipeRefresh(
+    return Obx(() {
+      var isAllNotificationRead = true;
+      if (controller.notifications.firstWhereOrNull((item) => item.isRead == false) != null) {
+        isAllNotificationRead = false;
+      }
+
+      return AppScaffold(
+        appBar: Header(
+          title: 'Notifications',
+          actions: [
+            isAllNotificationRead
+                ? SizedBox.shrink()
+                : AppButton(
+                    label: 'Read All',
+                    onPressed: () {
+                      controller.readAllNotifications();
+                    },
+                    type: ButtonType.transparent,
+                    btnVerticalPadding: 0,
+                  )
+          ],
+        ),
+        body: SwipeRefresh(
           onRefresh: () => controller.refreshNotification(),
           child: SafeArea(
             child: controller.notifications.isEmpty
                 ? NoDataView(
-              title: 'No notifications',
-              subtitle: "You're all caught up! We'll notify you when there's something new.",
-              icon: IconsaxPlusLinear.notification,
-            )
+                    title: 'No notifications',
+                    subtitle: "You're all caught up! We'll notify you when there's something new.",
+                    icon: IconsaxPlusLinear.notification,
+                  )
                 : Column(
                     children: [
                       Expanded(
@@ -41,13 +60,9 @@ class NotificationView extends GetView<NotificationController> {
                               notification: notification,
                               scheme: scheme,
                               onTap: () {
-                                // TODO: Mark as read and navigate to detail
-                                Notifier.info('Notification tapped');
-
-                                if(notification.isRead == false){
-
+                                if (notification.isRead == false && notification.id != null) {
+                                  controller.markAsRead(notification.id!.toInt(), index);
                                 }
-
                               },
                             );
                           },
@@ -57,9 +72,9 @@ class NotificationView extends GetView<NotificationController> {
                     ],
                   ),
           ),
-        );
-      }),
-    );
+        ),
+      );
+    });
   }
 
   List<NotificationData> _getDummyNotifications() {
@@ -225,7 +240,8 @@ class _NotificationCard extends StatelessWidget {
                     ],
                     Expanded(
                       child: CommonText.semiBold(
-                        /*notification.title*/ "N/A",
+                        /*notification.title*/
+                        "N/A",
                         size: 16,
                         color: scheme.onSurface,
                       ),
