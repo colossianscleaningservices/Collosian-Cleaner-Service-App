@@ -1,5 +1,4 @@
 import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
-import 'package:ccs_app/app/widget/quick_action.dart';
 import 'package:ccs_app/export.dart';
 
 /// Dashboard content (the actual dashboard UI, not the shell).

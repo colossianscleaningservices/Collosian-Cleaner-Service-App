@@ -43,6 +43,11 @@ class NotificationView extends GetView<NotificationController> {
                               onTap: () {
                                 // TODO: Mark as read and navigate to detail
                                 Notifier.info('Notification tapped');
+
+                                if(notification.isRead == false){
+
+                                }
+
                               },
                             );
                           },

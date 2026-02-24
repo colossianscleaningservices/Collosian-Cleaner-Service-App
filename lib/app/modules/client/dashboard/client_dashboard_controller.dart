@@ -254,11 +254,11 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     try {
       String? dateFrom;
       String? dateTo;
+      String? date;
       if (forDate != null) {
         if (singleDay) {
           final d = DateTime(forDate.year, forDate.month, forDate.day);
-          dateFrom = _formatDateForApi(d);
-          dateTo = dateFrom;
+          date = _formatDateForApi(d);
         } else if (forWeek) {
           final weekStart = forDate.subtract(Duration(days: forDate.weekday - 1));
           final weekEnd = weekStart.add(const Duration(days: 6));
@@ -271,7 +271,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
           dateTo = _formatDateForApi(end);
         }
       }
-      final result = await _clientRepository.getClientCalender(dateFrom: dateFrom, dateTo: dateTo);
+      final result = await _clientRepository.getClientCalender(dateFrom: dateFrom, dateTo: dateTo, date: date);
       result.handle(
         success: (value) {
           final list = value.data?.jobs?.jobs;
@@ -284,14 +284,14 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
             final dateKey = _parseCalendarDate(item.date);
             if (dateKey == null) continue;
             final event = CalendarEvent(
-              title: item.cleaningTypeName ?? item.propertyName ?? 'Job',
+              title: item.property?.propertyType ?? "",
               timeRange: _formatTimeRange(item.startTime, item.endTime),
               status: item.status ?? 'Pending',
               jobId: item.id,
-              propertyName: item.propertyName,
-              address: item.address,
-              subtitle: item.subtitle,
-              cleanerInfo: item.cleanerInfo,
+              propertyName: item.property?.propertyName ?? "",
+              address: item.property?.address ?? "",
+              subtitle: item.property?.additionalDetails ?? "",
+              cleanerInfo: item.cleaners?.map((cl) => cl.name ?? "").toList().join(', '),
             );
             map.putIfAbsent(dateKey, () => []).add(event);
           }

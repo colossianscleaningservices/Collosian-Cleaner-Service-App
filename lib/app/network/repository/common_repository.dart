@@ -22,6 +22,13 @@ class CommonRepository extends BaseRepository {
     );
   }
 
+  Future<NetworkResult<BaseResponse>> readNotifications(int id) async {
+    return get<BaseResponse>(
+      endpoint: "${Endpoint.notifications}/$id/read",
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
   Future<NetworkResult<TrainingResourceResponse>> getTrainingResources({int perPage = 15, int page = 1}) async {
     return get<TrainingResourceResponse>(
       endpoint: Endpoint.trainingResources,
@@ -88,7 +95,6 @@ class CommonRepository extends BaseRepository {
       fromJson: (json) => BaseResponse.fromJson(json),
     );
   }
-
 
   Future<NetworkResult<MediaUploadResponse>> mediaUpload(Map<String, dynamic> data) async {
     return post<MediaUploadResponse>(

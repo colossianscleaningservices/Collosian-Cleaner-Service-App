@@ -38,7 +38,7 @@ class PropertyView extends GetView<PropertyController> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   AppGrid(
-                    maxExtent: 100,
+                    maxExtent: 104,
                     axisSpacing: 8,
                     phoneCount: 1,
                     tabletCount: 2,
@@ -89,7 +89,7 @@ class _PropertyCard extends StatelessWidget {
     return AppCard(
       onTap: onTap,
       child: Row(
-    crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           AppCard.iconContainer(
             context: context,
@@ -117,6 +117,8 @@ class _PropertyCard extends StatelessWidget {
                     child: CommonText.medium(
                       ("${property.businessType!} ${Constants.bullet} ${property.propertyType!} ${Constants.bullet} ${property.subType}").toUpperCase(),
                       size: 12,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
                     ).paddingSymmetric(horizontal: 10, vertical: 4),
                   ),
