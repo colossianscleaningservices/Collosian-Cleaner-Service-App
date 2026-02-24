@@ -8,6 +8,7 @@ import '../../core/base/base_repository.dart';
 import '../request/staff_edit_profile_request.dart';
 import '../response/base_response.dart';
 import '../response/get_cleaning_service_response.dart';
+import '../response/get_client_calender_response.dart';
 import '../response/get_immigrations_response.dart';
 import '../response/get_staff_job_details_response.dart';
 import '../utils/network_result.dart';
@@ -133,6 +134,18 @@ class CleanerRepository extends BaseRepository {
     return get<GetImmigrationsResponse>(
       endpoint: Endpoint.immigrations,
       fromJson: (json) => GetImmigrationsResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<GetClientCalenderResponse>> getCleanerCalender({
+    String? date,
+    String? dateFrom,
+    String? dateTo,
+  }) async {
+    return get<GetClientCalenderResponse>(
+      endpoint: Endpoint.cleanerCalender,
+      queryParameters: {'date': date, 'date_from': dateFrom, 'date_to': dateTo},
+      fromJson: (json) => GetClientCalenderResponse.fromJson(json),
     );
   }
 

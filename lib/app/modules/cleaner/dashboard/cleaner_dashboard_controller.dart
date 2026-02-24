@@ -41,6 +41,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   /// Weekly: index 0 = Monday .. 6 = Sunday. Toggle + multiple slots per day.
   final weeklySchedule = <DayAvailability>[].obs;
 
+
+  /// Calendar events from getClientCalender() API, keyed by date (date-only).
+  final calendarEventsMap = Rx<Map<DateTime, List<CalendarEvent>>>({});
+
   /// Specific dates when the cleaner is not available (date-only).
   final blockedDays = <DateTime>[].obs;
 
@@ -53,15 +57,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       ];
 
   /// Placeholder events. Replace with API-backed source.
-  Map<DateTime, List<CalendarEvent>> get eventsMap {
-    final now = DateTime.now();
-    final t = DateTime(now.year, now.month, now.day);
-    return {
-      t: [CalendarEvent(title: 'Residential clean')],
-      t.add(const Duration(days: 2)): [CalendarEvent(title: 'Office – Clerkenwell Road', status: 'Pending')],
-      t.add(const Duration(days: 5)): [CalendarEvent(title: 'Nellie – 8 The Grove')],
-    };
-  }
+  Map<DateTime, List<CalendarEvent>> get eventsMap => calendarEventsMap.value;
 
   /// Flattened, sorted (date asc) for dashboard. Replace with API-backed source.
   List<(DateTime date, CalendarEvent event)> get upcomingJobsForDashboard {
@@ -252,10 +248,13 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   void onCalendarDaySelected(DateTime? selected, DateTime focused) {
     selectedDay.value = selected;
     focusedDay.value = focused;
+    final day = selected ?? focused;
+    getCleanerCalender(forDate: day, singleDay: true);
   }
 
   void onCalendarPageChanged(DateTime focused) {
     focusedDay.value = focused;
+    getCleanerCalender(forDate: focused, forWeek: mode.value == CalendarViewMode.week);
   }
 
   void onCalendarPrev() {
@@ -265,6 +264,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       focusedDay.value = DateTime(focusedDay.value.year, focusedDay.value.month - 1, focusedDay.value.day);
     }
     if (focusedDay.value.isBefore(kCalendarFirstDay)) focusedDay.value = kCalendarFirstDay;
+    getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
   }
 
   void onCalendarNext() {
@@ -274,6 +274,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       focusedDay.value = DateTime(focusedDay.value.year, focusedDay.value.month + 1, focusedDay.value.day);
     }
     if (focusedDay.value.isAfter(kCalendarLastDay)) focusedDay.value = kCalendarLastDay;
+    getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
   }
 
   void setTab(int index) {
@@ -281,6 +282,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
     if(index == 2){
       fetchJobs();
+    }else if (tabIndex.value == 1) {
+      getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
     }
   }
 
@@ -483,4 +486,82 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       isJobMoreLoading.value = false;
     }
   }
+
+  /// Fetches calendar jobs. [singleDay] = that day only; [forWeek] = that week (Mon–Sun); else that month.
+  Future<void> getCleanerCalender({DateTime? forDate, bool singleDay = false, bool forWeek = false}) async {
+    Loader.show();
+    try {
+      String? dateFrom;
+      String? dateTo;
+      String? date;
+      if (forDate != null) {
+        if (singleDay) {
+          final d = DateTime(forDate.year, forDate.month, forDate.day);
+          dateFrom = _formatDateForApi(d);
+          dateTo = dateFrom;
+        } else if (forWeek) {
+          final weekStart = forDate.subtract(Duration(days: forDate.weekday - 1));
+          final weekEnd = weekStart.add(const Duration(days: 6));
+          dateFrom = _formatDateForApi(DateTime(weekStart.year, weekStart.month, weekStart.day));
+          dateTo = _formatDateForApi(DateTime(weekEnd.year, weekEnd.month, weekEnd.day));
+        } else {
+          final start = DateTime(forDate.year, forDate.month, 1);
+          final end = DateTime(forDate.year, forDate.month + 1, 0);
+          dateFrom = _formatDateForApi(start);
+          dateTo = _formatDateForApi(end);
+        }
+      }
+      final result = await _cleanerRepository.getCleanerCalender(dateFrom: dateFrom, dateTo: dateTo, date: date);
+      result.handle(
+        success: (value) {
+          final list = value.data?.jobs?.jobs;
+          if (list == null || list.isEmpty) {
+            calendarEventsMap.value = {};
+            return;
+          }
+          final map = <DateTime, List<CalendarEvent>>{};
+          for (final item in list) {
+            final dateKey = _parseCalendarDate(item.date);
+            if (dateKey == null) continue;
+            final event = CalendarEvent(
+              title: item.property?.propertyType ?? "",
+              timeRange: _formatTimeRange(item.startTime, item.endTime),
+              status: item.status ?? 'Pending',
+              jobId: item.id,
+              propertyName: item.property?.propertyName ?? "",
+              address: item.property?.address ?? "",
+              subtitle: item.property?.additionalDetails ?? "",
+              cleanerInfo: item.cleaners?.map((cl) => cl.name ?? "").toList().join(', '),
+            );
+            map.putIfAbsent(dateKey, () => []).add(event);
+          }
+          calendarEventsMap.value = map;
+        },
+        contextTag: 'get-client-calender',
+      );
+    } catch (e) {
+      await Notifier.apiError(e, contextTag: 'get-client-calender');
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  /// Parses API date string to date-only [DateTime] for calendar key.
+  DateTime? _parseCalendarDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return null;
+    final parsed = DateTime.tryParse(dateStr);
+    if (parsed == null) return null;
+    return DateTime(parsed.year, parsed.month, parsed.day);
+  }
+
+  String _formatTimeRange(String? start, String? end) {
+    if (start != null && end != null) return '$start – $end';
+    if (start != null) return start;
+    if (end != null) return end;
+    return '09:00 – 11:00';
+  }
+
+  static String _formatDateForApi(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
 }

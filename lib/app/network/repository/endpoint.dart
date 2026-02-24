@@ -52,6 +52,9 @@ class Endpoint {
   // ------ Client - Calender ---------
   static const String clientCalender = '${root}client/calendar/jobs-by-date';
 
+  // ------ Cleaner - Calender ---------
+  static const String cleanerCalender = '${root}staff/calendar/jobs-by-date';
+
   // ─── Client - Properties ───────────────────────────────────────────────────
   static const String clientProperties = '${root}client/properties';
 

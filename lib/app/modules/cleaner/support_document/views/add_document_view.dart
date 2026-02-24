@@ -124,12 +124,11 @@ class AddDocumentView extends GetView<SupportDocumentController> {
           ).paddingSymmetric(horizontal: 16, vertical: 8),
         ),
       ),
-      bottomNavigationBar: Obx(() {
-        return SingleActionBottomBar(
+      bottomNavigationBar: SingleActionBottomBar(
           label: 'Upload Document',
           onPressed: controller.addDocument,
-        );
-      }),
+        )
+
     );
   }
 
