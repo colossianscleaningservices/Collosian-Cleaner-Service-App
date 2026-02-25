@@ -29,6 +29,20 @@ class CommonRepository extends BaseRepository {
     );
   }
 
+  Future<NetworkResult<BaseResponse>> deleteNotifications(int id) async {
+    return delete<BaseResponse>(
+      endpoint: "${Endpoint.notifications}/$id",
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<BaseResponse>> deleteAllNotifications() async {
+    return delete<BaseResponse>(
+      endpoint: Endpoint.notifications,
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
   Future<NetworkResult<BaseResponse>> readAllNotifications() async {
     return put<BaseResponse>(
       endpoint: Endpoint.readAllNotifications,

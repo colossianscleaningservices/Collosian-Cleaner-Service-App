@@ -100,15 +100,19 @@ class Notifications {
     this.message,
     this.isRead,
     this.count,
+    this.relatedId,
     this.flag,
+    this.title,
     this.createdAt,
     this.updatedAt,});
 
   Notifications.fromJson(dynamic json) {
     id = json['id'];
     userId = json['user_id'];
+    relatedId = json['related_id'];
     message = json['message'];
     isRead = json['is_read'];
+    title = json['title'];
     count = json['count'];
     flag = json['flag'];
     createdAt = json['created_at'];
@@ -116,10 +120,12 @@ class Notifications {
   }
   num? id;
   num? userId;
+  num? relatedId;
   String? message;
   bool? isRead;
   dynamic count;
-  dynamic flag;
+  String? flag;
+  String? title;
   String? createdAt;
   String? updatedAt;
 
@@ -130,7 +136,9 @@ class Notifications {
     map['message'] = message;
     map['is_read'] = isRead;
     map['count'] = count;
+    map['related_id'] = relatedId;
     map['flag'] = flag;
+    map['title'] = title;
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
     return map;

@@ -4,6 +4,8 @@ import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
 import 'package:ccs_app/app/network/response/property_type_response.dart';
 import 'package:ccs_app/export.dart';
 
+import '../dashboard/client_dashboard_controller.dart';
+
 class PropertyController extends GetxController {
   final ClientRepository _clientRepository = ClientRepository();
   final formKey = GlobalKey<FormState>();
@@ -50,10 +52,15 @@ class PropertyController extends GetxController {
 
   /// When set, we're on Add Property screen in edit mode.
   final editingProperty = Rxn<PropertyModel>();
+  var from = '';
 
   @override
   void onInit() {
     super.onInit();
+    if(Get.arguments != null ){
+      if(Get.arguments['from'] != null) from = Get.arguments['from'];
+      if(Get.arguments['property'] != null) editingProperty.value = Get.arguments['property'];
+    }
     _loadProperties();
   }
 
@@ -74,14 +81,20 @@ class PropertyController extends GetxController {
   }
 
   @override
-  void onReady() {
-    getPropertyType(businessType.value);
+  Future<void> onReady() async {
+  await  getPropertyType(businessType.value);
+
+    if(from == 'dash'){
+      _loadEditPropertyData();
+    }
+
     super.onReady();
   }
 
   String? validateRequired(String? value, String fieldName) => Validator.requiredField(value, fieldName: fieldName);
 
   Future<void> _loadProperties() async {
+    if(from == 'dash') return;
     try {
       final result = await _clientRepository.listProperties();
       result.handle(
@@ -174,9 +187,12 @@ class PropertyController extends GetxController {
           result.handle(
             success: (value) async {
               Notifier.success(value.message ?? "Property updated Successfully!");
-              await _loadProperties();
-              resetForm();
-              Get.back();
+              WidgetsBinding.instance.addPostFrameCallback((_) async {
+                await _loadProperties();
+                resetForm();
+                Get.back();
+                updateDashContent();
+              });
             },
             contextTag: 'update_property',
           );
@@ -214,6 +230,7 @@ class PropertyController extends GetxController {
           await _loadProperties();
           resetForm();
           Get.back();
+          updateDashContent();
         },
         contextTag: 'create-property',
       );
@@ -329,6 +346,7 @@ class PropertyController extends GetxController {
   }
 
   void resetForm() {
+    if(from == 'dash') return;
     editingProperty.value = null;
     propertyNameCtrl.clear();
     addressCtrl.clear();
@@ -356,5 +374,13 @@ class PropertyController extends GetxController {
     officeCtrl.clear();
     conservatoryCtrl.clear();
     diningRoomCtrl.clear();
+  }
+
+  void updateDashContent(){
+    bool isControllerRegistered = Get.isRegistered<ClientDashboardController>();
+    if (isControllerRegistered) {
+      ClientDashboardController ctrl = Get.find();
+      ctrl.getClientDash(isLoaderShown: false);
+    }
   }
 }

@@ -86,6 +86,9 @@ class _PropertyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var subType = '';
+    if (property.subType != null) subType = " ${Constants.bullet} ${property.subType}";
+
     return AppCard(
       onTap: onTap,
       child: Row(
@@ -115,7 +118,7 @@ class _PropertyCard extends StatelessWidget {
                     enableShadows: false,
                     color: scheme.outlineVariant,
                     child: CommonText.medium(
-                      ("${property.businessType!} ${Constants.bullet} ${property.propertyType!} ${Constants.bullet} ${property.subType}").toUpperCase(),
+                      ("${property.businessType!} ${Constants.bullet} ${property.propertyType!}$subType").toUpperCase(),
                       size: 12,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

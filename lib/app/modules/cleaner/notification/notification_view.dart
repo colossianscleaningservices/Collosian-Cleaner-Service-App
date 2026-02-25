@@ -1,8 +1,10 @@
 import 'package:ccs_app/app/model/notification_data.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../../../network/response/notification_response.dart';
+import '../../../services/pref.dart';
 import 'notification_controller.dart';
 
 class NotificationView extends GetView<NotificationController> {
@@ -11,10 +13,6 @@ class NotificationView extends GetView<NotificationController> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-
-    // Dummy notification data (replace with controller.notifications when API is ready)
-    // final notifications = _getDummyNotifications();
-
     return Obx(() {
       var isAllNotificationRead = true;
       if (controller.notifications.firstWhereOrNull((item) => item.isRead == false) != null) {
@@ -29,12 +27,27 @@ class NotificationView extends GetView<NotificationController> {
                 ? SizedBox.shrink()
                 : AppButton(
                     label: 'Read All',
-                    onPressed: () {
-                      controller.readAllNotifications();
-                    },
+                    onPressed: () => controller.readAllNotifications(),
+                    btnHorizontalPadding: 4,
                     type: ButtonType.transparent,
                     btnVerticalPadding: 0,
-                  )
+                  ),
+            controller.notifications.isEmpty
+                ? SizedBox.shrink()
+                : AppButton(
+                    label: 'Delete All',
+                    onPressed: () {
+                      Notifier.openSheet(context,
+                          primaryButtonLabel: 'Delete',
+                          message: 'Are you sure want to delete all notification?',
+                          type: SheetType.error,
+                          onPrimaryPressed: () => controller.deleteAllNotifications());
+                    },
+                    txtClr: scheme.error,
+                    btnHorizontalPadding: 4,
+                    type: ButtonType.transparent,
+                    btnVerticalPadding: 0,
+                  ),
           ],
         ),
         body: SwipeRefresh(
@@ -49,23 +62,35 @@ class NotificationView extends GetView<NotificationController> {
                 : Column(
                     children: [
                       Expanded(
-                        child: ListView.separated(
-                          controller: controller.scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                          itemCount: controller.notifications.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 12),
-                          itemBuilder: (context, index) {
-                            final notification = controller.notifications[index];
-                            return _NotificationCard(
-                              notification: notification,
-                              scheme: scheme,
-                              onTap: () {
-                                if (notification.isRead == false && notification.id != null) {
-                                  controller.markAsRead(notification.id!.toInt(), index);
-                                }
-                              },
-                            );
-                          },
+                        child: SlidableAutoCloseBehavior(
+                          child: ListView.separated(
+                            controller: controller.scrollController,
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                            itemCount: controller.notifications.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 12),
+                            itemBuilder: (context, index) {
+                              final notification = controller.notifications[index];
+                              return _NotificationCard(
+                                notification: notification,
+                                index: index,
+                                scheme: scheme,
+                                ctrl: controller,
+                                onTap: () {
+                                  if (notification.isRead == false && notification.id != null) {
+                                    controller.markAsRead(notification.id!.toInt(), index);
+                                  }
+                                  if (notification.flag == Constants.jobCreated) {
+                                    final roleIdStr = Prefs().getData(Prefs.roleId);
+                                    log(runtimeType.toString(), "ROLE ID => $roleIdStr");
+                                    final roleId = int.tryParse(roleIdStr);
+                                    if (RoleConstants.isCleaner(roleId)) {
+                                      Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': notification.relatedId});
+                                    }
+                                  }
+                                },
+                              );
+                            },
+                          ),
                         ),
                       ),
                       SizedBox.shrink()
@@ -128,14 +153,18 @@ class NotificationView extends GetView<NotificationController> {
 class _NotificationCard extends StatelessWidget {
   const _NotificationCard({
     required this.notification,
+    required this.index,
     required this.scheme,
     required this.onTap,
+    required this.ctrl,
   });
 
   // final NotificationData notification;
   final Notifications notification;
+  final int index;
   final ColorScheme scheme;
   final VoidCallback onTap;
+  final NotificationController ctrl;
 
   IconData _getIcon() {
     switch (/*notification.type*/ NotificationType.message) {
@@ -196,98 +225,113 @@ class _NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      onTap: onTap,
-      margin: EdgeInsets.zero,
-      padding: const EdgeInsets.all(16),
-      borderWidth: 1,
-      borderColor: notification.isRead == true ? scheme.outline.withValues(alpha: 0.08) : scheme.error,
-      enableShadows: true,
-      color: scheme.onPrimary,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Slidable(
+      key: ValueKey(notification.id ?? index),
+      groupTag: 'notifications',
+      endActionPane: ActionPane(
+        motion: ScrollMotion(),
         children: [
-          // Icon badge
-
-          AppCard(
-            enableShadows: false,
-            radius: UiConstants.radiusDefault,
-            color: _getIconBgColor(),
-            child: Icon(
-              _getIcon(),
-              size: 22,
-              color: _getIconColor(),
-            ).paddingAll(12),
-          ).marginOnly(right: 14),
-
-          // Content
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    if (!(notification.isRead ?? false)) ...[
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: scheme.primary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    Expanded(
-                      child: CommonText.semiBold(
-                        /*notification.title*/
-                        "N/A",
-                        size: 16,
-                        color: scheme.onSurface,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                CommonText.regular(
-                  notification.message ?? "",
-                  size: 14,
-                  color: scheme.onSurface.withValues(alpha: 0.85),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onSurfaceVariant),
-                        const SizedBox(width: 6),
-                        CommonText.regular(
-                          _getTimeAgo(),
-                          size: 12,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
-                    notification.isRead == true
-                        ? SizedBox.shrink()
-                        : AppCard(
-                            radius: 8,
-                            color: context.colorScheme.error,
-                            child: CommonText.regular(
-                              'UNREAD',
-                              size: 12,
-                              color: context.colorScheme.onPrimary,
-                            ).paddingSymmetric(horizontal: 8, vertical: 6),
-                          )
-                  ],
-                ),
-              ],
-            ),
+          SlidableAction(
+            borderRadius: BorderRadius.circular(8),
+            onPressed: (_) => {ctrl.deleteNotifications(notification.id?.toInt(), index)},
+            backgroundColor: context.colorScheme.errorContainer.withValues(alpha: 0.7),
+            foregroundColor: context.colorScheme.error,
+            icon: Icons.delete,
+            label: 'Delete',
           ),
         ],
+      ),
+      child: AppCard(
+        onTap: onTap,
+        margin: EdgeInsets.zero,
+        padding: const EdgeInsets.all(16),
+        borderWidth: 1,
+        borderColor: notification.isRead == true ? scheme.outline.withValues(alpha: 0.08) : scheme.error,
+        enableShadows: true,
+        color: scheme.onPrimary,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Icon badge
+            AppCard(
+              enableShadows: false,
+              radius: UiConstants.radiusDefault,
+              color: _getIconBgColor(),
+              child: Icon(
+                _getIcon(),
+                size: 22,
+                color: _getIconColor(),
+              ).paddingAll(12),
+            ).marginOnly(right: 14),
+
+            // Content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (!(notification.isRead ?? false)) ...[
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: scheme.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      Expanded(
+                        child: CommonText.semiBold(
+                          notification.title ?? "N/A",
+                          size: 16,
+                          color: scheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  CommonText.regular(
+                    notification.message ?? "",
+                    size: 14,
+                    color: scheme.onSurface.withValues(alpha: 0.85),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onSurfaceVariant),
+                          const SizedBox(width: 6),
+                          CommonText.regular(
+                            _getTimeAgo(),
+                            size: 12,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ],
+                      ),
+                      notification.isRead == true
+                          ? SizedBox.shrink()
+                          : AppCard(
+                              radius: 8,
+                              color: context.colorScheme.error,
+                              child: CommonText.regular(
+                                'UNREAD',
+                                size: 12,
+                                color: context.colorScheme.onPrimary,
+                              ).paddingSymmetric(horizontal: 8, vertical: 6),
+                            )
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

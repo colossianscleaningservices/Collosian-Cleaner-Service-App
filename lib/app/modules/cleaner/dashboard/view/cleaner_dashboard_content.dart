@@ -71,7 +71,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              CommonText.medium('View all', size: 13, color: scheme.onPrimary),
+                              CommonText.medium('View all', size: 12, color: scheme.onPrimary),
                               const SizedBox(width: 4),
                               Icon(IconsaxPlusLinear.arrow_right_2, size: 14, color: scheme.onPrimary),
                             ],
@@ -117,7 +117,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                                 const SizedBox(width: 6),
                                 CommonText.regular(
                                   CcsDateUtils.parseTimeRange(nextJob.startTime ?? "", nextJob.endTime ?? ""),
-                                  size: 13,
+                                  size: 12,
                                   color: scheme.onPrimary.withValues(alpha: 0.6),
                                 ),
                               ],
@@ -148,7 +148,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                             const SizedBox(height: 6),
                             CommonText.regular(
                               'Update your availability to get more assignments',
-                              size: 13,
+                              size: 12,
                               color: scheme.onPrimary,
                               textAlign: TextAlign.center,
                             ),
@@ -188,7 +188,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 4,
                     children: [
-                      CommonText.regular('Total Earnings', size: 13, color: scheme.onSurfaceVariant),
+                      CommonText.regular('Total Earnings', size: 12, color: scheme.onSurfaceVariant),
                       Obx(() {
                         return CommonText.bold(controller.earningsTotal.value, size: 22, color: scheme.onSurface);
                       }),

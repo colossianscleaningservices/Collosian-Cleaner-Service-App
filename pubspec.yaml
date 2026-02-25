@@ -28,6 +28,7 @@ dependencies:
   image: ^4.7.0
   image_watermark: ^0.1.0
   easy_image_viewer: ^1.5.1
+  flutter_slidable: ^4.0.3
 
   # Platform + utilities
   connectivity_plus: ^7.0.0

@@ -14,8 +14,7 @@ class OneSignalService {
   static Timer? _navigationDebouncer;
   static DateTime? _lastNavigationTime;
 
-  static OneSignalService get instance =>
-      _instance ??= OneSignalService._internal();
+  static OneSignalService get instance => _instance ??= OneSignalService._internal();
 
   static Future<void> initialize(String appId) async {
     if (_isInitialized) return;
@@ -28,6 +27,10 @@ class OneSignalService {
       OneSignal.initialize(appId);
       OneSignal.Notifications.addClickListener(_handleNotificationClick);
       OneSignal.Notifications.addForegroundWillDisplayListener((event) {
+        log(
+            _tag,
+            'Notification displayed: ${event.notification.title}\n${event.notification.notificationId}\n${event.notification.body}\n${event.notification.additionalData}'
+                '\n${event.notification.rawPayload}');
         event.notification.display();
       });
       await OneSignal.Notifications.requestPermission(true);
@@ -47,6 +50,10 @@ class OneSignalService {
   static void _handleNotificationClick(OSNotificationClickEvent event) {
     try {
       log(_tag, 'Notification clicked: ${event.notification.notificationId}');
+      log(
+          _tag,
+          'Notification displayed: ${event.notification.title}\n${event.notification.notificationId}\n${event.notification.body}\n${event.notification.additionalData}'
+          '\n${event.notification.rawPayload}');
 
       if (!_isUserLoggedIn()) {
         log(_tag, 'User not logged in, redirecting to auth');
@@ -61,7 +68,7 @@ class OneSignalService {
         return;
       }
 
-      final type = additionalData['type'] as String?;
+      final type = additionalData['flag'] as String?;
       log(_tag, 'Notification type: $type');
 
       _debounceNavigation(() {
@@ -79,12 +86,10 @@ class OneSignalService {
   }) {
     try {
       // CCS-specific: e.g. job updates, general alerts. Extend as backend adds types.
-      if (type == 'job' && data != null) {
+      if (type == Constants.jobCreated && data != null) {
         final jobId = data['job_id'];
         if (jobId != null) {
-          final id = jobId is int
-              ? jobId
-              : (jobId is String ? int.tryParse(jobId) : null);
+          final id = jobId is int ? jobId : (jobId is String ? int.tryParse(jobId) : null);
           if (id != null) {
             log(_tag, 'Navigating to client job detail: $id');
             Get.offAllNamed(
@@ -116,8 +121,7 @@ class OneSignalService {
   static void _debounceNavigation(VoidCallback navigationCallback) {
     final now = DateTime.now();
     _navigationDebouncer?.cancel();
-    if (_lastNavigationTime != null &&
-        now.difference(_lastNavigationTime!).inMilliseconds < 1000) {
+    if (_lastNavigationTime != null && now.difference(_lastNavigationTime!).inMilliseconds < 1000) {
       return;
     }
     _navigationDebouncer = Timer(const Duration(milliseconds: 300), () {

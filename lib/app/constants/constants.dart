@@ -21,4 +21,7 @@ class Constants {
     // NavigationDestination(icon: Icon(IconsaxPlusLinear.notification), selectedIcon: Icon(IconsaxPlusBold.notification), label: 'Alerts'),
     NavigationDestination(icon: Icon(IconsaxPlusLinear.user), selectedIcon: Icon(IconsaxPlusBold.user), label: 'Profile'),
   ];
+
+
+  static const jobCreated = 'job_created';
 }

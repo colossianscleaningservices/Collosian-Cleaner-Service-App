@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:ccs_app/app/model/menu_model.dart';
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
 import 'package:ccs_app/app/network/response/get_client_job_response.dart';
+import 'package:ccs_app/app/network/response/property_list_response.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
@@ -60,6 +61,9 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
 
   /// Calendar events from getClientCalender() API, keyed by date (date-only).
   final calendarEventsMap = Rx<Map<DateTime, List<CalendarEvent>>>({});
+
+  /// Properties for dashboard home listing (fetched via listProperties).
+  final RxList<PropertyModel> dashboardProperties = <PropertyModel>[].obs;
 
   @override
   void onInit() {
@@ -323,4 +327,32 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
 
   static String _formatDateForApi(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  Future<void> getClientDash({bool isLoaderShown = true}) async {
+    if (isLoaderShown) Loader.show();
+    try {
+      final result = await _clientRepository.getClientDash();
+      result.handle(
+        success: (response) {
+          final raw = response.data;
+          if (raw != null && raw.properties?.isNotEmpty == true) {
+            dashboardProperties.assignAll(raw.properties as Iterable<PropertyModel>);
+          } else {
+            dashboardProperties.clear();
+          }
+        },
+        contextTag: 'get-client-dash',
+      );
+    } catch (e) {
+      await Notifier.apiError(e, contextTag: 'get-client-dash');
+    } finally {
+      if (isLoaderShown) Loader.hide();
+    }
+  }
+
+  @override
+  void onReady() {
+    getClientDash();
+    super.onReady();
+  }
 }

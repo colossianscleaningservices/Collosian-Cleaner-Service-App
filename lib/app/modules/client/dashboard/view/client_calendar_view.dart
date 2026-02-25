@@ -114,7 +114,6 @@ class _CalendarSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(ctrl.eventsMap.length);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,13 +203,14 @@ class _UpcomingEvents extends StatelessWidget {
     final events = eventsMap?[dateKey] ?? [];
 
     if (events.isEmpty) {
-      return CalendarEmptyCard(scheme: scheme, onMyJobsPressed: onMyJobsPressed);
+      return CalendarEmptyCard(scheme: scheme, onMyJobsPressed: onMyJobsPressed).marginSymmetric(horizontal: 6);
     }
     return AppGrid(
       maxExtent: 130,
       axisSpacing: 8,
       phoneCount: 1,
       tabletCount: 2,
+      physics: NeverScrollableScrollPhysics(),
       landscapeCount: 3,
       child: List.generate(
         events.length,
@@ -221,7 +221,7 @@ class _UpcomingEvents extends StatelessWidget {
           propertyName: events[i].propertyName,
           address: events[i].address,
           onTap: () => onJobTap(events[i]),
-        ),
+        ).marginOnly(left: 6,right: 6,bottom: i == (events.length -1) ? 8 : 0),
       ),
     );
   }
@@ -253,9 +253,10 @@ class _ListContentView extends StatelessWidget {
         CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface),
         const SizedBox(height: 8),
         if (list.isEmpty)
-          CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2))
+          CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2)).marginSymmetric(horizontal: 6)
         else
           AppGrid(
+            physics: NeverScrollableScrollPhysics(),
             maxExtent: 130,
             axisSpacing: 8,
             phoneCount: 1,
@@ -277,7 +278,7 @@ class _ListContentView extends StatelessWidget {
                     Notifier.info('Job details (coming soon)');
                   }
                 },
-              ),
+              ).marginOnly(left: 6,right: 6,bottom: i == (list.length -1) ? 8 : 0),
             ),
           ),
       ],

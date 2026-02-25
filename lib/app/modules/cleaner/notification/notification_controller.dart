@@ -114,4 +114,45 @@ class NotificationController extends GetxController {
     currentPage = 1;
     getNotifications();
   }
+
+  Future<void> deleteNotifications(int? notificationId, int index) async {
+    if (notificationId == null) return;
+    Loader.show();
+    try {
+      final result = await _commonRepository.deleteNotifications(notificationId);
+      result.handle(
+        success: (value) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            notifications.removeAt(index);
+            notifications.refresh();
+          });
+        },
+        contextTag: 'delete_notifications',
+      );
+    } catch (e) {
+      Notifier.error('Failed to delete notification');
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  Future<void> deleteAllNotifications() async {
+    Loader.show();
+    try {
+      final result = await _commonRepository.deleteAllNotifications();
+      result.handle(
+        success: (value) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            notifications.clear();
+            notifications.refresh();
+          });
+        },
+        contextTag: 'delete_all_notifications',
+      );
+    } catch (e) {
+      Notifier.error('Failed to delete all notification');
+    } finally {
+      Loader.hide();
+    }
+  }
 }

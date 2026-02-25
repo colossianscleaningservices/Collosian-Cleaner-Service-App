@@ -8,6 +8,7 @@ import '../../../network/request/create_job_request.dart';
 import '../../../network/response/cleaning_type_response.dart';
 import '../../../network/response/get_job_details_response.dart';
 import '../../../network/response/property_list_response.dart';
+import '../dashboard/client_dashboard_controller.dart';
 
 class CreateJobController extends GetxController {
   final ClientRepository _clientRepository = ClientRepository();
@@ -205,6 +206,7 @@ class CreateJobController extends GetxController {
                 Get.back(result: {'isUpdate': true});
               });
             });
+            updateDashContent();
           },
           contextTag: 'update-job',
         );
@@ -225,6 +227,7 @@ class CreateJobController extends GetxController {
                 Get.back(result: {'isUpdate': true});
               });
             });
+            updateDashContent();
           },
           contextTag: 'create-job',
         );
@@ -295,6 +298,14 @@ class CreateJobController extends GetxController {
       );
     } finally {
       isLoadingCleaningType.value = false;
+    }
+  }
+
+  void updateDashContent(){
+    bool isControllerRegistered = Get.isRegistered<ClientDashboardController>();
+    if (isControllerRegistered) {
+      ClientDashboardController ctrl = Get.find();
+      ctrl.getClientDash(isLoaderShown: false);
     }
   }
 }

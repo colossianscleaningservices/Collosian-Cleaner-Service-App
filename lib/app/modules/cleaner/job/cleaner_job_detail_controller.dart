@@ -80,6 +80,7 @@ class CleanerJobDetailController extends GetxController {
   }
 
   num? jobId;
+  var from = '';
 
   @override
   void onInit() {
@@ -87,6 +88,15 @@ class CleanerJobDetailController extends GetxController {
     final args = Get.arguments;
     if (args is Jobs) {
       jobId = args.id;
+    }
+    if (args is Map<String, dynamic>) {
+      if (args['from'] != null) {
+        from = args['from'];
+      }
+
+      if (args['jobId'] != null) {
+        jobId = args['jobId'];
+      }
     }
   }
 

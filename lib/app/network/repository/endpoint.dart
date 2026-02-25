@@ -31,6 +31,7 @@ class Endpoint {
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
   static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';
+
   static String cleanerJobAccept(int id) => '${root}staff/jobs/$id/accept';
   static const String cleanerJob = '${root}staff/jobs';
 
@@ -43,17 +44,22 @@ class Endpoint {
   static const String immigrations = '${root}staff/immigrations';
   static const String staffProfile = '${root}staff/profile';
 
+  // ------ Cleaner - Calender ---------
+  static const String cleanerCalender = '${root}staff/calendar/jobs-by-date';
+
+  //------ Client - Dash ---------
+  static String clientDashboard = '${root}client/dashboard';
+
   // ─── Client - Jobs ────────────────────────────────────────────────────────
   static String clientJobCancel(int id) => '${root}client/jobs/$id/cancel';
+
   static String clientJobSchedule(int id) => '${root}client/jobs/$id/schedule';
+
   static String clientJobReview(int id) => '${root}client/jobs/$id/review';
   static const String clientJob = '${root}client/jobs';
 
   // ------ Client - Calender ---------
   static const String clientCalender = '${root}client/calendar/jobs-by-date';
-
-  // ------ Cleaner - Calender ---------
-  static const String cleanerCalender = '${root}staff/calendar/jobs-by-date';
 
   // ─── Client - Properties ───────────────────────────────────────────────────
   static const String clientProperties = '${root}client/properties';
@@ -80,6 +86,7 @@ class Endpoint {
   static const String notifications = '${root}shared/notifications';
   static const String readAllNotifications = '${root}shared/notifications/read-all';
   static const String trainingResources = '${root}shared/training-resources';
+
   static String seenTrainingResources(int id) => '$trainingResources/$id/seen';
   static const String newsletters = '${root}shared/newsletters';
   static const String cleaningTypes = '${root}shared/cleaning-types';

@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/network/response/get_client_calender_response.dart';
+import 'package:ccs_app/app/network/response/get_client_dash_response.dart';
 import 'package:ccs_app/app/network/response/get_client_job_response.dart';
 import 'package:ccs_app/app/network/response/get_job_details_response.dart';
 import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
@@ -272,6 +273,13 @@ class ClientRepository extends BaseRepository {
       endpoint: Endpoint.clientCalender,
       queryParameters: {'date': date, 'date_from': dateFrom, 'date_to': dateTo},
       fromJson: (json) => GetClientCalenderResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<GetClientDashResponse>> getClientDash() async {
+    return get<GetClientDashResponse>(
+      endpoint: Endpoint.clientDashboard,
+      fromJson: (json) => GetClientDashResponse.fromJson(json),
     );
   }
 }

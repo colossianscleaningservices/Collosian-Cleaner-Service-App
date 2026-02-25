@@ -49,6 +49,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           AppGrid(
+                            physics: NeverScrollableScrollPhysics(),
                             maxExtent: 172,
                             axisSpacing: 16,
                             phoneCount: 1,
