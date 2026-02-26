@@ -130,7 +130,7 @@ class ClientProfileView extends GetView<ClientDashboardController> {
             ).marginSymmetric(vertical: 24),
             Obx(() {
               return CommonText.medium(
-                "Version ${controller.appVersion.value}",
+                "Version v${controller.appVersion.value}",
                 size: 14,
                 color: context.colorScheme.primary,
               );

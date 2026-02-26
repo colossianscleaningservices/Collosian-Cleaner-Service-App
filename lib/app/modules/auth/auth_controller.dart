@@ -241,32 +241,37 @@ class AuthController extends GetxController {
       final result = await _authRepository.saveCleanerAssessment(request);
       result.handle(
         success: (value) {
-          answersId.clear();
-          answersId.addAll(value.data?.answerIds as Iterable<num?>);
-          if (value.data?.overall?.status == "pass") {
-            Notifier.openSheet(
-              Get.context as BuildContext,
-              title: 'Pass',
-              message: 'You have passed the assessment.',
-              showSecondaryButton: false,
-              primaryButtonLabel: 'Go to Sign Up',
-              onPrimaryPressed: () {
-                Get.offAndToNamed(Routes.SIGN_UP);
-              },
-            );
-          } else {
-            Notifier.openSheet(
-              Get.context as BuildContext,
-              title: 'Failed',
-              message: 'You have not passed the assessment.',
-              showSecondaryButton: false,
-              onPrimaryPressed: () {
-                resetAgreement();
-                stepCurrentIndex.value = 0;
-                stepProgressController.setCurrentStep(0);
-              },
-            );
-          }
+          Loader.hide();
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            answersId.clear();
+            answersId.addAll(value.data?.answerIds as Iterable<num?>);
+            if (value.data?.overall?.status == "pass") {
+              Notifier.openSheet(
+                Get.context as BuildContext,
+                title: 'Pass',
+                message: 'You have passed the assessment.',
+                showSecondaryButton: false,
+                primaryButtonLabel: 'Go to Sign Up',
+                onPrimaryPressed: () {
+                  Get.offAndToNamed(Routes.SIGN_UP);
+                },
+              );
+            } else {
+              Notifier.openSheet(
+                Get.context as BuildContext,
+                title: 'Failed',
+                type: SheetType.error,
+                primaryButtonLabel: 'Okay',
+                message: 'You have not passed the assessment.',
+                showSecondaryButton: false,
+                onPrimaryPressed: () {
+                  resetAgreement();
+                  stepCurrentIndex.value = 0;
+                  stepProgressController.setCurrentStep(0);
+                },
+              );
+            }
+          });
         },
         contextTag: 'save_assessment',
       );
@@ -306,6 +311,7 @@ class AuthController extends GetxController {
 
   Future<void> login() async {
     if (!(loginFormKey.currentState?.validate() ?? false)) return;
+    (Get.context as BuildContext).hideKeyboard();
     Loader.show();
     try {
       final result = await _authRepository.login(

@@ -30,7 +30,7 @@ class OneSignalService {
         log(
             _tag,
             'Notification displayed: ${event.notification.title}\n${event.notification.notificationId}\n${event.notification.body}\n${event.notification.additionalData}'
-                '\n${event.notification.rawPayload}');
+            '\n${event.notification.rawPayload}');
         event.notification.display();
       });
       await OneSignal.Notifications.requestPermission(true);
@@ -44,7 +44,7 @@ class OneSignalService {
 
   static bool _isUserLoggedIn() {
     final token = Prefs().token;
-    return (token ?? '').isNotEmpty;
+    return token.isNotEmpty;
   }
 
   static void _handleNotificationClick(OSNotificationClickEvent event) {
@@ -91,11 +91,11 @@ class OneSignalService {
         if (jobId != null) {
           final id = jobId is int ? jobId : (jobId is String ? int.tryParse(jobId) : null);
           if (id != null) {
-            log(_tag, 'Navigating to client job detail: $id');
             final roleIdStr = Prefs().getData(Prefs.roleId);
             final roleId = int.tryParse(roleIdStr);
-            if(RoleConstants.isCleaner(roleId)){
-              Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
+            if (RoleConstants.isCleaner(roleId)) {
+              log(_tag, 'Navigating to cleaner job detail: $id');
+              Get.offAllNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
               return;
             }
           }

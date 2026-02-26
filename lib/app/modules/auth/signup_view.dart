@@ -152,15 +152,13 @@ class SignupView extends GetView<AuthController> {
             ),
           ],
           const SizedBox(height: 32),
-          Obx(
-            () => AppButton(
-              label: 'Create account',
-              onPressed: () {
-                if (controller.signupFormKey.currentState?.validate() ?? false) {
-                  controller.signup();
-                }
-              },
-            ),
+          AppButton(
+            label: 'Create account',
+            onPressed: () {
+              if (controller.signupFormKey.currentState?.validate() ?? false) {
+                controller.signup();
+              }
+            },
           ),
           const SizedBox(height: 24),
           Row(

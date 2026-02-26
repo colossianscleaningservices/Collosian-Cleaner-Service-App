@@ -38,15 +38,22 @@ class CreateJobView extends GetView<CreateJobController> {
                         CommonText.semiBold('Property & scheduling', size: 16, color: scheme.onSurface),
                         Obx(() => controller.isLoading.value
                             ? Center(child: CircularProgressIndicator())
-                            : CommonDropDownField<String>(
-                                label: 'Property',
-                                hint: 'Select',
-                                items: controller.properties.map((item) => item.propertyName ?? "").toList(),
-                                itemLabel: (v) => v,
-                                value: controller.selectedProperty.value,
-                                onChanged: (v) => controller.selectedProperty.value = v,
-                                validator: (v) => controller.validateProperty(v),
-                              )),
+                            : GestureDetector(
+                          onTap: (){
+                            if(controller.properties.isEmpty){
+                              Notifier.error('Please create property.');
+                            }
+                          },
+                              child: CommonDropDownField<String>(
+                                  label: 'Property',
+                                  hint: 'Select',
+                                  items: controller.properties.map((item) => item.propertyName ?? "").toList(),
+                                  itemLabel: (v) => v,
+                                  value: controller.selectedProperty.value,
+                                  onChanged: (v) => controller.selectedProperty.value = v,
+                                  validator: (v) => controller.validateProperty(v),
+                                ),
+                            )),
                         CommonTextField(
                           controller: controller.dateDisplayController,
                           label: 'Job Start Date',

@@ -33,18 +33,16 @@ class ClientJobsView extends GetView<ClientDashboardController> {
               return Container(
                 padding: UiConstants.padding,
                 constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
+                  // minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - (MediaQuery.of(context).padding.bottom + kBottomNavigationBarHeight),
                 ),
                 child: controller.jobs.isEmpty
-                    ? Center(
-                        child: NoDataView(
-                          title: 'No jobs yet',
-                          subtitle: 'Create a job or check back later.',
-                          icon: IconsaxPlusLinear.briefcase,
-                          actionLabel: 'Create job',
-                          onAction: () => controller.goToCreateJob(),
-                        ),
-                      )
+                    ? NoDataView(
+                      title: 'No jobs yet',
+                      subtitle: 'Create a job or check back later.',
+                      icon: IconsaxPlusLinear.briefcase,
+                      actionLabel: 'Create job',
+                      onAction: () => controller.goToCreateJob(),
+                    )
                     : Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [

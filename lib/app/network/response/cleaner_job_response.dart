@@ -37,9 +37,9 @@ class Data {
       this.pagination,});
 
   Data.fromJson(dynamic json) {
-    if (json['jobs'] != null) {
+    if (json['data'] != null) {
       jobs = [];
-      json['jobs'].forEach((v) {
+      json['data'].forEach((v) {
         jobs?.add(Jobs.fromJson(v));
       });
     }

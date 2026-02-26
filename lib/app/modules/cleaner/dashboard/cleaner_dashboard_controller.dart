@@ -469,6 +469,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           final raw = response.data;
           if (jobCurrentPage == 1) jobs.clear();
           if (raw != null && raw.jobs?.isNotEmpty == true) {
+            log(runtimeType.toString(), "JOBS ${raw.jobs?.length}");
             jobs.assignAll(raw.jobs as Iterable<Jobs>);
           }
           jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
