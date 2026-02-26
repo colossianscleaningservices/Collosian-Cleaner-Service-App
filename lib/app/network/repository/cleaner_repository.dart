@@ -44,24 +44,31 @@ class CleanerRepository extends BaseRepository {
 
   // ─── Jobs ─────────────────────────────────────────────────────────────────
 
-  /// POST decline job (optional [reason]).
+ /* /// POST decline job (optional [reason]).
   Future<NetworkResult<BaseResponse>> declineJob({
     required int jobId,
     String? reason,
   }) async {
     return post<BaseResponse>(
-      endpoint: Endpoint.cleanerJobDecline(jobId),
+      endpoint: Endpoint.cleanerJobAcceptDecline(jobId),
       fromJson: (json) => BaseResponse.fromJson(json),
       data: reason != null ? <String, dynamic>{'reason': reason} : null,
     );
-  }
+  }*/
 
-  Future<NetworkResult<BaseResponse>> acceptJob({
+  Future<NetworkResult<BaseResponse>> acceptOrDeclineJob({
     required int jobId,
-  }) async {
-    return post<BaseResponse>(
-      endpoint: Endpoint.cleanerJobAccept(jobId),
+    required String status,
+    String? reason,
+  })
+  async {
+    final payload = <String , dynamic>{};
+    payload['status'] = status;
+    if(reason != null)payload['reason'] = reason;
+    return put<BaseResponse>(
+      endpoint: Endpoint.cleanerJobAcceptDecline(jobId),
       fromJson: (json) => BaseResponse.fromJson(json),
+      data: payload
     );
   }
 

@@ -30,9 +30,9 @@ class Endpoint {
   static const String cleanerDashboard = '${root}staff/dashboard';
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
-  static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';
+  // static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';
 
-  static String cleanerJobAccept(int id) => '${root}staff/jobs/$id/accept';
+  static String cleanerJobAcceptDecline(int id) => '${root}staff/jobs/$id/approve-deny';
   static const String cleanerJob = '${root}staff/jobs';
 
   // Check-in/check-out: not in current OpenAPI spec; paths kept for app until backend adds them.

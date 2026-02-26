@@ -219,7 +219,7 @@ class CleanerJobDetailController extends GetxController {
   Future<void> _declineJob(int jobId, String msg) async {
     Loader.show();
     try {
-      final result = await _cleanerRepository.declineJob(jobId: jobId, reason: msg);
+      final result = await _cleanerRepository.acceptOrDeclineJob(jobId: jobId,status: 'denied');
       result.handle(
         success: (value) {
           Notifier.success(value.message ?? 'Job declined');
@@ -237,7 +237,7 @@ class CleanerJobDetailController extends GetxController {
   Future<void> _acceptJob(int jobId) async {
     Loader.show();
     try {
-      final result = await _cleanerRepository.acceptJob(jobId: jobId);
+      final result = await _cleanerRepository.acceptOrDeclineJob(jobId: jobId, status: 'approved');
       result.handle(
         success: (value) {
           Notifier.success(value.message ?? 'Job Accepted');
