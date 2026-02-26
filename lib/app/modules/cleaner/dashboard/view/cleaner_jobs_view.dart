@@ -95,7 +95,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                             cleanerInfo: job.cleaners?.isNotEmpty == true
                                 ? '${job.cleaners?.length} of ${job.numberOfCleaners} assigned'
                                 : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
-                            onTap: () => controller.openDetail(job),
+                            onTap: () => controller.openDetail(job.id),
                           ),
                         )
                         .toList(),
@@ -126,7 +126,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                             cleanerInfo: job.cleaners?.isNotEmpty == true
                                 ? '${job.cleaners?.length} of ${job.numberOfCleaners} assigned'
                                 : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
-                            onTap: () => controller.openDetail(job),
+                            onTap: () => controller.openDetail(job.id),
                           ),
                         )
                         .toList(),

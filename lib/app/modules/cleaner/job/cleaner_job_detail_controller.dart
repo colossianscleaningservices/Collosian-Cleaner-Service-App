@@ -193,14 +193,14 @@ class CleanerJobDetailController extends GetxController {
     Notifier.openSheet(
       Get.context!,
       title: 'Decline job?',
-      message: 'You can add a reason (optional).',
+      message: 'You can add a reason.',
       showPrimaryButton: true,
       body: Column(
         spacing: 8,
         children: [
           CommonText.bold('Decline job?', size: 24, color: scheme.primary, fontWeight: FontWeight.w900),
           CommonTextField(
-            hint: 'You can add a reason (optional).',
+            hint: 'You can add a reason.',
             controller: messageController,
             maxLines: 4,
             minLines: 2,
@@ -219,7 +219,7 @@ class CleanerJobDetailController extends GetxController {
   Future<void> _declineJob(int jobId, String msg) async {
     Loader.show();
     try {
-      final result = await _cleanerRepository.acceptOrDeclineJob(jobId: jobId,status: 'denied');
+      final result = await _cleanerRepository.acceptOrDeclineJob(jobId: jobId, status: 'Rejected',reason: msg);
       result.handle(
         success: (value) {
           Notifier.success(value.message ?? 'Job declined');
@@ -237,7 +237,7 @@ class CleanerJobDetailController extends GetxController {
   Future<void> _acceptJob(int jobId) async {
     Loader.show();
     try {
-      final result = await _cleanerRepository.acceptOrDeclineJob(jobId: jobId, status: 'approved');
+      final result = await _cleanerRepository.acceptOrDeclineJob(jobId: jobId, status: 'Accepted');
       result.handle(
         success: (value) {
           Notifier.success(value.message ?? 'Job Accepted');

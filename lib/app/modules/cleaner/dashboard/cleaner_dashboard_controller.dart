@@ -228,9 +228,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     }
   }
 
-  void openDetail(Jobs job) {
-    final path = Routes.CLEANER_JOB_DETAIL.replaceFirst(':id', job.id.toString());
-    Get.toNamed(path, arguments: job);
+  void openDetail(num? job) {
+    Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'jobId':job});
   }
 
   // Fetches the app version from the platform and updates the appVersion observable

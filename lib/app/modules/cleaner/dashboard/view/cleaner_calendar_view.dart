@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
 import 'package:ccs_app/export.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -172,9 +173,7 @@ class _CalendarSection extends StatelessWidget {
           selectedDay: selectedDay,
           focusedDay: focusedDay,
           onMyJobsPressed: () => ctrl.setTab(2),
-          onJobTap: (event) {
-            // if (event.jobId != null) ctrl.openCalendarJobDetail(event.jobId!);
-          },
+          onJobTap: (event) => ctrl.openDetail(event.jobId),
         ).marginSymmetric(horizontal: 16),
       ],
     );
@@ -274,7 +273,7 @@ class _ListContentView extends StatelessWidget {
                 status: list[i].$2.status,
                 propertyName: list[i].$2.propertyName,
                 address: list[i].$2.address,
-                onTap: () => Notifier.info('Job details (coming soon)'),
+                onTap: () =>  ctrl.openDetail(list[i].$2.jobId),
               ),
             ),
           ),
