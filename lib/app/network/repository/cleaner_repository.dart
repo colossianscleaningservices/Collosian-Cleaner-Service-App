@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/network/request/availability_request.dart';
 import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
 import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/app/network/response/update_profile_response.dart';
@@ -34,6 +35,14 @@ class CleanerRepository extends BaseRepository {
     );
   }
 
+  Future<NetworkResult<BaseResponse>> setCleanerAvailability(AvailabilityRequest request) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.cleanerAvailability,
+      data: request,
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
   /// GET action-needed count and items.
   Future<NetworkResult<DataResponse>> getActionNeeded() async {
     return get<DataResponse>(
@@ -44,7 +53,7 @@ class CleanerRepository extends BaseRepository {
 
   // ─── Jobs ─────────────────────────────────────────────────────────────────
 
- /* /// POST decline job (optional [reason]).
+  /* /// POST decline job (optional [reason]).
   Future<NetworkResult<BaseResponse>> declineJob({
     required int jobId,
     String? reason,
@@ -60,21 +69,17 @@ class CleanerRepository extends BaseRepository {
     required int jobId,
     required String status,
     String? reason,
-  })
-  async {
-    final payload = <String , dynamic>{};
+  }) async {
+    final payload = <String, dynamic>{};
     payload['status'] = status;
-    if(reason != null)payload['reason'] = reason;
-    return put<BaseResponse>(
-      endpoint: Endpoint.cleanerJobAcceptDecline(jobId),
-      fromJson: (json) => BaseResponse.fromJson(json),
-      data: payload
-    );
+    if (reason != null) payload['reason'] = reason;
+    return put<BaseResponse>(endpoint: Endpoint.cleanerJobAcceptDecline(jobId), fromJson: (json) => BaseResponse.fromJson(json), data: payload);
   }
 
-  Future<NetworkResult<CleanerJobResponse>> getCleanerJob() async {
+  Future<NetworkResult<CleanerJobResponse>> getCleanerJob({int page = 1}) async {
     return get<CleanerJobResponse>(
       endpoint: Endpoint.cleanerJob,
+      queryParameters: {'page': page},
       fromJson: (json) => CleanerJobResponse.fromJson(json),
     );
   }
@@ -155,5 +160,4 @@ class CleanerRepository extends BaseRepository {
       fromJson: (json) => GetClientCalenderResponse.fromJson(json),
     );
   }
-
 }

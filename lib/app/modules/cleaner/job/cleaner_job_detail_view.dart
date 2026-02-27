@@ -1,3 +1,5 @@
+import 'package:ccs_app/app/model/client_job.dart';
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
@@ -15,6 +17,10 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
 
     return Obx(() {
       final j = controller.job.value;
+
+      // 'Accepted','Rejected'
+      var cleanerStatus = ((j?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status?.toLowerCase()));
+
       return AppScaffold(
         appBar: Header(
           title: controller.job.value?.cleaningType?.name ?? "",
@@ -55,7 +61,11 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                               spacing: 8,
                               runSpacing: 8,
                               children: [
-                                InfoChip(label: j?.status ?? "N/A", backgroundColor: scheme.primaryContainer, foregroundColor: scheme.primary),
+                                InfoChip(
+                                    label: cleanerStatus?.capitalizeFirst ?? j?.status ?? "N/A",
+                                    backgroundColor: scheme.primaryContainer,
+                                    foregroundColor: scheme.primary),
+
                                 /*if (j?.recurrence != null)
                                   InfoChip(label: j.recurrence!, backgroundColor: scheme.secondaryContainer, foregroundColor: scheme.secondary),*/
                               ],
@@ -65,7 +75,9 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                             LabelValueRow(label: 'Time', value: '${j?.startTime ?? "N/A"} – ${j?.endTime ?? "N/A"}', scheme: scheme),
                             if (j?.jobEndDate != null)
                               LabelValueRow(label: 'End date', value: CcsDateUtils.fullDate(DateTime.parse(j?.jobEndDate ?? "")), scheme: scheme),
-                            if (j?.status == 'Pending' || j?.status?.toLowerCase() == 'pending') ...[
+                            if ((j?.status == 'Pending' || j?.status?.toLowerCase() == 'pending') &&
+                                cleanerStatus != 'accepted' &&
+                                cleanerStatus != 'rejected') ...[
                               const SizedBox(height: 12),
                               Row(
                                 children: [
@@ -156,22 +168,26 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                         ),
                       ],
 
-                      /*if (j.cleaners.isNotEmpty) ...[
+                      if (j?.jobCleaners?.isNotEmpty == true) ...[
                         const SizedBox(height: 16),
                         CommonText.semiBold('Cleaners', size: 16, color: scheme.onSurface),
                         const SizedBox(height: 8),
-                        ...j.cleaners.map(
-                          (cl) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: CleanerCard(
-                              cleaner: cl,
-                              onShare: () => controller.onShareCleanerProfile(cl),
-                              scheme: scheme,
-                              onReview: () => {},
-                            ),
-                          ),
+                        ...?j?.cleaners?.map(
+                          (cl) {
+                            var status = ((j.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == cl.id.toString())?.status));
+                            var cleaner = ClientJobCleaner(id: cl.id.toString(), name: cl.name ?? "N/A", status: status ?? "N/A");
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: CleanerCard(
+                                cleaner: cleaner,
+                                onShare: () => controller.onShareCleanerProfile(cleaner),
+                                scheme: scheme,
+                                onReview: () => {},
+                              ),
+                            );
+                          },
                         ),
-                      ],*/
+                      ],
                       const SizedBox(height: 24),
                     ],
                   ),

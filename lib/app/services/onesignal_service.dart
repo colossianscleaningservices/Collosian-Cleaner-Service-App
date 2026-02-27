@@ -86,7 +86,7 @@ class OneSignalService {
   }) {
     try {
       // CCS-specific: e.g. job updates, general alerts. Extend as backend adds types.
-      if (type == Constants.jobCreated && data != null) {
+      if ((type == Constants.jobCreated || type == Constants.jobRequestAccepted) && data != null) {
         final jobId = data['related_id'];
         if (jobId != null) {
           final id = jobId is int ? jobId : (jobId is String ? int.tryParse(jobId) : null);
@@ -95,7 +95,7 @@ class OneSignalService {
             final roleId = int.tryParse(roleIdStr);
             if (RoleConstants.isCleaner(roleId)) {
               log(_tag, 'Navigating to cleaner job detail: $id');
-              Get.offAllNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
+              Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
               return;
             }
           }

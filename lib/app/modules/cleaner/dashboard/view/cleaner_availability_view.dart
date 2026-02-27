@@ -154,7 +154,7 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
               child: AppButton(
                 label: 'Update',
                 type: ButtonType.primary,
-                onPressed: () => Notifier.info('Schedule updated (API coming soon)'),
+                onPressed: () => controller.setCleanerAvailability(),
                 btnVerticalPadding: 14,
                 textSize: 16,
               ),

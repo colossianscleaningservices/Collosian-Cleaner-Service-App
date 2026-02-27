@@ -28,6 +28,7 @@ class Endpoint {
   static const String cleanerProfileCompletion = '${root}staff/profile-completion';
   static const String cleanerActionNeeded = '${root}staff/action-needed';
   static const String cleanerDashboard = '${root}staff/dashboard';
+  static const String cleanerAvailability = '${root}staff/availability';
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
   // static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';

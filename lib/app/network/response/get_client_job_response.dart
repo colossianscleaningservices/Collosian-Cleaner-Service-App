@@ -126,7 +126,8 @@ class Jobs {
       this.venueAddress, 
       this.property, 
       this.pricingChart, 
-      this.cleaners, 
+      this.jobCleaners,
+      this.cleaners,
       this.createdAt, 
       this.updatedAt,});
 
@@ -162,6 +163,12 @@ class Jobs {
     celebrationType = json['celebration_type'];
     venueAddress = json['venue_address'];
     property = json['property'] != null ? Property.fromJson(json['property']) : null;
+    if (json['job_cleaners'] != null) {
+      jobCleaners = [];
+      json['job_cleaners'].forEach((v) {
+        jobCleaners?.add(JobCleaners.fromJson(v));
+      });
+    }
     pricingChart = json['pricing_chart'];
     if (json['cleaners'] != null) {
       cleaners = [];
@@ -207,6 +214,7 @@ class Jobs {
   List<Cleaners>? cleaners;
   String? createdAt;
   String? updatedAt;
+  List<JobCleaners>? jobCleaners;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -249,13 +257,15 @@ class Jobs {
     if (cleaners != null) {
       map['cleaners'] = cleaners?.map((v) => v.toJson()).toList();
     }
+    if (jobCleaners != null) {
+      map['job_cleaners'] = jobCleaners?.map((v) => v.toJson()).toList();
+    }
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
     return map;
   }
 
 }
-
 
 class CleaningType {
   CleaningType({
@@ -491,7 +501,6 @@ class Cleaners {
 
 }
 
-
 class Roles {
   Roles({
     this.id,
@@ -508,6 +517,67 @@ class Roles {
     final map = <String, dynamic>{};
     map['id'] = id;
     map['name'] = name;
+    return map;
+  }
+
+}
+
+class JobCleaners {
+  JobCleaners({
+    this.id,
+    this.status,
+    this.reason,
+    this.startTime,
+    this.endTime,
+    this.jobId,
+    this.userId,
+    this.isReviewed,
+    this.checkInDate,
+    this.checkOutDate,
+    this.createdAt,
+    this.updatedAt,});
+
+  JobCleaners.fromJson(dynamic json) {
+    id = json['id'];
+    status = json['status'];
+    reason = json['reason'];
+    startTime = json['start_time'];
+    endTime = json['end_time'];
+    jobId = json['job_id'];
+    userId = json['user_id'];
+    isReviewed = json['is_reviewed'];
+    checkInDate = json['check_in_date'];
+    checkOutDate = json['check_out_date'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+  }
+  num? id;
+  String? status;
+  String? reason;
+  String? startTime;
+  String? endTime;
+  num? jobId;
+  num? userId;
+  bool? isReviewed;
+  dynamic checkInDate;
+  dynamic checkOutDate;
+  String? createdAt;
+  String? updatedAt;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    map['status'] = status;
+    map['reason'] = reason;
+    map['start_time'] = startTime;
+    map['end_time'] = endTime;
+    map['job_id'] = jobId;
+    map['user_id'] = userId;
+    map['is_reviewed'] = isReviewed;
+    map['check_in_date'] = checkInDate;
+    map['check_out_date'] = checkOutDate;
+    map['created_at'] = createdAt;
+    map['updated_at'] = updatedAt;
     return map;
   }
 

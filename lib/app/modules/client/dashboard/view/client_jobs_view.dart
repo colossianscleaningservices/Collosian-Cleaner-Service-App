@@ -33,16 +33,16 @@ class ClientJobsView extends GetView<ClientDashboardController> {
               return Container(
                 padding: UiConstants.padding,
                 constraints: BoxConstraints(
-                  // minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - (MediaQuery.of(context).padding.bottom + kBottomNavigationBarHeight),
-                ),
+                    // minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - (MediaQuery.of(context).padding.bottom + kBottomNavigationBarHeight),
+                    ),
                 child: controller.jobs.isEmpty
                     ? NoDataView(
-                      title: 'No jobs yet',
-                      subtitle: 'Create a job or check back later.',
-                      icon: IconsaxPlusLinear.briefcase,
-                      actionLabel: 'Create job',
-                      onAction: () => controller.goToCreateJob(),
-                    )
+                        title: 'No jobs yet',
+                        subtitle: 'Create a job or check back later.',
+                        icon: IconsaxPlusLinear.briefcase,
+                        actionLabel: 'Create job',
+                        onAction: () => controller.goToCreateJob(),
+                      )
                     : Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -54,18 +54,31 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                             tabletCount: 2,
                             landscapeCount: 3,
                             child: controller.jobs.map((job) {
+                              final approvedCleaners = job.jobCleaners?.where((cleaner) => cleaner.status == 'Approved').toList();
+
                               return JobCard(
                                 title: job.cleaningType?.name ?? "N/A",
                                 dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
                                 status: job.status ?? "N/A",
                                 subtitle: (job.cleaners == null || job.cleaners?.isEmpty == true)
                                     ? ' - '
-                                    : job.cleaners?.map((item) => item.name ?? " - ").toList().join(',') ?? ' - ',
+                                    : job.cleaners
+                                            ?.map((item) {
+                                              var isCleanerAssign = false;
+
+                                              isCleanerAssign =
+                                                  job.jobCleaners?.firstWhereOrNull((cl) => (cl.userId == item.id && cl.status?.toLowerCase() == 'approved')) !=
+                                                      null;
+                                              return isCleanerAssign ? item.name ?? " - " : "";
+                                            })
+                                            .toList()
+                                            .join(',') ??
+                                        ' - ',
                                 propertyName: job.property?.propertyName ?? "N/A",
                                 address: job.property?.address ?? "N/A",
                                 recurrence: /*job.recurrence*/ "N/A",
                                 cleanerInfo: job.cleaners?.isNotEmpty == true
-                                    ? '${job.cleaners?.length} of ${job.numberOfCleaners} assigned'
+                                    ? '${approvedCleaners?.length} of ${job.numberOfCleaners} assigned'
                                     : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
                                 onTap: () => controller.openDetail(job),
                               );

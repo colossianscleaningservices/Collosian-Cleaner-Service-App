@@ -1,5 +1,6 @@
 import 'package:ccs_app/export.dart';
 
+import '../../../../services/pref.dart';
 import '../cleaner_dashboard_controller.dart';
 
 class CleanerJobsView extends GetView<CleanerDashboardController> {
@@ -80,25 +81,26 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     phoneCount: 1,
                     tabletCount: 2,
                     landscapeCount: 3,
-                    child: upcoming
-                        .map(
-                          (job) => JobCard(
-                            title: job.cleaningType?.name ?? "N/A",
-                            dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
-                            status: job.status ?? "N/A",
-                            subtitle: /*job.user?.name?? "" */ (job.cleaners == null || job.cleaners?.isEmpty == true)
-                                ? ' - '
-                                : job.cleaners?.map((item) => item.name ?? " - ").toList().join(',') ?? ' - ',
-                            propertyName: job.property?.propertyName ?? "N/A",
-                            address: job.property?.address ?? "N/A",
-                            recurrence: /*job.recurrence*/ "N/A",
-                            cleanerInfo: job.cleaners?.isNotEmpty == true
-                                ? '${job.cleaners?.length} of ${job.numberOfCleaners} assigned'
-                                : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
-                            onTap: () => controller.openDetail(job.id),
-                          ),
-                        )
-                        .toList(),
+                    child: upcoming.map(
+                      (job) {
+                        var cleanerStatus = ((job.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status));
+                        return JobCard(
+                          title: job.cleaningType?.name ?? "N/A",
+                          dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
+                          status: cleanerStatus ?? job.status ?? "N/A",
+                          subtitle: (job.jobCleaners == null || job.jobCleaners?.isEmpty == true)
+                              ? ' - '
+                              : job.jobCleaners?.map((item) => "${item.user?.firstName} ${item.user?.lastName}").toList().join(',') ?? ' - ',
+                          propertyName: job.property?.propertyName ?? "N/A",
+                          address: job.property?.address ?? "N/A",
+                          recurrence: /*job.recurrence*/ "N/A",
+                          cleanerInfo: job.jobCleaners?.isNotEmpty == true
+                              ? '${job.jobCleaners?.length} of ${job.numberOfCleaners} assigned'
+                              : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
+                          onTap: () => controller.openDetail(job.id),
+                        );
+                      },
+                    ).toList(),
                   ),
                   if (past.isNotEmpty) const SliverToBoxAdapter(child: SizedBox(height: 8)),
                 ],
@@ -119,12 +121,12 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                             title: job.cleaningType?.name ?? "N/A",
                             dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
                             status: job.status ?? "N/A",
-                            subtitle: job.user?.name ?? "" /*job.cleaners?.map((item) => "${item.name}").toList().join(',')*/,
+                            subtitle: job.jobCleaners?.map((item) => "${item.user?.firstName} ${item.user?.lastName}").toList().join(', ') ?? "N/A",
                             propertyName: job.property?.propertyName ?? "N/A",
                             address: job.property?.address ?? "N/A",
                             recurrence: /*job.recurrence*/ "N/A",
-                            cleanerInfo: job.cleaners?.isNotEmpty == true
-                                ? '${job.cleaners?.length} of ${job.numberOfCleaners} assigned'
+                            cleanerInfo: job.jobCleaners?.isNotEmpty == true
+                                ? '${job.jobCleaners?.length} of ${job.numberOfCleaners} assigned'
                                 : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
                             onTap: () => controller.openDetail(job.id),
                           ),

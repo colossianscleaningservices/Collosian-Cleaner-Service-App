@@ -133,7 +133,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                     children: [
                       CommonText.semiBold('Property & client', size: 16, color: scheme.onSurface),
                       const SizedBox(height: 12),
-                      LabelValueRow(label: 'Client', value: /*j.clientName*/ "N/A", scheme: scheme),
+                      LabelValueRow(label: 'Client', value: Prefs().getData(Prefs.id) == j?.property?.userId.toString() ? 'Self' : "N/A", scheme: scheme),
                       LabelValueRow(label: 'Property', value: j?.property?.propertyName ?? "N/A", scheme: scheme),
                       if (j?.property?.propertyName != null) LabelValueRow(label: 'Label', value: j?.property?.propertyName ?? "", scheme: scheme),
                       if (j?.accessToProperty != null) LabelValueRow(label: 'Access', value: j?.accessToProperty ?? "", scheme: scheme),
@@ -206,7 +206,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                         id: cl.id.toString(),
                         avatarUrl: cl.imageUrl,
                         name: cl.name ?? "",
-                        status: cl.status ??"N/A",
+                        status: j.jobCleaners?.firstWhereOrNull((element) => element.userId == cl.id)?.status ?? "N/A",
                       );
 
                       return Padding(

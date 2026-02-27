@@ -31,7 +31,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
             controller.staffDash.value;
 
             List<UpcomingJob?> upcomingJobs = [];
-            upcomingJobs.add(controller.staffDash.value?.upcomingJob);
+            if (controller.staffDash.value?.upcomingJob != null) upcomingJobs.add(controller.staffDash.value?.upcomingJob);
             final upcoming = upcomingJobs;
             final hasJobs = upcoming.isNotEmpty;
             final nextJob = hasJobs ? upcoming.first : null;

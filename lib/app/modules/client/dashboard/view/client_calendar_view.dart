@@ -206,7 +206,7 @@ class _UpcomingEvents extends StatelessWidget {
       return CalendarEmptyCard(scheme: scheme, onMyJobsPressed: onMyJobsPressed).marginSymmetric(horizontal: 6);
     }
     return AppGrid(
-      maxExtent: 130,
+      maxExtent: 132,
       axisSpacing: 8,
       phoneCount: 1,
       tabletCount: 2,
@@ -257,7 +257,7 @@ class _ListContentView extends StatelessWidget {
         else
           AppGrid(
             physics: NeverScrollableScrollPhysics(),
-            maxExtent: 130,
+            maxExtent: 132,
             axisSpacing: 8,
             phoneCount: 1,
             tabletCount: 2,

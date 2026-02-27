@@ -79,7 +79,7 @@ class NotificationView extends GetView<NotificationController> {
                                   if (notification.isRead == false && notification.id != null) {
                                     controller.markAsRead(notification.id!.toInt(), index);
                                   }
-                                  if (notification.flag == Constants.jobCreated) {
+                                  if (notification.flag == Constants.jobCreated || notification.flag == Constants.jobRequestAccepted ) {
                                     final roleIdStr = Prefs().getData(Prefs.roleId);
                                     log(runtimeType.toString(), "ROLE ID => $roleIdStr");
                                     final roleId = int.tryParse(roleIdStr);

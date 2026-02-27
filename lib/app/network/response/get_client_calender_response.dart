@@ -1,5 +1,5 @@
-import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
-import 'package:ccs_app/app/network/response/profile_response.dart';
+
+import 'get_client_job_response.dart';
 
 class GetClientCalenderResponse {
   GetClientCalenderResponse({
@@ -407,8 +407,7 @@ class User {
       this.interests, 
       this.imageUrl, 
       this.roles, 
-      this.cleaningServices, 
-      this.emailVerifiedAt, 
+      this.emailVerifiedAt,
       this.createdAt, 
       this.updatedAt,});
 
@@ -459,12 +458,6 @@ class User {
         roles?.add(Roles.fromJson(v));
       });
     }
-    if (json['cleaning_services'] != null) {
-      cleaningServices = [];
-      json['cleaning_services'].forEach((v) {
-        cleaningServices?.add(CleaningServices.fromJson(v));
-      });
-    }
     emailVerifiedAt = json['email_verified_at'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
@@ -510,7 +503,6 @@ class User {
   dynamic interests;
   String? imageUrl;
   List<Roles>? roles;
-  List<CleaningServices>? cleaningServices;
   String? emailVerifiedAt;
   String? createdAt;
   String? updatedAt;
@@ -561,9 +553,6 @@ class User {
     map['image_url'] = imageUrl;
     if (roles != null) {
       map['roles'] = roles?.map((v) => v.toJson()).toList();
-    }
-    if (cleaningServices != null) {
-      map['cleaning_services'] = cleaningServices?.map((v) => v.toJson()).toList();
     }
     map['email_verified_at'] = emailVerifiedAt;
     map['created_at'] = createdAt;

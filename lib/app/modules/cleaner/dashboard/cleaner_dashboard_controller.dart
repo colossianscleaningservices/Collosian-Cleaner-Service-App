@@ -1,6 +1,7 @@
 import 'dart:io' show Platform;
 
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
+import 'package:ccs_app/app/network/request/availability_request.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
@@ -40,7 +41,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
   /// Weekly: index 0 = Monday .. 6 = Sunday. Toggle + multiple slots per day.
   final weeklySchedule = <DayAvailability>[].obs;
-
 
   /// Calendar events from getClientCalender() API, keyed by date (date-only).
   final calendarEventsMap = Rx<Map<DateTime, List<CalendarEvent>>>({});
@@ -127,6 +127,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
   // This will hold the suggestions that will be used in the typeahead field
   final SuggestionsController<String> suggestionsController = SuggestionsController<String>();
+
   // final jobs = <ClientJob>[].obs;
   final jobs = <Jobs>[].obs;
 
@@ -161,8 +162,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     filter.add(CommonModel(type: "Pending"));
     filter.add(CommonModel(type: "Approved"));
 
-    userDisplayName.value =  Get.find<SessionService>().userDisplayName;
-    userDisplayImage.value =  Get.find<SessionService>().userDisplayImage;
+    userDisplayName.value = Get.find<SessionService>().userDisplayName;
+    userDisplayImage.value = Get.find<SessionService>().userDisplayImage;
 
     getAppVersion();
     _registerDevice();
@@ -229,7 +230,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   }
 
   void openDetail(num? job) {
-    Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'jobId':job});
+    Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'jobId': job});
   }
 
   // Fetches the app version from the platform and updates the appVersion observable
@@ -277,9 +278,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   void setTab(int index) {
     tabIndex.value = index.clamp(0, pages.length - 1);
 
-    if(index == 2){
+    if (index == 2) {
+      jobCurrentPage = 1;
       fetchJobs();
-    }else if (tabIndex.value == 1) {
+    } else if (tabIndex.value == 1) {
       getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
     }
   }
@@ -463,7 +465,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   Future<void> fetchJobs({bool isLoaderShown = true}) async {
     if (!isJobMoreLoading.value && isLoaderShown) Loader.show();
     try {
-      final result = await _cleanerRepository.getCleanerJob();
+      final result = await _cleanerRepository.getCleanerJob(page: jobCurrentPage);
       result.handle(
         success: (response) {
           final raw = response.data;
@@ -473,7 +475,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
             jobs.assignAll(raw.jobs as Iterable<Jobs>);
           }
           jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
-
           if (jobCurrentPage <= jobTotalPage) {
             jobCurrentPage++;
           }
@@ -561,4 +562,81 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   static String _formatDateForApi(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
+  Future<void> setCleanerAvailability() async {
+    // Validate time slots: start < end and no overlaps per enabled day.
+    for (final day in weeklySchedule) {
+      if (!day.enabled) continue;
+      if (day.slots.isEmpty) {
+        Notifier.info('Please add at least one time slot for ${kDayNames[day.dayIndex]}.');
+        return;
+      }
+
+      // Convert to minutes since midnight for easier comparison.
+      final slotsWithMinutes = day.slots
+          .map((slot) => (
+                slot: slot,
+                startM: slot.start.hour * 60 + slot.start.minute,
+                endM: slot.end.hour * 60 + slot.end.minute,
+              ))
+          .toList();
+
+      for (final s in slotsWithMinutes) {
+        if (s.endM <= s.startM) {
+          Notifier.info('End time must be after start time for ${kDayNames[day.dayIndex]}.');
+          return;
+        }
+      }
+
+      // Check for overlapping slots within the same day.
+      slotsWithMinutes.sort((a, b) => a.startM.compareTo(b.startM));
+      for (var i = 1; i < slotsWithMinutes.length; i++) {
+        final prev = slotsWithMinutes[i - 1];
+        final curr = slotsWithMinutes[i];
+        if (curr.startM < prev.endM) {
+          Notifier.info('Time slots for ${kDayNames[day.dayIndex]} must not overlap.');
+          return;
+        }
+      }
+    }
+
+    // Build request payload from weeklySchedule + blockedDays.
+    final weekly = <WeeklySchedule>[];
+    for (final day in weeklySchedule) {
+      weekly.add(
+        WeeklySchedule(
+          day: kDayNames[day.dayIndex],
+          enabled: day.enabled,
+          slots: day.slots
+              .map(
+                (slot) => Slots(
+                  startTime: '${slot.start.hour.toString().padLeft(2, '0')}:${slot.start.minute.toString().padLeft(2, '0')}',
+                  endTime: '${slot.end.hour.toString().padLeft(2, '0')}:${slot.end.minute.toString().padLeft(2, '0')}',
+                ),
+              )
+              .toList(),
+        ),
+      );
+    }
+
+    final blocked = blockedDays.map(_formatDateForApi).toList();
+
+    Loader.show();
+    try {
+      final request = AvailabilityRequest(
+        weeklySchedule: weekly,
+        blockedDays: blocked,
+      );
+
+      log(runtimeType.toString(), "${request.toJson()}");
+
+      final result = await _cleanerRepository.setCleanerAvailability(request);
+      result.handle(
+        success: (response) {
+          Notifier.success(response.message ?? 'Schedule updated');
+        },
+      );
+    } finally {
+      Loader.hide();
+    }
+  }
 }

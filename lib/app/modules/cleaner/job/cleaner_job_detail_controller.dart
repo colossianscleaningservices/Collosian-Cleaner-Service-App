@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/modules/cleaner/dashboard/cleaner_dashboard_controller.dart';
 import 'package:ccs_app/app/network/repository/cleaner_repository.dart';
 import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
 import 'package:ccs_app/export.dart';
@@ -219,10 +220,19 @@ class CleanerJobDetailController extends GetxController {
   Future<void> _declineJob(int jobId, String msg) async {
     Loader.show();
     try {
-      final result = await _cleanerRepository.acceptOrDeclineJob(jobId: jobId, status: 'Rejected',reason: msg);
+      final result = await _cleanerRepository.acceptOrDeclineJob(jobId: jobId, status: 'Rejected', reason: msg);
       result.handle(
         success: (value) {
+          Loader.hide();
           Notifier.success(value.message ?? 'Job declined');
+
+          bool isControllerRegistered = Get.isRegistered<CleanerDashboardController>();
+          if (isControllerRegistered) {
+            CleanerDashboardController ctrl = Get.find();
+            ctrl.jobCurrentPage = 1;
+            ctrl.fetchJobs(isLoaderShown: false);
+          }
+
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Get.back();
           });
