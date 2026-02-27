@@ -22,33 +22,7 @@ class NotificationView extends GetView<NotificationController> {
       return AppScaffold(
         appBar: Header(
           title: 'Notifications',
-          actions: [
-            isAllNotificationRead
-                ? SizedBox.shrink()
-                : AppButton(
-                    label: 'Read All',
-                    onPressed: () => controller.readAllNotifications(),
-                    btnHorizontalPadding: 4,
-                    type: ButtonType.transparent,
-                    btnVerticalPadding: 0,
-                  ),
-            controller.notifications.isEmpty
-                ? SizedBox.shrink()
-                : AppButton(
-                    label: 'Delete All',
-                    onPressed: () {
-                      Notifier.openSheet(context,
-                          primaryButtonLabel: 'Delete',
-                          message: 'Are you sure want to delete all notification?',
-                          type: SheetType.error,
-                          onPrimaryPressed: () => controller.deleteAllNotifications());
-                    },
-                    txtClr: scheme.error,
-                    btnHorizontalPadding: 4,
-                    type: ButtonType.transparent,
-                    btnVerticalPadding: 0,
-                  ),
-          ],
+          actions: [],
         ),
         body: SwipeRefresh(
           onRefresh: () => controller.refreshNotification(),
@@ -61,6 +35,43 @@ class NotificationView extends GetView<NotificationController> {
                   )
                 : Column(
                     children: [
+                      Row(
+                        children: [
+                          if (!isAllNotificationRead)
+                            Expanded(
+                              child: AppButton(
+                                label: 'Read All',
+                                onPressed: () => controller.readAllNotifications(),
+                                type: ButtonType.tonal,
+                                icon: IconsaxPlusLinear.tick_circle,
+                                btnVerticalPadding: 10,
+                                btnHorizontalPadding: 12,
+                                textSize: 14,
+                              ),
+                            ),
+                          if (!isAllNotificationRead && controller.notifications.isNotEmpty) const SizedBox(width: 12),
+                          if (controller.notifications.isNotEmpty)
+                            Expanded(
+                              child: AppButton(
+                                label: 'Delete All',
+                                onPressed: () {
+                                  Notifier.openSheet(context,
+                                      primaryButtonLabel: 'Delete',
+                                      message: 'Are you sure want to delete all notification?',
+                                      type: SheetType.error,
+                                      onPrimaryPressed: () => controller.deleteAllNotifications());
+                                },
+                                type: ButtonType.outline,
+                                icon: IconsaxPlusLinear.trash,
+                                txtClr: scheme.error,
+                                borderClr: scheme.error,
+                                btnVerticalPadding: 10,
+                                btnHorizontalPadding: 12,
+                                textSize: 14,
+                              ),
+                            ),
+                        ],
+                      ).marginSymmetric(horizontal: 16),
                       Expanded(
                         child: SlidableAutoCloseBehavior(
                           child: ListView.separated(
@@ -79,7 +90,7 @@ class NotificationView extends GetView<NotificationController> {
                                   if (notification.isRead == false && notification.id != null) {
                                     controller.markAsRead(notification.id!.toInt(), index);
                                   }
-                                  if (notification.flag == Constants.jobCreated || notification.flag == Constants.jobRequestAccepted ) {
+                                  if (notification.flag == Constants.jobCreated || notification.flag == Constants.jobRequestAccepted) {
                                     final roleIdStr = Prefs().getData(Prefs.roleId);
                                     log(runtimeType.toString(), "ROLE ID => $roleIdStr");
                                     final roleId = int.tryParse(roleIdStr);

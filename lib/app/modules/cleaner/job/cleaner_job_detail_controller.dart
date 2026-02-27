@@ -170,7 +170,6 @@ class CleanerJobDetailController extends GetxController {
       Notifier.info('Invalid job');
       return;
     }
-    final messageController = TextEditingController();
     Notifier.openSheet(
       Get.context!,
       title: 'Accept job?',
@@ -226,14 +225,13 @@ class CleanerJobDetailController extends GetxController {
           Loader.hide();
           Notifier.success(value.message ?? 'Job declined');
 
-          bool isControllerRegistered = Get.isRegistered<CleanerDashboardController>();
-          if (isControllerRegistered) {
-            CleanerDashboardController ctrl = Get.find();
-            ctrl.jobCurrentPage = 1;
-            ctrl.fetchJobs(isLoaderShown: false);
-          }
-
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            bool isControllerRegistered = Get.isRegistered<CleanerDashboardController>();
+            if (isControllerRegistered) {
+              CleanerDashboardController ctrl = Get.find();
+              ctrl.jobCurrentPage = 1;
+              ctrl.fetchJobs(isLoaderShown: false);
+            }
             Get.back();
           });
         },
@@ -250,6 +248,7 @@ class CleanerJobDetailController extends GetxController {
       final result = await _cleanerRepository.acceptOrDeclineJob(jobId: jobId, status: 'Accepted');
       result.handle(
         success: (value) {
+          Loader.hide();
           Notifier.success(value.message ?? 'Job Accepted');
           WidgetsBinding.instance.addPostFrameCallback((_) {
             fetchJobDetails();
@@ -278,8 +277,11 @@ class CleanerJobDetailController extends GetxController {
       final result = await _cleanerRepository.getCleanerJobDetails(jobId!.toInt());
       result.handle(
         success: (response) {
-          final raw = response.data;
-          job.value = raw;
+          Loader.hide();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final raw = response.data;
+            job.value = raw;
+          });
         },
       );
     } finally {

@@ -14,6 +14,7 @@ import '../../../model/common_model.dart';
 import '../../../model/menu_model.dart';
 import '../../../network/repository/cleaner_repository.dart';
 import '../../../network/response/cleaner_job_response.dart';
+import '../../../network/response/get_availability_response.dart' as avail_resp;
 import '../../../network/response/staff_dashboard_response.dart';
 import '../../../services/session_service.dart';
 import 'view/cleaner_availability_view.dart';
@@ -147,9 +148,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       return;
     }
     selectedDay.value = DateTime.now();
-    if (weeklySchedule.isEmpty) {
-      weeklySchedule.assignAll(List.generate(7, DayAvailability.getDefault));
-    }
     final args = Get.arguments;
     if (args is Map && args['tab'] is int) {
       tabIndex.value = (args['tab'] as int).clamp(0, pages.length - 1);
@@ -283,6 +281,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       fetchJobs();
     } else if (tabIndex.value == 1) {
       getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
+    } else if (tabIndex.value == 3 && weeklySchedule.isEmpty) {
+      weeklySchedule.assignAll(List.generate(7, DayAvailability.getDefault));
+      getCleanerAvailability();
     }
   }
 
@@ -512,7 +513,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       final result = await _cleanerRepository.getCleanerCalender(dateFrom: dateFrom, dateTo: dateTo, date: date);
       result.handle(
         success: (value) {
-          final list = value.data?.jobs?.jobs;
+          final list = value.data?.jobs;
           if (list == null || list.isEmpty) {
             calendarEventsMap.value = {};
             return;
@@ -633,10 +634,79 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       result.handle(
         success: (response) {
           Notifier.success(response.message ?? 'Schedule updated');
+          getCleanerAvailability();
         },
       );
     } finally {
       Loader.hide();
+    }
+  }
+
+  Future<void> getCleanerAvailability() async {
+    Loader.show();
+    try {
+      final result = await _cleanerRepository.getCleanerAvailability();
+      result.handle(
+        success: (response) {
+          _applyAvailabilityFromResponse(response);
+        },
+      );
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  /// Applies API availability data to [weeklySchedule] and [blockedDays].
+  void _applyAvailabilityFromResponse(avail_resp.GetAvailabilityResponse response) {
+    final data = response.data;
+    if (data == null) {
+      _ensureWeeklyScheduleDefaults();
+      blockedDays.clear();
+      return;
+    }
+
+    // Build 7 days (Mon–Sun). Match API entries by day name.
+    final List<DayAvailability> newSchedule = [];
+    for (var i = 0; i < 7; i++) {
+      final dayName = kDayNames[i];
+      final apiDay = data.weeklySchedule
+          ?.where((avail_resp.WeeklySchedule w) => w.day == dayName)
+          .firstOrNull;
+      if (apiDay != null) {
+        final slots = apiDay.slots ?? [];
+        final timeSlots = slots.map((s) {
+          final slot = s as avail_resp.Slots;
+          return TimeSlot(
+            start: CcsDateUtils.parseTimeOfDay(slot.startTime ?? '09:00'),
+            end: CcsDateUtils.parseTimeOfDay(slot.endTime ?? '18:00'),
+          );
+        }).toList();
+        newSchedule.add(DayAvailability(
+          dayIndex: i,
+          enabled: apiDay.enabled ?? false,
+          slots: timeSlots,
+        ));
+      } else {
+        newSchedule.add(DayAvailability.getDefault(i));
+      }
+    }
+    weeklySchedule.assignAll(newSchedule);
+
+    // Blocked days: parse "yyyy-MM-dd" strings to date-only DateTime.
+    final blocked = data.blockedDays ?? [];
+    blockedDays.assignAll(
+      blocked
+          .map((d) => DateTime.tryParse(d))
+          .whereType<DateTime>()
+          .map((d) => DateTime(d.year, d.month, d.day))
+          .toList(),
+    );
+  }
+
+  /// Ensures [weeklySchedule] has exactly 7 default days when API returns nothing.
+  void _ensureWeeklyScheduleDefaults() {
+    if (weeklySchedule.length != 7) {
+      weeklySchedule.assignAll(List.generate(7, DayAvailability.getDefault));
     }
   }
 }

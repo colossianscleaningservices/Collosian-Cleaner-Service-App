@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../core/base/base_repository.dart';
 import '../request/staff_edit_profile_request.dart';
 import '../response/base_response.dart';
+import '../response/get_availability_response.dart';
 import '../response/get_cleaning_service_response.dart';
 import '../response/get_client_calender_response.dart';
 import '../response/get_immigrations_response.dart';
@@ -42,6 +43,12 @@ class CleanerRepository extends BaseRepository {
       fromJson: (json) => BaseResponse.fromJson(json),
     );
   }
+  Future<NetworkResult<GetAvailabilityResponse>> getCleanerAvailability() async {
+    return get<GetAvailabilityResponse>(
+      endpoint: Endpoint.cleanerAvailability,
+      fromJson: (json) => GetAvailabilityResponse.fromJson(json),
+    );
+  }
 
   /// GET action-needed count and items.
   Future<NetworkResult<DataResponse>> getActionNeeded() async {
@@ -52,19 +59,6 @@ class CleanerRepository extends BaseRepository {
   }
 
   // ─── Jobs ─────────────────────────────────────────────────────────────────
-
-  /* /// POST decline job (optional [reason]).
-  Future<NetworkResult<BaseResponse>> declineJob({
-    required int jobId,
-    String? reason,
-  }) async {
-    return post<BaseResponse>(
-      endpoint: Endpoint.cleanerJobAcceptDecline(jobId),
-      fromJson: (json) => BaseResponse.fromJson(json),
-      data: reason != null ? <String, dynamic>{'reason': reason} : null,
-    );
-  }*/
-
   Future<NetworkResult<BaseResponse>> acceptOrDeclineJob({
     required int jobId,
     required String status,

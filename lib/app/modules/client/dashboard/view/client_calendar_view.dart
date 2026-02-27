@@ -215,7 +215,7 @@ class _UpcomingEvents extends StatelessWidget {
       child: List.generate(
         events.length,
         (i) => JobCard(
-          title: events[i].title,
+          title: events[i].title.capitalizeFirst??"",
           dateTime: '${CcsDateUtils.shortDateNoYear(dateKey)} · ${events[i].timeRange}',
           status: events[i].status,
           propertyName: events[i].propertyName,
@@ -265,7 +265,7 @@ class _ListContentView extends StatelessWidget {
             child: List.generate(
               list.length,
               (i) => JobCard(
-                title: list[i].$2.title,
+                title: list[i].$2.title.capitalizeFirst ?? "",
                 dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
                 status: list[i].$2.status,
                 propertyName: list[i].$2.propertyName,

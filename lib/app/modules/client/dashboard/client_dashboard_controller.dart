@@ -11,6 +11,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../model/calendar_event.dart';
 import '../../../network/repository/client_repository.dart';
+import '../../../network/response/get_client_dash_response.dart';
 import '../../../services/session_service.dart';
 import 'view/client_calendar_view.dart';
 import 'view/client_dashboard_home.dart';
@@ -64,6 +65,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
 
   /// Properties for dashboard home listing (fetched via listProperties).
   final RxList<PropertyModel> dashboardProperties = <PropertyModel>[].obs;
+  final Rxn<ClientDashModel> clientDash = Rxn<ClientDashModel>(null);
 
   @override
   void onInit() {
@@ -278,7 +280,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       final result = await _clientRepository.getClientCalender(dateFrom: dateFrom, dateTo: dateTo, date: date);
       result.handle(
         success: (value) {
-          final list = value.data?.jobs?.jobs;
+          final list = value.data?.jobs;
           if (list == null || list.isEmpty) {
             calendarEventsMap.value = {};
             return;
@@ -288,7 +290,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
             final dateKey = _parseCalendarDate(item.date);
             if (dateKey == null) continue;
             final event = CalendarEvent(
-              title: item.property?.propertyType ?? "",
+              title: item.jobType ?? "",
               timeRange: _formatTimeRange(item.startTime, item.endTime),
               status: item.status ?? 'Pending',
               jobId: item.id,
@@ -335,6 +337,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       result.handle(
         success: (response) {
           final raw = response.data;
+          clientDash.value = raw;
           if (raw != null && raw.properties?.isNotEmpty == true) {
             dashboardProperties.assignAll(raw.properties as Iterable<PropertyModel>);
           } else {

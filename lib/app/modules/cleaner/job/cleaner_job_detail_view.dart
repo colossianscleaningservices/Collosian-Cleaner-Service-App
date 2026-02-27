@@ -78,16 +78,32 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                             if ((j?.status == 'Pending' || j?.status?.toLowerCase() == 'pending') &&
                                 cleanerStatus != 'accepted' &&
                                 cleanerStatus != 'rejected') ...[
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 16),
                               Row(
                                 children: [
-                                  TextButton(
-                                    onPressed: controller.onAccept,
-                                    child: CommonText.regular('Accept', size: 14, color: scheme.primary),
+                                  Expanded(
+                                    child: AppButton(
+                                      label: 'Accept',
+                                      onPressed: controller.onAccept,
+                                      type: ButtonType.primary,
+                                      icon: IconsaxPlusLinear.tick_circle,
+                                      btnVerticalPadding: 12,
+                                      btnHorizontalPadding: 16,
+                                    ),
                                   ),
-                                  TextButton(
-                                    onPressed: controller.onDecline,
-                                    child: CommonText.regular('Decline', size: 14, color: scheme.error),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: AppButton(
+                                      label: 'Decline',
+                                      onPressed: controller.onDecline,
+                                      type: ButtonType.outline,
+                                      icon: IconsaxPlusLinear.close_circle,
+                                      bgColor: Colors.transparent,
+                                      txtClr: scheme.error,
+                                      borderClr: scheme.error,
+                                      btnVerticalPadding: 12,
+                                      btnHorizontalPadding: 16,
+                                    ),
                                   ),
                                 ],
                               ),

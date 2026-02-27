@@ -15,7 +15,10 @@ class JobCard extends StatelessWidget {
     this.recurrence,
     this.cleanerInfo,
     this.onTap,
+    this.isFromDash = false,
   });
+
+  final bool isFromDash;
 
   /// Job type / name (e.g. "Deep clean").
   final String title;
@@ -63,6 +66,7 @@ class JobCard extends StatelessWidget {
 
     return AppCard(
       onTap: onTap,
+      enableShadows: isFromDash ? false : true,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -118,6 +122,7 @@ class JobCard extends StatelessWidget {
                                 icon: IconsaxPlusLinear.calendar_1,
                                 label: dateTime,
                                 scheme: scheme,
+                                padding: 0,
                               ),
                               if (recurrence != null && recurrence!.isNotEmpty)
                                 _MetaChip(
@@ -160,12 +165,14 @@ class _MetaChip extends StatelessWidget {
     required this.scheme,
     this.icon,
     this.useTertiary = false,
+    this.padding = 8,
   });
 
   final String label;
   final ColorScheme scheme;
   final IconData? icon;
   final bool useTertiary;
+  final double padding;
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +180,7 @@ class _MetaChip extends StatelessWidget {
     final fg = useTertiary ? scheme.onTertiaryContainer : scheme.onSurfaceVariant;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding:  EdgeInsets.symmetric(horizontal: padding, vertical: 4),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
@@ -185,7 +192,7 @@ class _MetaChip extends StatelessWidget {
             Icon(icon, size: 12, color: fg),
             const SizedBox(width: 4),
           ],
-          CommonText.medium(label, size: 11, color: fg),
+          CommonText.medium(label, size: 12, color: fg),
         ],
       ),
     );
