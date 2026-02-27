@@ -462,10 +462,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     );
   }
 
-  Future<void> fetchJobs({bool isLoaderShown = true}) async {
+  Future<void> fetchJobs({bool isLoaderShown = true, String filter = ''}) async {
     if (!isJobMoreLoading.value && isLoaderShown) Loader.show();
     try {
-      final result = await _cleanerRepository.getCleanerJob(page: jobCurrentPage);
+      final result = await _cleanerRepository.getCleanerJob(page: jobCurrentPage, status:  filter);
       result.handle(
         success: (response) {
           final raw = response.data;

@@ -76,10 +76,10 @@ class CleanerRepository extends BaseRepository {
     return put<BaseResponse>(endpoint: Endpoint.cleanerJobAcceptDecline(jobId), fromJson: (json) => BaseResponse.fromJson(json), data: payload);
   }
 
-  Future<NetworkResult<CleanerJobResponse>> getCleanerJob({int page = 1}) async {
+  Future<NetworkResult<CleanerJobResponse>> getCleanerJob({int page = 1, String status  = ''}) async {
     return get<CleanerJobResponse>(
       endpoint: Endpoint.cleanerJob,
-      queryParameters: {'page': page},
+      queryParameters: {'page': page, if(status.isNotEmpty) 'status' : status },
       fromJson: (json) => CleanerJobResponse.fromJson(json),
     );
   }

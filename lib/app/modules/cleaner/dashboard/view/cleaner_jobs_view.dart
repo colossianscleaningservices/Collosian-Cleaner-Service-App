@@ -171,6 +171,8 @@ class _FilterChips extends StatelessWidget {
                   element.isSelected = false;
                 }
                 category.isSelected = true;
+                controller.jobCurrentPage = 1;
+                controller.fetchJobs(filter: (category.type != 'All Jobs') ? category.type : '');
                 controller.filter.refresh();
               },
               borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
