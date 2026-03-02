@@ -2,16 +2,18 @@ import 'package:ccs_app/app/network/repository/client_repository.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../model/client_job.dart';
-import '../../../network/response/get_job_details_response.dart';
+import '../../../network/response/get_client_job_details_response.dart';
 import '../dashboard/client_dashboard_controller.dart';
-import 'add_review.dart';
+
+enum Options { yes, no }
 
 class ClientJobDetailController extends GetxController {
   final ClientRepository _clientRepository = ClientRepository();
 
-  final job = Rx<JobDetails?>(null);
+  final job = Rx<ClientJobDetails?>(null);
 
   num? jobId;
+  var from = '';
 
   Rx<Options?> arrive = Rx<Options?>(null);
   Rx<Options?> uniform = Rx<Options?>(null);
@@ -23,9 +25,18 @@ class ClientJobDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    final arg = Get.arguments;
-    if (arg is num) {
-      jobId = arg;
+    final args = Get.arguments;
+    if (args is num) {
+      jobId = args;
+    }
+    if (args is Map<String, dynamic>) {
+      if (args['from'] != null) {
+        from = args['from'];
+      }
+
+      if (args['jobId'] != null) {
+        jobId = args['jobId'];
+      }
     }
   }
 
@@ -108,26 +119,54 @@ class ClientJobDetailController extends GetxController {
       Notifier.info('Invalid job');
       return;
     }
+    final scheme = (Get.context as BuildContext).colorScheme;
+    final msgCtrl = TextEditingController();
+
     Notifier.openSheet(
       Get.context!,
       title: 'Cancel job?',
+      type: SheetType.error,
       message: 'This will cancel this job. You can add a reason below.',
+      body: Column(
+        spacing: 8,
+        children: [
+          CommonText.bold('Cancel job?', size: 24, color: scheme.primary, fontWeight: FontWeight.w900).marginOnly(bottom: 8),
+          CommonText.regular('This will cancel this job. You can add a reason below.',
+              textAlign: TextAlign.center, size: 18, color: scheme.onSurface.withValues(alpha: 0.7)),
+          CommonTextField(
+            hint: 'Type your reason here...',
+            controller: msgCtrl,
+            maxLines: 4,
+            minLines: 2,
+            action: TextInputAction.done,
+          ),
+        ],
+      ).marginSymmetric(vertical: 8),
       showPrimaryButton: true,
       showSecondaryButton: true,
       primaryButtonLabel: 'Cancel job',
       secondaryButtonLabel: 'Keep',
-      onPrimaryPressed: () => _cancelJob(jobId),
+      onPrimaryPressed: () => _cancelJob(jobId, msgCtrl.text),
     );
   }
 
-  Future<void> _cancelJob(num jobId) async {
+  Future<void> _cancelJob(num jobId, String msg) async {
     Loader.show();
     try {
-      final result = await _clientRepository.cancelJob(jobId: jobId.toInt());
+      final result = await _clientRepository.cancelJob(jobId: jobId.toInt(), reason: msg);
       result.handle(
         success: (_) {
+          Loader.hide();
           Notifier.success('Job cancelled');
-          Get.back();
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            Get.back();
+            bool isControllerRegistered = Get.isRegistered<ClientDashboardController>();
+            if (isControllerRegistered) {
+              ClientDashboardController ctrl = Get.find();
+              ctrl.jobCurrentPage = 1;
+              ctrl.fetchJobs();
+            }
+          });
         },
         contextTag: 'cancel_job',
       );

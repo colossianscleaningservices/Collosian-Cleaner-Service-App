@@ -25,4 +25,5 @@ class Constants {
 
   static const jobCreated = 'job_created';
   static const jobRequestAccepted = 'job_request_accepted';
+  static const cleanerAssigned = 'cleaner_assigned';
 }

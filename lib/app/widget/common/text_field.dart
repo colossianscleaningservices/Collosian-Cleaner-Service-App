@@ -252,11 +252,13 @@ class CommonTypeAheadField<T> extends StatelessWidget {
     required this.onSelected,
     super.key,
     this.hint = '',
+    this.label = '',
     this.validator,
     this.suffixIcon,
     this.borderRadius,
     this.borderColor,
     this.fillColor,
+    this.textColor,
     this.maxHeight = 240,
   });
 
@@ -274,49 +276,59 @@ class CommonTypeAheadField<T> extends StatelessWidget {
   final Color? borderColor;
   final Color? fillColor;
   final double maxHeight;
+  final String label;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final defaultTextColor = textColor ?? colorScheme.onSurface;
+    final labelStyle = context.textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultTextColor, fontWeight: FontWeight.w600);
 
-    return TypeAheadField<T>(
-      controller: controller,
-      focusNode: focusNode,
-      hideOnEmpty: true,
-      autoFlipDirection: false,
-      direction: VerticalDirection.down,
-      suggestionsController: suggestionsController,
-      constraints: BoxConstraints(maxHeight: maxHeight),
-      decorationBuilder: (context, child) => Material(
-        borderRadius: BorderRadius.circular(borderRadius ?? 12),
-        shadowColor: Colors.black.withValues(alpha: .08),
-        color: colorScheme.onPrimary,
-        elevation: 8,
-        type: MaterialType.card,
-        clipBehavior: Clip.hardEdge,
-        child: child,
-      ),
-      builder: (context, textCtrl, node) => CommonTextField(
-        controller: textCtrl,
-        focus: node,
-        hint: hint,
-        validator: validator,
-        suffixIcon: suffixIcon,
-        borderRadius: borderRadius,
-        borderColor: borderColor,
-        fillColor: fillColor,
-        keyboardType: TextInputType.text,
-      ),
-      suggestionsCallback: suggestionsCallback,
-      itemBuilder: (context, item) => Container(
-        padding: const EdgeInsets.all(12),
-        color: colorScheme.onPrimary,
-        child: Text(item.toString(), style: const TextStyle(fontSize: 14)),
-      ),
-      onSelected: (selected) {
-        FocusScope.of(context).unfocus();
-        onSelected(selected);
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label.isNotEmpty) ...[Text(label, style: labelStyle), const SizedBox(height: 6)],
+        TypeAheadField<T>(
+          controller: controller,
+          focusNode: focusNode,
+          hideOnEmpty: true,
+          autoFlipDirection: false,
+          direction: VerticalDirection.down,
+          suggestionsController: suggestionsController,
+          constraints: BoxConstraints(maxHeight: maxHeight),
+          decorationBuilder: (context, child) => Material(
+            borderRadius: BorderRadius.circular(borderRadius ?? 12),
+            shadowColor: Colors.black.withValues(alpha: .08),
+            color: colorScheme.onPrimary,
+            elevation: 8,
+            type: MaterialType.card,
+            clipBehavior: Clip.hardEdge,
+            child: child,
+          ),
+          builder: (context, textCtrl, node) => CommonTextField(
+            controller: textCtrl,
+            focus: node,
+            hint: hint,
+            validator: validator,
+            suffixIcon: suffixIcon,
+            borderRadius: borderRadius,
+            borderColor: borderColor,
+            fillColor: fillColor,
+            keyboardType: TextInputType.text,
+          ),
+          suggestionsCallback: suggestionsCallback,
+          itemBuilder: (context, item) => Container(
+            padding: const EdgeInsets.all(12),
+            color: colorScheme.onPrimary,
+            child: Text(item.toString(), style: const TextStyle(fontSize: 14)),
+          ),
+          onSelected: (selected) {
+            FocusScope.of(context).unfocus();
+            onSelected(selected);
+          },
+        ),
+      ],
     );
   }
 }

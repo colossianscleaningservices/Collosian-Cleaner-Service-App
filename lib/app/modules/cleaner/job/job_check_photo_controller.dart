@@ -7,19 +7,48 @@ import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
-import 'package:image_watermark/image_watermark.dart';
 
-import '../../../model/client_job.dart';
 import '../../../network/repository/cleaner_repository.dart';
+import '../../../network/response/get_staff_job_details_response.dart';
 
 enum JobCheckPhotoMode { checkIn, checkOut }
+
+/// Runs on a background isolate. Applies watermark and writes to [filePath].
+void _watermarkPhotoInIsolate((String filePath, Uint8List imgBytes, String watermarkText) args) {
+  final (filePath, imgBytes, watermarkText) = args;
+  const dstX = 20;
+  const dstY = 30;
+  const padding = 12;
+  final decoded = img.decodeImage(imgBytes);
+  if (decoded == null) return;
+  final rectW = (watermarkText.length * 24);
+  final rectH = 44;
+  img.fillRect(
+    decoded,
+    x1: (dstX - padding).clamp(0, decoded.width - 1),
+    y1: (dstY - padding).clamp(0, decoded.height - 1),
+    x2: (dstX + rectW + padding).clamp(0, decoded.width),
+    y2: (dstY + rectH + padding).clamp(0, decoded.height),
+    color: img.ColorRgba8(0, 0, 0, 255),
+  );
+  img.drawString(
+    decoded,
+    watermarkText,
+    font: img.arial48,
+    x: dstX,
+    y: dstY,
+    color: img.ColorRgba8(255, 255, 255, 255),
+  );
+  final out = img.encodeJpg(decoded);
+  File(filePath).writeAsBytesSync(out);
+}
 
 /// Controller for the check-in / check-out photo screen.
 /// Cleaner adds one or more photos and submits; job is only started/stopped after API success.
 class JobCheckPhotoController extends GetxController {
   final CleanerRepository _cleanerRepository = CleanerRepository();
 
-  late final ClientJob job;
+  StaffJobDetails? job;
   late final JobCheckPhotoMode mode;
 
   bool get isCheckIn => mode == JobCheckPhotoMode.checkIn;
@@ -37,26 +66,16 @@ class JobCheckPhotoController extends GetxController {
   void onInit() {
     super.onInit();
     final args = Get.arguments;
-
-    if (args is Map) {
+    if (args is Map<String, dynamic>) {
       final j = args['job'];
       final m = args['mode'];
-      if (j is ClientJob) job = j;
+      if (j is StaffJobDetails) job = j;
       if (m is JobCheckPhotoMode) mode = m;
     } else if (args is List && args.length >= 2) {
-      if (args[0] is ClientJob) job = args[0] as ClientJob;
+      if (args[0] is StaffJobDetails) job = args[0] as StaffJobDetails;
       if (args[1] is JobCheckPhotoMode) mode = args[1] as JobCheckPhotoMode;
     } else {
-      job = ClientJob(
-        id: '',
-        clientName: '—',
-        jobType: '—',
-        date: DateTime.now(),
-        startTime: '—',
-        endTime: '—',
-        status: '—',
-        propertyOneLine: '—',
-      );
+      job = StaffJobDetails();
       mode = JobCheckPhotoMode.checkIn;
     }
   }
@@ -74,6 +93,8 @@ class JobCheckPhotoController extends GetxController {
   }
 
   /// Renders watermark (styled pill with icon + Manrope text) as PNG and overlays on photo.
+  /// Kept for optional future use when Manrope overlay is re-enabled.
+  // ignore: unused_element
   Future<Uint8List?> _renderManropeWatermarkToPng(
     BuildContext context, {
     required String text,
@@ -169,75 +190,24 @@ class JobCheckPhotoController extends GetxController {
 
   Future<void> addBookmark(XFile file, [BuildContext? context]) async {
     final imgBytes = await file.readAsBytes();
-    const dstX = 20;
-    const dstY = 30;
     final watermarkText = DateTime.now().toDisplayDate('dd, MMM yyyy, hh:mm a');
 
-    /*if (context != null && context.mounted) {
-      final watermarkPng = await _renderManropeWatermarkToPng(
-        context,
-        text: watermarkText,
-        fontSize: 16,
-      );
-      if (watermarkPng != null && watermarkPng.isNotEmpty) {
-        final decoded = img.decodeImage(watermarkPng);
-        if (decoded != null) {
-          final result = await ImageWatermark.addImageWatermark(
-            originalImageBytes: imgBytes,
-            waterkmarkImageBytes: watermarkPng,
-            imgWidth: decoded.width,
-            imgHeight: decoded.height,
-            dstX: dstX,
-            dstY: dstY,
-          );
-          final convertFile = File(file.path);
-          await convertFile.writeAsBytes(result);
-          return;
-        }
-      }
-    }*/
-
-    // Fallback: black rect + text watermark (no Manrope)
-    const padding = 12;
-    final rectW = (watermarkText.length * 24)/*.clamp(180, 500)*/;
-    final rectH = 44;
-    final decoded = img.decodeImage(imgBytes);
-    Uint8List bytesForWatermark = imgBytes;
-    if (decoded != null) {
-      img.fillRect(
-        decoded,
-        x1: (dstX - padding).clamp(0, decoded.width - 1),
-        y1: (dstY - padding).clamp(0, decoded.height - 1),
-        x2: (dstX + rectW + padding).clamp(0, decoded.width),
-        y2: (dstY + rectH + padding).clamp(0, decoded.height),
-        color: img.ColorRgba8(0, 0, 0, 255),
-      );
-      bytesForWatermark = img.encodeJpg(decoded);
-    }
-
-    final convertImageByte = await ImageWatermark.addTextWatermark(
-      imgBytes: bytesForWatermark,
-      watermarkText: watermarkText,
-      color: Colors.white,
-      dstX: dstX,
-      dstY: dstY,
-      font: img.arial48,
+    await compute(
+      _watermarkPhotoInIsolate,
+      (file.path, imgBytes, watermarkText),
     );
-
-    final convertFile = File(file.path);
-    await convertFile.writeAsBytes(convertImageByte);
   }
 
   Future<void> addFromGallery([BuildContext? overlayContext]) async {
     final files = await picker.pickMultiImage();
     if (files.isNotEmpty) {
-      Loader.show();
       final ctx = overlayContext != null && overlayContext.mounted ? overlayContext : null;
-      // ignore: use_build_context_synchronously - ctx is re-checked for mounted in addBookmark
-      await addBookmark(files.first, ctx);
+      Loader.show();
+      for (final item in files) {
+        // ignore: use_build_context_synchronously - ctx only used when Manrope path is enabled
+        await addBookmark(item, ctx);
+      }
       Loader.hide();
-      photos.add(files.first);
-
       photos.addAll(files);
     }
   }
@@ -294,11 +264,17 @@ class JobCheckPhotoController extends GetxController {
       Notifier.info('Add at least one photo');
       return;
     }
+
+    if (job == null) {
+      Notifier.error('Invalid job');
+      return;
+    }
+
     Loader.show();
     try {
       final result = isCheckIn
-          ? await _cleanerRepository.checkIn(jobId: job.id, photos: photos.toList())
-          : await _cleanerRepository.checkOut(jobId: job.id, photos: photos.toList());
+          ? await _cleanerRepository.checkIn(jobId: job?.id.toString() ?? "", photos: photos.toList())
+          : await _cleanerRepository.checkOut(jobId: job?.id.toString() ?? "", photos: photos.toList());
       result.handle(
         success: (_) {
           Notifier.success(isCheckIn ? 'Job started' : 'Job completed');

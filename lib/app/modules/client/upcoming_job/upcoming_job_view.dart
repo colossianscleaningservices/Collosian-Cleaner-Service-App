@@ -1,24 +1,16 @@
-import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
-import 'package:ccs_app/export.dart';
+import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 
-//Missing Info :- Client Name, Recurrence
-class ClientJobsView extends GetView<ClientDashboardController> {
-  const ClientJobsView({super.key});
+import '../../../../export.dart';
+import 'upcoming_job_controller.dart';
+
+class UpcomingJobView extends GetView<UpcomingJobController> {
+  const UpcomingJobView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      floatingActionButton: Obx(
-        () {
-          return controller.jobs.isEmpty
-              ? SizedBox.shrink()
-              : FloatingActionButton.extended(
-                  onPressed: () => controller.goToCreateJob(),
-                  icon: const Icon(IconsaxPlusLinear.add),
-                  label: CommonText.regular('Create job'),
-                );
-        },
+    return AppScaffold(
+      appBar: Header(
+        title: 'Upcoming Jobs',
       ),
       body: SwipeRefresh(
         onRefresh: () async {
@@ -32,16 +24,12 @@ class ClientJobsView extends GetView<ClientDashboardController> {
             child: Obx(() {
               return Container(
                 padding: UiConstants.padding,
-                constraints: BoxConstraints(
-                    // minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - (MediaQuery.of(context).padding.bottom + kBottomNavigationBarHeight),
-                    ),
+                constraints: BoxConstraints(),
                 child: controller.jobs.isEmpty
                     ? NoDataView(
                         title: 'No jobs yet',
                         subtitle: 'Create a job or check back later.',
                         icon: IconsaxPlusLinear.briefcase,
-                        actionLabel: 'Create job',
-                        onAction: () => controller.goToCreateJob(),
                       )
                     : Column(
                         mainAxisSize: MainAxisSize.min,

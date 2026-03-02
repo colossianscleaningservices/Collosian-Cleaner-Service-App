@@ -1,6 +1,4 @@
 import 'package:get/get.dart';
-import 'package:ccs_app/app/modules/client/job/add_review.dart';
-import 'package:ccs_app/app/modules/common/help_support/faq_view.dart';
 
 import '../modules/auth/assessment_view.dart';
 import '../modules/auth/auth_binding.dart';
@@ -39,6 +37,7 @@ import '../modules/client/dashboard/client_dashboard_binding.dart';
 import '../modules/client/dashboard/client_dashboard_view.dart';
 import '../modules/client/edit_profile/client_edit_profile_binding.dart';
 import '../modules/client/edit_profile/client_edit_profile_view.dart';
+import '../modules/client/job/add_review.dart';
 import '../modules/client/job/client_job_detail_binding.dart';
 import '../modules/client/job/client_job_detail_view.dart';
 import '../modules/client/property/add_property_view.dart';
@@ -46,10 +45,13 @@ import '../modules/client/property/property_binding.dart';
 import '../modules/client/property/property_view.dart';
 import '../modules/client/schedule_job/schedule_job_binding.dart';
 import '../modules/client/schedule_job/schedule_job_view.dart';
+import '../modules/client/upcoming_job/upcoming_job_binding.dart';
+import '../modules/client/upcoming_job/upcoming_job_view.dart';
 import '../modules/common/chat/chat_binding.dart';
 import '../modules/common/chat/chat_view.dart';
 import '../modules/common/contact_us/contact_us_binding.dart';
 import '../modules/common/contact_us/contact_us_view.dart';
+import '../modules/common/help_support/faq_view.dart';
 import '../modules/common/help_support/help_support_binding.dart';
 import '../modules/common/help_support/help_support_view.dart';
 import '../modules/common/newsletters/newsletters_binding.dart';
@@ -242,6 +244,11 @@ class AppPages {
       name: _Paths.FAQ,
       page: () => const FaqView(),
       binding: HelpSupportBinding(),
+    ),
+    GetPage(
+      name: _Paths.UPCOMING_JOB,
+      page: () => const UpcomingJobView(),
+      binding: UpcomingJobBinding(),
     ),
   ];
 }

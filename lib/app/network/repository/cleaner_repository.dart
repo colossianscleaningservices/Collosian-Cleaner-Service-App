@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/network/request/availability_request.dart';
 import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
+import 'package:ccs_app/app/network/response/cleaner_properties_response.dart';
 import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/app/network/response/update_profile_response.dart';
 import 'package:dio/dio.dart';
@@ -43,6 +44,7 @@ class CleanerRepository extends BaseRepository {
       fromJson: (json) => BaseResponse.fromJson(json),
     );
   }
+
   Future<NetworkResult<GetAvailabilityResponse>> getCleanerAvailability() async {
     return get<GetAvailabilityResponse>(
       endpoint: Endpoint.cleanerAvailability,
@@ -70,10 +72,10 @@ class CleanerRepository extends BaseRepository {
     return put<BaseResponse>(endpoint: Endpoint.cleanerJobAcceptDecline(jobId), fromJson: (json) => BaseResponse.fromJson(json), data: payload);
   }
 
-  Future<NetworkResult<CleanerJobResponse>> getCleanerJob({int page = 1, String status  = ''}) async {
+  Future<NetworkResult<CleanerJobResponse>> getCleanerJob({int page = 1, String status = ''}) async {
     return get<CleanerJobResponse>(
       endpoint: Endpoint.cleanerJob,
-      queryParameters: {'page': page, if(status.isNotEmpty) 'status' : status },
+      queryParameters: {'page': page, if (status.isNotEmpty) 'status': status},
       fromJson: (json) => CleanerJobResponse.fromJson(json),
     );
   }
@@ -147,11 +149,20 @@ class CleanerRepository extends BaseRepository {
     String? date,
     String? dateFrom,
     String? dateTo,
+    String? status,
+    String? propertyName,
   }) async {
     return get<GetClientCalenderResponse>(
       endpoint: Endpoint.cleanerCalender,
-      queryParameters: {'date': date, 'date_from': dateFrom, 'date_to': dateTo},
+      queryParameters: {'date': date, 'date_from': dateFrom, 'date_to': dateTo, 'status': status, 'property_name': propertyName},
       fromJson: (json) => GetClientCalenderResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<CleanerPropertiesResponse>> geCleanerProperties() async {
+    return get<CleanerPropertiesResponse>(
+      endpoint: Endpoint.cleanerProperties,
+      fromJson: (json) => CleanerPropertiesResponse.fromJson(json),
     );
   }
 }

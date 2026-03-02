@@ -24,11 +24,13 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                   children: [
                     CommonText.bold('Jobs', size: 24, color: scheme.onSurface),
                     const SizedBox(height: 4),
-                    CommonText.regular(
-                      controller.jobs.isEmpty ? 'No assignments yet' : '${controller.jobs.length} ${controller.jobs.length == 1 ? 'job' : 'jobs'} total',
-                      size: 14,
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    Obx(() {
+                      return CommonText.regular(
+                        controller.jobs.isEmpty ? 'No assignments yet' : '${controller.jobs.length} ${controller.jobs.length == 1 ? 'job' : 'jobs'} total',
+                        size: 14,
+                        color: scheme.onSurfaceVariant,
+                      );
+                    }),
                   ],
                 ),
               ),
@@ -74,7 +76,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: _SectionLabel(label: 'Upcoming', count: upcoming.length, scheme: scheme).marginOnly(left: 18, right: 18, bottom: 8),
                   ),
                   AppSliverGrid(
-                    maxExtent: 172,
+                    maxExtent: 174,
                     controller: controller.jobScrollController,
                     axisSpacing: 12,
                     padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -82,8 +84,10 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     tabletCount: 2,
                     landscapeCount: 3,
                     child: upcoming.map(
-                      (job) {
-                        var cleanerStatus = ((job.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status));
+                          (job) {
+                        var cleanerStatus = ((job.jobCleaners
+                            ?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)
+                            ?.status));
                         return JobCard(
                           title: job.cleaningType?.name ?? "N/A",
                           dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
@@ -109,7 +113,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: _SectionLabel(label: 'Past', count: past.length, scheme: scheme).marginOnly(left: 18, right: 18, bottom: 8),
                   ),
                   AppSliverGrid(
-                    maxExtent: 172,
+                    maxExtent: 174,
                     axisSpacing: 12,
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     phoneCount: 1,
@@ -117,7 +121,8 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     landscapeCount: 3,
                     child: past
                         .map(
-                          (job) => JobCard(
+                          (job) =>
+                          JobCard(
                             title: job.cleaningType?.name ?? "N/A",
                             dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
                             status: job.status ?? "N/A",
@@ -130,7 +135,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                                 : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
                             onTap: () => controller.openDetail(job.id),
                           ),
-                        )
+                    )
                         .toList(),
                   ),
                 ],
@@ -158,45 +163,46 @@ class _FilterChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: controller.filter.map((category) {
-          final isSelected = category.isSelected;
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                for (var element in controller.filter) {
-                  element.isSelected = false;
-                }
-                category.isSelected = true;
-                controller.jobCurrentPage = 1;
-                controller.fetchJobs(filter: (category.type != 'All Jobs') ? category.type : '');
-                controller.filter.refresh();
-              },
-              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                decoration: BoxDecoration(
-                  color: isSelected ? scheme.primaryContainer.withValues(alpha: 0.5) : scheme.onPrimary,
+          () =>
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: controller.filter.map((category) {
+              final isSelected = category.isSelected;
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    for (var element in controller.filter) {
+                      element.isSelected = false;
+                    }
+                    category.isSelected = true;
+                    controller.jobCurrentPage = 1;
+                    controller.fetchJobs(filter: (category.type != 'All Jobs') ? category.type : '');
+                    controller.filter.refresh();
+                  },
                   borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                  boxShadow: context.effectiveShadows(),
-                  border: Border.all(
-                    color: isSelected ? scheme.primary.withValues(alpha: 0.4) : scheme.outline.withValues(alpha: 0.15),
-                    width: isSelected ? 1.5 : 1,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      color: isSelected ? scheme.primaryContainer.withValues(alpha: 0.5) : scheme.onPrimary,
+                      borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+                      boxShadow: context.effectiveShadows(),
+                      border: Border.all(
+                        color: isSelected ? scheme.primary.withValues(alpha: 0.4) : scheme.outline.withValues(alpha: 0.15),
+                        width: isSelected ? 1.5 : 1,
+                      ),
+                    ),
+                    child: CommonText.medium(
+                      category.type,
+                      size: 14,
+                      color: isSelected ? scheme.primary : scheme.onSurface,
+                    ).paddingSymmetric(horizontal: 14, vertical: 10),
                   ),
                 ),
-                child: CommonText.medium(
-                  category.type,
-                  size: 14,
-                  color: isSelected ? scheme.primary : scheme.onSurface,
-                ).paddingSymmetric(horizontal: 14, vertical: 10),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
+              );
+            }).toList(),
+          ),
     );
   }
 }

@@ -14,7 +14,6 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-
     return Obx(() {
       final j = controller.job.value;
 
@@ -209,16 +208,18 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                   ),
                 ),
               ),
-              if (controller.bottomBarState != 0)
-                SingleActionBottomBar(
-                  label: controller.bottomBarLabel,
-                  onPressed: controller.bottomBarOnPressed ?? () {},
-                  buttonType: controller.bottomBarButtonType,
-                  backgroundColor: scheme.surface,
-                ),
             ],
           ),
         ),
+        bottomNavigationBar: Obx(() {
+          return controller.bottomBarState != 0
+              ? SingleActionBottomBar(
+                  label: controller.bottomBarLabel,
+                  onPressed: controller.bottomBarOnPressed ?? () {},
+                  buttonType: controller.bottomBarButtonType,
+                )
+              : SizedBox.shrink();
+        }),
       );
     });
   }

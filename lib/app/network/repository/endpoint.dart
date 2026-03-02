@@ -47,6 +47,7 @@ class Endpoint {
 
   // ------ Cleaner - Calender ---------
   static const String cleanerCalender = '${root}staff/calendar/jobs-by-date';
+  static const String cleanerProperties = '${root}staff/properties';
 
   //------ Client - Dash ---------
   static String clientDashboard = '${root}client/dashboard';

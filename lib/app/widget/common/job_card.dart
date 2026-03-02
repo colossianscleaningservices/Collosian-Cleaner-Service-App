@@ -16,6 +16,7 @@ class JobCard extends StatelessWidget {
     this.cleanerInfo,
     this.onTap,
     this.isFromDash = false,
+    this.padding = 14,
   });
 
   final bool isFromDash;
@@ -49,6 +50,8 @@ class JobCard extends StatelessWidget {
 
   final VoidCallback? onTap;
 
+  final double padding;
+
   /// Returns the status color for the vertical line and chip.
   static Color statusLineColor(String status, ColorScheme scheme) {
     final lower = status.toLowerCase();
@@ -68,7 +71,7 @@ class JobCard extends StatelessWidget {
       onTap: onTap,
       enableShadows: isFromDash ? false : true,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Status line
           Container(
@@ -91,8 +94,13 @@ class JobCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Tier 1: Job name
-                          CommonText.semiBold(title, size: 16, color: scheme.onSurface),
+                          CommonText.semiBold(
+                            title,
+                            size: 16,
+                            color: scheme.onSurface,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           const SizedBox(height: 4),
                           // Tier 2: Property name
                           if (propertyName != null && propertyName!.isNotEmpty)
@@ -102,59 +110,60 @@ class JobCard extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                               color: scheme.onSurface,
                             ).marginOnly(bottom: 2),
-                          // Tier 3: Address
-                          if (_effectiveAddress != null && _effectiveAddress!.isNotEmpty && _effectiveAddress != propertyName)
-                            CommonText.regular(
-                              _effectiveAddress!,
-                              size: 12,
-                              color: scheme.onSurfaceVariant,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ).marginOnly(bottom: 2),
-                          const SizedBox(height: 8),
-                          // Tier 4: Meta row – timing, recurrence, cleaners
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 4,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              _MetaChip(
-                                icon: IconsaxPlusLinear.calendar_1,
-                                label: dateTime,
-                                scheme: scheme,
-                                padding: 0,
-                              ),
-                              if (recurrence != null && recurrence!.isNotEmpty)
-                                _MetaChip(
-                                  label: recurrence!,
-                                  scheme: scheme,
-                                  useTertiary: true,
-                                ),
-                              if (cleanerInfo != null && cleanerInfo!.isNotEmpty)
-                                _MetaChip(
-                                  icon: IconsaxPlusLinear.profile_2user,
-                                  label: cleanerInfo!,
-                                  scheme: scheme,
-                                ),
-                            ],
-                          ),
-                          if (subtitle != null && subtitle!.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            CommonText.regular(subtitle!, size: 12, color: scheme.onSurfaceVariant),
-                          ],
                         ],
                       ),
                     ),
                     _JobCardStatusChip(label: status, scheme: scheme),
                   ],
                 ),
+
+                // Tier 3: Address
+                if (_effectiveAddress != null && _effectiveAddress!.isNotEmpty && _effectiveAddress != propertyName)
+                  CommonText.regular(
+                    _effectiveAddress!,
+                    size: 12,
+                    color: scheme.onSurfaceVariant,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ).marginOnly(bottom: 2),
+                const SizedBox(height: 8),
+                // Tier 4: Meta row – timing, recurrence, cleaners
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    _MetaChip(
+                      icon: IconsaxPlusLinear.calendar_1,
+                      label: dateTime,
+                      scheme: scheme,
+                      padding: 0,
+                    ),
+                    if (recurrence != null && recurrence!.isNotEmpty)
+                      _MetaChip(
+                        label: recurrence!,
+                        scheme: scheme,
+                        useTertiary: true,
+                      ),
+                    if (cleanerInfo != null && cleanerInfo!.isNotEmpty)
+                      _MetaChip(
+                        icon: IconsaxPlusLinear.profile_2user,
+                        label: cleanerInfo!,
+                        scheme: scheme,
+                      ),
+                  ],
+                ),
+                if (subtitle != null && subtitle!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  CommonText.regular(subtitle!, size: 12, color: scheme.onSurfaceVariant),
+                ],
               ],
             ),
           ),
           const SizedBox(width: 4),
           Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
         ],
-      ).paddingAll(14),
+      ).paddingAll(padding),
     );
   }
 }
@@ -180,7 +189,7 @@ class _MetaChip extends StatelessWidget {
     final fg = useTertiary ? scheme.onTertiaryContainer : scheme.onSurfaceVariant;
 
     return Container(
-      padding:  EdgeInsets.symmetric(horizontal: padding, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: padding, vertical: 4),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
@@ -192,7 +201,16 @@ class _MetaChip extends StatelessWidget {
             Icon(icon, size: 12, color: fg),
             const SizedBox(width: 4),
           ],
-          CommonText.medium(label, size: 12, color: fg),
+          (padding == 0)
+              ? Expanded(
+                  child: CommonText.medium(
+                  label,
+                  size: 12,
+                  color: fg,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ))
+              : CommonText.medium(label, size: 12, color: fg),
         ],
       ),
     );

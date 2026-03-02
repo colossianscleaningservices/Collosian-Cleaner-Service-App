@@ -1,7 +1,7 @@
 import 'package:ccs_app/app/network/response/get_client_calender_response.dart';
 import 'package:ccs_app/app/network/response/get_client_dash_response.dart';
 import 'package:ccs_app/app/network/response/get_client_job_response.dart';
-import 'package:ccs_app/app/network/response/get_job_details_response.dart';
+import 'package:ccs_app/app/network/response/get_client_job_details_response.dart';
 import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
 
 import '../../core/base/base_repository.dart';
@@ -187,18 +187,18 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<GetClientJobResponse>> getJob({int page = 1}) async {
+  Future<NetworkResult<GetClientJobResponse>> getJob({int page = 1,bool? upcoming }) async {
     return get<GetClientJobResponse>(
-      queryParameters: {'page': page},
+      queryParameters: {'page': page,'upcoming':upcoming},
       endpoint: Endpoint.clientJob,
       fromJson: (json) => GetClientJobResponse.fromJson(json),
     );
   }
 
-  Future<NetworkResult<GetJobDetailsResponse>> getJobDetails(num jobId) async {
-    return get<GetJobDetailsResponse>(
+  Future<NetworkResult<GetClientJobDetailsResponse>> getJobDetails(num jobId) async {
+    return get<GetClientJobDetailsResponse>(
       endpoint: "${Endpoint.clientJob}/$jobId",
-      fromJson: (json) => GetJobDetailsResponse.fromJson(json),
+      fromJson: (json) => GetClientJobDetailsResponse.fromJson(json),
     );
   }
 

@@ -1,11 +1,11 @@
 import 'package:ccs_app/app/modules/cleaner/dashboard/cleaner_dashboard_controller.dart';
 import 'package:ccs_app/app/network/repository/cleaner_repository.dart';
-import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../model/chat_message.dart';
 import '../../../model/client_job.dart';
 import '../../../network/response/get_staff_job_details_response.dart';
+import '../../../network/response/jobs.dart';
 import '../../../services/pref.dart';
 import 'job_check_photo_controller.dart';
 
@@ -13,12 +13,13 @@ import 'job_check_photo_controller.dart';
 class CleanerJobDetailController extends GetxController {
   final CleanerRepository _cleanerRepository = CleanerRepository();
 
-  final job = Rx<JobDetails?>(null);
+  final job = Rx<StaffJobDetails?>(null);
 
   /// True when cleaner can tap "Start job" (e.g. Scheduled, Accepted).
+  /// //Approved
   bool get canStartJob {
     final s = job.value?.status?.toLowerCase();
-    return s == 'scheduled' || s == 'accepted';
+    return s == 'scheduled' || s == 'accepted' || s == 'approved';
   }
 
   /// True when cleaner can tap "Stop job" (job in progress).
@@ -109,7 +110,7 @@ class CleanerJobDetailController extends GetxController {
 
   /// Navigate to check-in photo screen; on success update job status to in progress.
   void onStartJob() {
-    Get.toNamed(Routes.CLEANER_JOB_CHECKIN, arguments: {'job': job, 'mode': JobCheckPhotoMode.checkIn})?.then((result) {
+    Get.toNamed(Routes.CLEANER_JOB_CHECKIN, arguments: {'job': job.value, 'mode': JobCheckPhotoMode.checkIn})?.then((result) {
       if (result == true) job.value?.status = 'In progress';
     });
   }

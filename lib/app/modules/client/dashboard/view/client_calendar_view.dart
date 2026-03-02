@@ -206,7 +206,7 @@ class _UpcomingEvents extends StatelessWidget {
       return CalendarEmptyCard(scheme: scheme, onMyJobsPressed: onMyJobsPressed).marginSymmetric(horizontal: 6);
     }
     return AppGrid(
-      maxExtent: 132,
+      maxExtent: 134,
       axisSpacing: 8,
       phoneCount: 1,
       tabletCount: 2,
@@ -215,7 +215,7 @@ class _UpcomingEvents extends StatelessWidget {
       child: List.generate(
         events.length,
         (i) => JobCard(
-          title: events[i].title.capitalizeFirst??"",
+          title: events[i].title,
           dateTime: '${CcsDateUtils.shortDateNoYear(dateKey)} · ${events[i].timeRange}',
           status: events[i].status,
           propertyName: events[i].propertyName,
@@ -257,7 +257,7 @@ class _ListContentView extends StatelessWidget {
         else
           AppGrid(
             physics: NeverScrollableScrollPhysics(),
-            maxExtent: 132,
+            maxExtent: 134,
             axisSpacing: 8,
             phoneCount: 1,
             tabletCount: 2,
@@ -265,7 +265,7 @@ class _ListContentView extends StatelessWidget {
             child: List.generate(
               list.length,
               (i) => JobCard(
-                title: list[i].$2.title.capitalizeFirst ?? "",
+                title: list[i].$2.title,
                 dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
                 status: list[i].$2.status,
                 propertyName: list[i].$2.propertyName,

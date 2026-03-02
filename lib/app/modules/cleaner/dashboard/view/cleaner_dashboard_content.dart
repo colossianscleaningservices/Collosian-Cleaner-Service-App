@@ -12,11 +12,6 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    /*final upcoming = controller.upcomingJobsForDashboard;
-    final hasJobs = upcoming.isNotEmpty;
-    final nextJob = hasJobs ? upcoming.first : null;
-    final jobCount = upcoming.length;*/
-
     return SingleChildScrollView(
       padding: UiConstants.padding,
       child: Column(

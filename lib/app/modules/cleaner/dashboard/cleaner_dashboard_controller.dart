@@ -13,8 +13,8 @@ import '../../../model/calendar_event.dart';
 import '../../../model/common_model.dart';
 import '../../../model/menu_model.dart';
 import '../../../network/repository/cleaner_repository.dart';
-import '../../../network/response/cleaner_job_response.dart';
 import '../../../network/response/get_availability_response.dart' as avail_resp;
+import '../../../network/response/jobs.dart';
 import '../../../network/response/staff_dashboard_response.dart';
 import '../../../services/session_service.dart';
 import 'view/cleaner_availability_view.dart';
@@ -60,18 +60,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   /// Placeholder events. Replace with API-backed source.
   Map<DateTime, List<CalendarEvent>> get eventsMap => calendarEventsMap.value;
 
-  /// Flattened, sorted (date asc) for dashboard. Replace with API-backed source.
-  List<(DateTime date, CalendarEvent event)> get upcomingJobsForDashboard {
-    final list = <(DateTime, CalendarEvent)>[];
-    for (final e in eventsMap.entries) {
-      for (final ev in e.value) {
-        list.add((e.key, ev));
-      }
-    }
-    list.sort((a, b) => a.$1.compareTo(b.$1));
-    return list;
-  }
-
   /// Placeholder. Replace with API/session.
   RxString earningsTotal = '£0.00'.obs;
 
@@ -93,15 +81,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     return CcsDateUtils.fullMonthYear(focusedDay.value);
   }
 
-  List<MenuModel> profileItems = [
-    MenuModel(icon: IconsaxPlusLinear.lock_1, title: 'Change password', subtitle: "Change password to protect your account"),
-    MenuModel(icon: IconsaxPlusLinear.home_hashtag, title: 'Properties', subtitle: "Manage your properties"),
-    MenuModel(icon: IconsaxPlusLinear.people, title: 'Preferred Staff', subtitle: "Manage your preferred staff members"),
-    MenuModel(icon: IconsaxPlusLinear.notification, title: 'Notifications', subtitle: "View and manage notifications"),
-    MenuModel(icon: IconsaxPlusLinear.trade, title: 'Training & Resources', subtitle: "View Training Resources & FAQs"),
-    MenuModel(icon: IconsaxPlusLinear.message_question, title: 'Help & support', subtitle: "Get help and support"),
-  ];
-
   List<MenuModel> cleanerProfileItems = [
     MenuModel(icon: IconsaxPlusLinear.lock_1, title: 'Change password', subtitle: "Change password to protect your account"),
     MenuModel(icon: IconsaxPlusLinear.home_hashtag, title: 'References', subtitle: "Manage your references"),
@@ -114,9 +93,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     MenuModel(icon: IconsaxPlusLinear.message_question, title: 'Help & support', subtitle: "Get help and support"),
   ];
 
-  List<String> propertyNameOptions = ['British Citizen / Right of Adobe', 'Settled Status', 'Other'];
-  List<String> statusOptions = ['All', 'Finished', 'Approved'];
-  final selectedPropertyName = Rxn<String>();
+  RxList<String> propertyNameOptions = <String>[].obs;
+  List<String> statusOptions = ['All', 'Finished', 'Approved', 'Pending', 'Created', 'Cancelled'];
   final selectedStatus = Rxn<String>();
   RxList<CommonModel> filter = <CommonModel>[].obs;
 
@@ -129,7 +107,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   // This will hold the suggestions that will be used in the typeahead field
   final SuggestionsController<String> suggestionsController = SuggestionsController<String>();
 
-  // final jobs = <ClientJob>[].obs;
   final jobs = <Jobs>[].obs;
 
   final Rxn<StaffDashModel> staffDash = Rxn<StaffDashModel>(null);
@@ -245,6 +222,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     selectedDay.value = selected;
     focusedDay.value = focused;
     final day = selected ?? focused;
+    if (mode.value == CalendarViewMode.month || mode.value == CalendarViewMode.week) return;
     getCleanerCalender(forDate: day, singleDay: true);
   }
 
@@ -273,14 +251,23 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
   }
 
-  void setTab(int index) {
+  Future<void> setTab(int index) async {
     tabIndex.value = index.clamp(0, pages.length - 1);
 
     if (index == 2) {
+      var item = filter.firstWhereOrNull((item) => item.isSelected);
+
+      String type = '';
+
+      if (item != null && item.type != 'All Jobs') {
+        type = item.type;
+      }
+
       jobCurrentPage = 1;
-      fetchJobs();
+      fetchJobs(filter: type);
     } else if (tabIndex.value == 1) {
-      getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
+      await getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
+      if (propertyNameOptions.isEmpty) await geCleanerProperties();
     } else if (tabIndex.value == 3 && weeklySchedule.isEmpty) {
       weeklySchedule.assignAll(List.generate(7, DayAvailability.getDefault));
       getCleanerAvailability();
@@ -361,6 +348,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           child: Row(
             children: [
               AppCard(
+                enableShadows: false,
                 radius: UiConstants.radiusDefault,
                 color: scheme.secondaryContainer.withValues(alpha: 0.7),
                 child: Icon(
@@ -390,16 +378,15 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
         // Filter card
         Obx(() {
           return AppCard(
-            radius: UiConstants.radiusLarge,
-            enableShadows: true,
-            borderWidth: 1,
-            borderColor: scheme.outline.withValues(alpha: 0.12),
+            radius: 0,
+            enableShadows: false,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 CommonTypeAheadField<String>(
                   controller: propertyController,
                   focusNode: focusNode,
+                  label: 'Property Name',
                   suggestionsController: suggestionsController,
                   suggestionsCallback: getSuggestions,
                   itemBuilder: (context, item) {
@@ -437,7 +424,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
                   borderRadius: UiConstants.radiusDefault,
                 ),
               ],
-            ).paddingAll(UiConstants.defaultPadding),
+            ).paddingSymmetric(vertical: 0),
           );
         }).marginOnly(bottom: 18),
 
@@ -446,15 +433,29 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
             Expanded(
               child: AppButton(
                 type: ButtonType.tonal,
-                label: 'Cancel',
-                onPressed: () => Get.back(),
+                label: 'Reset Filter',
+                onPressed: () {
+                  Get.back();
+                  if (propertyController.text.isNotEmpty || selectedStatus.value != null) {
+                    propertyController.clear();
+                    selectedStatus.value = null;
+                    getCleanerCalender();
+                  }
+                },
               ).marginOnly(right: 4),
             ),
             Expanded(
               child: AppButton(
                 type: ButtonType.primary,
                 label: 'Apply Filter',
-                onPressed: () => Get.back(),
+                onPressed: () {
+                  if (propertyController.text.isEmpty && selectedStatus.value == null) {
+                    Notifier.error('Please select option to apply filter.');
+                  } else {
+                    Get.back();
+                    getCleanerCalender();
+                  }
+                },
               ).marginOnly(left: 4),
             ),
           ],
@@ -466,7 +467,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   Future<void> fetchJobs({bool isLoaderShown = true, String filter = ''}) async {
     if (!isJobMoreLoading.value && isLoaderShown) Loader.show();
     try {
-      final result = await _cleanerRepository.getCleanerJob(page: jobCurrentPage, status:  filter);
+      final result = await _cleanerRepository.getCleanerJob(page: jobCurrentPage, status: filter);
       result.handle(
         success: (response) {
           final raw = response.data;
@@ -510,7 +511,13 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           dateTo = _formatDateForApi(end);
         }
       }
-      final result = await _cleanerRepository.getCleanerCalender(dateFrom: dateFrom, dateTo: dateTo, date: date);
+      final result = await _cleanerRepository.getCleanerCalender(
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        date: date,
+        status: selectedStatus.value == "All" ? null : selectedStatus.value,
+        propertyName: propertyController.text.isEmpty ? null : propertyController.text,
+      );
       result.handle(
         success: (value) {
           final list = value.data?.jobs;
@@ -523,7 +530,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
             final dateKey = _parseCalendarDate(item.date);
             if (dateKey == null) continue;
             final event = CalendarEvent(
-              title: item.property?.propertyType ?? "",
+              title: item.cleaningType?.name ?? "",
               timeRange: _formatTimeRange(item.startTime, item.endTime),
               status: item.status ?? 'Pending',
               jobId: item.id,
@@ -669,9 +676,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     final List<DayAvailability> newSchedule = [];
     for (var i = 0; i < 7; i++) {
       final dayName = kDayNames[i];
-      final apiDay = data.weeklySchedule
-          ?.where((avail_resp.WeeklySchedule w) => w.day == dayName)
-          .firstOrNull;
+      final apiDay = data.weeklySchedule?.where((avail_resp.WeeklySchedule w) => w.day == dayName).firstOrNull;
       if (apiDay != null) {
         final slots = apiDay.slots ?? [];
         final timeSlots = slots.map((s) {
@@ -695,11 +700,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     // Blocked days: parse "yyyy-MM-dd" strings to date-only DateTime.
     final blocked = data.blockedDays ?? [];
     blockedDays.assignAll(
-      blocked
-          .map((d) => DateTime.tryParse(d))
-          .whereType<DateTime>()
-          .map((d) => DateTime(d.year, d.month, d.day))
-          .toList(),
+      blocked.map((d) => DateTime.tryParse(d)).whereType<DateTime>().map((d) => DateTime(d.year, d.month, d.day)).toList(),
     );
   }
 
@@ -707,6 +708,23 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   void _ensureWeeklyScheduleDefaults() {
     if (weeklySchedule.length != 7) {
       weeklySchedule.assignAll(List.generate(7, DayAvailability.getDefault));
+    }
+  }
+
+  Future<void> geCleanerProperties() async {
+    Loader.show();
+    try {
+      final result = await _cleanerRepository.geCleanerProperties();
+      result.handle(
+        success: (response) {
+          propertyNameOptions.clear();
+          response.data?.forEach((item) {
+            propertyNameOptions.add(item.propertyName ?? "");
+          });
+        },
+      );
+    } finally {
+      Loader.hide();
     }
   }
 }

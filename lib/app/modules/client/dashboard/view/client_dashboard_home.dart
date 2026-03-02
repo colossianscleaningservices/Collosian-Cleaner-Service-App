@@ -2,6 +2,8 @@ import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller
 import 'package:ccs_app/app/network/response/property_list_response.dart';
 import 'package:ccs_app/export.dart';
 
+import '../../../../network/response/jobs.dart';
+
 /// Dashboard content (the actual dashboard UI, not the shell).
 class ClientDashboardContent extends GetView<ClientDashboardController> {
   const ClientDashboardContent({super.key});
@@ -61,7 +63,10 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                   }),
                 ),
                 Obx(() {
-                  var todayJob = controller.clientDash.value?.todayJobs?.first;
+                  Jobs? todayJob;
+                  if (controller.clientDash.value?.todayJobs?.isNotEmpty == true) {
+                    todayJob = controller.clientDash.value?.todayJobs?.first;
+                  }
                   return AppCard(
                     color: scheme.primary,
                     radius: UiConstants.radiusXLarge,
@@ -112,7 +117,7 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                                       ? Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            CommonText.semiBold(todayJob.jobType?.capitalizeFirst ?? " - ", size: 16, color: scheme.onPrimary),
+                                            CommonText.semiBold(  todayJob.cleaningType?.name ?? " - ", size: 16, color: scheme.onPrimary),
                                             if (todayJob.startTime?.isNullOrEmpty == false && todayJob.endTime?.isNullOrEmpty == false) ...[
                                               const SizedBox(height: 6),
                                               Row(
@@ -163,19 +168,20 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                     trailing: _ViewAllChip(
                       label: 'View all',
                       scheme: scheme,
-                      onTap: () => Notifier.info('Upcoming bookings (coming soon)'),
+                      onTap: () => Get.toNamed(Routes.UPCOMING_JOB),
                     ),
                     child: (upcoming != null && upcoming.isNotEmpty == true)
                         ? AppGrid(
                             physics: NeverScrollableScrollPhysics(),
-                            maxExtent: 114,
+                            maxExtent: 126,
                             axisSpacing: 16,
                             phoneCount: 1,
                             tabletCount: 2,
                             landscapeCount: 3,
                             child: upcoming.map((job) {
                               return JobCard(
-                                title: job.jobType?.capitalizeFirst ?? "N/A",
+                                padding: 4,
+                                title: job.cleaningType?.name?? "N/A",
                                 dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
                                 status: job.status ?? "N/A",
                                 propertyName: job.property?.propertyName ?? "N/A",

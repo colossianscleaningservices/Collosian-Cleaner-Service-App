@@ -88,6 +88,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                             label: 'JOB SCHEDULED: ${(j?.isScheduled ?? false) ? 'YES' : 'NO'}',
                             backgroundColor: (j?.isScheduled ?? false) ? scheme.primaryContainer : scheme.surfaceContainerHighest,
                             foregroundColor: (j?.isScheduled ?? false) ? scheme.primary : scheme.onSurfaceVariant,
+                            leftPadding: 0,
                           ),
                           InfoChip(
                               label: 'Status: ${j?.status?.toUpperCase() ?? "N/A"}',
@@ -106,7 +107,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                             value: j?.jobEndDate != null ? CcsDateUtils.fullDate(DateTime.parse(j?.jobEndDate ?? "")) : '–',
                             scheme: scheme),
                       LabelValueRow(label: 'Job end time', value: j?.endTime ?? "N/A", scheme: scheme),
-                      if (j?.isScheduled == false) ...[
+                      if (j?.isScheduled == false && j?.status != 'Cancelled') ...[
                         const SizedBox(height: 16),
                         AppButton(
                           label: 'Schedule',
@@ -116,9 +117,12 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                       ],
                       if (j?.isScheduled == true) ...[
                         const SizedBox(height: 12),
-                        TextButton(
-                          onPressed: c.onCancelJob,
-                          child: CommonText.regular('Cancel job', size: 14, color: scheme.error),
+                        AppButton(
+                          label: 'Cancel job',
+                          onPressed: () => c.onCancelJob(),
+                          type: ButtonType.outline,
+                          txtClr: context.colorScheme.error,
+                          borderClr: context.colorScheme.error,
                         ),
                       ],
                     ],

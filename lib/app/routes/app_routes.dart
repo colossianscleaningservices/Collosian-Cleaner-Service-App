@@ -45,8 +45,9 @@ abstract class Routes {
   static const JOB_CHAT = _Paths.JOB_CHAT;
   static const SUPPORT_CHAT = _Paths.SUPPORT_CHAT;
   static const CONTACT_US = _Paths.CONTACT_US;
-  static const NEWSLETTERS =  _Paths.NEWSLETTERS;
+  static const NEWSLETTERS = _Paths.NEWSLETTERS;
   static const FAQ = _Paths.FAQ;
+  static const UPCOMING_JOB = _Paths.UPCOMING_JOB;
 }
 
 abstract class _Paths {
@@ -71,6 +72,7 @@ abstract class _Paths {
   static const PROPERTY = '/property';
   static const ADD_PROPERTY = '/add-property';
   static const ADD_REVIEW = '/add-review';
+  static const UPCOMING_JOB = '/client/upcoming-job';
 
   // Cleaner module
   static const CLEANER_DASHBOARD = '/cleaner';

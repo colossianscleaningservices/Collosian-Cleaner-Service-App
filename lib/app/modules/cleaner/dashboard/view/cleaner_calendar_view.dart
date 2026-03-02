@@ -1,4 +1,3 @@
-import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
 import 'package:ccs_app/export.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -83,7 +82,7 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                 ),
                 SingleChildScrollView(
                   child: Obx(() {
-                    return _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap);
+                    return _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap).marginSymmetric(horizontal: 8);
                   }),
                 ),
               ],
@@ -174,7 +173,7 @@ class _CalendarSection extends StatelessWidget {
           focusedDay: focusedDay,
           onMyJobsPressed: () => ctrl.setTab(2),
           onJobTap: (event) => ctrl.openDetail(event.jobId),
-        ).marginSymmetric(horizontal: 16),
+        ).marginSymmetric(horizontal: 24),
       ],
     );
   }
@@ -207,12 +206,14 @@ class _UpcomingEvents extends StatelessWidget {
     if (events.isEmpty) {
       return CalendarEmptyCard(scheme: scheme, onMyJobsPressed: onMyJobsPressed);
     }
+
     return AppGrid(
       maxExtent: 130,
       axisSpacing: 8,
       phoneCount: 1,
       tabletCount: 2,
       landscapeCount: 3,
+      physics: NeverScrollableScrollPhysics(),
       child: List.generate(
         events.length,
         (i) => JobCard(
@@ -265,6 +266,7 @@ class _ListContentView extends StatelessWidget {
             phoneCount: 1,
             tabletCount: 2,
             landscapeCount: 3,
+            physics: NeverScrollableScrollPhysics(),
             child: List.generate(
               list.length,
               (i) => JobCard(

@@ -1,12 +1,13 @@
 import 'dart:convert';
 
+import 'package:ccs_app/app/modules/client/upcoming_job/upcoming_job_controller.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../network/repository/client_repository.dart';
 import '../../../network/repository/common_repository.dart';
 import '../../../network/request/create_job_request.dart';
 import '../../../network/response/cleaning_type_response.dart';
-import '../../../network/response/get_job_details_response.dart';
+import '../../../network/response/get_client_job_details_response.dart';
 import '../../../network/response/property_list_response.dart';
 import '../dashboard/client_dashboard_controller.dart';
 
@@ -41,7 +42,7 @@ class CreateJobController extends GetxController {
   final cleaningTypeList = <CleaningTypeModel>[].obs;
   final mainCleaningTypeList = <CleaningTypeModel>[].obs;
   var isEdit = false;
-  JobDetails? jobDetails;
+  ClientJobDetails? jobDetails;
   var isLoading = false.obs;
   var isLoadingCleaningType = false.obs;
   var searchFocus = FocusNode();
@@ -56,7 +57,7 @@ class CreateJobController extends GetxController {
     cleanersNeededController.text = '1';
 
     final arg = Get.arguments;
-    if (arg is JobDetails) {
+    if (arg is ClientJobDetails) {
       jobDetails = arg;
       isEdit = true;
       log(runtimeType.toString(), 'JOB DETAILS ${jobDetails?.toJson()}');
@@ -207,6 +208,7 @@ class CreateJobController extends GetxController {
               });
             });
             updateDashContent();
+            updateUpcomingContent();
           },
           contextTag: 'update-job',
         );
@@ -301,11 +303,20 @@ class CreateJobController extends GetxController {
     }
   }
 
-  void updateDashContent(){
+  void updateDashContent() {
     bool isControllerRegistered = Get.isRegistered<ClientDashboardController>();
     if (isControllerRegistered) {
       ClientDashboardController ctrl = Get.find();
       ctrl.getClientDash(isLoaderShown: false);
+    }
+  }
+
+  void updateUpcomingContent() {
+    bool isControllerRegistered = Get.isRegistered<UpcomingJobController>();
+    if (isControllerRegistered) {
+      UpcomingJobController ctrl = Get.find();
+      ctrl.jobCurrentPage = 1;
+      ctrl.fetchJobs(isLoaderShown: false);
     }
   }
 }

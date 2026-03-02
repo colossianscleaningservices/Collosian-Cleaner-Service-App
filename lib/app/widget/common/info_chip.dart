@@ -7,16 +7,18 @@ class InfoChip extends StatelessWidget {
     required this.label,
     required this.backgroundColor,
     required this.foregroundColor,
+    this.leftPadding = 10
   });
 
   final String label;
   final Color backgroundColor;
   final Color foregroundColor;
+  final double leftPadding;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding:  EdgeInsets.only(left: leftPadding,right: 10, top: 6,bottom: 6),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(UiConstants.radiusSmall),

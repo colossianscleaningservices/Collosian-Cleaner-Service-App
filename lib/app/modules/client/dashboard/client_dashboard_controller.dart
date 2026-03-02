@@ -2,7 +2,6 @@ import 'dart:io' show Platform;
 
 import 'package:ccs_app/app/model/menu_model.dart';
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
-import 'package:ccs_app/app/network/response/get_client_job_response.dart';
 import 'package:ccs_app/app/network/response/property_list_response.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
@@ -12,6 +11,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../../model/calendar_event.dart';
 import '../../../network/repository/client_repository.dart';
 import '../../../network/response/get_client_dash_response.dart';
+import '../../../network/response/jobs.dart';
 import '../../../services/session_service.dart';
 import 'view/client_calendar_view.dart';
 import 'view/client_dashboard_home.dart';
@@ -157,6 +157,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     selectedDay.value = selected;
     focusedDay.value = focused;
     final day = selected ?? focused;
+    if (mode.value == CalendarViewMode.month || mode.value == CalendarViewMode.week) return;
     getClientCalender(forDate: day, singleDay: true);
   }
 
@@ -290,7 +291,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
             final dateKey = _parseCalendarDate(item.date);
             if (dateKey == null) continue;
             final event = CalendarEvent(
-              title: item.jobType ?? "",
+              title: item.cleaningType?.name ?? "",
               timeRange: _formatTimeRange(item.startTime, item.endTime),
               status: item.status ?? 'Pending',
               jobId: item.id,
