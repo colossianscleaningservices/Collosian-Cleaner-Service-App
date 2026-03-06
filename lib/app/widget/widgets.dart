@@ -468,9 +468,10 @@ class AppCheckBox extends StatelessWidget {
 }
 
 void showPicker({
-  required VoidCallback? galleryPicker,
+  VoidCallback? galleryPicker,
   VoidCallback? cameraPicker,
   bool? isShowCameraOption,
+  bool? isShowGalleryOption,
   String? primaryText,
   primarySubtitle,
 }) {
@@ -480,19 +481,21 @@ void showPicker({
     spacing: 16,
     mainAxisSize: MainAxisSize.min,
     children: [
-      MenuItem(
-        MenuModel(
-          title: 'Choose from Gallery',
-          subtitle: 'Select from your photo library',
-          icon: IconsaxPlusLinear.gallery,
-        ),
-        bgColor: context.colorScheme.surfaceContainer,
-        onTap: () {
-          Get.back();
-          galleryPicker?.call();
-        },
-        padding: 12,
-      ),
+      if (isShowGalleryOption ?? true) ...[
+        MenuItem(
+          MenuModel(
+            title: 'Choose from Gallery',
+            subtitle: 'Select from your photo library',
+            icon: IconsaxPlusLinear.gallery,
+          ),
+          bgColor: context.colorScheme.surfaceContainer,
+          onTap: () {
+            Get.back();
+            galleryPicker?.call();
+          },
+          padding: 12,
+        )
+      ],
       if (isShowCameraOption ?? true) ...[
         MenuItem(
           MenuModel(

@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/utils/extension.dart';
 import 'package:dio/dio.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -19,7 +20,7 @@ class JobRepository extends BaseRepository {
       formData.files.add(MapEntry('photos', MultipartFile.fromBytes(bytes, filename: name)));
     }
     return post<BaseResponse>(
-      endpoint: Endpoint.cleanerJobCheckIn,
+      endpoint: Endpoint.cleanerJobCheckIn(jobId.toInt()),
       data: formData,
       fromJson: (j) => BaseResponse.fromJson(j),
     );

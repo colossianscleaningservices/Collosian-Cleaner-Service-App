@@ -14,6 +14,7 @@ import '../response/get_cleaning_service_response.dart';
 import '../response/get_client_calender_response.dart';
 import '../response/get_immigrations_response.dart';
 import '../response/get_staff_job_details_response.dart';
+import '../response/media_upload_response.dart';
 import '../utils/network_result.dart';
 import 'endpoint.dart';
 
@@ -89,17 +90,20 @@ class CleanerRepository extends BaseRepository {
 
   /// Check-in (start job): submit photos; backend stores them and sets job to in progress.
   Future<NetworkResult<BaseResponse>> checkIn({
-    required String jobId,
+    required int jobId,
+    required String checkInDate,
+    required String checkInTime,
     required List<XFile> photos,
   }) async {
-    final formData = FormData.fromMap({'job_id': jobId});
+    var formData = FormData.fromMap({'check_in_date': checkInDate});
+    formData = FormData.fromMap({'check_in_time': checkInTime});
     for (final x in photos) {
       final bytes = await x.readAsBytes();
       final name = x.name.isNotEmpty ? x.name : 'photo.jpg';
-      formData.files.add(MapEntry('photos', MultipartFile.fromBytes(bytes, filename: name)));
+      formData.files.add(MapEntry('before_photos[]', MultipartFile.fromBytes(bytes, filename: name)));
     }
     return post<BaseResponse>(
-      endpoint: Endpoint.cleanerJobCheckIn,
+      endpoint: Endpoint.cleanerJobCheckIn(jobId),
       data: formData,
       fromJson: (j) => BaseResponse.fromJson(j),
     );
@@ -165,4 +169,13 @@ class CleanerRepository extends BaseRepository {
       fromJson: (json) => CleanerPropertiesResponse.fromJson(json),
     );
   }
+
+  Future<NetworkResult<MediaUploadResponse>> mediaUpload(Map<String, dynamic> data) async {
+    return post<MediaUploadResponse>(
+      endpoint: Endpoint.mediaUpload,
+      data: FormData.fromMap(data),
+      fromJson: (json) => MediaUploadResponse.fromJson(json),
+    );
+  }
+
 }

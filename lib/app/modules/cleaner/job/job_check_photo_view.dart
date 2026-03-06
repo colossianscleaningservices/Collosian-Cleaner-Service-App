@@ -28,51 +28,83 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: UiConstants.padding,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Obx(() {
-                      if (controller.photos.isEmpty) {
-                        return GestureDetector(
-                          onTap: () => controller.showPhotoSourceSheet(context),
-                          child: Container(
-                            height: 160,
-                            decoration: BoxDecoration(
-                              color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                              borderRadius: BorderRadius.circular(UiConstants.radiusLarge),
-                              border: Border.all(color: scheme.outline.withValues(alpha: 0.5)),
-                            ),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(IconsaxPlusLinear.gallery_add, size: 48, color: scheme.primary),
-                                const SizedBox(height: 8),
-                                CommonText.regular('Tap to add photos', size: 14, color: scheme.onSurfaceVariant),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CommonText.semiBold('Photos (${controller.photos.length})', size: 14, color: scheme.onSurfaceVariant),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
+                  padding: UiConstants.padding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Obx(() {
+                        return CommonTextField(
+                          controller: controller.dateDisplayController,
+                          label: 'Job Start Date',
+                          hint: '-- / -- / ----',
+                          isReadOnly: true,
+                          onTap: () => _pickDate(context, controller),
+                          validator: (_) => controller.scheduleValidFrom.value == null ? 'Job Start Date is required' : null,
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              ...List.generate(
-                                  controller.photos.length, (i) => _PhotoThumbnail(file: controller.photos[i], onRemove: () => controller.removePhoto(i))),
-                              _AddPhotoChip(onTap: () => controller.showPhotoSourceSheet(context), scheme: scheme),
+                              if (controller.scheduleValidFrom.value != null)
+                                IconButton(
+                                  icon: const Icon(Icons.close, size: 18),
+                                  onPressed: () => controller.scheduleValidFrom(null),
+                                  constraints: const BoxConstraints(),
+                                  padding: const EdgeInsets.all(4),
+                                ),
+                              Icon(Icons.calendar_today, size: 20, color: scheme.primary).marginOnly(right: 12),
                             ],
                           ),
-                        ],
-                      );
-                    }),
-                  ],
-                ),
+                        );
+                      }).marginOnly(bottom: 16),
+                       CommonTextField(
+                          controller: controller.startTimeDisplayController,
+                          label: 'Start Time',
+                          hint: '--:--',
+                          isReadOnly: true,
+                          onTap: () => _pickTime(context, controller),
+                          suffixIcon: Icon(Icons.access_time, size: 20, color: scheme.primary),
+                        ).marginOnly(bottom: 16),
+                      Obx(() {
+                        if (controller.photos.isEmpty) {
+                          return GestureDetector(
+                            onTap: () => controller.showPhotoSourceSheet(context),
+                            child: Container(
+                              height: 160,
+                              decoration: BoxDecoration(
+                                color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                                borderRadius: BorderRadius.circular(UiConstants.radiusLarge),
+                                border: Border.all(color: scheme.outline.withValues(alpha: 0.5)),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(IconsaxPlusLinear.gallery_add, size: 48, color: scheme.primary),
+                                  const SizedBox(height: 8),
+                                  CommonText.regular('Tap to add photos', size: 14, color: scheme.onSurfaceVariant),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CommonText.semiBold('Photos (${controller.photos.length})', size: 14, color: scheme.onSurfaceVariant),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                ...List.generate(
+                                    controller.photos.length, (i) => _PhotoThumbnail(file: controller.photos[i], onRemove: () => controller.removePhoto(i))),
+                                _AddPhotoChip(onTap: () => controller.showPhotoSourceSheet(context), scheme: scheme),
+                              ],
+                            ),
+                          ],
+                        );
+                      }),
+                    ],
+                  )
+
               ),
             ),
             Padding(
@@ -107,7 +139,7 @@ class _PhotoThumbnail extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(UiConstants.radiusMedium),
             child: GestureDetector(
-              onTap: (){
+              onTap: () {
                 var multiImageProvider = MultiImageProvider(
                   [FileImage(File(file.path))].toList(),
                   initialIndex: 0,
@@ -176,4 +208,23 @@ class _AddPhotoChip extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> _pickDate(BuildContext context, JobCheckPhotoController ctrl) async {
+  final d = await showDatePicker(
+    context: context,
+    initialDate: ctrl.scheduleValidFrom.value?.isBefore(DateTime.now()) == true ? DateTime.now() : ctrl.scheduleValidFrom.value ?? DateTime.now(),
+    firstDate: DateTime.now(),
+    lastDate: DateTime(2030, 12, 31),
+  );
+  if (d != null && context.mounted) ctrl.setScheduleValidFrom(d);
+}
+
+Future<void> _pickTime(BuildContext context, JobCheckPhotoController ctrl) async {
+  final t = await showTimePicker(
+    context: context,
+    initialTime: const TimeOfDay(hour: 9, minute: 0),
+  );
+
+  ctrl.setStartTime(t);
 }

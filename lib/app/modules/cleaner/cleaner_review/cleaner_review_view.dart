@@ -226,15 +226,15 @@ class _ReviewCard extends StatelessWidget {
                         ),
                       ],
                     ).marginOnly(bottom: 4),
-                    Row(
-                      children: [
-                        CommonText.regular('Client: ', size: 14, color: scheme.onSurfaceVariant),
-                        Expanded(
-                          child: CommonText.semiBold(review.clientName, size: 16, color: scheme.onSurface),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
+                    // Row(
+                    //   children: [
+                    //     CommonText.regular('Client: ', size: 14, color: scheme.onSurfaceVariant),
+                    //     Expanded(
+                    //       child: CommonText.semiBold(review.clientName, size: 16, color: scheme.onSurface),
+                    //     ),
+                    //   ],
+                    // ),
+                    // const SizedBox(height: 6),
                     _StarRating(rating: review.rating.toDouble(), scheme: scheme, size: 16),
                   ],
                 ),

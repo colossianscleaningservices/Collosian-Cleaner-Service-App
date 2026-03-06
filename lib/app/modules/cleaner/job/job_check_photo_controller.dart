@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
+import 'package:dio/dio.dart' as dio;
 import '../../../network/repository/cleaner_repository.dart';
 import '../../../network/response/get_staff_job_details_response.dart';
 
@@ -51,6 +52,12 @@ class JobCheckPhotoController extends GetxController {
   StaffJobDetails? job;
   late final JobCheckPhotoMode mode;
 
+  final scheduleValidFrom = Rxn<DateTime>();
+  void setStartDate(DateTime? d) => scheduleValidFrom.value = d;
+  final startTime = Rxn<TimeOfDay>();
+  final dateDisplayController = TextEditingController();
+  final startTimeDisplayController = TextEditingController();
+
   bool get isCheckIn => mode == JobCheckPhotoMode.checkIn;
 
   final RxList<XFile> photos = <XFile>[].obs;
@@ -78,6 +85,8 @@ class JobCheckPhotoController extends GetxController {
       job = StaffJobDetails();
       mode = JobCheckPhotoMode.checkIn;
     }
+    setScheduleValidFrom(DateTime.now());
+    setStartTime(TimeOfDay.now());
   }
 
   Future<void> addFromCamera([BuildContext? overlayContext]) async {
@@ -217,7 +226,10 @@ class JobCheckPhotoController extends GetxController {
   }
 
   void showPhotoSourceSheet(BuildContext context) {
-    showModalBottomSheet<void>(
+
+    showPicker(cameraPicker: () => pickCameraImage(context),isShowGalleryOption: false);
+
+  /*  showModalBottomSheet<void>(
       context: context,
       clipBehavior: Clip.hardEdge,
       useSafeArea: true,
@@ -256,7 +268,24 @@ class JobCheckPhotoController extends GetxController {
           ),
         ),
       ),
-    );
+    );*/
+  }
+
+  Future<void> pickCameraImage([BuildContext? overlayContext]) async {
+    try {
+      final pickedFile = await picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+          Loader.show();
+          final ctx = overlayContext != null && overlayContext.mounted ? overlayContext : null;
+          // ignore: use_build_context_synchronously - ctx is re-checked for mounted in addBookmark
+          await addBookmark(pickedFile, ctx);
+          Loader.hide();
+          photos.add(pickedFile);
+
+      }
+    } catch (e) {
+      Notifier.info('Failed to pick image: $e');
+    }
   }
 
   Future<void> submit() async {
@@ -272,12 +301,27 @@ class JobCheckPhotoController extends GetxController {
 
     Loader.show();
     try {
+
+      var value = await dio.MultipartFile.fromFile(photos.first.path, filename: "image_${DateTime.now()}.jpg").then((value) {
+        return value;
+      });
+
+      final data = <String, dynamic>{};
+      data["file"] = value;
+      data["mediaable_type"] = 'App\\Models\\Job';
+      data["mediaable_id"] = '1';
+      data["media_type"] = 'check_in';
+
+      log(runtimeType.toString(), 'Media Upload Data => $data');
+      log(runtimeType.toString(), 'Media Upload Data => ${value.length}');
+
       final result = isCheckIn
-          ? await _cleanerRepository.checkIn(jobId: job?.id.toString() ?? "", photos: photos.toList())
+          ? await _cleanerRepository.mediaUpload(data)
           : await _cleanerRepository.checkOut(jobId: job?.id.toString() ?? "", photos: photos.toList());
       result.handle(
-        success: (_) {
+        success: (value) {
           Notifier.success(isCheckIn ? 'Job started' : 'Job completed');
+          _cleanerRepository.checkIn(jobId: job?.id?.toInt() ?? 0,checkInDate: dateDisplayController.text,checkInTime: startTimeDisplayController.text , photos: photos.toList());
           Get.back(result: true);
         },
         contextTag: 'job_check_photo',
@@ -286,4 +330,15 @@ class JobCheckPhotoController extends GetxController {
       Loader.hide();
     }
   }
+
+  void setScheduleValidFrom(DateTime d) {
+    scheduleValidFrom.value = DateTime(d.year, d.month, d.day);
+    dateDisplayController.text = d != null ? CcsDateUtils.forInput(d) : '';
+  }
+
+  void setStartTime(TimeOfDay? t) {
+    startTime.value = t;
+    startTimeDisplayController.text = t != null ? '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}' : '';
+  }
+
 }
