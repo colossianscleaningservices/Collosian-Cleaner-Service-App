@@ -19,18 +19,22 @@ class CleanerJobDetailController extends GetxController {
   /// //Approved
   bool get canStartJob {
     final s = job.value?.status?.toLowerCase();
-    return s == 'scheduled' || s == 'accepted' || s == 'approved';
+    var cleanerJobStatus = ((job.value?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status));
+    return s == 'scheduled' || s == 'accepted' || s == 'approved' && cleanerJobStatus?.toLowerCase() != 'in process' && cleanerJobStatus?.toLowerCase() != 'completed';
   }
 
   /// True when cleaner can tap "Stop job" (job in progress).
   bool get canStopJob {
-    final s = job.value?.status?.toLowerCase();
-    return s == 'in progress' || s == 'in_progress';
+    /*final s = job.value?.status?.toLowerCase();*/
+    /*return s == 'in progress' || s == 'in_progress';*/
+    var s = ((job.value?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status))?.toLowerCase();
+    return s == 'in process' || s == 'in_process';
   }
 
   /// True when job is completed and cleaner can tap "Review".
   bool get canShowReview {
-    final s = job.value?.status?.toLowerCase();
+    /*final s = job.value?.status?.toLowerCase();*/
+    var s = ((job.value?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status))?.toLowerCase();
     return s == 'completed';
   }
 
@@ -111,14 +115,20 @@ class CleanerJobDetailController extends GetxController {
   /// Navigate to check-in photo screen; on success update job status to in progress.
   void onStartJob() {
     Get.toNamed(Routes.CLEANER_JOB_CHECKIN, arguments: {'job': job.value, 'mode': JobCheckPhotoMode.checkIn})?.then((result) {
-      if (result == true) job.value?.status = 'In progress';
+      if (result == true) {
+        /*job.value?.status = 'In progress';*/
+        fetchJobDetails();
+      }
     });
   }
 
   /// Navigate to check-out photo screen; on success update job status to completed.
   void onStopJob() {
-    Get.toNamed(Routes.CLEANER_JOB_CHECKOUT, arguments: {'job': job, 'mode': JobCheckPhotoMode.checkOut})?.then((result) {
-      if (result == true) job.value?.status = 'Completed';
+    Get.toNamed(Routes.CLEANER_JOB_CHECKOUT, arguments: {'job': job.value, 'mode': JobCheckPhotoMode.checkOut})?.then((result) {
+      if (result == true) {
+        /*job.value?.status = 'Completed';*/
+        fetchJobDetails();
+      }
     });
   }
 

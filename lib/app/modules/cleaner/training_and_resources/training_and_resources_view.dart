@@ -490,9 +490,9 @@ class _TrainingCard extends StatelessWidget {
 
     return AppCard(
       onTap: () {
-        // if (isSeen == false && item.id != null) {
+        if (isSeen == false && item.id != null) {
         ctrl.seenTrainingResources(item.id!.toInt(), ctrl.trainingList.indexOf(item));
-        // }
+        }
       },
       radius: UiConstants.radiusLarge,
       enableShadows: true,

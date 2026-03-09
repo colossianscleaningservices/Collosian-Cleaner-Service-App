@@ -18,7 +18,8 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
       final j = controller.job.value;
 
       // 'Accepted','Rejected'
-      var cleanerStatus = ((j?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status?.toLowerCase()));
+      var cleanerStatus = ((j?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status));
+      var cleaner = ((j?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)));
 
       return AppScaffold(
         appBar: Header(
@@ -60,10 +61,7 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                               spacing: 8,
                               runSpacing: 8,
                               children: [
-                                InfoChip(
-                                    label: cleanerStatus?.capitalizeFirst ?? j?.status ?? "N/A",
-                                    backgroundColor: scheme.primaryContainer,
-                                    foregroundColor: scheme.primary),
+                                InfoChip(label: cleanerStatus ?? j?.status ?? "N/A", backgroundColor: scheme.primaryContainer, foregroundColor: scheme.primary),
 
                                 /*if (j?.recurrence != null)
                                   InfoChip(label: j.recurrence!, backgroundColor: scheme.secondaryContainer, foregroundColor: scheme.secondary),*/
@@ -75,8 +73,8 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                             if (j?.jobEndDate != null)
                               LabelValueRow(label: 'End date', value: CcsDateUtils.fullDate(DateTime.parse(j?.jobEndDate ?? "")), scheme: scheme),
                             if ((j?.status == 'Pending' || j?.status?.toLowerCase() == 'pending') &&
-                                cleanerStatus != 'accepted' &&
-                                cleanerStatus != 'rejected') ...[
+                                cleanerStatus?.toLowerCase() != 'accepted' &&
+                                cleanerStatus?.toLowerCase() != 'rejected') ...[
                               const SizedBox(height: 16),
                               Row(
                                 children: [
@@ -102,6 +100,40 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                                       borderClr: scheme.error,
                                       btnVerticalPadding: 12,
                                       btnHorizontalPadding: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            if (cleanerStatus?.toLowerCase() == 'completed') ...[
+                              Column(
+                                children: [
+                                  if (cleaner?.checkInDate != null) LabelValueRow(label: 'Check-In Date', value: CcsDateUtils.fullDate(DateTime.parse(cleaner?.checkInDate ?? "")), scheme: scheme),
+                                  if (cleaner?.checkOutDate != null) LabelValueRow(label: 'Check-Out Date', value: CcsDateUtils.fullDate(DateTime.parse(cleaner?.checkOutDate ?? "")), scheme: scheme),
+                                  LabelValueRow(label: 'Check-In/Check-Out Time', value: '${cleaner?.checkInTime ?? "N/A"} – ${cleaner?.checkOutTime ?? "N/A"}', scheme: scheme),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                    decoration: BoxDecoration(
+                                      color: scheme.primaryContainer.withValues(alpha: 0.6),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: scheme.primary.withValues(alpha: 0.3), width: 1),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(IconsaxPlusLinear.tick_circle, size: 28, color: scheme.primary),
+                                        const SizedBox(width: 14),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              CommonText.semiBold('Check-in & check-out completed', size: 14, color: scheme.onSurface),
+                                              const SizedBox(height: 4),
+                                              CommonText.regular('No further action needed for this job.', size: 12, color: scheme.onSurfaceVariant),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -189,8 +221,9 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                         const SizedBox(height: 8),
                         ...?j?.cleaners?.map(
                           (cl) {
-                            var status = ((j.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == cl.id.toString())?.status));
-                            var cleaner = ClientJobCleaner(id: cl.id.toString(), name: cl.name ?? "N/A", status: status ?? "N/A");
+                            var item = ((j.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == cl.id.toString())));
+                            var cleaner =
+                                ClientJobCleaner(id: cl.id.toString(), name: cl.name ?? "N/A", status: cl.status ?? "N/A", isReview: item?.isReviewed ?? false);
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 10),
                               child: CleanerCard(

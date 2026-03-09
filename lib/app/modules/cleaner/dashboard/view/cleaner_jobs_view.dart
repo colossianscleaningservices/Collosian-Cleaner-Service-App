@@ -77,17 +77,15 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                   ),
                   AppSliverGrid(
                     maxExtent: 174,
-                    controller: controller.jobScrollController,
+                    physics: NeverScrollableScrollPhysics(),
                     axisSpacing: 12,
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     phoneCount: 1,
                     tabletCount: 2,
                     landscapeCount: 3,
                     child: upcoming.map(
-                          (job) {
-                        var cleanerStatus = ((job.jobCleaners
-                            ?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)
-                            ?.status));
+                      (job) {
+                        var cleanerStatus = ((job.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status));
                         return JobCard(
                           title: job.cleaningType?.name ?? "N/A",
                           dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
@@ -114,6 +112,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                   ),
                   AppSliverGrid(
                     maxExtent: 174,
+                    physics: NeverScrollableScrollPhysics(),
                     axisSpacing: 12,
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     phoneCount: 1,
@@ -121,8 +120,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     landscapeCount: 3,
                     child: past
                         .map(
-                          (job) =>
-                          JobCard(
+                          (job) => JobCard(
                             title: job.cleaningType?.name ?? "N/A",
                             dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
                             status: job.status ?? "N/A",
@@ -135,13 +133,19 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                                 : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
                             onTap: () => controller.openDetail(job.id),
                           ),
-                    )
+                        )
                         .toList(),
                   ),
                 ],
+
+                if (controller.isJobMoreLoading.value)
+                  SliverToBoxAdapter(
+                    child: PageLoader().marginOnly(top: 8),
+                  ),
                 const SliverToBoxAdapter(child: SizedBox(height: 24)),
               ];
               return CustomScrollView(
+                controller: controller.jobScrollController,
                 slivers: slivers,
               );
             }),
@@ -163,46 +167,45 @@ class _FilterChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(
-          () =>
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: controller.filter.map((category) {
-              final isSelected = category.isSelected;
-              return Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    for (var element in controller.filter) {
-                      element.isSelected = false;
-                    }
-                    category.isSelected = true;
-                    controller.jobCurrentPage = 1;
-                    controller.fetchJobs(filter: (category.type != 'All Jobs') ? category.type : '');
-                    controller.filter.refresh();
-                  },
+      () => Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: controller.filter.map((category) {
+          final isSelected = category.isSelected;
+          return Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                for (var element in controller.filter) {
+                  element.isSelected = false;
+                }
+                category.isSelected = true;
+                controller.jobCurrentPage = 1;
+                controller.fetchJobs(filter: (category.type != 'All Jobs') ? category.type : '');
+                controller.filter.refresh();
+              },
+              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                decoration: BoxDecoration(
+                  color: isSelected ? scheme.primaryContainer.withValues(alpha: 0.5) : scheme.onPrimary,
                   borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    decoration: BoxDecoration(
-                      color: isSelected ? scheme.primaryContainer.withValues(alpha: 0.5) : scheme.onPrimary,
-                      borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                      boxShadow: context.effectiveShadows(),
-                      border: Border.all(
-                        color: isSelected ? scheme.primary.withValues(alpha: 0.4) : scheme.outline.withValues(alpha: 0.15),
-                        width: isSelected ? 1.5 : 1,
-                      ),
-                    ),
-                    child: CommonText.medium(
-                      category.type,
-                      size: 14,
-                      color: isSelected ? scheme.primary : scheme.onSurface,
-                    ).paddingSymmetric(horizontal: 14, vertical: 10),
+                  boxShadow: context.effectiveShadows(),
+                  border: Border.all(
+                    color: isSelected ? scheme.primary.withValues(alpha: 0.4) : scheme.outline.withValues(alpha: 0.15),
+                    width: isSelected ? 1.5 : 1,
                   ),
                 ),
-              );
-            }).toList(),
-          ),
+                child: CommonText.medium(
+                  category.type,
+                  size: 14,
+                  color: isSelected ? scheme.primary : scheme.onSurface,
+                ).paddingSymmetric(horizontal: 14, vertical: 10),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }

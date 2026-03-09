@@ -206,18 +206,21 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                   const SizedBox(height: 8),
                   ...?j?.cleaners?.map(
                     (cl) {
+
+                      var cleaner  = j.jobCleaners?.firstWhereOrNull((element) => element.userId == cl.id);
+
                       var item = ClientJobCleaner(
                         id: cl.id.toString(),
                         avatarUrl: cl.imageUrl,
                         name: cl.name ?? "",
-                        status: j.jobCleaners?.firstWhereOrNull((element) => element.userId == cl.id)?.status ?? "N/A",
+                        status: cleaner?.status ?? "N/A",
                       );
 
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 10),
                         child: CleanerCard(
                           cleaner: item,
-                          isReview: true,
+                          isReview: cleaner?.isReviewed == true ? false : true,
                           onShare: () => c.onShareCleanerProfile(item),
                           scheme: scheme,
                           onReview: () => c.onReviewCleanerProfile(item),

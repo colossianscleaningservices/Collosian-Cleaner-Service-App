@@ -2,14 +2,15 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:ccs_app/app/network/repository/common_repository.dart';
 import 'package:ccs_app/export.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
-import 'package:dio/dio.dart' as dio;
-import '../../../network/repository/cleaner_repository.dart';
+import '../../../network/repository/job_repository.dart';
 import '../../../network/response/get_staff_job_details_response.dart';
 
 enum JobCheckPhotoMode { checkIn, checkOut }
@@ -47,12 +48,14 @@ void _watermarkPhotoInIsolate((String filePath, Uint8List imgBytes, String water
 /// Controller for the check-in / check-out photo screen.
 /// Cleaner adds one or more photos and submits; job is only started/stopped after API success.
 class JobCheckPhotoController extends GetxController {
-  final CleanerRepository _cleanerRepository = CleanerRepository();
+  final JobRepository _jobRepository = JobRepository();
+  final CommonRepository _commonRepository = CommonRepository();
 
   StaffJobDetails? job;
   late final JobCheckPhotoMode mode;
 
   final scheduleValidFrom = Rxn<DateTime>();
+
   void setStartDate(DateTime? d) => scheduleValidFrom.value = d;
   final startTime = Rxn<TimeOfDay>();
   final dateDisplayController = TextEditingController();
@@ -226,62 +229,19 @@ class JobCheckPhotoController extends GetxController {
   }
 
   void showPhotoSourceSheet(BuildContext context) {
-
-    showPicker(cameraPicker: () => pickCameraImage(context),isShowGalleryOption: false);
-
-  /*  showModalBottomSheet<void>(
-      context: context,
-      clipBehavior: Clip.hardEdge,
-      useSafeArea: true,
-      backgroundColor: context.colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(UiConstants.defaultPadding),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CommonText.extraBold('Add photo', size: 18, color: context.colorScheme.onSurface),
-              const SizedBox(height: 16),
-              AppButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  addFromCamera(context);
-                },
-                label: 'Camera',
-              ),
-              const SizedBox(height: 12),
-              AppButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  addFromGallery(context);
-                },
-                label: 'Gallery',
-              ),
-            ],
-          ),
-        ),
-      ),
-    );*/
+    showPicker(cameraPicker: () => pickCameraImage(context), isShowGalleryOption: false);
   }
 
   Future<void> pickCameraImage([BuildContext? overlayContext]) async {
     try {
       final pickedFile = await picker.pickImage(source: ImageSource.camera);
       if (pickedFile != null) {
-          Loader.show();
-          final ctx = overlayContext != null && overlayContext.mounted ? overlayContext : null;
-          // ignore: use_build_context_synchronously - ctx is re-checked for mounted in addBookmark
-          await addBookmark(pickedFile, ctx);
-          Loader.hide();
-          photos.add(pickedFile);
-
+        Loader.show();
+        final ctx = overlayContext != null && overlayContext.mounted ? overlayContext : null;
+        // ignore: use_build_context_synchronously - ctx is re-checked for mounted in addBookmark
+        await addBookmark(pickedFile, ctx);
+        Loader.hide();
+        photos.add(pickedFile);
       }
     } catch (e) {
       Notifier.info('Failed to pick image: $e');
@@ -301,30 +261,57 @@ class JobCheckPhotoController extends GetxController {
 
     Loader.show();
     try {
-
-      var value = await dio.MultipartFile.fromFile(photos.first.path, filename: "image_${DateTime.now()}.jpg").then((value) {
-        return value;
-      });
+      List<dio.MultipartFile> files = [];
+      for (var photo in photos) {
+        var value = await dio.MultipartFile.fromFile(photo.path, filename: "image_${DateTime.now()}.jpg").then((value) {
+          return value;
+        });
+        files.add(value);
+      }
 
       final data = <String, dynamic>{};
-      data["file"] = value;
+      data["files[]"] = files;
       data["mediaable_type"] = 'App\\Models\\Job';
       data["mediaable_id"] = '1';
       data["media_type"] = 'check_in';
 
       log(runtimeType.toString(), 'Media Upload Data => $data');
-      log(runtimeType.toString(), 'Media Upload Data => ${value.length}');
+      for (var item in files) {
+        log(runtimeType.toString(), 'Media Upload Data => ${item.length}');
+      }
 
-      final result = isCheckIn
-          ? await _cleanerRepository.mediaUpload(data)
-          : await _cleanerRepository.checkOut(jobId: job?.id.toString() ?? "", photos: photos.toList());
-      result.handle(
-        success: (value) {
-          Notifier.success(isCheckIn ? 'Job started' : 'Job completed');
-          _cleanerRepository.checkIn(jobId: job?.id?.toInt() ?? 0,checkInDate: dateDisplayController.text,checkInTime: startTimeDisplayController.text , photos: photos.toList());
-          Get.back(result: true);
+      final mediaUploadResult = await _commonRepository.mediaUpload(data);
+      mediaUploadResult.handle(
+        success: (value) async {
+          List<String> imageUrlList = [];
+
+          value.data?.fileUrl?.forEach((item){
+            imageUrlList.add(item);
+          });
+
+          final result = isCheckIn
+              ? await _jobRepository.checkIn(
+                  jobId: job?.id?.toInt() ?? 0,
+                  checkInDate: scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "",
+                  checkInTime: startTime.value != null ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : "",
+                  photos: imageUrlList,
+                )
+              : await _jobRepository.checkOut(
+                  jobId: job?.id?.toInt() ?? 0,
+                  checkOutDate: scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "",
+                  checkOutTime: startTime.value != null ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : "",
+                  photos: imageUrlList,
+                );
+
+          result.handle(
+            success: (value) {
+              Notifier.success(value.message ?? (isCheckIn ? 'Job started' : 'Job completed'));
+              Get.back(result: true);
+            },
+            contextTag: 'job_check_photo',
+          );
         },
-        contextTag: 'job_check_photo',
+        contextTag: 'media_upload',
       );
     } finally {
       Loader.hide();
@@ -340,5 +327,4 @@ class JobCheckPhotoController extends GetxController {
     startTime.value = t;
     startTimeDisplayController.text = t != null ? '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}' : '';
   }
-
 }

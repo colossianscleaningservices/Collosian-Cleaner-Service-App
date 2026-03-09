@@ -512,7 +512,7 @@ void showPicker({
         ),
       ],
     ],
-  ).marginSymmetric(vertical: 16);
+  ).marginSymmetric(vertical: isShowGalleryOption == false ? 0 : 16);
 
   Notifier.openSheet(
     context,

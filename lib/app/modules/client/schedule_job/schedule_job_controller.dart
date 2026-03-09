@@ -1,7 +1,7 @@
-
 import 'package:ccs_app/export.dart';
 
-import '../../../model/client_job.dart';
+import '../../../network/request/schedule_job_request.dart';
+import '../../../network/response/get_client_job_details_response.dart';
 import '../job/client_job_detail_controller.dart';
 
 /// Frequency for recurring schedule.
@@ -14,8 +14,7 @@ const List<String> repeatEveryWeekOptions = ['Every week', 'Every 2 weeks', 'Eve
 const List<String> weekdayLabels = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 
 class ScheduleJobController extends GetxController {
-  ClientJob get job => _job;
-  late ClientJob _job;
+  final job = Rx<ClientJobDetails?>(null);
 
   final startDate = Rx<DateTime>(DateTime.now());
   final startTime = Rx<TimeOfDay>(const TimeOfDay(hour: 9, minute: 0));
@@ -36,24 +35,24 @@ class ScheduleJobController extends GetxController {
   void onInit() {
     super.onInit();
     final arg = Get.arguments;
-    if (arg is ClientJob) {
-      _job = arg;
-    } else {
-      _job = ClientJob(
-        id: '',
-        clientName: '',
-        jobType: '',
-        date: DateTime.now(),
-        startTime: '09:00',
-        endTime: '12:00',
-        status: 'Created',
-        propertyOneLine: '',
-      );
+    if (arg is ClientJobDetails) {
+      job.value = arg;
     }
-    startDate.value = DateTime(_job.date.year, _job.date.month, _job.date.day);
-    startTime.value = _parseTime(_job.startTime);
-    endDate.value = null; // optional: leave empty for indefinite
-    endTime.value = _parseTime(_job.endTime);
+
+    if (job.value != null) {
+      if (job.value?.date != null) {
+        startDate.value = DateTime.parse(job.value?.date ?? "");
+      }
+      if (job.value?.startTime != null) {
+        startTime.value = _parseTime(job.value?.startTime ?? "");
+      }
+      if (job.value?.endTime != null) {
+        endTime.value = _parseTime(job.value?.endTime ?? "");
+      }
+
+      endDate.value = null; // optional: leave empty for indefinite
+    }
+
     _syncDisplayControllers();
   }
 
@@ -152,13 +151,30 @@ class ScheduleJobController extends GetxController {
   Future<void> submit() async {
     try {
       final detailCtrl = Get.find<ClientJobDetailController>();
-      final end = endDate.value ?? startDate.value;
-      await detailCtrl.scheduleJob(
-        startDate.value,
-        startTime.value,
-        end,
-        endTime.value,
+      final startStr = '${startDate.value.year}-${startDate.value.month.toString().padLeft(2, '0')}-${startDate.value.day.toString().padLeft(2, '0')}';
+      final endStr =  endDate.value == null ?  null : '${endDate.value?.year}-${endDate.value?.month.toString().padLeft(2, '0')}-${endDate.value?.day.toString().padLeft(2, '0')}';
+      var request = ScheduleJobRequest(
+        frequency: frequency.value.toLowerCase(),
+        startDate: startStr,
+        endDate: endStr,
+        copyCleaners: copyCleanersFromParent.value,
+        startTime: CcsDateTimeX.formatTimeOfDay(startTime.value),
+        endTime: CcsDateTimeX.formatTimeOfDay(endTime.value),
+        repeatEvery: frequency.value == 'Weekly' ? repeatEveryWeekOptions[repeatEveryWeekIndex.value] : null,
+        repeatOn: frequency.value == 'Weekly'
+            ? RepeatOn(
+                monday: repeatOnWeekdays.contains(1),
+                tuesday: repeatOnWeekdays.contains(2),
+                wednesday: repeatOnWeekdays.contains(3),
+                thursday: repeatOnWeekdays.contains(4),
+                friday: repeatOnWeekdays.contains(5),
+                saturday: repeatOnWeekdays.contains(6),
+                sunday: repeatOnWeekdays.contains(7),
+              )
+            : null,
       );
+      log(runtimeType.toString(), 'REQUEST ${request.toJson()}');
+      await detailCtrl.scheduleJob(request);
       Get.back();
     } catch (_) {
       // Error already shown by detail controller

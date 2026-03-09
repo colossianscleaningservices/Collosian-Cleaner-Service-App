@@ -92,15 +92,11 @@ class ClientEditProfileController extends GetxController {
 
   Future<void> saveProfile() async {
     Get.context!.hideKeyboard();
-    if (firstNameCtrl.text
-        .trim()
-        .isEmpty) {
+    if (firstNameCtrl.text.trim().isEmpty) {
       Notifier.info('First name is required');
       return;
     }
-    if (lastNameCtrl.text
-        .trim()
-        .isEmpty) {
+    if (lastNameCtrl.text.trim().isEmpty) {
       Notifier.info('Last name is required');
       return;
     }
@@ -109,12 +105,15 @@ class ClientEditProfileController extends GetxController {
       if (pickedImage.value != null) {
         Loader.show();
 
+        List<dio.MultipartFile> files = [];
+
         var value = await dio.MultipartFile.fromFile(pickedImage.value!.path, filename: "image_${DateTime.now()}.jpg").then((value) {
           return value;
         });
+        files.add(value);
 
         final data = <String, dynamic>{};
-        data["file"] = value;
+        data["files[]"] = files;
         data["mediaable_type"] = 'App\\Models\\User';
         data["mediaable_id"] = '1';
         data["media_type"] = 'profile';
@@ -125,7 +124,10 @@ class ClientEditProfileController extends GetxController {
         result.handle(
           success: (value) {
             Loader.hide();
-            imageUrl.value= value.data?.fileUrl ?? '';
+
+            if (value.data?.fileUrl?.isNotEmpty == true) {
+              imageUrl.value = value.data?.fileUrl?.first ?? "";
+            }
           },
           onError: (_) {
             Loader.hide();
@@ -174,12 +176,8 @@ class ClientEditProfileController extends GetxController {
             if (isControllerRegistered) {
               ClientDashboardController ctrl = Get.find();
 
-              ctrl.userDisplayName.value = Get
-                  .find<SessionService>()
-                  .userDisplayName;
-              ctrl.userDisplayImage.value = Get
-                  .find<SessionService>()
-                  .userDisplayImage;
+              ctrl.userDisplayName.value = Get.find<SessionService>().userDisplayName;
+              ctrl.userDisplayImage.value = Get.find<SessionService>().userDisplayImage;
             }
 
             // Defer sheet to next frame so Loader.hide() from finally can close the loader first
@@ -190,10 +188,9 @@ class ClientEditProfileController extends GetxController {
                   message: value.message ?? 'Profile updated successfully',
                   isDismissable: false,
                   isShowCloseIcon: false,
-                  showSecondaryButton: false,
-                  onPrimaryPressed: () {
-                    Get.back(result: true);
-                  });
+                  showSecondaryButton: false, onPrimaryPressed: () {
+                Get.back(result: true);
+              });
             });
           },
           contextTag: 'edit-profile',

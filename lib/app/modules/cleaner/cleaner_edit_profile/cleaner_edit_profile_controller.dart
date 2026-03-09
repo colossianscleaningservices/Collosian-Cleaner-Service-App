@@ -150,12 +150,16 @@ class CleanerEditProfileController extends GetxController {
     if (pickedImage.value != null) {
       Loader.show();
 
+      List<dio.MultipartFile> files = [];
+
       var value = await dio.MultipartFile.fromFile(pickedImage.value!.path, filename: "image_${DateTime.now()}.jpg").then((value) {
         return value;
       });
 
+      files.add(value);
+
       final data = <String, dynamic>{};
-      data["file"] = value;
+      data["files[]"] = files;
       data["mediaable_type"] = 'App\\Models\\User';
       data["mediaable_id"] = '1';
       data["media_type"] = 'profile';
@@ -166,7 +170,9 @@ class CleanerEditProfileController extends GetxController {
       result.handle(
         success: (value) {
           Loader.hide();
-          imageUrl.value = value.data?.fileUrl ?? "";
+          if (value.data?.fileUrl?.isNotEmpty == true) {
+            imageUrl.value = value.data?.fileUrl?.first ?? "";
+          }
         },
         onError: (_) {
           Loader.hide();

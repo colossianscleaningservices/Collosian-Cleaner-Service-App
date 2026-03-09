@@ -51,9 +51,9 @@ class Data {
 
   Data.fromJson(dynamic json) {
     id = json['id'];
-    fileName = json['file_name'];
-    filePath = json['file_path'];
-    fileUrl = json['file_url'];
+    fileName = json['file_name'] != null ? json['file_name'].cast<String>() : [];
+    filePath = json['file_path'] != null ? json['file_path'].cast<String>() : [];
+    fileUrl = json['file_url'] != null ? json['file_url'].cast<String>() : [];
     fileType = json['file_type'];
     mediaType = json['media_type'];
     mimeType = json['mime_type'];
@@ -69,9 +69,9 @@ class Data {
     updatedAt = json['updated_at'];
   }
   num? id;
-  String? fileName;
-  String? filePath;
-  String? fileUrl;
+  List<String>? fileName;
+  List<String>? filePath;
+  List<String>? fileUrl;
   String? fileType;
   String? mediaType;
   String? mimeType;
@@ -114,20 +114,16 @@ class Data {
 
 class Metadata {
   Metadata({
-      this.originalName, 
-      this.extension,});
+      this.count,});
 
   Metadata.fromJson(dynamic json) {
-    originalName = json['original_name'];
-    extension = json['extension'];
+    count = json['count'];
   }
-  String? originalName;
-  String? extension;
+  num? count;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    map['original_name'] = originalName;
-    map['extension'] = extension;
+    map['count'] = count;
     return map;
   }
 

@@ -38,7 +38,7 @@ class Endpoint {
 
   // Check-in/check-out: not in current OpenAPI spec; paths kept for app until backend adds them.
   static  String cleanerJobCheckIn(int id) => '${root}staff/jobs/$id/check-in';
-  static const String cleanerJobCheckOut = '${root}staff/jobs/check-out';
+  static  String cleanerJobCheckOut(int id) => '${root}staff/jobs/$id/check-out';
 
   // ---- Cleaner - Profile ---------
   static const String cleaningServices = '${root}staff/cleaning-services';

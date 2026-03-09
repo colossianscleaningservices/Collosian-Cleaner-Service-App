@@ -140,8 +140,24 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     userDisplayName.value = Get.find<SessionService>().userDisplayName;
     userDisplayImage.value = Get.find<SessionService>().userDisplayImage;
 
+    jobScrollController.addListener(() {
+      if (_isScrollBottom) {
+        if (jobCurrentPage <= jobTotalPage && !isJobMoreLoading.value) {
+          isJobMoreLoading.value = true;
+          fetchJobs();
+        }
+      }
+    });
+
     getAppVersion();
     _registerDevice();
+  }
+
+  bool get _isScrollBottom {
+    if (!jobScrollController.hasClients) return false;
+    final maxScroll = jobScrollController.position.maxScrollExtent;
+    final currentScroll = jobScrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   /// Call device registration API so latest app/device data is saved when dashboard opens.
@@ -473,8 +489,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           final raw = response.data;
           if (jobCurrentPage == 1) jobs.clear();
           if (raw != null && raw.jobs?.isNotEmpty == true) {
-            log(runtimeType.toString(), "JOBS ${raw.jobs?.length}");
-            jobs.assignAll(raw.jobs as Iterable<Jobs>);
+            jobs.addAll(raw.jobs as Iterable<Jobs>);
           }
           jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
           if (jobCurrentPage <= jobTotalPage) {

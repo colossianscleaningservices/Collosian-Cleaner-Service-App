@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/network/repository/client_repository.dart';
+import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../model/client_job.dart';
@@ -47,9 +48,9 @@ class ClientJobDetailController extends GetxController {
     super.onReady();
   }
 
-  Future<void> fetchJobDetails() async {
+  Future<void> fetchJobDetails({bool isLoaderShown = true}) async {
     if (jobId == null) return;
-    Loader.show();
+    if (isLoaderShown) Loader.show();
     try {
       final result = await _clientRepository.getJobDetails(jobId!);
       result.handle(
@@ -59,7 +60,7 @@ class ClientJobDetailController extends GetxController {
         },
       );
     } finally {
-      Loader.hide();
+      if (isLoaderShown) Loader.hide();
     }
   }
 
@@ -185,12 +186,7 @@ class ClientJobDetailController extends GetxController {
     return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
   }
 
-  Future<void> scheduleJob(
-    DateTime startDate,
-    TimeOfDay startTime,
-    DateTime endDate,
-    TimeOfDay endTime,
-  ) async {
+  Future<void> scheduleJob(ScheduleJobRequest request) async {
     final jobId = job.value?.id?.toInt();
     if (jobId == null) {
       Notifier.info('Invalid job');
@@ -198,19 +194,13 @@ class ClientJobDetailController extends GetxController {
     }
     Loader.show();
     try {
-      final startStr = '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}';
-      final endStr = '${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}';
-      final result = await _clientRepository.scheduleJob(
-        jobId: jobId,
-        frequency: 'weekly',
-        startDate: startStr,
-        endDate: endStr,
-        copyCleaners: false,
-      );
+      final result = await _clientRepository.scheduleJob(jobId: jobId, request: request);
       result.handle(
         success: (_) {
-          final startTimeStr = _formatTime(startTime);
-          final endTimeStr = _formatTime(endTime);
+          Loader.hide();
+
+          final startTimeStr = _formatTime(CcsDateUtils.parseTimeOfDay(request.startTime ?? ""));
+          final endTimeStr = _formatTime(CcsDateUtils.parseTimeOfDay(request.endTime ?? ""));
 
           /*job.value = job.value?.copyWith(
             status: 'Scheduled',
@@ -220,11 +210,16 @@ class ClientJobDetailController extends GetxController {
             jobEndDate: endDate,
           );*/
 
-          job.value?.status = 'Scheduled';
+          /*job.value?.status = 'Scheduled';
           job.value?.startTime = startTimeStr;
-          job.value?.endTime = endTimeStr;
+          job.value?.endTime = endTimeStr;*/
 
-          Notifier.success('Job scheduled for ${CcsDateUtils.fullDate(startDate)}.');
+          Notifier.success('Job scheduled for ${CcsDateUtils.fullDate(DateTime.parse(request.startDate ?? ""))}.');
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (Get.context == null) return;
+            fetchJobDetails();
+          });
         },
         contextTag: 'schedule_job',
       );
@@ -282,7 +277,6 @@ class ClientJobDetailController extends GetxController {
 
     Loader.show();
     try {
-      final r = rating.value.round().clamp(1, 5);
       final result = await _clientRepository.submitJobReview(
         jobId: jobId,
         cleanerId: jobCleaner.value?.id.toInt() ?? 0,
@@ -302,6 +296,7 @@ class ClientJobDetailController extends GetxController {
             Notifier.openSheet(Get.context as BuildContext,
                 title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
               Get.back();
+              fetchJobDetails();
             });
           });
         },

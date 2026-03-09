@@ -12,7 +12,7 @@ class ScheduleJobView extends GetView<ScheduleJobController> {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     final c = controller;
-    final propertyLabel = c.job.propertyLabel ?? c.job.propertyOneLine;
+    final propertyLabel = c.job.value?.property?.propertyName;
 
     return AppScaffold(
       appBar: Header(
@@ -33,7 +33,6 @@ class ScheduleJobView extends GetView<ScheduleJobController> {
                 size: 18,
                 color: scheme.onSurface,
               ),
-              const SizedBox(height: 8),
               CommonTextField(
                 controller: c.startDateDisplayController,
                 label: 'Start date *',
@@ -153,7 +152,7 @@ class ScheduleJobView extends GetView<ScheduleJobController> {
                             ),
                             child: CommonText.medium(
                               weekdayLabels[i],
-                              size: 13,
+                              size: 12,
                               color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
                             ),
                           ),

@@ -228,10 +228,12 @@ class ClientJobCleaner {
     required this.name,
     required this.status,
     this.avatarUrl,
+    this.isReview = false
   });
 
   final String id;
   final String name;
   final String status; // e.g. "Assigned", "Confirmed"
   final String? avatarUrl;
+  final bool isReview;
 }

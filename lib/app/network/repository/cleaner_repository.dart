@@ -5,7 +5,6 @@ import 'package:ccs_app/app/network/response/cleaner_review_list_response.dart';
 import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/app/network/response/update_profile_response.dart';
 import 'package:dio/dio.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../core/base/base_repository.dart';
 import '../request/staff_edit_profile_request.dart';
@@ -89,44 +88,7 @@ class CleanerRepository extends BaseRepository {
     );
   }
 
-  /// Check-in (start job): submit photos; backend stores them and sets job to in progress.
-  Future<NetworkResult<BaseResponse>> checkIn({
-    required int jobId,
-    required String checkInDate,
-    required String checkInTime,
-    required List<XFile> photos,
-  }) async {
-    var formData = FormData.fromMap({'check_in_date': checkInDate});
-    formData = FormData.fromMap({'check_in_time': checkInTime});
-    for (final x in photos) {
-      final bytes = await x.readAsBytes();
-      final name = x.name.isNotEmpty ? x.name : 'photo.jpg';
-      formData.files.add(MapEntry('before_photos[]', MultipartFile.fromBytes(bytes, filename: name)));
-    }
-    return post<BaseResponse>(
-      endpoint: Endpoint.cleanerJobCheckIn(jobId),
-      data: formData,
-      fromJson: (j) => BaseResponse.fromJson(j),
-    );
-  }
 
-  /// Check-out (stop job): submit photos; backend stores them and sets job to completed.
-  Future<NetworkResult<BaseResponse>> checkOut({
-    required String jobId,
-    required List<XFile> photos,
-  }) async {
-    final formData = FormData.fromMap({'job_id': jobId});
-    for (final x in photos) {
-      final bytes = await x.readAsBytes();
-      final name = x.name.isNotEmpty ? x.name : 'photo.jpg';
-      formData.files.add(MapEntry('photos', MultipartFile.fromBytes(bytes, filename: name)));
-    }
-    return post<BaseResponse>(
-      endpoint: Endpoint.cleanerJobCheckOut,
-      data: formData,
-      fromJson: (j) => BaseResponse.fromJson(j),
-    );
-  }
 
   Future<NetworkResult<UpdateProfileResponse>> updateProfile(StaffEditProfileRequest request) async {
     return put<UpdateProfileResponse>(
@@ -188,5 +150,4 @@ class CleanerRepository extends BaseRepository {
       queryParameters: {'page': page}
     );
   }
-
 }

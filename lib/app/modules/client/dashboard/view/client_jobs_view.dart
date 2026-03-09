@@ -32,9 +32,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
             child: Obx(() {
               return Container(
                 padding: UiConstants.padding,
-                constraints: BoxConstraints(
-                    // minHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - (MediaQuery.of(context).padding.bottom + kBottomNavigationBarHeight),
-                    ),
+                constraints: BoxConstraints(),
                 child: controller.jobs.isEmpty
                     ? NoDataView(
                         title: 'No jobs yet',

@@ -146,4 +146,13 @@ extension CcsDateTimeX on DateTime {
   String toUtcString([String format = 'yyyy-MM-dd HH:mm:ss']) => DateFormat(format).format(toUtc());
 
   String toDisplayDate([String format = 'MMM yyyy, hh:mm a']) => DateFormat(format).format(toLocal());
+
+  static String formatTimeOfDay(TimeOfDay timeOfDay) {
+    final hours = timeOfDay.hour;
+    final minutes = timeOfDay.minute;
+    final seconds = 0; // TimeOfDay doesn't store seconds, so we default to 0
+
+    // Format the time as H:i:s
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
 }

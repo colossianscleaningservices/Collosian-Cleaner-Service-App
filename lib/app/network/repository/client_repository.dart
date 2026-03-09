@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/app/network/response/get_client_calender_response.dart';
 import 'package:ccs_app/app/network/response/get_client_dash_response.dart';
 import 'package:ccs_app/app/network/response/get_client_job_response.dart';
@@ -213,21 +214,12 @@ class ClientRepository extends BaseRepository {
   /// Optional: start_date, end_date, occurrence, copy_cleaners.
   Future<NetworkResult<BaseResponse>> scheduleJob({
     required int jobId,
-    required String frequency,
-    String? startDate,
-    String? endDate,
-    int? occurrence,
-    bool? copyCleaners,
+    required ScheduleJobRequest request
   }) async {
-    final payload = <String, dynamic>{'frequency': frequency};
-    if (startDate != null) payload['start_date'] = startDate;
-    if (endDate != null) payload['end_date'] = endDate;
-    if (occurrence != null) payload['occurrence'] = occurrence;
-    if (copyCleaners != null) payload['copy_cleaners'] = copyCleaners;
     return put<BaseResponse>(
       endpoint: Endpoint.clientJobSchedule(jobId),
       fromJson: (json) => BaseResponse.fromJson(json),
-      data: payload,
+      data: request,
     );
   }
 

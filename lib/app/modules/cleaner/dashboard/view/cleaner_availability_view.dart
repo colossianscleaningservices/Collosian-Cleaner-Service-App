@@ -394,6 +394,7 @@ class _BlockedChip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               AppCard(
+                enableShadows: false,
                 color: scheme.error.withValues(alpha: 0.04),
                 radius: UiConstants.radiusSmall,
                 child: Icon(IconsaxPlusLinear.calendar_remove, size: 16, color: scheme.error).paddingAll(6),

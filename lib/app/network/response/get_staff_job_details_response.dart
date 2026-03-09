@@ -679,6 +679,8 @@ class JobCleaners {
     this.userId,
     this.isReviewed,
     this.checkInDate,
+    this.checkInTime,
+    this.checkOutTime,
     this.checkOutDate,
     this.createdAt,
     this.updatedAt,});
@@ -692,6 +694,8 @@ class JobCleaners {
     jobId = json['job_id'];
     userId = json['user_id'];
     isReviewed = json['is_reviewed'];
+    checkInTime = json['check_in_time'];
+    checkOutTime = json['check_out_time'];
     checkInDate = json['check_in_date'];
     checkOutDate = json['check_out_date'];
     createdAt = json['created_at'];
@@ -706,8 +710,10 @@ class JobCleaners {
   num? jobId;
   num? userId;
   bool? isReviewed;
-  dynamic checkInDate;
-  dynamic checkOutDate;
+  String? checkInDate;
+  String? checkOutDate;
+  String? checkInTime;
+  String? checkOutTime;
   String? createdAt;
   String? updatedAt;
 
@@ -722,6 +728,8 @@ class JobCleaners {
     map['user_id'] = userId;
     map['is_reviewed'] = isReviewed;
     map['check_in_date'] = checkInDate;
+    map['check_in_time'] = checkInTime;
+    map['check_out_time'] = checkOutTime;
     map['check_out_date'] = checkOutDate;
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;

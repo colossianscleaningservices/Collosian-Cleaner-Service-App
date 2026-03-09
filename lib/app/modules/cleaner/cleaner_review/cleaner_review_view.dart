@@ -1,4 +1,3 @@
-import 'package:ccs_app/app/model/review_item.dart';
 import 'package:ccs_app/app/network/response/cleaner_review_list_response.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
@@ -13,12 +12,6 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-
-    // Dummy data until controller/API provides real reviews
-    // final reviews = _getDummyReviews();
-    // final averageRating = controller.reviews.isEmpty ? 0.0 : controller.reviews.map((r) => r.satisfactionRating).reduce((a, b) => a + b) / controller.reviews.length;
-    // final roundedRating = (averageRating * 10).round() / 10;
-
     return AppScaffold(
       appBar: Header(
         title: 'Reviews',
@@ -27,129 +20,81 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
         titleCentered: false,
       ),
       backgroundColor: scheme.surface,
-      body: SafeArea(child: Obx(() {
-        return controller.reviews.isEmpty
-            ? NoDataView(
-                title: 'No reviews yet',
-                subtitle: 'Reviews from clients will appear here after completed jobs.',
-                icon: IconsaxPlusLinear.star_1,
-              )
-            : SingleChildScrollView(
-                padding: UiConstants.padding,
-                controller: controller.reviewScrollController,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Summary card
-                    AppCard(
-                      child: Row(
-                        children: [
-                          AppCard(
-                            enableShadows: false,
-                            radius: UiConstants.radiusDefault,
-                            color: scheme.primaryContainer,
-                            child: Icon(
-                              IconsaxPlusLinear.star_1,
-                              size: 28,
-                              color: scheme.primary,
-                            ).paddingAll(14),
-                          ).marginOnly(right: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CommonText.extraBold(
-                                 '4.5',
-                                  size: 28,
-                                  color: scheme.onSurface,
-                                ),
-                                const SizedBox(height: 4),
-                                _StarRating(rating: 2, scheme: scheme, size: 16),
-                                const SizedBox(height: 4),
-                                CommonText.regular(
-                                  '${controller.reviews.length} ${controller.reviews.length == 1 ? 'review' : 'reviews'}',
-                                  size: 14,
-                                  color: scheme.onSurfaceVariant,
-                                ),
-                              ],
+      body: SafeArea(
+        child: Obx(() {
+          return controller.reviews.isEmpty
+              ? NoDataView(
+                  title: 'No reviews yet',
+                  subtitle: 'Reviews from clients will appear here after completed jobs.',
+                  icon: IconsaxPlusLinear.star_1,
+                )
+              : SingleChildScrollView(
+                  padding: UiConstants.padding,
+                  controller: controller.reviewScrollController,child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Summary card
+                      /*AppCard(
+                        child: Row(
+                          children: [
+                            AppCard(
+                              enableShadows: false,
+                              radius: UiConstants.radiusDefault,
+                              color: scheme.primaryContainer,
+                              child: Icon(
+                                IconsaxPlusLinear.star_1,
+                                size: 28,
+                                color: scheme.primary,
+                              ).paddingAll(14),
+                            ).marginOnly(right: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CommonText.extraBold(
+                                    '4.5',
+                                    size: 28,
+                                    color: scheme.onSurface,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  _StarRating(rating: 2, scheme: scheme, size: 16),
+                                  const SizedBox(height: 4),
+                                  CommonText.regular(
+                                    '${controller.reviews.length} ${controller.reviews.length == 1 ? 'review' : 'reviews'}',
+                                    size: 14,
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
+                        ).paddingAll(UiConstants.defaultPadding),
+                      ),
+                      const SizedBox(height: 20),*/
+
+                      // Section title
+                      Row(
+                        children: [
+                          Icon(IconsaxPlusLinear.message_text_1, size: 20, color: scheme.primary),
+                          const SizedBox(width: 8),
+                          CommonText.semiBold('Recent reviews', size: 16, color: scheme.onSurface),
                         ],
-                      ).paddingAll(UiConstants.defaultPadding),
-                    ),
-                    const SizedBox(height: 20),
+                      ),
+                      const SizedBox(height: 12),
 
-                    // Section title
-                    Row(
-                      children: [
-                        Icon(IconsaxPlusLinear.message_text_1, size: 20, color: scheme.primary),
-                        const SizedBox(width: 8),
-                        CommonText.semiBold('Recent reviews', size: 16, color: scheme.onSurface),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    ListView.builder(
-                        itemCount: controller.reviews.length,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return _ReviewCard(review: controller.reviews[index], scheme: scheme).marginOnly(bottom: 12);
-                        }),
-
-                    // Review list
-                    // ...controller.reviews.map(
-                    //   (review) => Padding(
-                    //     padding: const EdgeInsets.only(bottom: 12),
-                    //     child: _ReviewCard(review: review, scheme: scheme),
-                    //   ),
-                    // ),
-                    const SizedBox(height: UiConstants.gap),
-                  ],
-                ));
-      })),
+                      ListView.builder(
+                          itemCount: controller.reviews.length,
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return _ReviewCard(review: controller.reviews[index], scheme: scheme).marginOnly(bottom: 12);
+                          }),
+                      const SizedBox(height: UiConstants.gap),
+                    ],
+                  ));
+        }),
+      ),
     );
-  }
-
-  List<ReviewItem> _getDummyReviews() {
-    final now = DateTime.now();
-    return [
-      ReviewItem(
-        name: 'Sarah Johnson',
-        clientName: 'Sarah Johnson',
-        rating: 5,
-        comment: 'Excellent deep clean. Very thorough and professional. Would definitely book again.',
-        date: now.subtract(const Duration(days: 2)),
-      ),
-      ReviewItem(
-        name: 'Michael Brown',
-        clientName: 'Michael Brown',
-        rating: 5,
-        comment: 'Great job on the end-of-tenancy clean. The property was spotless.',
-        date: now.subtract(const Duration(days: 5)),
-      ),
-      ReviewItem(
-        name: 'Emma Wilson',
-        clientName: 'Emma Wilson',
-        rating: 4,
-        comment: 'Good standard clean. A few missed spots but overall happy with the service.',
-        date: now.subtract(const Duration(days: 10)),
-      ),
-      ReviewItem(
-        name: 'James Taylor',
-        clientName: 'James Taylor',
-        rating: 5,
-        comment: 'Prompt, friendly and left the place gleaming. Highly recommend.',
-        date: now.subtract(const Duration(days: 14)),
-      ),
-      ReviewItem(
-        name: 'Olivia Davis',
-        clientName: 'Olivia Davis',
-        rating: 4,
-        comment: 'Very satisfied. Will use again for regular cleaning.',
-        date: now.subtract(const Duration(days: 21)),
-      ),
-    ];
   }
 }
 
@@ -203,7 +148,7 @@ class _ReviewCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               CircleAvatar(
                 radius: 22,
@@ -224,10 +169,11 @@ class _ReviewCard extends StatelessWidget {
                           child: CommonText.semiBold(review.client?.name ?? '', size: 16, color: scheme.onSurface),
                         ),
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Icon(IconsaxPlusLinear.calendar_1, size: 14, color: scheme.onSurfaceVariant).marginOnly(right: 6),
                             CommonText.regular(
-                              "ReviewDate",
+                              review.submittedAt != null ? _formatDate(DateTime.parse(review.submittedAt ?? "")) : "N/A",
                               size: 12,
                               color: scheme.onSurfaceVariant,
                             ),
@@ -235,28 +181,20 @@ class _ReviewCard extends StatelessWidget {
                         ),
                       ],
                     ).marginOnly(bottom: 4),
-                    // Row(
-                    //   children: [
-                    //     CommonText.regular('Client: ', size: 14, color: scheme.onSurfaceVariant),
-                    //     Expanded(
-                    //       child: CommonText.semiBold(review.clientName, size: 16, color: scheme.onSurface),
-                    //     ),
-                    //   ],
-                    // ),
-                    // const SizedBox(height: 6),
                     _StarRating(rating: review.satisfactionRating?.toDouble() ?? 0.0, scheme: scheme, size: 16),
                   ],
                 ),
               ),
             ],
           ).marginOnly(bottom: 8),
-          CommonText.regular(
-            review.comments ?? '',
-            size: 14,
-            color: scheme.onSurface.withValues(alpha: 0.9),
-            maxLines: 4,
-            overflow: TextOverflow.ellipsis,
-          ),
+          if (review.comments != null)
+            CommonText.regular(
+              review.comments ?? 'N/A',
+              size: 14,
+              color: scheme.onSurface.withValues(alpha: 0.9),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
         ],
       ).paddingAll(UiConstants.defaultPadding),
     );
