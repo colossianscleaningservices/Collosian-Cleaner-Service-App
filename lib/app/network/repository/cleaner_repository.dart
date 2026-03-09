@@ -1,6 +1,7 @@
 import 'package:ccs_app/app/network/request/availability_request.dart';
 import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
 import 'package:ccs_app/app/network/response/cleaner_properties_response.dart';
+import 'package:ccs_app/app/network/response/cleaner_review_list_response.dart';
 import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/app/network/response/update_profile_response.dart';
 import 'package:dio/dio.dart';
@@ -175,6 +176,13 @@ class CleanerRepository extends BaseRepository {
       endpoint: Endpoint.mediaUpload,
       data: FormData.fromMap(data),
       fromJson: (json) => MediaUploadResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<CleanerReviewListResponse>> geCleanerReviews() async {
+    return get<CleanerReviewListResponse>(
+      endpoint: Endpoint.staffReviews,
+      fromJson: (json) => CleanerReviewListResponse.fromJson(json),
     );
   }
 

@@ -44,6 +44,7 @@ class Endpoint {
   static const String cleaningServices = '${root}staff/cleaning-services';
   static const String immigrations = '${root}staff/immigrations';
   static const String staffProfile = '${root}staff/profile';
+  static const String staffReviews = '${root}staff/reviews';
 
   // ------ Cleaner - Calender ---------
   static const String cleanerCalender = '${root}staff/calendar/jobs-by-date';

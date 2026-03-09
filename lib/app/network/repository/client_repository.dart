@@ -234,13 +234,21 @@ class ClientRepository extends BaseRepository {
   /// POST submit job review. [rating] 1–5, optional [feedback], [message].
   Future<NetworkResult<BaseResponse>> submitJobReview({
     required int jobId,
-    required int rating,
-    String? feedback,
+    required int cleanerId,
+    required bool arrivedOnTime,
+    required bool woreUniform,
+    required bool completedOnTime,
+    required bool wouldRehire,
+    required int satisfactionRating,
     String? message,
   }) async {
-    final payload = <String, dynamic>{'rating': rating};
-    if (feedback != null) payload['feedback'] = feedback;
-    if (message != null) payload['message'] = message;
+    final payload = <String, dynamic>{'cleaner_id': cleanerId};
+     payload['arrived_on_time'] = arrivedOnTime;
+     payload['wore_uniform'] = woreUniform;
+     payload['completed_on_time'] = completedOnTime;
+     payload['would_rehire'] = wouldRehire;
+     payload['satisfaction_rating'] = satisfactionRating;
+    if (message != null) payload['comments'] = message;
     return post<BaseResponse>(
       endpoint: Endpoint.clientJobReview(jobId),
       fromJson: (json) => BaseResponse.fromJson(json),

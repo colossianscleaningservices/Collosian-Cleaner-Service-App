@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/model/review_item.dart';
+import 'package:ccs_app/app/network/response/cleaner_review_list_response.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
@@ -14,9 +15,9 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
     final scheme = context.colorScheme;
 
     // Dummy data until controller/API provides real reviews
-    final reviews = _getDummyReviews();
-    final averageRating = reviews.isEmpty ? 0.0 : reviews.map((r) => r.rating).reduce((a, b) => a + b) / reviews.length;
-    final roundedRating = (averageRating * 10).round() / 10;
+    // final reviews = _getDummyReviews();
+    // final averageRating = controller.reviews.isEmpty ? 0.0 : controller.reviews.map((r) => r.satisfactionRating).reduce((a, b) => a + b) / controller.reviews.length;
+    // final roundedRating = (averageRating * 10).round() / 10;
 
     return AppScaffold(
       appBar: Header(
@@ -26,8 +27,8 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
         titleCentered: false,
       ),
       backgroundColor: scheme.surface,
-      body: SafeArea(
-        child: reviews.isEmpty
+      body: SafeArea(child: Obx(() {
+        return controller.reviews.isEmpty
             ? NoDataView(
                 title: 'No reviews yet',
                 subtitle: 'Reviews from clients will appear here after completed jobs.',
@@ -57,15 +58,15 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 CommonText.extraBold(
-                                  roundedRating.toStringAsFixed(1),
+                                 '4.5',
                                   size: 28,
                                   color: scheme.onSurface,
                                 ),
                                 const SizedBox(height: 4),
-                                _StarRating(rating: roundedRating, scheme: scheme, size: 16),
+                                _StarRating(rating: 2, scheme: scheme, size: 16),
                                 const SizedBox(height: 4),
                                 CommonText.regular(
-                                  '${reviews.length} ${reviews.length == 1 ? 'review' : 'reviews'}',
+                                  '${controller.reviews.length} ${controller.reviews.length == 1 ? 'review' : 'reviews'}',
                                   size: 14,
                                   color: scheme.onSurfaceVariant,
                                 ),
@@ -87,18 +88,25 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
                     ),
                     const SizedBox(height: 12),
 
+                    ListView.builder(
+                        itemCount: controller.reviews.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return _ReviewCard(review: controller.reviews[index], scheme: scheme).marginOnly(bottom: 12);
+                        }),
+
                     // Review list
-                    ...reviews.map(
-                      (review) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _ReviewCard(review: review, scheme: scheme),
-                      ),
-                    ),
+                    // ...controller.reviews.map(
+                    //   (review) => Padding(
+                    //     padding: const EdgeInsets.only(bottom: 12),
+                    //     child: _ReviewCard(review: review, scheme: scheme),
+                    //   ),
+                    // ),
                     const SizedBox(height: UiConstants.gap),
                   ],
-                ),
-              ),
-      ),
+                ));
+      })),
     );
   }
 
@@ -173,7 +181,7 @@ class _StarRating extends StatelessWidget {
 class _ReviewCard extends StatelessWidget {
   const _ReviewCard({required this.review, required this.scheme});
 
-  final ReviewItem review;
+  final Reviews review;
   final ColorScheme scheme;
 
   String _formatDate(DateTime date) {
@@ -200,7 +208,7 @@ class _ReviewCard extends StatelessWidget {
                 radius: 22,
                 backgroundColor: scheme.primaryContainer,
                 child: CommonText.semiBold(
-                  review.name.isNotEmpty ? review.name[0].toUpperCase() : '?',
+                  review.client?.name?.isNotEmpty == true ? review.client!.name![0].toUpperCase() : '?',
                   size: 18,
                   color: scheme.primary,
                 ),
@@ -212,13 +220,13 @@ class _ReviewCard extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: CommonText.semiBold(review.name, size: 16, color: scheme.onSurface),
+                          child: CommonText.semiBold(review.client?.name ?? '', size: 16, color: scheme.onSurface),
                         ),
                         Row(
                           children: [
                             Icon(IconsaxPlusLinear.calendar_1, size: 14, color: scheme.onSurfaceVariant).marginOnly(right: 6),
                             CommonText.regular(
-                              _formatDate(review.date),
+                              "ReviewDate",
                               size: 12,
                               color: scheme.onSurfaceVariant,
                             ),
@@ -235,14 +243,14 @@ class _ReviewCard extends StatelessWidget {
                     //   ],
                     // ),
                     // const SizedBox(height: 6),
-                    _StarRating(rating: review.rating.toDouble(), scheme: scheme, size: 16),
+                    _StarRating(rating: review.satisfactionRating?.toDouble() ?? 0.0, scheme: scheme, size: 16),
                   ],
                 ),
               ),
             ],
           ).marginOnly(bottom: 8),
           CommonText.regular(
-            review.comment,
+            review.comments ?? '',
             size: 14,
             color: scheme.onSurface.withValues(alpha: 0.9),
             maxLines: 4,

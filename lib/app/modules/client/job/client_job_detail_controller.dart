@@ -21,6 +21,7 @@ class ClientJobDetailController extends GetxController {
   Rx<Options?> requestAgain = Rx<Options?>(null);
   Rx<double> rating = 0.0.obs;
   final messageController = TextEditingController();
+  final jobCleaner = Rx<ClientJobCleaner?>(null);
 
   @override
   void onInit() {
@@ -237,6 +238,8 @@ class ClientJobDetailController extends GetxController {
   }
 
   void onReviewCleanerProfile(ClientJobCleaner c) {
+    jobCleaner.value = c;
+    jobCleaner.refresh();
     Get.toNamed(Routes.ADD_REVIEW, arguments: job.value);
   }
 
@@ -246,19 +249,61 @@ class ClientJobDetailController extends GetxController {
       Notifier.info('Invalid job');
       return;
     }
+
+    if (jobCleaner.value == null) {
+      Notifier.info('Cleaner information is missing');
+      return;
+    }
+
+    if (arrive.value == null) {
+      Notifier.info('Please confirm if the cleaner arrived on time');
+      return;
+    }
+
+    if (uniform.value == null) {
+      Notifier.info('Please confirm if the cleaner wore a uniform');
+      return;
+    }
+
+    if (completedJob.value == null) {
+      Notifier.info('Please confirm if the job was completed on time');
+      return;
+    }
+
+    if (requestAgain.value == null) {
+      Notifier.info('Please confirm if you would hire the cleaner again');
+      return;
+    }
+
+    if (rating.value <= 0) {
+      Notifier.info('Please provide a rating');
+      return;
+    }
+
     Loader.show();
     try {
       final r = rating.value.round().clamp(1, 5);
       final result = await _clientRepository.submitJobReview(
         jobId: jobId,
-        rating: r,
-        feedback: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
+        cleanerId: jobCleaner.value?.id.toInt() ?? 0,
+        arrivedOnTime: arrive.value == Options.yes,
+        woreUniform: uniform.value == Options.yes,
+        completedOnTime: completedJob.value == Options.yes,
+        wouldRehire: requestAgain.value == Options.yes,
+        satisfactionRating: rating.value.toInt(),
         message: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
       );
       result.handle(
-        success: (_) {
-          Notifier.success('Thank you for your feedback');
-          Get.back();
+        success: (value) {
+          Loader.hide();
+          // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (Get.context == null) return;
+            Notifier.openSheet(Get.context as BuildContext,
+                title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+              Get.back();
+            });
+          });
         },
         contextTag: 'submit_review',
       );

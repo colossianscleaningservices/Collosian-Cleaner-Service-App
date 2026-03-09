@@ -5,8 +5,6 @@ import 'package:flutter_rating/flutter_rating.dart';
 import '../../../../export.dart';
 import 'client_job_detail_controller.dart';
 
-
-
 class AddReview extends GetView<ClientJobDetailController> {
   const AddReview({super.key});
 
