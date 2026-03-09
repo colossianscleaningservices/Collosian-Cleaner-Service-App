@@ -179,10 +179,13 @@ class CleanerRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<CleanerReviewListResponse>> geCleanerReviews() async {
+  Future<NetworkResult<CleanerReviewListResponse>> geCleanerReviews(
+      int page
+      ) async {
     return get<CleanerReviewListResponse>(
       endpoint: Endpoint.staffReviews,
       fromJson: (json) => CleanerReviewListResponse.fromJson(json),
+      queryParameters: {'page': page}
     );
   }
 

@@ -36,6 +36,7 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
               )
             : SingleChildScrollView(
                 padding: UiConstants.padding,
+                controller: controller.reviewScrollController,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
