@@ -6,6 +6,7 @@ import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../../network/repository/common_repository.dart';
 import '../../../network/request/staff_edit_profile_request.dart';
@@ -114,13 +115,33 @@ class CleanerEditProfileController extends GetxController {
 
   Future<void> pickCameraImage() async {
     try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.camera, imageQuality: 75, maxWidth: 512, maxHeight: 512);
-      if (pickedFile != null) {
-        pickedImage.value = File(pickedFile.path);
+      bool hasPermission = await requestCameraPermission();
+
+      if (hasPermission) {
+        final pickedFile = await _picker.pickImage(source: ImageSource.camera, imageQuality: 75, maxWidth: 512, maxHeight: 512);
+        if (pickedFile != null) {
+          pickedImage.value = File(pickedFile.path);
+        }
       }
     } catch (e) {
       Notifier.info('Failed to pick image: $e');
     }
+  }
+
+  Future<bool> requestCameraPermission() async {
+    var status = await Permission.camera.status;
+
+    if (status.isDenied) {
+      status = await Permission.camera.request();
+    }
+
+    if (status.isGranted) {
+      return true;
+    }
+    if (status.isPermanentlyDenied) {
+      await openAppSettings();
+    }
+    return false;
   }
 
   Future<void> pickDateOfBirth(BuildContext context) async {

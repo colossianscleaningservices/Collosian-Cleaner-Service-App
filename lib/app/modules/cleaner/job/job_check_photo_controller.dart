@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
+import 'package:permission_handler/permission_handler.dart';
 import '../../../network/repository/job_repository.dart';
 import '../../../network/response/get_staff_job_details_response.dart';
 
@@ -230,22 +231,44 @@ class JobCheckPhotoController extends GetxController {
 
   void showPhotoSourceSheet(BuildContext context) {
     showPicker(cameraPicker: () => pickCameraImage(context), isShowGalleryOption: false);
+
+
   }
 
   Future<void> pickCameraImage([BuildContext? overlayContext]) async {
     try {
-      final pickedFile = await picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        Loader.show();
-        final ctx = overlayContext != null && overlayContext.mounted ? overlayContext : null;
-        // ignore: use_build_context_synchronously - ctx is re-checked for mounted in addBookmark
-        await addBookmark(pickedFile, ctx);
-        Loader.hide();
-        photos.add(pickedFile);
+      bool hasPermission = await requestCameraPermission();
+
+      if (hasPermission) {
+        final pickedFile = await picker.pickImage(source: ImageSource.camera);
+        if (pickedFile != null) {
+          Loader.show();
+          final ctx = overlayContext != null && overlayContext.mounted ? overlayContext : null;
+          // ignore: use_build_context_synchronously - ctx is re-checked for mounted in addBookmark
+          await addBookmark(pickedFile, ctx);
+          Loader.hide();
+          photos.add(pickedFile);
+        }
       }
     } catch (e) {
       Notifier.info('Failed to pick image: $e');
     }
+  }
+
+  Future<bool> requestCameraPermission() async {
+    var status = await Permission.camera.status;
+
+    if (status.isDenied) {
+      status = await Permission.camera.request();
+    }
+
+    if (status.isGranted) {
+      return true;
+    }
+    if (status.isPermanentlyDenied) {
+      await openAppSettings();
+    }
+    return false;
   }
 
   Future<void> submit() async {
@@ -261,7 +284,7 @@ class JobCheckPhotoController extends GetxController {
 
     Loader.show();
     try {
-      List<dio.MultipartFile> files = [];
+List<dio.MultipartFile> files = [];
       for (var photo in photos) {
         var value = await dio.MultipartFile.fromFile(photo.path, filename: "image_${DateTime.now()}.jpg").then((value) {
           return value;
@@ -289,14 +312,12 @@ class JobCheckPhotoController extends GetxController {
             imageUrlList.add(item);
           });
 
-          final result = isCheckIn
-              ? await _jobRepository.checkIn(
+      final result =
+              isCheckIn ? await _jobRepository.checkIn(
                   jobId: job?.id?.toInt() ?? 0,
                   checkInDate: scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "",
                   checkInTime: startTime.value != null ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : "",
-                  photos: imageUrlList,
-                )
-              : await _jobRepository.checkOut(
+                  photos: imageUrlList,) : await _jobRepository.checkOut(
                   jobId: job?.id?.toInt() ?? 0,
                   checkOutDate: scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "",
                   checkOutTime: startTime.value != null ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : "",

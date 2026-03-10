@@ -1,5 +1,6 @@
+import 'package:ccs_app/app/network/response/get_staff_document_response.dart';
+
 import '../../../../export.dart';
-import '../../../model/support_document_item.dart';
 import '../../../widget/layout/app_scaffold.dart';
 import 'support_document_controller.dart';
 
@@ -34,7 +35,7 @@ class SupportDocumentView extends GetView<SupportDocumentController> {
                 onViewFile: () => controller.onViewFile(item),
                 onEdit: () => controller.onEditDocument(item),
                 onDelete: () => controller.onDeleteDocument(item),
-                iconForType: controller.iconForDocumentType(item.type),
+                iconForType: controller.iconForDocumentType(item.documentName?.replaceAll('_', ' ').toLowerCase() ?? ''),
               );
             },
           ),
@@ -67,7 +68,7 @@ class _DocumentCard extends StatelessWidget {
     required this.iconForType,
   });
 
-  final SupportDocumentItem item;
+  final Documents item;
   final ColorScheme scheme;
   final VoidCallback onViewFile;
   final VoidCallback onEdit;
@@ -78,8 +79,8 @@ class _DocumentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final expiry = item.expiry;
-    final expiryText = expiry != null ? CcsDateUtils.forInput(expiry) : '—';
+    final expiry = item.expiryDate;
+    final expiryText = expiry;
     final expiryStatus = _expiryStatus(expiry);
 
     return AppCard(
@@ -106,13 +107,13 @@ class _DocumentCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
                       ),
                       child: CommonText.medium(
-                        item.type,
+                        item.documentName?.replaceAll('_', ' ').capitalize ?? '',
                         size: 12,
                         color: scheme.onPrimaryContainer,
                       ),
                     ).marginOnly(bottom: 8),
                     CommonText.regular(
-                      'Number: ${item.number}',
+                      'Number: ${item.documentNumber}',
                       size: 14,
                       color: scheme.onSurface,
                     ).marginOnly(bottom: 4),
@@ -190,7 +191,24 @@ class _DocumentCard extends StatelessWidget {
     );
   }
 
-  String? _expiryStatus(DateTime? expiry) {
+  String? _expiryStatus(String? expiry) {
+    if (expiry == null || expiry.isEmpty) return null;
+
+    final expiryDate = DateTime.parse(expiry);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final normalizedExpiry = DateTime(expiryDate.year, expiryDate.month, expiryDate.day);
+
+    if (normalizedExpiry.isBefore(today)) return 'expired';
+
+    final daysLeft = normalizedExpiry.difference(today).inDays;
+
+    if (daysLeft <= _expiringDaysThreshold) return 'expiring_soon';
+
+    return null;
+  }
+
+/*String? _expiryStatus(DateTime? expiry) {
     if (expiry == null) return null;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -199,7 +217,7 @@ class _DocumentCard extends StatelessWidget {
     final daysLeft = expiryDate.difference(today).inDays;
     if (daysLeft <= _expiringDaysThreshold) return 'expiring_soon';
     return null;
-  }
+  }*/
 }
 
 class _ExpiryChip extends StatelessWidget {

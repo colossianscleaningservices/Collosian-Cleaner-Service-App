@@ -29,6 +29,8 @@ class Endpoint {
   static const String cleanerActionNeeded = '${root}staff/action-needed';
   static const String cleanerDashboard = '${root}staff/dashboard';
   static const String cleanerAvailability = '${root}staff/availability';
+  static const String uploadStaffDocument = '${root}staff/documents';
+  static String deleteStaffDocument(int id) => '${root}staff/documents/$id';
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
   // static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';

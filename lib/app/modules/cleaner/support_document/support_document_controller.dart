@@ -1,25 +1,30 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ccs_app/app/network/repository/cleaner_repository.dart';
+import 'package:ccs_app/app/network/response/get_staff_document_response.dart';
+import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:dio/dio.dart' as dio;
 
 import '../../../../export.dart';
-import '../../../model/support_document_item.dart';
+import 'package:path/path.dart' as path;
 
 class SupportDocumentController extends GetxController {
+  final CleanerRepository _cleanerRepository = CleanerRepository();
 
   final count = 0.obs;
   final document = Rxn<String>();
   final documentCtrl = TextEditingController();
   final jobStartDate = Rxn<DateTime>();
-  List<String> documentTypeOptions = ['Passport', 'Visa', 'Driver License', 'Address Proof', 'Other'];
+  List<String> documentTypeOptions = ['Passport', 'Visa', 'Driver License', 'Address Proof', 'Crb Check', 'Work Permit', 'Other'];
 
   RxList<File> pickedFiles = <File>[].obs;
 
   /// List of documents shown on the support document screen. Populate via API in loadDocuments.
-  final RxList<SupportDocumentItem> documents = <SupportDocumentItem>[].obs;
+  final RxList<Documents> documents = <Documents>[].obs;
 
   var isPdfLoading = false.obs;
 
@@ -31,28 +36,11 @@ class SupportDocumentController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadDocuments();
   }
 
-  /// Loads documents (e.g. from API). Replace with real API call.
-  Future<void> loadDocuments() async {
-    Loader.show();
-    try {
-      // TODO: Replace with API call
-
-      documents.clear();
-
-      await Future.delayed(const Duration(milliseconds: 400));
-
-      documents.add(SupportDocumentItem(type: 'Passport', number: '123456', expiry: DateTime.now()));
-      documents.add(SupportDocumentItem(type: 'Visa', number: '12345689', expiry: DateTime.now()));
-    } finally {
-      Loader.hide();
-    }
-  }
 
   /// Pull-to-refresh callback.
-  Future<void> refreshDocuments() => loadDocuments();
+  Future<void> refreshDocuments() =>  geCleanerDocuments();
 
   /// Returns icon for document type for list display.
   IconData iconForDocumentType(String type) {
@@ -70,19 +58,40 @@ class SupportDocumentController extends GetxController {
     }
   }
 
-  Future<void> onViewFile(SupportDocumentItem item) async {
-    final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
-    Notifier.openSheet(Get.context as BuildContext,
-        showIcon: false,
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        body: Expanded(
-          child: SfPdfViewer.network(
-            'https://cdn.syncfusion.com/content/PDFViewer/flutter-succinctly.pdf',
-            key: pdfViewerKey,
-            password: "1234",
-          ),
-        ));
+  Future<void> onViewFile(Documents item) async {
+    
+    if( item.documentUrl!.endsWith('.pdf')){
+      final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
+      Notifier.openSheet(Get.context as BuildContext,
+          showIcon: false,
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          body: Expanded(
+            child: SfPdfViewer.network(
+              item.documentUrl ?? '',
+              key: pdfViewerKey,
+              password: "1234",
+            ),
+          ));
+    }else{
+      var multiImageProvider = MultiImageProvider(
+        [
+          NetworkImage(item.documentUrl.toString()),
+        ],
+        initialIndex: 0,
+      );
+      showImageViewerPager(
+        Get.context!,
+        useSafeArea: true,
+        multiImageProvider,
+        swipeDismissible: true,
+        backgroundColor:  Get.context!.colorScheme.surface,
+        closeButtonColor:  Get.context!.colorScheme.secondary,
+        doubleTapZoomable: true,
+      );
+
+    }
+
 
     /*if (item.fileUrl != null && item.fileUrl!.isNotEmpty) {
       // TODO: Open file (e.g. url_launcher or file viewer)
@@ -91,17 +100,22 @@ class SupportDocumentController extends GetxController {
     }*/
   }
 
-  void onEditDocument(SupportDocumentItem item) {
-    // TODO: Navigate to edit screen or open bottom sheet
+  void onEditDocument(Documents item) {
+
+
+
   }
 
-  void onDeleteDocument(SupportDocumentItem item) {
-    // TODO: Confirm and call API to delete, then loadDocuments()
+  void onDeleteDocument(Documents item) {
+
+    confirmDeleteJob( Get.context! , item.id?.toInt() ?? 0);
+
   }
 
   @override
   void onReady() {
     super.onReady();
+    geCleanerDocuments();
   }
 
   @override
@@ -212,16 +226,117 @@ class SupportDocumentController extends GetxController {
       return;
     }
 
+    if (pickedFiles.isEmpty) {
+      Notifier.info('Please select document.');
+      return;
+    }
+
+    Loader.show();
+
+    final filePath = pickedFiles.first.path;
+
+// get extension (.jpg, .png, .pdf etc)
+    final extension = path.extension(filePath);
+
+    var partFile = await dio.MultipartFile.fromFile(
+      filePath,
+      filename: "file_${DateTime.now().millisecondsSinceEpoch}$extension",
+    );
+
+    // var partFile = await dio.MultipartFile.fromFile(pickedFiles.first.path, filename: "image_${DateTime.now()}.jpg").then((value) {
+    //   return value;
+    // });
+
+    final data = <String, dynamic>{};
+    data["document_name"] = document.value?.toLowerCase().replaceAll(' ', '_');
+    // if(otherDocumentName != null) data["other_document_name"] = otherDocumentName;
+    data["document_number"] = documentCtrl.text;
+    data["expiry_date"] = jobStartDate.value?.toDisplayDate('yyyy-MM-dd');
+    data["file"] = partFile;
+
+    var result = await _cleanerRepository.uploadStaffDocument(data);
+    result.handle(
+      success: (value) {
+        Loader.hide();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (Get.context == null) return;
+          Notifier.openSheet(Get.context as BuildContext,
+              title: "Success",
+              message: "${value.message}",
+              isDismissable: false,
+              isShowCloseIcon: false,
+              showSecondaryButton: false, onPrimaryPressed: () {
+                Get.back(result: {'isUpdate': true});
+              });
+        });
+
+        pickedFiles.clear();
+        document.value = null;
+        documentCtrl.text = '';
+        jobStartDate.value = null;
+
+
+        geCleanerDocuments();
+      },
+      onError: (_) {
+        Loader.hide();
+      },
+      contextTag: 'media-upload',
+    );
+  }
+
+  Future<void> geCleanerDocuments() async {
     Loader.show();
     try {
-      // TODO: Call API to update profile
-      await Future.delayed(const Duration(seconds: 1)); // Simulate API call
-      Notifier.info('Document updated successfully');
-      Get.back(result: true);
-    } catch (e) {
-      Notifier.info('Failed to update profile: $e');
+      final result = await _cleanerRepository.getDocuments();
+      result.handle(
+        success: (response) {
+          Loader.hide();
+          documents.clear();
+          response.data?.documents?.forEach((item) {
+           documents.add(item);
+          });
+
+          documents.refresh();
+        },
+      );
     } finally {
       Loader.hide();
     }
   }
+
+  Future<void> deleteDocument(int id) async {
+    Loader.show();
+    try {
+      final result = await _cleanerRepository.deleteStaffDocument(id);
+      result.handle(
+        success: (response) {
+          geCleanerDocuments();
+        },
+      );
+    } finally {
+      Loader.hide();
+    }
+
+  }
+
+
+  void confirmDeleteJob(BuildContext context , int id) {
+    Notifier.openSheet(
+      context,
+      type: SheetType.error,
+      title: 'Delete Document?',
+      message: 'Are you sure you want to delete this document',
+      primaryButtonLabel: 'Yes',
+      secondaryButtonLabel: 'No',
+      showPrimaryButton: true,
+      showSecondaryButton: true,
+      onPrimaryPressed: (){
+        deleteDocument(id);
+      },
+      onSecondaryPressed: () {},
+    );
+  }
+
+
 }

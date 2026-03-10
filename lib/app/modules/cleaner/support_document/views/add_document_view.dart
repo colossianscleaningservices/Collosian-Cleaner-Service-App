@@ -11,125 +11,116 @@ class AddDocumentView extends GetView<SupportDocumentController> {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     return AppScaffold(
-      appBar: Header(title: "Add New Document"),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CommonDropDownField(
-                itemLabel: (value) => value.toString(),
-                hint: 'Select Document',
-                label: "Document Type *",
-                onChanged: (value) {
-                  if (value != null) controller.document.value = value;
-                },
-                items: controller.documentTypeOptions,
-                value: controller.document.value,
-              ).marginOnly(bottom: 18),
-              CommonTextField(
-                controller: controller.documentCtrl,
-                label: 'Document Number *',
-                hint: 'Enter document number',
-                keyboardType: TextInputType.phone,
-              ).marginOnly(bottom: 18),
-              Obx(() =>
-                  _DateField(
-                    label: 'Expiry Date *',
-                    value: controller.jobStartDate.value,
-                    onTap: () => _pickDate(context, controller),
-                    onClear: () => controller.setJobStartDate(null),
-                    validator: (_) => controller.jobStartDate.value == null ? 'Expiry date is required' : null,
-                    scheme: scheme,
-                    ctrl: controller,
-                  )).marginOnly(bottom: 18),
-              InkWell(
-                onTap: () async {
-                  showPicker(
-                    primaryText: 'Choose from File Manager',
-                    primarySubtitle: 'Select from your file manager',
-                    galleryPicker: () => controller.getFiles(),
-                    cameraPicker: () => controller.getImageFromCamera(),
+        appBar: Header(title: "Add New Document"),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CommonDropDownField(
+                  itemLabel: (value) => value.toString(),
+                  hint: 'Select Document',
+                  label: "Document Type *",
+                  onChanged: (value) {
+                    if (value != null) controller.document.value = value;
+                  },
+                  items: controller.documentTypeOptions,
+                  value: controller.document.value,
+                ).marginOnly(bottom: 18),
+                CommonTextField(
+                  controller: controller.documentCtrl,
+                  label: 'Document Number *',
+                  hint: 'Enter document number',
+                  keyboardType: TextInputType.phone,
+                ).marginOnly(bottom: 18),
+                Obx(() => _DateField(
+                      label: 'Expiry Date *',
+                      value: controller.jobStartDate.value,
+                      onTap: () => _pickDate(context, controller),
+                      onClear: () => controller.setJobStartDate(null),
+                      validator: (_) => controller.jobStartDate.value == null ? 'Expiry date is required' : null,
+                      scheme: scheme,
+                      ctrl: controller,
+                    )).marginOnly(bottom: 18),
+                InkWell(
+                  onTap: () async {
+                    showPicker(
+                      primaryText: 'Choose from File Manager',
+                      primarySubtitle: 'Select from your file manager',
+                      galleryPicker: () => controller.getFiles(),
+                      cameraPicker: () => controller.getImageFromCamera(),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Transform.rotate(angle: 74.8, child: const Icon(Icons.attach_file, color: Colors.black54)).marginOnly(right: 8),
+                      CommonText.semiBold("Attach file *", size: 14, color: scheme.onSurface),
+                    ],
+                  ).marginSymmetric(vertical: 8).marginSymmetric(horizontal: 4),
+                ),
+                Obx(() {
+                  return Visibility(
+                    visible: controller.pickedFiles.isNotEmpty,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        return AppCard(
+                          onTap: null,
+                          color: Colors.white,
+                          radius: 8,
+                          shadowColor: Colors.black.withValues(alpha: 0.1),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    controller.getIcon(controller.pickedFiles[index].path),
+                                    size: 18,
+                                    color: Colors.grey,
+                                  ).marginOnly(right: 6),
+                                  SizedBox(
+                                      width: MediaQuery.of(context).size.width * 0.4,
+                                      child: CommonText.regular(
+                                        controller.pickedFiles[index].path.toString().split('/').last,
+                                        maxLines: 1,
+                                        color: context.colorScheme.primary,
+                                      )),
+                                ],
+                              ).paddingSymmetric(horizontal: 10),
+                              IconButton(
+                                onPressed: () {
+                                  if (controller.pickedFiles.isNotEmpty) {
+                                    controller.pickedFiles.removeAt(index);
+                                  }
+                                  log(runtimeType.toString(), "Delete File: ${controller.pickedFiles.length}");
+                                },
+                                highlightColor: Colors.red.withValues(alpha: 0.1),
+                                icon: const Icon(
+                                  Icons.clear,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
+                              )
+                            ],
+                          ),
+                        ).marginOnly(top: 8);
+                      },
+                      itemCount: controller.pickedFiles.length,
+                    ),
                   );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Transform.rotate(angle: 74.8, child: const Icon(Icons.attach_file, color: Colors.black54)).marginOnly(right: 8),
-                    CommonText.semiBold("Attach file *", size: 14, color: scheme.onSurface),
-                  ],
-                ).marginSymmetric(vertical: 8).marginSymmetric(horizontal: 4),
-              ),
-              Obx(() {
-                return Visibility(
-                  visible: controller.pickedFiles.isNotEmpty,
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return AppCard(
-                        onTap: null,
-                        color: Colors.white,
-                        radius: 8,
-                        shadowColor: Colors.black.withValues(alpha: 0.1),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  controller.getIcon(controller.pickedFiles[index].path),
-                                  size: 18,
-                                  color: Colors.grey,
-                                ).marginOnly(right: 6),
-                                SizedBox(
-                                    width: MediaQuery
-                                        .of(context)
-                                        .size
-                                        .width * 0.4,
-                                    child: CommonText.regular(
-                                      controller.pickedFiles[index].path
-                                          .toString()
-                                          .split('/')
-                                          .last,
-                                      maxLines: 1,
-                                      color: context.colorScheme.primary,
-                                    )),
-                              ],
-                            ).paddingSymmetric(horizontal: 10),
-                            IconButton(
-                              onPressed: () {
-                                if (controller.pickedFiles.isNotEmpty) {
-                                  controller.pickedFiles.removeAt(index);
-                                }
-                                log(runtimeType.toString(), "Delete File: ${controller.pickedFiles.length}");
-                              },
-                              highlightColor: Colors.red.withValues(alpha: 0.1),
-                              icon: const Icon(
-                                Icons.clear,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                            )
-                          ],
-                        ),
-                      ).marginOnly(top: 8);
-                    },
-                    itemCount: controller.pickedFiles.length,
-                  ),
-                );
-              }),
-            ],
-          ).paddingSymmetric(horizontal: 16, vertical: 8),
+                }),
+              ],
+            ).paddingSymmetric(horizontal: 16, vertical: 8),
+          ),
         ),
-      ),
-      bottomNavigationBar: SingleActionBottomBar(
+        bottomNavigationBar: SingleActionBottomBar(
           label: 'Upload Document',
           onPressed: controller.addDocument,
-        )
-
-    );
+        ));
   }
 
   Future<void> _pickDate(BuildContext context, SupportDocumentController ctrl) async {

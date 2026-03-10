@@ -2,6 +2,7 @@ import 'package:ccs_app/app/network/request/availability_request.dart';
 import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
 import 'package:ccs_app/app/network/response/cleaner_properties_response.dart';
 import 'package:ccs_app/app/network/response/cleaner_review_list_response.dart';
+import 'package:ccs_app/app/network/response/get_staff_document_response.dart';
 import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/app/network/response/update_profile_response.dart';
 import 'package:dio/dio.dart';
@@ -150,4 +151,27 @@ class CleanerRepository extends BaseRepository {
       queryParameters: {'page': page}
     );
   }
+
+  Future<NetworkResult<BaseResponse>> uploadStaffDocument(Map<String, dynamic> data) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.uploadStaffDocument,
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data: FormData.fromMap(data)
+    );
+  }
+
+  Future<NetworkResult<GetStaffDocumentResponse>> getDocuments() async {
+    return get<GetStaffDocumentResponse>(
+        endpoint: Endpoint.uploadStaffDocument,
+        fromJson: (json) => GetStaffDocumentResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<BaseResponse>> deleteStaffDocument(int id) async {
+    return delete<BaseResponse>(
+      endpoint: Endpoint.deleteStaffDocument(id),
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
 }

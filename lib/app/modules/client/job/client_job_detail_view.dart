@@ -85,10 +85,9 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                         runSpacing: 8,
                         children: [
                           InfoChip(
-                            label: 'JOB SCHEDULED: ${(j?.isScheduled ?? false) ? 'YES' : 'NO'}',
-                            backgroundColor: (j?.isScheduled ?? false) ? scheme.primaryContainer : scheme.surfaceContainerHighest,
-                            foregroundColor: (j?.isScheduled ?? false) ? scheme.primary : scheme.onSurfaceVariant,
-                            leftPadding: 0,
+                            label: 'JOB SCHEDULED: ${(j?.jobSchedule ?? false) ? 'YES' : 'NO'}',
+                            backgroundColor: (j?.jobSchedule ?? false) ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+                            foregroundColor: (j?.jobSchedule ?? false) ? scheme.primary : scheme.onSurfaceVariant,
                           ),
                           InfoChip(
                               label: 'Status: ${j?.status?.toUpperCase() ?? "N/A"}',

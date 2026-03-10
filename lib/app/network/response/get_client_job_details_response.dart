@@ -98,6 +98,7 @@ class ClientJobDetails {
     additionalData = json['additional_data'];
     notified = json['notified'];
     scheduleId = json['schedule_id'];
+    jobSchedule = json['job_schedule'];
     jobStartDate = json['job_start_date'];
     jobEndDate = json['job_end_date'];
     jobType = json['job_type'];
@@ -146,6 +147,7 @@ class ClientJobDetails {
   dynamic additionalData;
   dynamic notified;
   dynamic scheduleId;
+  bool? jobSchedule;
   String? jobStartDate;
   String? jobEndDate;
   String? jobType;

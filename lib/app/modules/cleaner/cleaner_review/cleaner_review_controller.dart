@@ -1,5 +1,4 @@
 import 'package:ccs_app/app/network/response/cleaner_review_list_response.dart';
-import 'package:get/get.dart';
 
 import '../../../../export.dart';
 import '../../../network/repository/cleaner_repository.dart';
