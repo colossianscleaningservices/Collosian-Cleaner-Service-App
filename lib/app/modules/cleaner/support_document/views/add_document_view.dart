@@ -11,7 +11,7 @@ class AddDocumentView extends GetView<SupportDocumentController> {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     return AppScaffold(
-        appBar: Header(title: "Add New Document"),
+        appBar: Header(title: controller.isEditingDocument.value ? 'Update Document' : "Add New Document"),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Column(
@@ -61,8 +61,10 @@ class AddDocumentView extends GetView<SupportDocumentController> {
                   ).marginSymmetric(vertical: 8).marginSymmetric(horizontal: 4),
                 ),
                 Obx(() {
+                  print(controller.selectedDocument.value?.documentUrl?.split('/').last);
+                  print(controller.pickedFiles.length);
                   return Visibility(
-                    visible: controller.pickedFiles.isNotEmpty,
+                    visible: controller.isEditingDocument.value || controller.pickedFiles.isNotEmpty,
                     child: ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -75,41 +77,48 @@ class AddDocumentView extends GetView<SupportDocumentController> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    controller.getIcon(controller.pickedFiles[index].path),
-                                    size: 18,
-                                    color: Colors.grey,
-                                  ).marginOnly(right: 6),
-                                  SizedBox(
-                                      width: MediaQuery.of(context).size.width * 0.4,
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      controller.pickedFiles.isEmpty && controller.isEditingDocument.value
+                                          ? controller.getIcon(controller.selectedDocument.value?.documentUrl ?? '')
+                                          : controller.getIcon(controller.pickedFiles[index].path),
+                                      size: 18,
+                                      color: Colors.grey,
+                                    ).marginOnly(right: 6),
+                                    Flexible(
                                       child: CommonText.regular(
-                                        controller.pickedFiles[index].path.toString().split('/').last,
-                                        maxLines: 1,
+                                        controller.pickedFiles.isEmpty && controller.isEditingDocument.value
+                                            ? controller.selectedDocument.value?.documentUrl?.split('/').last ?? 'Dummy File'
+                                            : controller.pickedFiles[index].path.toString().split('/').last,
                                         color: context.colorScheme.primary,
-                                      )),
-                                ],
-                              ).paddingSymmetric(horizontal: 10),
-                              IconButton(
-                                onPressed: () {
-                                  if (controller.pickedFiles.isNotEmpty) {
-                                    controller.pickedFiles.removeAt(index);
-                                  }
-                                  log(runtimeType.toString(), "Delete File: ${controller.pickedFiles.length}");
-                                },
-                                highlightColor: Colors.red.withValues(alpha: 0.1),
-                                icon: const Icon(
-                                  Icons.clear,
-                                  color: Colors.red,
-                                  size: 20,
-                                ),
-                              )
+                                      ).paddingSymmetric(vertical: controller.pickedFiles.isEmpty ? 12 : 0),
+                                    ),
+                                  ],
+                                ).paddingSymmetric(horizontal: 10),
+                              ),
+                              controller.pickedFiles.isEmpty
+                                  ? SizedBox.shrink()
+                                  : IconButton(
+                                      onPressed: () {
+                                        if (controller.pickedFiles.isNotEmpty) {
+                                          controller.pickedFiles.removeAt(index);
+                                        }
+                                        log(runtimeType.toString(), "Delete File: ${controller.pickedFiles.length}");
+                                      },
+                                      highlightColor: Colors.red.withValues(alpha: 0.1),
+                                      icon: const Icon(
+                                        Icons.clear,
+                                        color: Colors.red,
+                                        size: 20,
+                                      ),
+                                    )
                             ],
                           ),
                         ).marginOnly(top: 8);
                       },
-                      itemCount: controller.pickedFiles.length,
+                      itemCount: 1,
                     ),
                   );
                 }),
@@ -118,7 +127,7 @@ class AddDocumentView extends GetView<SupportDocumentController> {
           ),
         ),
         bottomNavigationBar: SingleActionBottomBar(
-          label: 'Upload Document',
+          label: controller.isEditingDocument.value ? 'Update Document' : 'Upload Document',
           onPressed: controller.addDocument,
         ));
   }

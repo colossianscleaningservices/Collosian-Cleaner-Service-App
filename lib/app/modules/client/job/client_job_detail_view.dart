@@ -106,7 +106,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                             value: j?.jobEndDate != null ? CcsDateUtils.fullDate(DateTime.parse(j?.jobEndDate ?? "")) : '–',
                             scheme: scheme),
                       LabelValueRow(label: 'Job end time', value: j?.endTime ?? "N/A", scheme: scheme),
-                      if (j?.isScheduled == false && j?.status != 'Cancelled') ...[
+                      if (j?.jobSchedule == false && j?.status != 'Cancelled') ...[
                         const SizedBox(height: 16),
                         AppButton(
                           label: 'Schedule',
@@ -114,7 +114,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                           onPressed: c.onScheduleJob,
                         ),
                       ],
-                      if (j?.isScheduled == true) ...[
+                      if (j?.jobSchedule == true) ...[
                         const SizedBox(height: 12),
                         AppButton(
                           label: 'Cancel job',

@@ -48,6 +48,7 @@ abstract class Routes {
   static const NEWSLETTERS = _Paths.NEWSLETTERS;
   static const FAQ = _Paths.FAQ;
   static const UPCOMING_JOB = _Paths.UPCOMING_JOB;
+  static const PREFERRED_STAFF = _Paths.PREFERRED_STAFF;
 }
 
 abstract class _Paths {
@@ -86,8 +87,7 @@ abstract class _Paths {
   static const SUPPORT_DOCUMENT = '/cleaner/support-document';
   static const ADD_DOCUMENT = '/cleaner/add-document';
   static const NOTIFICATION = '/cleaner/notification';
-  static const CLEANER_PAYOUT_COMPUTATION =
-      '/cleaner/cleaner-payout-computation';
+  static const CLEANER_PAYOUT_COMPUTATION = '/cleaner/cleaner-payout-computation';
   static const HELP_SUPPORT = '/common/help-support';
   static const CHANGE_PASSWORD = '/common/change-password';
   static const CLEANER_REVIEW = '/cleaner/cleaner-review';
@@ -96,4 +96,5 @@ abstract class _Paths {
   static const CONTACT_US = '/common/contact-us';
   static const NEWSLETTERS = '/newsletters';
   static const FAQ = '/common/faq';
+  static const PREFERRED_STAFF = '/preferred-staff';
 }

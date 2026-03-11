@@ -31,6 +31,7 @@ class Endpoint {
   static const String cleanerAvailability = '${root}staff/availability';
   static const String uploadStaffDocument = '${root}staff/documents';
   static String deleteStaffDocument(int id) => '${root}staff/documents/$id';
+  static String updateStaffDocument(int id) => '${root}staff/documents/$id';
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
   // static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';
@@ -73,6 +74,8 @@ class Endpoint {
   static String getPropertyType = '${root}client/properties/types';
 
   static String getPropertySubType(int id) => '${root}client/properties/types/$id/subtypes';
+
+  static const String getPreferredStaff = '${root}client/preferred-staff';
 
   // ─── Common - Chat ────────────────────────────────────────────────────────
   static const String chatThreads = '${root}shared/chat/threads';

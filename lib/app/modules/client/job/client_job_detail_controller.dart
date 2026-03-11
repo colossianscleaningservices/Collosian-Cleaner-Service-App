@@ -198,27 +198,17 @@ class ClientJobDetailController extends GetxController {
       result.handle(
         success: (_) {
           Loader.hide();
-
-          final startTimeStr = _formatTime(CcsDateUtils.parseTimeOfDay(request.startTime ?? ""));
-          final endTimeStr = _formatTime(CcsDateUtils.parseTimeOfDay(request.endTime ?? ""));
-
-          /*job.value = job.value?.copyWith(
-            status: 'Scheduled',
-            date: startDate,
-            startTime: startTimeStr,
-            endTime: endTimeStr,
-            jobEndDate: endDate,
-          );*/
-
-          /*job.value?.status = 'Scheduled';
-          job.value?.startTime = startTimeStr;
-          job.value?.endTime = endTimeStr;*/
-
-          Notifier.success('Job scheduled for ${CcsDateUtils.fullDate(DateTime.parse(request.startDate ?? ""))}.');
-
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (Get.context == null) return;
-            fetchJobDetails();
+            fetchJobDetails(isLoaderShown: false);
+            Notifier.openSheet(Get.context as BuildContext,
+                title: "Success",
+                message: "Job scheduled for ${CcsDateUtils.fullDate(DateTime.parse(request.startDate ?? ""))}.",
+                isDismissable: false,
+                isShowCloseIcon: false,
+                showSecondaryButton: false, onPrimaryPressed: () {
+              Get.back();
+            });
           });
         },
         contextTag: 'schedule_job',

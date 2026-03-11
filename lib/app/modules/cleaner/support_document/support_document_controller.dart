@@ -19,6 +19,8 @@ class SupportDocumentController extends GetxController {
   final document = Rxn<String>();
   final documentCtrl = TextEditingController();
   final jobStartDate = Rxn<DateTime>();
+  final selectedDocument = Rxn<Documents>();
+
   List<String> documentTypeOptions = ['Passport', 'Visa', 'Driver License', 'Address Proof', 'Crb Check', 'Work Permit', 'Other'];
 
   RxList<File> pickedFiles = <File>[].obs;
@@ -27,6 +29,8 @@ class SupportDocumentController extends GetxController {
   final RxList<Documents> documents = <Documents>[].obs;
 
   var isPdfLoading = false.obs;
+
+  var isEditingDocument = false.obs;
 
   void setJobStartDate(DateTime? d) => jobStartDate.value = d;
 
@@ -38,9 +42,8 @@ class SupportDocumentController extends GetxController {
     super.onInit();
   }
 
-
   /// Pull-to-refresh callback.
-  Future<void> refreshDocuments() =>  geCleanerDocuments();
+  Future<void> refreshDocuments() => geCleanerDocuments();
 
   /// Returns icon for document type for list display.
   IconData iconForDocumentType(String type) {
@@ -59,8 +62,7 @@ class SupportDocumentController extends GetxController {
   }
 
   Future<void> onViewFile(Documents item) async {
-    
-    if( item.documentUrl!.endsWith('.pdf')){
+    if (item.documentUrl!.endsWith('.pdf')) {
       final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
       Notifier.openSheet(Get.context as BuildContext,
           showIcon: false,
@@ -73,7 +75,7 @@ class SupportDocumentController extends GetxController {
               password: "1234",
             ),
           ));
-    }else{
+    } else {
       var multiImageProvider = MultiImageProvider(
         [
           NetworkImage(item.documentUrl.toString()),
@@ -85,13 +87,11 @@ class SupportDocumentController extends GetxController {
         useSafeArea: true,
         multiImageProvider,
         swipeDismissible: true,
-        backgroundColor:  Get.context!.colorScheme.surface,
-        closeButtonColor:  Get.context!.colorScheme.secondary,
+        backgroundColor: Get.context!.colorScheme.surface,
+        closeButtonColor: Get.context!.colorScheme.secondary,
         doubleTapZoomable: true,
       );
-
     }
-
 
     /*if (item.fileUrl != null && item.fileUrl!.isNotEmpty) {
       // TODO: Open file (e.g. url_launcher or file viewer)
@@ -101,15 +101,15 @@ class SupportDocumentController extends GetxController {
   }
 
   void onEditDocument(Documents item) {
+    setEditingData(item);
 
-
-
+    Get.toNamed(Routes.ADD_DOCUMENT)?.then((result) {
+      if (result == true) refreshDocuments();
+    });
   }
 
   void onDeleteDocument(Documents item) {
-
-    confirmDeleteJob( Get.context! , item.id?.toInt() ?? 0);
-
+    confirmDeleteJob(Get.context!, item.id?.toInt() ?? 0);
   }
 
   @override
@@ -123,7 +123,29 @@ class SupportDocumentController extends GetxController {
     super.onClose();
   }
 
-  // Function to pick files using FilePicker
+  void setEditingData(Documents item) {
+    log('tag', item.documentUrl?.split('/').last ?? '');
+    isEditingDocument.value = true;
+
+    selectedDocument.value = item;
+
+    document.value = item.documentName?.replaceAll('_', ' ').capitalize;
+
+    documentCtrl.text = item.documentNumber!;
+
+    jobStartDate.value = DateTime.parse(item.expiryDate!);
+
+    refresh();
+  }
+
+  void clearData() {
+    isEditingDocument.value = false;
+    pickedFiles.clear();
+    document.value = null;
+    documentCtrl.text = '';
+    jobStartDate.value = null;
+  }
+
   Future<void> getFiles() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
@@ -226,56 +248,73 @@ class SupportDocumentController extends GetxController {
       return;
     }
 
-    if (pickedFiles.isEmpty) {
+    if (!isEditingDocument.value && pickedFiles.isEmpty) {
       Notifier.info('Please select document.');
       return;
     }
 
     Loader.show();
+    final data = <String, dynamic>{};
 
-    final filePath = pickedFiles.first.path;
+    if (pickedFiles.isNotEmpty) {
+      final filePath = pickedFiles.first.path;
 
 // get extension (.jpg, .png, .pdf etc)
-    final extension = path.extension(filePath);
+      final extension = path.extension(filePath);
 
-    var partFile = await dio.MultipartFile.fromFile(
-      filePath,
-      filename: "file_${DateTime.now().millisecondsSinceEpoch}$extension",
-    );
+      var partFile = await dio.MultipartFile.fromFile(
+        filePath,
+        filename: "file_${DateTime.now().millisecondsSinceEpoch}$extension",
+      );
 
-    // var partFile = await dio.MultipartFile.fromFile(pickedFiles.first.path, filename: "image_${DateTime.now()}.jpg").then((value) {
-    //   return value;
-    // });
+      data["file"] = partFile;
+    }
 
-    final data = <String, dynamic>{};
     data["document_name"] = document.value?.toLowerCase().replaceAll(' ', '_');
     // if(otherDocumentName != null) data["other_document_name"] = otherDocumentName;
     data["document_number"] = documentCtrl.text;
     data["expiry_date"] = jobStartDate.value?.toDisplayDate('yyyy-MM-dd');
-    data["file"] = partFile;
 
+    isEditingDocument.value ? updateDocument(data) : uploadDocument(data);
+  }
+
+  Future<void> uploadDocument(Map<String, dynamic> data) async {
     var result = await _cleanerRepository.uploadStaffDocument(data);
+
     result.handle(
       success: (value) {
         Loader.hide();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (Get.context == null) return;
           Notifier.openSheet(Get.context as BuildContext,
-              title: "Success",
-              message: "${value.message}",
-              isDismissable: false,
-              isShowCloseIcon: false,
-              showSecondaryButton: false, onPrimaryPressed: () {
-                Get.back(result: {'isUpdate': true});
-              });
+              title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+            Get.back(result: {'isUpdate': true});
+          });
         });
+        clearData();
+        geCleanerDocuments();
+      },
+      onError: (_) {
+        Loader.hide();
+      },
+      contextTag: 'media-upload',
+    );
+  }
 
-        pickedFiles.clear();
-        document.value = null;
-        documentCtrl.text = '';
-        jobStartDate.value = null;
+  Future<void> updateDocument(Map<String, dynamic> data) async {
+    var result = await _cleanerRepository.updateStaffDocument(selectedDocument.value?.id?.toInt() ?? 0, data);
 
-
+    result.handle(
+      success: (value) {
+        Loader.hide();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (Get.context == null) return;
+          Notifier.openSheet(Get.context as BuildContext,
+              title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+            Get.back(result: {'isUpdate': true});
+          });
+        });
+        clearData();
         geCleanerDocuments();
       },
       onError: (_) {
@@ -294,7 +333,7 @@ class SupportDocumentController extends GetxController {
           Loader.hide();
           documents.clear();
           response.data?.documents?.forEach((item) {
-           documents.add(item);
+            documents.add(item);
           });
 
           documents.refresh();
@@ -317,11 +356,9 @@ class SupportDocumentController extends GetxController {
     } finally {
       Loader.hide();
     }
-
   }
 
-
-  void confirmDeleteJob(BuildContext context , int id) {
+  void confirmDeleteJob(BuildContext context, int id) {
     Notifier.openSheet(
       context,
       type: SheetType.error,
@@ -331,12 +368,10 @@ class SupportDocumentController extends GetxController {
       secondaryButtonLabel: 'No',
       showPrimaryButton: true,
       showSecondaryButton: true,
-      onPrimaryPressed: (){
+      onPrimaryPressed: () {
         deleteDocument(id);
       },
       onSecondaryPressed: () {},
     );
   }
-
-
 }

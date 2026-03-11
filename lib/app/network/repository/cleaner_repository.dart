@@ -174,4 +174,12 @@ class CleanerRepository extends BaseRepository {
     );
   }
 
+  Future<NetworkResult<BaseResponse>> updateStaffDocument(int id, Map<String, dynamic> data) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.updateStaffDocument(id),
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data:  FormData.fromMap(data)
+    );
+  }
+
 }

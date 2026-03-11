@@ -76,7 +76,7 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                             Get.toNamed(Routes.PROPERTY);
                             break;
                           case 2:
-                            // Get.toNamed(Routes.PREFERRED_STAFF);
+                            Get.toNamed(Routes.PREFERRED_STAFF);
                             break;
                           case 3:
                             Get.toNamed(Routes.NOTIFICATION);

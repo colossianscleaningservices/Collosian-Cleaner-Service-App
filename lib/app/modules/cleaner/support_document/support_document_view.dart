@@ -52,6 +52,7 @@ class SupportDocumentView extends GetView<SupportDocumentController> {
   }
 
   void _navigateToAddDocument(BuildContext context) {
+    controller.clearData();
     Get.toNamed(Routes.ADD_DOCUMENT)?.then((result) {
       if (result == true) controller.refreshDocuments();
     });
