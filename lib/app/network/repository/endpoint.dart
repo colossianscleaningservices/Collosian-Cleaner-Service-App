@@ -32,6 +32,9 @@ class Endpoint {
   static const String uploadStaffDocument = '${root}staff/documents';
   static String deleteStaffDocument(int id) => '${root}staff/documents/$id';
   static String updateStaffDocument(int id) => '${root}staff/documents/$id';
+  static const String getPayoutComputation = '${root}staff/payouts';
+  static const String addReference = '${root}staff/references';
+  static const String getReferences = '${root}staff/references';
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
   // static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';

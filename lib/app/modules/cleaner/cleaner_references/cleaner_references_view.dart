@@ -1,7 +1,7 @@
+import 'package:ccs_app/app/network/response/get_references_response.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 
 import '../../../../export.dart';
-import '../../../model/reference_item.dart';
 import 'cleaner_references_controller.dart';
 
 class CleanerReferencesView extends GetView<CleanerReferencesController> {
@@ -69,7 +69,7 @@ class CleanerReferencesView extends GetView<CleanerReferencesController> {
 class _ReferenceCard extends StatelessWidget {
   const _ReferenceCard({required this.reference, required this.scheme});
 
-  final ReferenceItem reference;
+  final References reference;
   final ColorScheme scheme;
 
   @override
@@ -102,7 +102,7 @@ class _ReferenceCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CommonText.semiBold(
-                      fullName,
+                      fullName.capitalize ?? '',
                       size: 17,
                       color: scheme.onSurface,
                     ),
@@ -143,11 +143,11 @@ class _ReferenceCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
           ],
-          if (reference.phone != null && reference.phone!.isNotEmpty)
+          if (reference.phoneNumber != null && reference.phoneNumber!.isNotEmpty)
             _InfoRow(
               scheme: scheme,
               icon: IconsaxPlusLinear.call,
-              label: reference.phone!,
+              label: reference.phoneNumber!,
             ),
         ],
       ).paddingAll(18),

@@ -2,6 +2,8 @@ import 'package:ccs_app/app/network/request/availability_request.dart';
 import 'package:ccs_app/app/network/response/cleaner_job_response.dart';
 import 'package:ccs_app/app/network/response/cleaner_properties_response.dart';
 import 'package:ccs_app/app/network/response/cleaner_review_list_response.dart';
+import 'package:ccs_app/app/network/response/get_payout_computation_response.dart';
+import 'package:ccs_app/app/network/response/get_references_response.dart';
 import 'package:ccs_app/app/network/response/get_staff_document_response.dart';
 import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/app/network/response/update_profile_response.dart';
@@ -179,6 +181,29 @@ class CleanerRepository extends BaseRepository {
       endpoint: Endpoint.updateStaffDocument(id),
       fromJson: (json) => BaseResponse.fromJson(json),
       data:  FormData.fromMap(data)
+    );
+  }
+
+  Future<NetworkResult<GetPayoutComputationResponse>> getPayoutComputation({String? dateFrom , String? dateTo}) async {
+    return get<GetPayoutComputationResponse>(
+      endpoint: Endpoint.getPayoutComputation,
+      fromJson: (json) => GetPayoutComputationResponse.fromJson(json),
+      queryParameters: {if (dateFrom != null) 'date_from': dateFrom, if(dateTo != null)'date_to': dateTo}
+    );
+  }
+
+  Future<NetworkResult<BaseResponse>> addReference( Map<String, dynamic> data) async {
+    return post<BaseResponse>(
+        endpoint: Endpoint.addReference,
+        fromJson: (json) => BaseResponse.fromJson(json),
+        data:  FormData.fromMap(data)
+    );
+  }
+
+  Future<NetworkResult<GetReferencesResponse>> getReferences() async {
+    return get<GetReferencesResponse>(
+        endpoint: Endpoint.addReference,
+        fromJson: (json) => GetReferencesResponse.fromJson(json),
     );
   }
 

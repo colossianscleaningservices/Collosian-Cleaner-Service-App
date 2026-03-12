@@ -52,7 +52,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                             tabletCount: 2,
                             landscapeCount: 3,
                             child: controller.jobs.map((job) {
-                              final approvedCleaners = job.jobCleaners?.where((cleaner) => cleaner.status == 'Approved').toList();
+                              final approvedCleaners = job.jobCleaners?.where((cleaner) => (cleaner.status == 'Approved' || cleaner.status == 'Completed')).toList();
 
                               return JobCard(
                                 title: job.cleaningType?.name ?? "N/A",

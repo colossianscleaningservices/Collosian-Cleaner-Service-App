@@ -56,7 +56,7 @@ class JobCard extends StatelessWidget {
   static Color statusLineColor(String status, ColorScheme scheme) {
     final lower = status.toLowerCase();
     if (lower.contains('cancel')) return scheme.error;
-    if (lower.contains('complete') || lower.contains('done')) return scheme.tertiary;
+    if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) return scheme.tertiary;
     return scheme.primary;
   }
 
@@ -231,7 +231,7 @@ class _JobCardStatusChip extends StatelessWidget {
     if (lower.contains('cancel')) {
       bg = scheme.errorContainer.withValues(alpha: 0.6);
       fg = scheme.error;
-    } else if (lower.contains('complete') || lower.contains('done')) {
+    } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) {
       bg = scheme.tertiaryContainer.withValues(alpha: 0.6);
       fg = scheme.onTertiaryContainer;
     } else {
