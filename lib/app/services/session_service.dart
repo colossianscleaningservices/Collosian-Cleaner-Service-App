@@ -9,7 +9,7 @@ import 'onesignal_service.dart';
 class SessionService extends GetxService {
   final Prefs _prefs = Prefs.instance;
 
-  bool get isLoggedIn => (_prefs.token ?? '').isNotEmpty;
+  bool get isLoggedIn => (_prefs.token).isNotEmpty;
 
   /// Current user id (from login/register response). Empty if not logged in.
   String get userId => _prefs.getData(Prefs.id);

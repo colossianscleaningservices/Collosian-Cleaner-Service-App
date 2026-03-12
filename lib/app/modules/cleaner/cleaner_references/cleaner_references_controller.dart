@@ -1,8 +1,7 @@
 import '../../../../export.dart';
+import '../../../model/reference_item.dart';
 
 class CleanerReferencesController extends GetxController {
-  //TODO: Implement CleanerReferencesController
-
   final count = 0.obs;
 
   final firstNameCtrl = TextEditingController();
@@ -12,6 +11,8 @@ class CleanerReferencesController extends GetxController {
   final companyNameCtrl = TextEditingController();
   final relationship = Rxn<String>();
   List<String> relationshipOptions = ['Aunt', 'Boyfriend', 'Friend', 'Brother', 'Sister', 'Other'];
+
+  final references = <ReferenceItem>[].obs;
 
   @override
   void onInit() {
@@ -29,6 +30,15 @@ class CleanerReferencesController extends GetxController {
   }
 
   void increment() => count.value++;
+
+  void clearForm() {
+    firstNameCtrl.clear();
+    lastNameCtrl.clear();
+    emailCtrl.clear();
+    phoneCtrl.clear();
+    companyNameCtrl.clear();
+    relationship.value = null;
+  }
 
   Future<void> addReferences() async {
     Get.context!.hideKeyboard();
@@ -48,12 +58,22 @@ class CleanerReferencesController extends GetxController {
 
     Loader.show();
     try {
-      // TODO: Call API to update profile
+      // TODO: Call API to save reference
       await Future.delayed(const Duration(seconds: 1)); // Simulate API call
-      Notifier.info('Profile updated successfully');
+      final item = ReferenceItem(
+        firstName: firstNameCtrl.text.trim(),
+        lastName: lastNameCtrl.text.trim(),
+        email: emailCtrl.text.trim().isEmpty ? null : emailCtrl.text.trim(),
+        phone: phoneCtrl.text.trim().isEmpty ? null : phoneCtrl.text.trim(),
+        companyName: companyNameCtrl.text.trim().isEmpty ? null : companyNameCtrl.text.trim(),
+        relationship: relationship.value,
+      );
+      references.add(item);
+      clearForm();
+      Notifier.info('Reference added successfully');
       Get.back(result: true);
     } catch (e) {
-      Notifier.info('Failed to update profile: $e');
+      Notifier.info('Failed to add reference: $e');
     } finally {
       Loader.hide();
     }
