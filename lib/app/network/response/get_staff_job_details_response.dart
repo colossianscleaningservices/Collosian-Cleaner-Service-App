@@ -1,5 +1,7 @@
 import 'package:ccs_app/app/network/response/profile_response.dart';
 
+import 'jobs.dart';
+
 class GetStaffJobDetailsResponse {
   GetStaffJobDetailsResponse({
     this.message,
@@ -69,6 +71,7 @@ class StaffJobDetails {
     this.user,
     this.property,
     this.createdAt,
+    this.scheduler,
     this.updatedAt,});
 
   StaffJobDetails.fromJson(dynamic json) {
@@ -118,6 +121,7 @@ class StaffJobDetails {
     }
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    scheduler = json['scheduler'] != null ? Scheduler.fromJson(json['scheduler']) : null;
   }
 
   num? id;
@@ -156,6 +160,7 @@ class StaffJobDetails {
   String? updatedAt;
   List<JobCleaners>? jobCleaners;
   List<Cleaners>? cleaners;
+  Scheduler? scheduler;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -205,6 +210,9 @@ class StaffJobDetails {
     }
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
+    if (scheduler != null) {
+      map['scheduler'] = scheduler?.toJson();
+    }
     return map;
   }
 

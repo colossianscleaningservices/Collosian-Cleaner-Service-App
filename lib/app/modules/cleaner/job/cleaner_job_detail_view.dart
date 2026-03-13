@@ -108,9 +108,16 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                             if (cleanerStatus?.toLowerCase() == 'completed') ...[
                               Column(
                                 children: [
-                                  if (cleaner?.checkInDate != null) LabelValueRow(label: 'Check-In Date', value: CcsDateUtils.fullDate(DateTime.parse(cleaner?.checkInDate ?? "")), scheme: scheme),
-                                  if (cleaner?.checkOutDate != null) LabelValueRow(label: 'Check-Out Date', value: CcsDateUtils.fullDate(DateTime.parse(cleaner?.checkOutDate ?? "")), scheme: scheme),
-                                  LabelValueRow(label: 'Check-In/Check-Out Time', value: '${cleaner?.checkInTime ?? "N/A"} – ${cleaner?.checkOutTime ?? "N/A"}', scheme: scheme),
+                                  if (cleaner?.checkInDate != null)
+                                    LabelValueRow(
+                                        label: 'Check-In Date', value: CcsDateUtils.fullDate(DateTime.parse(cleaner?.checkInDate ?? "")), scheme: scheme),
+                                  if (cleaner?.checkOutDate != null)
+                                    LabelValueRow(
+                                        label: 'Check-Out Date', value: CcsDateUtils.fullDate(DateTime.parse(cleaner?.checkOutDate ?? "")), scheme: scheme),
+                                  LabelValueRow(
+                                      label: 'Check-In/Check-Out Time',
+                                      value: '${cleaner?.checkInTime ?? "N/A"} – ${cleaner?.checkOutTime ?? "N/A"}',
+                                      scheme: scheme),
                                   const SizedBox(height: 8),
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -177,8 +184,7 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                           children: [
                             CommonText.semiBold('Preferences & equipment', size: 16, color: scheme.onSurface),
                             const SizedBox(height: 12),
-                            if (j?.property?.staffPreference != null)
-                              LabelValueRow(label: 'Staff preference', value: j?.property?.staffPreference ?? "", scheme: scheme),
+                            if (j?.property?.staffPreference != null) LabelValueRow(label: 'Staff preference', value: j?.staffPreference ?? "", scheme: scheme),
                             if (j?.property?.hoover != null) LabelValueRow(label: 'Hoover', value: j?.property?.hoover ?? "", scheme: scheme),
                             LabelValueRow(label: 'Cleaning products', value: j?.property?.provideCleaningProducts == true ? 'Yes' : 'No', scheme: scheme),
                             LabelValueRow(label: 'Washing machine', value: j?.property?.provideWashingMachine == true ? 'Yes' : 'No', scheme: scheme),

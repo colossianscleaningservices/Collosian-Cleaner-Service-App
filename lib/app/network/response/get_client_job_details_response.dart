@@ -1,4 +1,6 @@
 
+import 'jobs.dart';
+
 class GetClientJobDetailsResponse {
   GetClientJobDetailsResponse({
     this.message,
@@ -69,6 +71,7 @@ class ClientJobDetails {
     this.cleaners,
     this.createdAt,
     this.updatedAt,
+    this.scheduler,
   });
 
   /// True when status is Scheduled (job has been given a date/time).
@@ -122,6 +125,7 @@ class ClientJobDetails {
     }
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    scheduler = json['scheduler'] != null ? Scheduler.fromJson(json['scheduler']) : null;
   }
 
   num? id;
@@ -161,6 +165,7 @@ class ClientJobDetails {
   String? createdAt;
   String? updatedAt;
   List<JobCleaners>? jobCleaners;
+  Scheduler? scheduler;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -207,6 +212,9 @@ class ClientJobDetails {
     map['updated_at'] = updatedAt;
     if (jobCleaners != null) {
       map['job_cleaners'] = jobCleaners?.map((v) => v.toJson()).toList();
+    }
+    if (scheduler != null) {
+      map['scheduler'] = scheduler?.toJson();
     }
     return map;
   }

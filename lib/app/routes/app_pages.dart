@@ -42,6 +42,7 @@ import '../modules/client/job/client_job_detail_binding.dart';
 import '../modules/client/job/client_job_detail_view.dart';
 import '../modules/client/preferred_staff/preferred_staff_binding.dart';
 import '../modules/client/preferred_staff/preferred_staff_view.dart';
+import '../modules/client/preferred_staff/staff_details_view.dart';
 import '../modules/client/property/add_property_view.dart';
 import '../modules/client/property/property_binding.dart';
 import '../modules/client/property/property_view.dart';
@@ -255,6 +256,11 @@ class AppPages {
     GetPage(
       name: _Paths.PREFERRED_STAFF,
       page: () => const PreferredStaffView(),
+      binding: PreferredStaffBinding(),
+    ),
+    GetPage(
+      name: _Paths.STAFF_DETAILS,
+      page: () => const StaffDetailsView(),
       binding: PreferredStaffBinding(),
     ),
   ];

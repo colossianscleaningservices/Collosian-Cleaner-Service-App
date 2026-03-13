@@ -49,6 +49,7 @@ abstract class Routes {
   static const FAQ = _Paths.FAQ;
   static const UPCOMING_JOB = _Paths.UPCOMING_JOB;
   static const PREFERRED_STAFF = _Paths.PREFERRED_STAFF;
+  static const STAFF_DETAILS = _Paths.STAFF_DETAILS;
 }
 
 abstract class _Paths {
@@ -97,4 +98,5 @@ abstract class _Paths {
   static const NEWSLETTERS = '/newsletters';
   static const FAQ = '/common/faq';
   static const PREFERRED_STAFF = '/preferred-staff';
+  static const STAFF_DETAILS = '/preferred-staff/details';
 }

@@ -52,7 +52,8 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                             tabletCount: 2,
                             landscapeCount: 3,
                             child: controller.jobs.map((job) {
-                              final approvedCleaners = job.jobCleaners?.where((cleaner) => (cleaner.status == 'Approved' || cleaner.status == 'Completed')).toList();
+                              final approvedCleaners =
+                                  job.jobCleaners?.where((cleaner) => (cleaner.status == 'Approved' || cleaner.status == 'Completed')).toList();
 
                               return JobCard(
                                 title: job.cleaningType?.name ?? "N/A",
@@ -74,7 +75,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                                         ' - ',
                                 propertyName: job.property?.propertyName ?? "N/A",
                                 address: job.property?.address ?? "N/A",
-                                recurrence: /*job.recurrence*/ "N/A",
+                                recurrence: job.scheduler?.frequency?.capitalizeFirst ?? "N/A",
                                 cleanerInfo: job.cleaners?.isNotEmpty == true
                                     ? '${approvedCleaners?.length} of ${job.numberOfCleaners} assigned'
                                     : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',

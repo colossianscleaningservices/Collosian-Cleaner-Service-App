@@ -33,6 +33,7 @@ class Jobs {
     this.property,
     this.pricingChart,
     this.jobCleaners,
+    this.scheduler,
     this.cleaners,
     this.createdAt,
     this.updatedAt,});
@@ -84,6 +85,7 @@ class Jobs {
     }
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    scheduler = json['scheduler'] != null ? Scheduler.fromJson(json['scheduler']) : null;
   }
   num? id;
   String? date;
@@ -121,6 +123,7 @@ class Jobs {
   String? createdAt;
   String? updatedAt;
   List<JobCleaners>? jobCleaners;
+  Scheduler? scheduler;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -168,6 +171,9 @@ class Jobs {
     }
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
+    if (scheduler != null) {
+      map['scheduler'] = scheduler?.toJson();
+    }
     return map;
   }
 
@@ -735,6 +741,98 @@ class User {
     map['account_holder_name'] = accountHolderName;
     map['account_number'] = accountNumber;
     map['sort_code'] = sortCode;
+    return map;
+  }
+
+}
+
+class Scheduler {
+  Scheduler({
+    this.id,
+    this.frequency,
+    this.nextJobDate,
+    this.occurrence,
+    this.repeatEvery,
+    this.repeatOn,
+    this.startTime,
+    this.endTime,
+    this.active,});
+
+  Scheduler.fromJson(dynamic json) {
+    id = json['id'];
+    frequency = json['frequency'];
+    nextJobDate = json['next_job_date'];
+    occurrence = json['occurrence'];
+    repeatEvery = json['repeat_every'];
+    repeatOn = json['repeat_on'] != null ? RepeatOn.fromJson(json['repeat_on']) : null;
+    startTime = json['start_time'];
+    endTime = json['end_time'];
+    active = json['active'];
+  }
+  num? id;
+  String? frequency;
+  String? nextJobDate;
+  dynamic occurrence;
+  String? repeatEvery;
+  RepeatOn? repeatOn;
+  String? startTime;
+  String? endTime;
+  bool? active;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    map['frequency'] = frequency;
+    map['next_job_date'] = nextJobDate;
+    map['occurrence'] = occurrence;
+    map['repeat_every'] = repeatEvery;
+    if (repeatOn != null) {
+      map['repeat_on'] = repeatOn?.toJson();
+    }
+    map['start_time'] = startTime;
+    map['end_time'] = endTime;
+    map['active'] = active;
+    return map;
+  }
+
+}
+
+class RepeatOn {
+  RepeatOn({
+    this.monday,
+    this.tuesday,
+    this.wednesday,
+    this.thursday,
+    this.friday,
+    this.saturday,
+    this.sunday,});
+
+  RepeatOn.fromJson(dynamic json) {
+    monday = json['monday'];
+    tuesday = json['tuesday'];
+    wednesday = json['wednesday'];
+    thursday = json['thursday'];
+    friday = json['friday'];
+    saturday = json['saturday'];
+    sunday = json['sunday'];
+  }
+  bool? monday;
+  bool? tuesday;
+  bool? wednesday;
+  bool? thursday;
+  bool? friday;
+  bool? saturday;
+  bool? sunday;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['monday'] = monday;
+    map['tuesday'] = tuesday;
+    map['wednesday'] = wednesday;
+    map['thursday'] = thursday;
+    map['friday'] = friday;
+    map['saturday'] = saturday;
+    map['sunday'] = sunday;
     return map;
   }
 

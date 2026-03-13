@@ -44,7 +44,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                 participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyClient);
                 // Assigned cleaners
                 for (final cleaner in job?.cleaners ?? []) {
-                  participants[cleaner.id] = ChatParticipant(id: cleaner.id, name: cleaner.name, role: RoleConstants.roleKeyCleaner);
+                  participants[cleaner.id.toString()] = ChatParticipant(id: cleaner.id.toString(), name: cleaner.name, role: RoleConstants.roleKeyCleaner);
                 }
                 Get.toNamed(Routes.JOB_CHAT, arguments: {
                   'type': ChatConstants.typeJob,
@@ -162,7 +162,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                       CommonText.semiBold('Preferences & equipment', size: 16, color: scheme.onSurface),
                       const SizedBox(height: 12),
                       if (j?.property?.staffPreference != null)
-                        LabelValueRow(label: 'Staff preference', value: j?.property?.staffPreference ?? "", scheme: scheme),
+                        LabelValueRow(label: 'Staff preference', value: j?.staffPreference ?? "", scheme: scheme),
                       if (j?.property?.hoover != null) LabelValueRow(label: 'Hoover', value: j?.property?.hoover ?? "", scheme: scheme),
                       LabelValueRow(label: 'Cleaning products', value: j?.provideCleaningProducts == true ? 'Yes' : 'No', scheme: scheme),
                       LabelValueRow(label: 'Washing machine', value: j?.provideWashingMachine == true ? 'Yes' : 'No', scheme: scheme),

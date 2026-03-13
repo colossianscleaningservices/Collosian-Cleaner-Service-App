@@ -27,6 +27,7 @@ class PreferredStaffView extends GetView<PreferredStaffController> {
                       var preferredStaff = controller.preferredStaff[index];
 
                       return AppCard(
+                        onTap: () => Get.toNamed(Routes.STAFF_DETAILS, arguments: preferredStaff),
                         child: Row(
                           children: [
                             AppAvatar(
@@ -41,7 +42,7 @@ class PreferredStaffView extends GetView<PreferredStaffController> {
                                 children: [
                                   CommonText.semiBold(preferredStaff.name ?? '', size: 15, color: context.colorScheme.onSurface),
                                   const SizedBox(height: 2),
-                                  CommonText.semiBold(preferredStaff.email ?? '', size: 15, color: context.colorScheme.onSurface),
+                                  CommonText.regular(preferredStaff.email ?? '', size: 15, color: context.colorScheme.onSurface),
                                 ],
                               ),
                             ),

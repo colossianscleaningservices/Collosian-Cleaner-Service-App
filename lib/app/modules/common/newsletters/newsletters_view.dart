@@ -33,7 +33,7 @@ class NewslettersView extends GetView<NewslettersController> {
                         item: item,
                         scheme: scheme,
                         onTap: () => {
-                          /*_showNewsletterDetail(context, item, scheme)*/
+                          _showNewsletterDetail(context, item, scheme)
                         },
                       );
                     },
@@ -50,7 +50,7 @@ class NewslettersView extends GetView<NewslettersController> {
       isScrollControlled: true,
       useSafeArea: true,
       showDragHandle: true,
-      backgroundColor: scheme.surface,
+      backgroundColor: context.colorScheme.onPrimary,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),

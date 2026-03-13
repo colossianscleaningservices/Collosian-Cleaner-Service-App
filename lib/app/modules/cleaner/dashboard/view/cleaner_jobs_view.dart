@@ -95,7 +95,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                               : job.jobCleaners?.map((item) => "${item.user?.firstName} ${item.user?.lastName}").toList().join(',') ?? ' - ',
                           propertyName: job.property?.propertyName ?? "N/A",
                           address: job.property?.address ?? "N/A",
-                          recurrence: /*job.recurrence*/ "N/A",
+                          recurrence: job.scheduler?.frequency?.capitalizeFirst ?? "N/A",
                           cleanerInfo: job.jobCleaners?.isNotEmpty == true
                               ? '${job.jobCleaners?.length} of ${job.numberOfCleaners} assigned'
                               : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
@@ -137,7 +137,6 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                         .toList(),
                   ),
                 ],
-
                 if (controller.isJobMoreLoading.value)
                   SliverToBoxAdapter(
                     child: PageLoader().marginOnly(top: 8),
