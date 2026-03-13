@@ -155,4 +155,12 @@ extension CcsDateTimeX on DateTime {
     // Format the time as H:i:s
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
+
+  static String convertTime(String time) {
+    final inputFormat = DateFormat("HH:mm:ss");
+    final outputFormat = DateFormat("hh:mm a");
+
+    final dateTime = inputFormat.parse(time);
+    return outputFormat.format(dateTime);
+  }
 }

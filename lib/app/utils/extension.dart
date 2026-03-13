@@ -126,3 +126,36 @@ class AlwaysDisabledFocusNode extends FocusNode {
   @override
   bool get hasFocus => false;
 }
+
+Color getBgColor(String label, ColorScheme scheme){
+  final lower = label.toLowerCase();
+  Color bg;
+  if (lower.contains('cancel')) {
+    bg = scheme.errorContainer.withValues(alpha: 0.6);
+  } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) {
+    bg = scheme.tertiaryContainer.withValues(alpha: 0.6);
+  } else if (lower.contains('pending')) {
+    bg = Colors.yellow.shade100.withValues(alpha: 0.6);
+  } else {
+    bg = scheme.primaryContainer.withValues(alpha: 0.5);
+  }
+
+  return bg;
+}
+
+Color getFgColor(String label, ColorScheme scheme){
+  final lower = label.toLowerCase();
+  Color fg;
+  if (lower.contains('cancel')) {
+    fg = scheme.error;
+  } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) {
+    fg = scheme.onTertiaryContainer;
+  } else if (lower.contains('pending')) {
+    fg = Colors.yellow.shade800;
+  } else {
+    fg = scheme.primary;
+  }
+
+  return fg;
+}
+

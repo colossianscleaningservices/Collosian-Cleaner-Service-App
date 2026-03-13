@@ -287,7 +287,7 @@ class SupportDocumentController extends GetxController {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (Get.context == null) return;
           Notifier.openSheet(Get.context as BuildContext,
-              title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+              title: "Success",type: SheetType.success, message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
             Get.back(result: {'isUpdate': true});
           });
         });
@@ -310,7 +310,7 @@ class SupportDocumentController extends GetxController {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (Get.context == null) return;
           Notifier.openSheet(Get.context as BuildContext,
-              title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+              title: "Success",type: SheetType.success, message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
             Get.back(result: {'isUpdate': true});
           });
         });

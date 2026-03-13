@@ -44,7 +44,10 @@ class SupportDocumentView extends GetView<SupportDocumentController> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToAddDocument(context),
         icon: const Icon(Icons.add),
-        label: const Text('Add Document'),
+        label: CommonText.regular(
+          'Add Document',
+          color: context.colorScheme.onPrimary,
+        ),
         backgroundColor: scheme.primary,
         foregroundColor: scheme.onPrimary,
       ),

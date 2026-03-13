@@ -203,6 +203,7 @@ class ClientJobDetailController extends GetxController {
             fetchJobDetails(isLoaderShown: false);
             Notifier.openSheet(Get.context as BuildContext,
                 title: "Success",
+                type: SheetType.success,
                 message: "Job scheduled for ${CcsDateUtils.fullDate(DateTime.parse(request.startDate ?? ""))}.",
                 isDismissable: false,
                 isShowCloseIcon: false,
@@ -284,7 +285,7 @@ class ClientJobDetailController extends GetxController {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (Get.context == null) return;
             Notifier.openSheet(Get.context as BuildContext,
-                title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+                title: "Success",type: SheetType.success, message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
               Get.back();
               fetchJobDetails();
             });

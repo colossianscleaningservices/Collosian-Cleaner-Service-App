@@ -43,6 +43,7 @@ class Notifier {
     bool isShowCloseIcon = true,
     void Function()? onPrimaryPressed,
     void Function()? onSecondaryPressed,
+    bool top = false,
   }) {
 
     final scheme = context.colorScheme;
@@ -79,7 +80,7 @@ class Notifier {
     }
 
     var content = SafeArea(
-      top: false,
+      top: top,
       bottom: false,
       child: AppCard(
         child: Column(
@@ -168,7 +169,7 @@ class Notifier {
       ).marginSymmetric(horizontal: 18, vertical: 24),
     );
 
-    Get.bottomSheet(content, isDismissible: isDismissable, enterBottomSheetDuration: Duration(milliseconds: 250), isScrollControlled: true);
+    Get.bottomSheet(content, isDismissible: isDismissable, enterBottomSheetDuration: Duration(milliseconds: 250), isScrollControlled: true,ignoreSafeArea: false);
   }
 
   static void _show({required String title, required String message, required ToastificationType type}) {

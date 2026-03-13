@@ -130,6 +130,7 @@ class CreateJobView extends GetView<CreateJobController> {
                           onTap: () {
                             Notifier.openSheet(
                               context,
+                              top: true,
                               showPrimaryButton: false,
                               showSecondaryButton: false,
                               showIcon: false,

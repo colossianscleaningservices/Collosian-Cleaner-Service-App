@@ -89,7 +89,8 @@ class Staff {
       this.localAreas, 
       this.bankName, 
       this.accountHolderName, 
-      this.accountNumber, 
+      this.preferred,
+      this.accountNumber,
       this.sortCode, 
       this.cleaningServicesData, 
       this.availableSlots, 
@@ -135,6 +136,7 @@ class Staff {
     localAreas = json['local_areas'];
     bankName = json['bank_name'];
     accountHolderName = json['account_holder_name'];
+    preferred = json['preferred'];
     accountNumber = json['account_number'];
     sortCode = json['sort_code'];
     if (json['cleaning_services_data'] != null) {
@@ -182,6 +184,7 @@ class Staff {
   bool? isActive;
   bool? isHide;
   bool? enableReminder;
+  bool? preferred;
   List<num>? cleaningServices;
   dynamic emailVerifiedAt;
   String? createdAt;
@@ -239,6 +242,7 @@ class Staff {
     map['next_of_kin_relationship'] = nextOfKinRelationship;
     map['next_of_kin_contact'] = nextOfKinContact;
     map['preferred_start_date'] = preferredStartDate;
+    map['preferred'] = preferred;
     map['local_areas'] = localAreas;
     map['bank_name'] = bankName;
     map['account_holder_name'] = accountHolderName;

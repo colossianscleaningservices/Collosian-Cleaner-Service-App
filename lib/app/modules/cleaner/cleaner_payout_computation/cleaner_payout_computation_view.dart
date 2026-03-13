@@ -179,9 +179,6 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
 
               // Table or empty state when no date range selected / no entries
               Obx(() {
-                final from = controller.scheduleValidFrom.value;
-                final to = controller.scheduleValidTo.value;
-                final hasDateRange = from != null && to != null;
                 if (controller.entries.isEmpty) {
                   return _EmptyWorkEntries(scheme: scheme);
                 }

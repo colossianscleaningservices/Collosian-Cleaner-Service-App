@@ -16,7 +16,12 @@ class ClientJobsView extends GetView<ClientDashboardController> {
               : FloatingActionButton.extended(
                   onPressed: () => controller.goToCreateJob(),
                   icon: const Icon(IconsaxPlusLinear.add),
-                  label: CommonText.regular('Create job'),
+                  label: CommonText.regular(
+                    'Create job',
+                    color: context.colorScheme.onPrimary,
+                  ),
+                  backgroundColor: context.colorScheme.primary,
+                  foregroundColor: context.colorScheme.onPrimary,
                 );
         },
       ),
@@ -52,9 +57,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                             tabletCount: 2,
                             landscapeCount: 3,
                             child: controller.jobs.map((job) {
-                              final approvedCleaners =
-                                  job.jobCleaners?.where((cleaner) => (cleaner.status == 'Approved' || cleaner.status == 'Completed')).toList();
-
+                              final approvedCleaners = job.jobCleaners?.where((cleaner) => (cleaner.status?.toLowerCase() != 'rejected')).toList();
                               return JobCard(
                                 title: job.cleaningType?.name ?? "N/A",
                                 dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
@@ -65,9 +68,9 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                                             ?.map((item) {
                                               var isCleanerAssign = false;
 
-                                              isCleanerAssign =
-                                                  job.jobCleaners?.firstWhereOrNull((cl) => (cl.userId == item.id && cl.status?.toLowerCase() == 'approved')) !=
-                                                      null;
+                                              isCleanerAssign = job.jobCleaners
+                                                      ?.firstWhereOrNull((cl) => (cl.userId == item.id && (cl.status?.toLowerCase() != 'rejected'))) !=
+                                                  null;
                                               return isCleanerAssign ? item.name ?? " - " : "";
                                             })
                                             .toList()

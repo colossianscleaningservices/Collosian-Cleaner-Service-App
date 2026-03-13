@@ -182,7 +182,7 @@ class PropertyController extends GetxController {
             staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
             haveDryer: hasDryer.value,
             accessProperty: accessToProperty.value,
-            animalProperty: animals.value,
+            animalProperty: animals.value != 'No',
           );
           result.handle(
             success: (value) async {

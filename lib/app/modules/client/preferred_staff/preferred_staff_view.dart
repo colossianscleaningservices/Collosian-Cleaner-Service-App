@@ -11,7 +11,7 @@ class PreferredStaffView extends GetView<PreferredStaffController> {
       appBar: Header(title: 'Preferred Staff'),
       body: Obx(() {
         return SwipeRefresh(
-          onRefresh: () async => controller.preferredStaff(),
+          onRefresh: () async => controller.loadPreferredStaff(),
           child: SafeArea(
             child: controller.preferredStaff.isEmpty
                 ? NoDataView(

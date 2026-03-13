@@ -80,6 +80,7 @@ class Endpoint {
 
   static const String getPreferredStaff = '${root}client/preferred-staff';
   static String getStaffDetail(int id) => '${root}client/preferred-staff/staff/$id';
+  static String markStaffPreferred(int id) => '${root}client/preferred-staff/$id';
 
   // ─── Common - Chat ────────────────────────────────────────────────────────
   static const String chatThreads = '${root}shared/chat/threads';

@@ -275,6 +275,7 @@ class CleanerEditProfileController extends GetxController {
             if (Get.context == null) return;
             Notifier.openSheet(Get.context as BuildContext,
                 title: "Success",
+                type: SheetType.success,
                 message: value.message ?? 'Profile updated successfully',
                 isDismissable: false,
                 isShowCloseIcon: false,

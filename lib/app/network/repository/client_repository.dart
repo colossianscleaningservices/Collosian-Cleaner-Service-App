@@ -1,8 +1,8 @@
 import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/app/network/response/get_client_calender_response.dart';
 import 'package:ccs_app/app/network/response/get_client_dash_response.dart';
-import 'package:ccs_app/app/network/response/get_client_job_response.dart';
 import 'package:ccs_app/app/network/response/get_client_job_details_response.dart';
+import 'package:ccs_app/app/network/response/get_client_job_response.dart';
 import 'package:ccs_app/app/network/response/get_preferred_staff_response.dart';
 import 'package:ccs_app/app/network/response/get_staff_detail_response.dart';
 import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
@@ -120,7 +120,7 @@ class ClientRepository extends BaseRepository {
     String? staffPreference,
     bool? haveDryer,
     String? accessProperty,
-    String? animalProperty,
+    bool? animalProperty,
   }) async {
     final payload = <String, dynamic>{
       'property_name': name,
@@ -190,9 +190,9 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<GetClientJobResponse>> getJob({int page = 1,bool? upcoming }) async {
+  Future<NetworkResult<GetClientJobResponse>> getJob({int page = 1, bool? upcoming}) async {
     return get<GetClientJobResponse>(
-      queryParameters: {'page': page,'upcoming':upcoming},
+      queryParameters: {'page': page, 'upcoming': upcoming},
       endpoint: Endpoint.clientJob,
       fromJson: (json) => GetClientJobResponse.fromJson(json),
     );
@@ -214,10 +214,7 @@ class ClientRepository extends BaseRepository {
 
   /// PUT schedule job with recurrence. [frequency]: daily|weekly|monthly.
   /// Optional: start_date, end_date, occurrence, copy_cleaners.
-  Future<NetworkResult<BaseResponse>> scheduleJob({
-    required int jobId,
-    required ScheduleJobRequest request
-  }) async {
+  Future<NetworkResult<BaseResponse>> scheduleJob({required int jobId, required ScheduleJobRequest request}) async {
     return put<BaseResponse>(
       endpoint: Endpoint.clientJobSchedule(jobId),
       fromJson: (json) => BaseResponse.fromJson(json),
@@ -237,11 +234,11 @@ class ClientRepository extends BaseRepository {
     String? message,
   }) async {
     final payload = <String, dynamic>{'cleaner_id': cleanerId};
-     payload['arrived_on_time'] = arrivedOnTime;
-     payload['wore_uniform'] = woreUniform;
-     payload['completed_on_time'] = completedOnTime;
-     payload['would_rehire'] = wouldRehire;
-     payload['satisfaction_rating'] = satisfactionRating;
+    payload['arrived_on_time'] = arrivedOnTime;
+    payload['wore_uniform'] = woreUniform;
+    payload['completed_on_time'] = completedOnTime;
+    payload['would_rehire'] = wouldRehire;
+    payload['satisfaction_rating'] = satisfactionRating;
     if (message != null) payload['comments'] = message;
     return post<BaseResponse>(
       endpoint: Endpoint.clientJobReview(jobId),
@@ -301,4 +298,21 @@ class ClientRepository extends BaseRepository {
     );
   }
 
+  Future<NetworkResult<BaseResponse>> markStaffPreferred({
+    required int staffId,
+  }) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.markStaffPreferred(staffId),
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<BaseResponse>> unmarkStaffPreferred({
+    required int staffId,
+  }) async {
+    return delete<BaseResponse>(
+      endpoint: Endpoint.markStaffPreferred(staffId),
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
 }

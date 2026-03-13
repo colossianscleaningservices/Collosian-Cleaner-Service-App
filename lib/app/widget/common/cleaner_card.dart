@@ -33,10 +33,10 @@ class CleanerCard extends StatelessWidget {
               ],
             ),
           ),
-          TextButton(
+         /* TextButton(
             onPressed: onShare,
             child: CommonText.regular('Share', size: 14, color: scheme.primary),
-          ),
+          ),*/
           if (isReview)
             TextButton(
               onPressed: onReview,

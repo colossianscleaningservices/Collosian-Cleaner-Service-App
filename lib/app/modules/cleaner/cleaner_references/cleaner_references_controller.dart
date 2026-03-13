@@ -94,7 +94,7 @@ class CleanerReferencesController extends GetxController {
         Loader.hide();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (Get.context == null) return;
-          Notifier.openSheet(Get.context as BuildContext, title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+          Notifier.openSheet(Get.context as BuildContext,type: SheetType.success, title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
             clearForm();
             getCleanerReference();
             Get.back(result: true);

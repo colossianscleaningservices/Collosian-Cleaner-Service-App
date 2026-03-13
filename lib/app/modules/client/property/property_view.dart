@@ -64,7 +64,10 @@ class PropertyView extends GetView<PropertyController> {
             : FloatingActionButton.extended(
                 onPressed: controller.goToAddProperty,
                 icon: const Icon(IconsaxPlusLinear.add),
-                label: const Text('Add Property'),
+                label: CommonText.regular(
+                  'Add Property',
+                  color: context.colorScheme.onPrimary,
+                ),
                 backgroundColor: scheme.primary,
                 foregroundColor: scheme.onPrimary,
               );

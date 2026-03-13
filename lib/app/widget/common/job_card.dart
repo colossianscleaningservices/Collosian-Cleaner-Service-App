@@ -57,6 +57,7 @@ class JobCard extends StatelessWidget {
     final lower = status.toLowerCase();
     if (lower.contains('cancel')) return scheme.error;
     if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) return scheme.tertiary;
+    if (lower.contains('pending')) return Colors.yellow.shade800;
     return scheme.primary;
   }
 
@@ -225,20 +226,10 @@ class _JobCardStatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lower = label.toLowerCase();
     Color bg;
     Color fg;
-    if (lower.contains('cancel')) {
-      bg = scheme.errorContainer.withValues(alpha: 0.6);
-      fg = scheme.error;
-    } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) {
-      bg = scheme.tertiaryContainer.withValues(alpha: 0.6);
-      fg = scheme.onTertiaryContainer;
-    } else {
-      bg = scheme.primaryContainer.withValues(alpha: 0.5);
-      fg = scheme.primary;
-    }
-
+    bg = getBgColor(label, scheme);
+    fg = getFgColor(label, scheme);
     return Container(
       decoration: BoxDecoration(
         color: bg,
