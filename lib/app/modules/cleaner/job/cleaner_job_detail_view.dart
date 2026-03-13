@@ -237,7 +237,7 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                                 onShare: () => controller.onShareCleanerProfile(cleaner),
                                 scheme: scheme,
                                 onReview: () => {},
-                                onTap: () => Get.toNamed(Routes.STAFF_DETAILS,arguments: item?.id),
+                                onTap: () => Get.toNamed(Routes.STAFF_DETAILS, arguments: {"id": item?.id?.toInt(), "type": 'staffDetail'}),
                               ),
                             );
                           },

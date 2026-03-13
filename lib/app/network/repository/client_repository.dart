@@ -4,6 +4,7 @@ import 'package:ccs_app/app/network/response/get_client_dash_response.dart';
 import 'package:ccs_app/app/network/response/get_client_job_response.dart';
 import 'package:ccs_app/app/network/response/get_client_job_details_response.dart';
 import 'package:ccs_app/app/network/response/get_preferred_staff_response.dart';
+import 'package:ccs_app/app/network/response/get_staff_detail_response.dart';
 import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
 
 import '../../core/base/base_repository.dart';
@@ -290,4 +291,14 @@ class ClientRepository extends BaseRepository {
       fromJson: (json) => GetPreferredStaffResponse.fromJson(json),
     );
   }
+
+  Future<NetworkResult<GetStaffDetailResponse>> getStaffDetail({
+    required int staffId,
+  }) async {
+    return get<GetStaffDetailResponse>(
+      endpoint: Endpoint.getStaffDetail(staffId),
+      fromJson: (json) => GetStaffDetailResponse.fromJson(json),
+    );
+  }
+
 }

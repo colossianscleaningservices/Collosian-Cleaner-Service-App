@@ -27,7 +27,7 @@ class PreferredStaffView extends GetView<PreferredStaffController> {
                       var preferredStaff = controller.preferredStaff[index];
 
                       return AppCard(
-                        onTap: () => Get.toNamed(Routes.STAFF_DETAILS, arguments: preferredStaff.id),
+                        onTap: () => controller.goToPreferredStaffDetail(preferredStaff.id?.toInt() ?? 0),
                         child: Row(
                           children: [
                             AppAvatar(

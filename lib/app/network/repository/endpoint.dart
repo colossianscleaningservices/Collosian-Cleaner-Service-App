@@ -79,6 +79,7 @@ class Endpoint {
   static String getPropertySubType(int id) => '${root}client/properties/types/$id/subtypes';
 
   static const String getPreferredStaff = '${root}client/preferred-staff';
+  static String getStaffDetail(int id) => '${root}client/preferred-staff/staff/$id';
 
   // ─── Common - Chat ────────────────────────────────────────────────────────
   static const String chatThreads = '${root}shared/chat/threads';

@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/modules/client/preferred_staff/preferred_staff_controller.dart';
 import 'package:ccs_app/app/network/response/get_preferred_staff_response.dart';
+import 'package:ccs_app/app/network/response/get_staff_detail_response.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
@@ -23,16 +24,16 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
     return _dayNames[i - 1];
   }
 
-  static bool _isRedacted(String? value) {
-    return value == null || value.isEmpty || value.contains('REDACTED') || value.contains('***');
-  }
+  // static bool _isRedacted(String? value) {
+  //   return value == null || value.isEmpty || value.contains('REDACTED') || value.contains('***');
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final staff = Get.arguments as PreferredStaff?;
+    // final staff = Get.arguments as PreferredStaff?;
     final scheme = context.colorScheme;
 
-    if (staff == null) {
+/*    if (staff == null) {
       return AppScaffold(
         appBar: Header(title: 'Staff details', hasBackIcon: true),
         body: Center(
@@ -43,130 +44,134 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
           ),
         ),
       );
-    }
+    }*/
 
-    return AppScaffold(
-      appBar: Header(
-        title: staff.name ?? 'Staff details',
-        hasBackIcon: true,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: UiConstants.padding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Profile hero card
-              _ProfileCard(staff: staff, scheme: scheme),
-              const SizedBox(height: 24),
+    return Obx(() {
+      return AppScaffold(
+        appBar: Header(
+          title: controller.staffDetail.value?.firstName ?? 'Staff details',
+          hasBackIcon: true,
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: UiConstants.padding,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Profile hero card
+                _ProfileCard(staff: controller.staffDetail.value, scheme: scheme),
+                const SizedBox(height: 24),
 
-              // Contact
-              if (!_isRedacted(staff.email) || !_isRedacted(staff.phoneNumber)) ...[
+                // Contact
                 _SectionHeader(icon: IconsaxPlusLinear.call, title: 'Contact', scheme: scheme),
                 const SizedBox(height: 8),
                 AppCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (!_isRedacted(staff.email))
-                        _DetailRow(
-                          icon: IconsaxPlusLinear.sms,
-                          label: 'Email',
-                          value: staff.email ?? '',
-                          scheme: scheme,
-                        ),
-                      if (!_isRedacted(staff.email) && !_isRedacted(staff.phoneNumber)) Divider(height: 24, color: scheme.outlineVariant),
-                      if (!_isRedacted(staff.phoneNumber))
-                        _DetailRow(
-                          icon: IconsaxPlusLinear.call,
-                          label: 'Phone',
-                          value: staff.phoneNumber ?? '',
-                          scheme: scheme,
-                        ),
-                    ],
-                  ).paddingAll(UiConstants.defaultPadding),
-                ),
-                const SizedBox(height: 24),
-              ],
-
-              // Location
-              if ((staff.address?.isNotEmpty ?? false) ||
-                  (staff.city?.isNotEmpty ?? false) ||
-                  (staff.country != null && staff.country.toString().isNotEmpty)) ...[
-                _SectionHeader(icon: IconsaxPlusLinear.location, title: 'Location', scheme: scheme),
-                const SizedBox(height: 8),
-                AppCard(
-                  child: _LocationBlock(staff: staff, scheme: scheme).paddingAll(UiConstants.defaultPadding),
-                ),
-                const SizedBox(height: 24),
-              ],
-
-              // Cleaning services
-              if (staff.cleaningServices != null && staff.cleaningServices!.isNotEmpty) ...[
-                _SectionHeader(
-                  icon: IconsaxPlusLinear.home_2,
-                  title: 'Cleaning services',
-                  scheme: scheme,
-                ),
-                const SizedBox(height: 8),
-                AppCard(
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: scheme.tertiaryContainer.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(UiConstants.radiusMedium),
-                        ),
-                        child: Icon(
-                          IconsaxPlusLinear.home_2,
-                          size: 22,
-                          color: scheme.tertiary,
-                        ),
+                      _DetailRow(
+                        icon: IconsaxPlusLinear.sms,
+                        label: 'Email',
+                        value: controller.staffDetail.value?.email ?? '',
+                        scheme: scheme,
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: CommonText.regular(
-                          '${staff.cleaningServices!.length} service${staff.cleaningServices!.length == 1 ? '' : 's'} selected',
-                          size: 15,
-                          color: scheme.onSurface,
-                        ),
+                      Divider(height: 24, color: scheme.outlineVariant),
+                      _DetailRow(
+                        icon: IconsaxPlusLinear.call,
+                        label: 'Phone',
+                        value: controller.staffDetail.value?.phoneNumber ?? '',
+                        scheme: scheme,
                       ),
                     ],
                   ).paddingAll(UiConstants.defaultPadding),
                 ),
                 const SizedBox(height: 24),
-              ],
 
-              // Work shifts
-              if (staff.workShifts != null && staff.workShifts!.isNotEmpty) ...[
-                _SectionHeader(
-                  icon: IconsaxPlusLinear.calendar_1,
-                  title: 'Work shifts',
-                  scheme: scheme,
-                ),
-                const SizedBox(height: 8),
-                AppCard(
-                  child: Column(
-                    children: _buildWorkShifts(staff.workShifts!, scheme),
-                  ).paddingAll(4),
-                ),
-                const SizedBox(height: 32),
+                // Location
+                if ((controller.staffDetail.value?.address?.isNotEmpty ?? false) ||
+                    (controller.staffDetail.value?.city?.isNotEmpty ?? false) ||
+                    (controller.staffDetail.value?.country != null && controller.staffDetail.value!
+                        .country
+                        .toString()
+                        .isNotEmpty)) ...[
+                  _SectionHeader(icon: IconsaxPlusLinear.location, title: 'Location', scheme: scheme),
+                  const SizedBox(height: 8),
+                  AppCard(
+                    child: _LocationBlock(staff: controller.staffDetail.value!, scheme: scheme).paddingAll(UiConstants.defaultPadding),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                // Cleaning services
+                if (controller.staffDetail.value?.cleaningServices != null && controller.staffDetail.value!.cleaningServices!.isNotEmpty) ...[
+                  _SectionHeader(
+                    icon: IconsaxPlusLinear.home_2,
+                    title: 'Cleaning services',
+                    scheme: scheme,
+                  ),
+                  const SizedBox(height: 8),
+                  AppCard(
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: scheme.tertiaryContainer.withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(UiConstants.radiusMedium),
+                          ),
+                          child: Icon(
+                            IconsaxPlusLinear.home_2,
+                            size: 22,
+                            color: scheme.tertiary,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: CommonText.regular(
+                            '${controller.staffDetail.value?.cleaningServices!.length} service${controller.staffDetail.value?.cleaningServices!.length == 1
+                                ? ''
+                                : 's'} selected',
+                            size: 15,
+                            color: scheme.onSurface,
+                          ),
+                        ),
+                      ],
+                    ).paddingAll(UiConstants.defaultPadding),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                // Work shifts
+                if (controller.staffDetail.value?.availableSlots != null && controller.staffDetail.value!.availableSlots!.isNotEmpty) ...[
+                  _SectionHeader(
+                    icon: IconsaxPlusLinear.calendar_1,
+                    title: 'Work shifts',
+                    scheme: scheme,
+                  ),
+                  const SizedBox(height: 8),
+                  AppCard(
+                    child: Column(
+                      children: _buildWorkShifts(controller.staffDetail.value!.availableSlots ?? [], scheme),
+                    ).paddingAll(4),
+                  ),
+                  const SizedBox(height: 32),
+                ],
               ],
-            ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  List<Widget> _buildWorkShifts(List<WorkShifts> shifts, ColorScheme scheme) {
-    final byDay = <String, List<WorkShifts>>{};
+  List<Widget> _buildWorkShifts(List<AvailableSlots> shifts, ColorScheme scheme) {
+    final byDay = <String, List<AvailableSlots>>{};
     for (final s in shifts) {
       final d = s.day ?? '';
       byDay.putIfAbsent(d, () => []).add(s);
     }
-    final orderedDays = byDay.keys.toList()..sort((a, b) => (int.tryParse(a) ?? 0).compareTo(int.tryParse(b) ?? 0));
+    final orderedDays = byDay.keys.toList()
+      ..sort((a, b) => (int.tryParse(a) ?? 0).compareTo(int.tryParse(b) ?? 0));
 
     final list = <Widget>[];
     for (var i = 0; i < orderedDays.length; i++) {
@@ -281,7 +286,7 @@ class _DetailRow extends StatelessWidget {
 class _ProfileCard extends StatelessWidget {
   const _ProfileCard({required this.staff, required this.scheme});
 
-  final PreferredStaff staff;
+  final Staff? staff;
   final ColorScheme scheme;
 
   @override
@@ -303,35 +308,33 @@ class _ProfileCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _LargeAvatar(imageUrl: staff.imageUrl, name: staff.name, scheme: scheme),
+          _LargeAvatar(imageUrl: staff?.imageUrl, name: staff?.firstName, scheme: scheme),
           const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CommonText.semiBold(
-                  staff.name ?? '',
+                  staff?.firstName ?? '',
                   size: 20,
                   color: scheme.onSurface,
                 ),
-                if (staff.preferred == true) ...[
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: scheme.primary.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(IconsaxPlusLinear.star_1, size: 14, color: scheme.primary),
-                        const SizedBox(width: 6),
-                        CommonText.medium('Preferred', size: 13, color: scheme.primary),
-                      ],
-                    ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: scheme.primary.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
                   ),
-                ],
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(IconsaxPlusLinear.star_1, size: 14, color: scheme.primary),
+                      const SizedBox(width: 6),
+                      CommonText.medium('Preferred', size: 13, color: scheme.primary),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -373,10 +376,10 @@ class _LargeAvatar extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: imageUrl != null && imageUrl!.isNotEmpty
           ? Image.network(
-              imageUrl!,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _initialChild(letter),
-            )
+        imageUrl!,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _initialChild(letter),
+      )
           : _initialChild(letter),
     );
   }
@@ -391,7 +394,7 @@ class _LargeAvatar extends StatelessWidget {
 class _LocationBlock extends StatelessWidget {
   const _LocationBlock({required this.staff, required this.scheme});
 
-  final PreferredStaff staff;
+  final Staff staff;
   final ColorScheme scheme;
 
   @override
@@ -399,7 +402,9 @@ class _LocationBlock extends StatelessWidget {
     final parts = <String>[];
     if (staff.address?.isNotEmpty ?? false) parts.add(staff.address!);
     if (staff.city?.isNotEmpty ?? false) parts.add(staff.city!);
-    if (staff.country != null && staff.country.toString().isNotEmpty) {
+    if (staff.country != null && staff.country
+        .toString()
+        .isNotEmpty) {
       parts.add(staff.country.toString());
     }
     if (parts.isEmpty) return const SizedBox.shrink();

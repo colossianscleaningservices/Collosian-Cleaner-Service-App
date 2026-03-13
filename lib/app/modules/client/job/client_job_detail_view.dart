@@ -227,7 +227,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                           onShare: () => c.onShareCleanerProfile(item),
                           scheme: scheme,
                           onReview: () => c.onReviewCleanerProfile(item),
-                          onTap: () => Get.toNamed(Routes.STAFF_DETAILS,arguments: item.id),
+                          onTap: () => Get.toNamed(Routes.STAFF_DETAILS, arguments: {"id": item.id.toInt(), "type": 'staffDetail'}),
                         ),
                       );
                     },
