@@ -21,7 +21,6 @@ class PreferredStaffController extends GetxController {
   @override
   void onReady() {
     loadPreferredStaff();
-
     super.onReady();
   }
 
@@ -51,5 +50,14 @@ class PreferredStaffController extends GetxController {
   Future<void> refreshNewsletters() async {
     await loadPreferredStaff();
   }
+
+  // void goToPreferredStaffDetail(int index) {
+  //   if (index < 0 || index >= preferredStaff.length) return;
+  //   final staff = preferredStaff[index];
+  //   editingProperty.value = property;
+  //   Get.toNamed(Routes.ADD_PROPERTY);
+  //   // Load edit data on the detail page after navigation (loader shown there)
+  //   WidgetsBinding.instance.addPostFrameCallback((_) => _loadEditPropertyData());
+  // }
 
 }

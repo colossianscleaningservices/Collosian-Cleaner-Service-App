@@ -107,11 +107,13 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                             scheme: scheme),
                       LabelValueRow(label: 'Job end time', value: j?.endTime ?? "N/A", scheme: scheme),
                       if (j?.jobSchedule == false && j?.status != 'Cancelled') ...[
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         AppButton(
                           label: 'Schedule',
                           icon: IconsaxPlusLinear.calendar_1,
                           onPressed: c.onScheduleJob,
+                          btnVerticalPadding: 8,
+                          btnHorizontalPadding: 8,
                         ),
                       ],
                       if (j?.jobSchedule == true) ...[
@@ -122,6 +124,8 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                           type: ButtonType.outline,
                           txtClr: context.colorScheme.error,
                           borderClr: context.colorScheme.error,
+                            btnVerticalPadding: 8,
+                            btnHorizontalPadding: 8
                         ),
                       ],
                     ],
@@ -223,6 +227,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                           onShare: () => c.onShareCleanerProfile(item),
                           scheme: scheme,
                           onReview: () => c.onReviewCleanerProfile(item),
+                          onTap: () => Get.toNamed(Routes.STAFF_DETAILS,arguments: item.id),
                         ),
                       );
                     },

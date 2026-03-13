@@ -1,8 +1,9 @@
+import 'package:ccs_app/app/modules/client/preferred_staff/preferred_staff_controller.dart';
 import 'package:ccs_app/app/network/response/get_preferred_staff_response.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
-class StaffDetailsView extends StatelessWidget {
+class StaffDetailsView extends GetView<PreferredStaffController> {
   const StaffDetailsView({super.key});
 
   static const List<String> _dayNames = [
