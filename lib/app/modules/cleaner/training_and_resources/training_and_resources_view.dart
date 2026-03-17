@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 import 'package:video_player/video_player.dart';
@@ -263,7 +264,7 @@ class _FilterChips extends StatelessWidget {
   }
 }
 
-class _VideoPlaceholder extends StatelessWidget {
+class _VideoPlaceholder extends StatefulWidget {
   const _VideoPlaceholder({
     required this.controller,
     required this.scheme,
@@ -273,59 +274,6 @@ class _VideoPlaceholder extends StatelessWidget {
   final ColorScheme scheme;
 
   static const double _minHeight = 160;
-
-  @override
-  Widget build(BuildContext context) {
-    if (controller == null) {
-      return _videoFallback(scheme: scheme, icon: IconsaxPlusLinear.video_play);
-    }
-    final ctrl = controller!;
-
-    if (ctrl.value.isInitialized == false) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await ctrl.initialize();
-      });
-    }
-
-    return ListenableBuilder(
-      listenable: ctrl,
-      builder: (_, __) {
-        if (ctrl.value.hasError) {
-          return _videoFallback(
-            scheme: scheme,
-            icon: IconsaxPlusLinear.video_slash,
-            label: 'Video unavailable on this device',
-          );
-        }
-        if (!ctrl.value.isInitialized) {
-          return SizedBox(
-            height: _minHeight,
-            width: double.infinity,
-            child: Center(
-              child: SizedBox(
-                width: 32,
-                height: 32,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: scheme.primary,
-                ),
-              ),
-            ),
-          );
-        }
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AspectRatio(
-              aspectRatio: ctrl.value.aspectRatio,
-              child: VideoPlayer(ctrl),
-            ),
-            _VideoControlsBar(controller: ctrl, scheme: scheme),
-          ],
-        );
-      },
-    );
-  }
 
   static Widget _videoFallback({
     required ColorScheme scheme,
@@ -365,6 +313,90 @@ class _VideoPlaceholder extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  @override
+  State<_VideoPlaceholder> createState() => _VideoPlaceholderState();
+}
+
+class _VideoPlaceholderState extends State<_VideoPlaceholder> {
+  bool _initFailed = false;
+  bool _initStarted = false;
+
+  Future<void> _tryInitialize(VideoPlayerController ctrl) async {
+    if (_initStarted) return;
+    _initStarted = true;
+    try {
+      await ctrl.initialize();
+      if (mounted) setState(() {});
+    } on PlatformException catch (_) {
+      if (mounted) setState(() => _initFailed = true);
+    } catch (_) {
+      if (mounted) setState(() => _initFailed = true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = widget.scheme;
+    if (widget.controller == null) {
+      return _VideoPlaceholder._videoFallback(
+        scheme: scheme,
+        icon: IconsaxPlusLinear.video_play,
+      );
+    }
+    final ctrl = widget.controller!;
+
+    if (!ctrl.value.isInitialized && !_initFailed) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _tryInitialize(ctrl));
+    }
+
+    if (_initFailed) {
+      return _VideoPlaceholder._videoFallback(
+        scheme: scheme,
+        icon: IconsaxPlusLinear.video_slash,
+        label: 'Video unavailable on this device',
+      );
+    }
+
+    return ListenableBuilder(
+      listenable: ctrl,
+      builder: (_, __) {
+        if (ctrl.value.hasError) {
+          return _VideoPlaceholder._videoFallback(
+            scheme: scheme,
+            icon: IconsaxPlusLinear.video_slash,
+            label: 'Video unavailable on this device',
+          );
+        }
+        if (!ctrl.value.isInitialized) {
+          return SizedBox(
+            height: _VideoPlaceholder._minHeight,
+            width: double.infinity,
+            child: Center(
+              child: SizedBox(
+                width: 32,
+                height: 32,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: scheme.primary,
+                ),
+              ),
+            ),
+          );
+        }
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AspectRatio(
+              aspectRatio: ctrl.value.aspectRatio,
+              child: VideoPlayer(ctrl),
+            ),
+            _VideoControlsBar(controller: ctrl, scheme: scheme),
+          ],
+        );
+      },
     );
   }
 }
@@ -563,7 +595,7 @@ class _TrainingCard extends StatelessWidget {
                         color: scheme.onSecondaryContainer,
                       ),
                     ),
-                    Row(
+                    /*Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
@@ -578,7 +610,7 @@ class _TrainingCard extends StatelessWidget {
                           color: scheme.onSurfaceVariant,
                         ),
                       ],
-                    ),
+                    ),*/
                   ],
                 ),
                 const SizedBox(height: 12),

@@ -28,4 +28,5 @@ class Constants {
   static const cleanerAssigned = 'cleaner_assigned';
   static const cleanerCheckOut = 'cleaner_check_out';
   static const cleanerCheckIn = 'cleaner_check_in';
+  static const jobReview = 'job_review';
 }

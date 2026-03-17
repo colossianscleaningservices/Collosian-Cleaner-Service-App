@@ -54,6 +54,9 @@ class NotificationView extends GetView<NotificationController> {
                                     controller.markAsRead(notification.id!.toInt(), index);
                                   }
 
+                                  final roleIdStr = Prefs().getData(Prefs.roleId);
+                                  final roleId = int.tryParse(roleIdStr);
+
                                   if (notification.flag == Constants.jobCreated ||
                                       notification.flag == Constants.jobRequestAccepted ||
                                       notification.flag == Constants.cleanerAssigned ||
@@ -64,12 +67,14 @@ class NotificationView extends GetView<NotificationController> {
                                       return;
                                     }
 
-                                    final roleIdStr = Prefs().getData(Prefs.roleId);
-                                    final roleId = int.tryParse(roleIdStr);
                                     if (RoleConstants.isCleaner(roleId)) {
                                       Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': notification.relatedId});
                                     } else {
                                       Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': notification.relatedId});
+                                    }
+                                  } else if (notification.flag == Constants.jobReview) {
+                                    if (RoleConstants.isCleaner(roleId)) {
+                                      Get.toNamed(Routes.CLEANER_REVIEW);
                                     }
                                   }
                                 },
