@@ -20,7 +20,9 @@ class CleanerJobDetailController extends GetxController {
   bool get canStartJob {
     final s = job.value?.status?.toLowerCase();
     var cleanerJobStatus = ((job.value?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status));
-    return s == 'scheduled' || s == 'accepted' || s == 'approved' && cleanerJobStatus?.toLowerCase() != 'in process' && cleanerJobStatus?.toLowerCase() != 'completed';
+    return s == 'scheduled' ||
+        s == 'accepted' ||
+        s == 'approved' && cleanerJobStatus?.toLowerCase() != 'in process' && cleanerJobStatus?.toLowerCase() != 'completed';
   }
 
   /// True when cleaner can tap "Stop job" (job in progress).
@@ -281,9 +283,9 @@ class CleanerJobDetailController extends GetxController {
     Notifier.info('Review (coming soon)');
   }
 
-  Future<void> fetchJobDetails() async {
+  Future<void> fetchJobDetails({bool isLoaderShown = true}) async {
     if (jobId == null) return;
-    Loader.show();
+    if (isLoaderShown) Loader.show();
     try {
       final result = await _cleanerRepository.getCleanerJobDetails(jobId!.toInt());
       result.handle(

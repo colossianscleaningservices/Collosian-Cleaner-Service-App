@@ -23,6 +23,7 @@ class ClientJobDetailController extends GetxController {
   Rx<double> rating = 0.0.obs;
   final messageController = TextEditingController();
   final jobCleaner = Rx<ClientJobCleaner?>(null);
+  final cleanerHeading = Rxn<String?>('Cleaners');
 
   @override
   void onInit() {
@@ -57,6 +58,8 @@ class ClientJobDetailController extends GetxController {
         success: (response) {
           final raw = response.data;
           job.value = raw;
+
+          cleanerHeading.value = 'Cleaners(${raw?.jobCleaners?.length.toString()}/${raw?.numberOfCleaners.toString() ?? '0'})';
         },
       );
     } finally {
@@ -285,7 +288,12 @@ class ClientJobDetailController extends GetxController {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (Get.context == null) return;
             Notifier.openSheet(Get.context as BuildContext,
-                title: "Success",type: SheetType.success, message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+                title: "Success",
+                type: SheetType.success,
+                message: "${value.message}",
+                isDismissable: false,
+                isShowCloseIcon: false,
+                showSecondaryButton: false, onPrimaryPressed: () {
               Get.back();
               fetchJobDetails();
             });
