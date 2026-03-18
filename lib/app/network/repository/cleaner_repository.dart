@@ -5,6 +5,7 @@ import 'package:ccs_app/app/network/response/cleaner_review_list_response.dart';
 import 'package:ccs_app/app/network/response/get_payout_computation_response.dart';
 import 'package:ccs_app/app/network/response/get_references_response.dart';
 import 'package:ccs_app/app/network/response/get_staff_document_response.dart';
+import 'package:ccs_app/app/network/response/get_transaction_history_response.dart';
 import 'package:ccs_app/app/network/response/payout_earning_response.dart';
 import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/app/network/response/update_profile_response.dart';
@@ -192,6 +193,14 @@ class CleanerRepository extends BaseRepository {
     return get<GetReferencesResponse>(
       endpoint: Endpoint.addReference,
       fromJson: (json) => GetReferencesResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<GetTransactionHistoryResponse>> getTransactionHistory({int page = 1}) async {
+    return get<GetTransactionHistoryResponse>(
+      endpoint: Endpoint.getTransactionHistory,
+      queryParameters: {'page': page},
+      fromJson: (json) => GetTransactionHistoryResponse.fromJson(json),
     );
   }
 }

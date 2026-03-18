@@ -50,6 +50,7 @@ abstract class Routes {
   static const UPCOMING_JOB = _Paths.UPCOMING_JOB;
   static const PREFERRED_STAFF = _Paths.PREFERRED_STAFF;
   static const STAFF_DETAILS = _Paths.STAFF_DETAILS;
+  static const TRANSACTION_HISTORY = _Paths.STAFF_DETAILS;
 }
 
 abstract class _Paths {

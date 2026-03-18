@@ -34,7 +34,7 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Summary card
-                      /*AppCard(
+                      AppCard(
                         child: Row(
                           children: [
                             AppCard(
@@ -52,15 +52,15 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   CommonText.extraBold(
-                                    '4.5',
+                                    controller.overAllRating.value.toString(),
                                     size: 28,
                                     color: scheme.onSurface,
                                   ),
                                   const SizedBox(height: 4),
-                                  _StarRating(rating: 2, scheme: scheme, size: 16),
+                                  _StarRating(rating: controller.overAllRating.value, scheme: scheme, size: 16),
                                   const SizedBox(height: 4),
                                   CommonText.regular(
-                                    '${controller.reviews.length} ${controller.reviews.length == 1 ? 'review' : 'reviews'}',
+                                    '${controller.reviewCount.value} ${controller.reviewCount.value == 1 ? 'review' : 'reviews'}',
                                     size: 14,
                                     color: scheme.onSurfaceVariant,
                                   ),
@@ -70,7 +70,7 @@ class CleanerReviewView extends GetView<CleanerReviewController> {
                           ],
                         ).paddingAll(UiConstants.defaultPadding),
                       ),
-                      const SizedBox(height: 20),*/
+                      const SizedBox(height: 20),
 
                       // Section title
                       Row(

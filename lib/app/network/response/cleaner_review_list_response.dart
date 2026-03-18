@@ -31,10 +31,14 @@ class CleanerReviewListResponse {
 
 class Data {
   Data({
-      this.reviews, 
-      this.pagination,});
+    this.overallRating,
+    this.totalReviews,
+    this.reviews,
+    this.pagination,});
 
   Data.fromJson(dynamic json) {
+    overallRating = json['overall_rating'];
+    totalReviews = json['total_reviews'];
     if (json['reviews'] != null) {
       reviews = [];
       json['reviews'].forEach((v) {
@@ -43,11 +47,15 @@ class Data {
     }
     pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
   }
+  num? overallRating;
+  num? totalReviews;
   List<Reviews>? reviews;
   Pagination? pagination;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
+    map['overall_rating'] = overallRating;
+    map['total_reviews'] = totalReviews;
     if (reviews != null) {
       map['reviews'] = reviews?.map((v) => v.toJson()).toList();
     }
@@ -61,11 +69,11 @@ class Data {
 
 class Pagination {
   Pagination({
-      this.total, 
-      this.count, 
-      this.perPage, 
-      this.currentPage, 
-      this.totalPages,});
+    this.total,
+    this.count,
+    this.perPage,
+    this.currentPage,
+    this.totalPages,});
 
   Pagination.fromJson(dynamic json) {
     total = json['total'];
@@ -94,23 +102,23 @@ class Pagination {
 
 class Reviews {
   Reviews({
-      this.id, 
-      this.jobId, 
-      this.clientId, 
-      this.cleanerId, 
-      this.arrivedOnTime, 
-      this.woreUniform, 
-      this.completedOnTime, 
-      this.satisfactionRating, 
-      this.comments, 
-      this.wouldRehire, 
-      this.submittedAt, 
-      this.isSubmitted, 
-      this.createdAt, 
-      this.updatedAt, 
-      this.cleaner, 
-      this.client, 
-      this.job,});
+    this.id,
+    this.jobId,
+    this.clientId,
+    this.cleanerId,
+    this.arrivedOnTime,
+    this.woreUniform,
+    this.completedOnTime,
+    this.satisfactionRating,
+    this.comments,
+    this.wouldRehire,
+    this.submittedAt,
+    this.isSubmitted,
+    this.createdAt,
+    this.updatedAt,
+    this.cleaner,
+    this.client,
+    this.job,});
 
   Reviews.fromJson(dynamic json) {
     id = json['id'];
@@ -181,13 +189,13 @@ class Reviews {
 
 class Job {
   Job({
-      this.id, 
-      this.date, 
-      this.startTime, 
-      this.endTime, 
-      this.status, 
-      this.cleaningType, 
-      this.property,});
+    this.id,
+    this.date,
+    this.startTime,
+    this.endTime,
+    this.status,
+    this.cleaningType,
+    this.property,});
 
   Job.fromJson(dynamic json) {
     id = json['id'];
@@ -224,11 +232,11 @@ class Job {
 
 class Property {
   Property({
-      this.id, 
-      this.propertyName, 
-      this.address, 
-      this.city, 
-      this.postalCode,});
+    this.id,
+    this.propertyName,
+    this.address,
+    this.city,
+    this.postalCode,});
 
   Property.fromJson(dynamic json) {
     id = json['id'];
@@ -257,10 +265,10 @@ class Property {
 
 class Client {
   Client({
-      this.id, 
-      this.name, 
-      this.email, 
-      this.phoneNumber,});
+    this.id,
+    this.name,
+    this.email,
+    this.phoneNumber,});
 
   Client.fromJson(dynamic json) {
     id = json['id'];
@@ -286,10 +294,10 @@ class Client {
 
 class Cleaner {
   Cleaner({
-      this.id, 
-      this.name, 
-      this.email, 
-      this.phoneNumber,});
+    this.id,
+    this.name,
+    this.email,
+    this.phoneNumber,});
 
   Cleaner.fromJson(dynamic json) {
     id = json['id'];

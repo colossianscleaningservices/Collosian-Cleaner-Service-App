@@ -36,6 +36,7 @@ class Endpoint {
   static const String getPayoutDash = '${root}staff/payouts/dashboard';
   static const String addReference = '${root}staff/references';
   static const String getReferences = '${root}staff/references';
+  static const String getTransactionHistory = '${root}staff/payouts/paid';
 
   // ─── Cleaner - Jobs ───────────────────────────────────────────────────────
   // static String cleanerJobDecline(int id) => '${root}staff/jobs/$id/decline';

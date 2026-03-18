@@ -12,6 +12,9 @@ class CleanerReviewController extends GetxController {
   RxBool isReviewMoreLoading = false.obs;
   ScrollController reviewScrollController = ScrollController();
 
+  var overAllRating = 0.0.obs;
+  var reviewCount = 0.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -59,6 +62,9 @@ class CleanerReviewController extends GetxController {
           reviews.refresh();
 
           reviewTotalPage = (res.data?.pagination?.totalPages ?? 1).toInt();
+
+          overAllRating.value = res.data?.overallRating?.toDouble() ?? 0.0;
+          reviewCount.value = res.data?.totalReviews?.toInt() ?? 0;
 
           if (reviewCurrentPage <= reviewTotalPage) {
             reviewCurrentPage++;

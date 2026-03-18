@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
 import 'package:ccs_app/app/network/request/availability_request.dart';
+import 'package:ccs_app/app/network/response/get_transaction_history_response.dart';
 import 'package:ccs_app/app/network/response/payout_earning_response.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
@@ -120,6 +121,11 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
   //EARNING
   final Rxn<PayoutEarningModel> payoutEarning = Rxn<PayoutEarningModel>(null);
+  final RxList<Payouts> transactionHistory = <Payouts>[].obs;
+  ScrollController scrollController = ScrollController();
+  var totalPage = 1;
+  var currentPage = 1;
+  bool _isLoading = false;
 
   @override
   void onInit() {
@@ -149,6 +155,14 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
         if (jobCurrentPage <= jobTotalPage && !isJobMoreLoading.value) {
           isJobMoreLoading.value = true;
           fetchJobs();
+        }
+      }
+    });
+
+    scrollController.addListener(() {
+      if (_isScrollBottom) {
+        if (currentPage <= totalPage && !_isLoading) {
+          getTransactionHistory();
         }
       }
     });
@@ -747,13 +761,39 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     }
   }
 
-  Future<void> getPayoutDash() async {
+  Future<void> getPayoutDash({bool isLoaderShown = true}) async {
+    if (!isJobMoreLoading.value && isLoaderShown) Loader.show();
     Loader.show();
     try {
       final result = await _cleanerRepository.getPayoutDash();
       result.handle(
         success: (response) {
           payoutEarning.value = response.data;
+        },
+      );
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  Future<void> getTransactionHistory() async {
+    if (_isLoading) return;
+    _isLoading = true;
+    Loader.show();
+    try {
+      final result = await _cleanerRepository.getTransactionHistory(
+        page: currentPage,
+      );
+      result.handle(
+        success: (response) {
+          if (currentPage == 1) transactionHistory.clear();
+          transactionHistory.addAll(response.data?.payouts as Iterable<Payouts>);
+          transactionHistory.refresh();
+
+          totalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
+          if (currentPage <= totalPage) {
+            currentPage++;
+          }
         },
       );
     } finally {
