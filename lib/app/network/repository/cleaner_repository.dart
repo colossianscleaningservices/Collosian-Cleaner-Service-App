@@ -5,6 +5,7 @@ import 'package:ccs_app/app/network/response/cleaner_review_list_response.dart';
 import 'package:ccs_app/app/network/response/get_payout_computation_response.dart';
 import 'package:ccs_app/app/network/response/get_references_response.dart';
 import 'package:ccs_app/app/network/response/get_staff_document_response.dart';
+import 'package:ccs_app/app/network/response/payout_earning_response.dart';
 import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/app/network/response/update_profile_response.dart';
 import 'package:dio/dio.dart';
@@ -91,8 +92,6 @@ class CleanerRepository extends BaseRepository {
     );
   }
 
-
-
   Future<NetworkResult<UpdateProfileResponse>> updateProfile(StaffEditProfileRequest request) async {
     return put<UpdateProfileResponse>(
       endpoint: Endpoint.staffProfile,
@@ -144,28 +143,19 @@ class CleanerRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<CleanerReviewListResponse>> geCleanerReviews(
-      int page
-      ) async {
+  Future<NetworkResult<CleanerReviewListResponse>> geCleanerReviews(int page) async {
     return get<CleanerReviewListResponse>(
-      endpoint: Endpoint.staffReviews,
-      fromJson: (json) => CleanerReviewListResponse.fromJson(json),
-      queryParameters: {'page': page}
-    );
+        endpoint: Endpoint.staffReviews, fromJson: (json) => CleanerReviewListResponse.fromJson(json), queryParameters: {'page': page});
   }
 
   Future<NetworkResult<BaseResponse>> uploadStaffDocument(Map<String, dynamic> data) async {
-    return post<BaseResponse>(
-      endpoint: Endpoint.uploadStaffDocument,
-      fromJson: (json) => BaseResponse.fromJson(json),
-      data: FormData.fromMap(data)
-    );
+    return post<BaseResponse>(endpoint: Endpoint.uploadStaffDocument, fromJson: (json) => BaseResponse.fromJson(json), data: FormData.fromMap(data));
   }
 
   Future<NetworkResult<GetStaffDocumentResponse>> getDocuments() async {
     return get<GetStaffDocumentResponse>(
-        endpoint: Endpoint.uploadStaffDocument,
-        fromJson: (json) => GetStaffDocumentResponse.fromJson(json),
+      endpoint: Endpoint.uploadStaffDocument,
+      fromJson: (json) => GetStaffDocumentResponse.fromJson(json),
     );
   }
 
@@ -177,34 +167,31 @@ class CleanerRepository extends BaseRepository {
   }
 
   Future<NetworkResult<BaseResponse>> updateStaffDocument(int id, Map<String, dynamic> data) async {
-    return post<BaseResponse>(
-      endpoint: Endpoint.updateStaffDocument(id),
-      fromJson: (json) => BaseResponse.fromJson(json),
-      data:  FormData.fromMap(data)
-    );
+    return post<BaseResponse>(endpoint: Endpoint.updateStaffDocument(id), fromJson: (json) => BaseResponse.fromJson(json), data: FormData.fromMap(data));
   }
 
-  Future<NetworkResult<GetPayoutComputationResponse>> getPayoutComputation({String? dateFrom , String? dateTo}) async {
+  Future<NetworkResult<GetPayoutComputationResponse>> getPayoutComputation({String? dateFrom, String? dateTo}) async {
     return get<GetPayoutComputationResponse>(
-      endpoint: Endpoint.getPayoutComputation,
-      fromJson: (json) => GetPayoutComputationResponse.fromJson(json),
-      queryParameters: {if (dateFrom != null) 'date_from': dateFrom, if(dateTo != null)'date_to': dateTo}
+        endpoint: Endpoint.getPayoutComputation,
+        fromJson: (json) => GetPayoutComputationResponse.fromJson(json),
+        queryParameters: {if (dateFrom != null) 'date_from': dateFrom, if (dateTo != null) 'date_to': dateTo});
+  }
+
+  Future<NetworkResult<PayoutEarningResponse>> getPayoutDash() async {
+    return get<PayoutEarningResponse>(
+      endpoint: Endpoint.getPayoutDash,
+      fromJson: (json) => PayoutEarningResponse.fromJson(json),
     );
   }
 
-  Future<NetworkResult<BaseResponse>> addReference( Map<String, dynamic> data) async {
-    return post<BaseResponse>(
-        endpoint: Endpoint.addReference,
-        fromJson: (json) => BaseResponse.fromJson(json),
-        data:  FormData.fromMap(data)
-    );
+  Future<NetworkResult<BaseResponse>> addReference(Map<String, dynamic> data) async {
+    return post<BaseResponse>(endpoint: Endpoint.addReference, fromJson: (json) => BaseResponse.fromJson(json), data: FormData.fromMap(data));
   }
 
   Future<NetworkResult<GetReferencesResponse>> getReferences() async {
     return get<GetReferencesResponse>(
-        endpoint: Endpoint.addReference,
-        fromJson: (json) => GetReferencesResponse.fromJson(json),
+      endpoint: Endpoint.addReference,
+      fromJson: (json) => GetReferencesResponse.fromJson(json),
     );
   }
-
 }

@@ -73,26 +73,27 @@ class CleanerEarningsView extends GetView<CleanerDashboardController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CommonText.regular('Recent payments and job earnings', size: 13, color: scheme.onSurfaceVariant).marginOnly(bottom: 14),
-                    _HistoryRow(
-                      date: 'Today',
-                      desc: 'Residential clean',
-                      amount: '£0.00',
-                      scheme: scheme,
-                    ),
-                    Divider(height: 1, color: scheme.outline.withValues(alpha: 0.12)),
-                    _HistoryRow(
-                      date: CcsDateUtils.dayMonth(DateTime.now().subtract(const Duration(days: 2))),
-                      desc: 'Office – Clerkenwell Road',
-                      amount: '£0.00',
-                      scheme: scheme,
-                    ),
-                    Divider(height: 1, color: scheme.outline.withValues(alpha: 0.12)),
-                    _HistoryRow(
-                      date: CcsDateUtils.dayMonth(DateTime.now().subtract(const Duration(days: 5))),
-                      desc: 'Nellie – 8 The Grove',
-                      amount: '£0.00',
-                      scheme: scheme,
-                    ),
+                    controller.payoutEarning.value?.latestPayouts?.isNotEmpty == true
+                        ? ListView.builder(
+                            itemCount: controller.payoutEarning.value?.latestPayouts?.length ?? 0,
+                            shrinkWrap: true,
+                            itemBuilder: (context, index) {
+                              var item = controller.payoutEarning.value?.latestPayouts?[index];
+                              var date = '';
+                              if (item?.paidOn != null) {
+                                date = CcsDateUtils.dayMonth(DateTime.parse(item?.paidOn ?? ""));
+                              }
+
+                              return Column(
+                                children: [
+                                  _HistoryRow(date: date, desc: item?.job?.cleaningService ?? "", amount: "${item?.totalPayout}", scheme: scheme),
+                                  Divider(height: 1, color: scheme.outline.withValues(alpha: 0.12)),
+                                ],
+                              );
+                            })
+                        : NoDataView(
+                            title: 'No recent payments',
+                          ),
                   ],
                 ).paddingAll(UiConstants.defaultPadding),
               ),
@@ -114,7 +115,7 @@ class CleanerEarningsView extends GetView<CleanerDashboardController> {
                   children: [
                     CommonText.regular('Next payout', size: 14, color: scheme.onSurfaceVariant),
                     const SizedBox(height: 8),
-                    CommonText.semiBold('—', size: 18, color: scheme.onSurface),
+                    CommonText.semiBold('\$${controller.payoutEarning.value?.nextPayout ?? "0"}', size: 18, color: scheme.onSurface),
                     const SizedBox(height: 10),
                     CommonText.regular(
                       'Bank details and payout schedule will appear here when configured.',

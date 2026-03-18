@@ -86,7 +86,7 @@ class OneSignalService {
   }) {
     try {
       // CCS-specific: e.g. job updates, general alerts. Extend as backend adds types.
-      if ((type == Constants.jobCreated || type == Constants.jobRequestAccepted) && data != null) {
+      if ((type == Constants.jobCreated || type == Constants.jobRequestAccepted || type == Constants.cleanerAssigned) && data != null) {
         final jobId = data['related_id'];
         if (jobId != null) {
           final id = jobId is int ? jobId : (jobId is String ? int.tryParse(jobId) : null);

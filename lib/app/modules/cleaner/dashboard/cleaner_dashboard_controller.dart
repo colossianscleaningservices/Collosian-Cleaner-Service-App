@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
 import 'package:ccs_app/app/network/request/availability_request.dart';
+import 'package:ccs_app/app/network/response/payout_earning_response.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
@@ -116,6 +117,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   var jobTotalPage = 1;
   RxBool isJobMoreLoading = false.obs;
   ScrollController jobScrollController = ScrollController();
+
+  //EARNING
+  final Rxn<PayoutEarningModel> payoutEarning = Rxn<PayoutEarningModel>(null);
 
   @override
   void onInit() {
@@ -736,6 +740,20 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           response.data?.forEach((item) {
             propertyNameOptions.add(item.propertyName ?? "");
           });
+        },
+      );
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  Future<void> getPayoutDash() async {
+    Loader.show();
+    try {
+      final result = await _cleanerRepository.getPayoutDash();
+      result.handle(
+        success: (response) {
+          payoutEarning.value = response.data;
         },
       );
     } finally {

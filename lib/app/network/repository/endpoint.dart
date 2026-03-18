@@ -33,6 +33,7 @@ class Endpoint {
   static String deleteStaffDocument(int id) => '${root}staff/documents/$id';
   static String updateStaffDocument(int id) => '${root}staff/documents/$id';
   static const String getPayoutComputation = '${root}staff/payouts';
+  static const String getPayoutDash = '${root}staff/payouts/dashboard';
   static const String addReference = '${root}staff/references';
   static const String getReferences = '${root}staff/references';
 

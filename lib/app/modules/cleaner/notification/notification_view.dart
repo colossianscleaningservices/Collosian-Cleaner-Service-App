@@ -54,6 +54,8 @@ class NotificationView extends GetView<NotificationController> {
                                     controller.markAsRead(notification.id!.toInt(), index);
                                   }
 
+                                  log(runtimeType.toString(), 'FLAG ${notification.flag}');
+
                                   final roleIdStr = Prefs().getData(Prefs.roleId);
                                   final roleId = int.tryParse(roleIdStr);
 

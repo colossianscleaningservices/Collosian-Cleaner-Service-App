@@ -168,7 +168,10 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
           }),
 
           AppCard(
-            onTap: () => Get.to(() => const CleanerEarningsView()),
+            onTap: () {
+              Get.to(() => const CleanerEarningsView());
+              if (controller.payoutEarning.value == null) controller.getPayoutDash();
+            },
             child: Row(
               children: [
                 AppCard(
