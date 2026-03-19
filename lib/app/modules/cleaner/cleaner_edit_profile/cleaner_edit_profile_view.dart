@@ -144,7 +144,7 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                     child: CommonTextField(
                       controller: controller.nationalInsuranceNumberCtrl,
                       hint: 'National Insurance Number',
-                      keyboardType: TextInputType.numberWithOptions(),
+                      keyboardType: TextInputType.text,
                     ),
                   ),
                   CommonText.regular(
@@ -155,7 +155,7 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                     child: CommonTextField(
                       controller: controller.shareCodeCtrl,
                       hint: 'Share Code (if no NIN)',
-                      keyboardType: TextInputType.numberWithOptions(),
+                      keyboardType: TextInputType.text,
                     ),
                   ),
                 ],

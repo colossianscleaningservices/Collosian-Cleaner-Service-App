@@ -73,6 +73,8 @@ class JobCheckPhotoController extends GetxController {
 
   String get submitLabel => isCheckIn ? 'Start job' : 'Stop job';
 
+  String get timeLabel => isCheckIn ? 'Start Time' : 'Stop Time';
+
   @override
   void onInit() {
     super.onInit();
@@ -231,8 +233,6 @@ class JobCheckPhotoController extends GetxController {
 
   void showPhotoSourceSheet(BuildContext context) {
     showPicker(cameraPicker: () => pickCameraImage(context), isShowGalleryOption: false);
-
-
   }
 
   Future<void> pickCameraImage([BuildContext? overlayContext]) async {
@@ -284,7 +284,7 @@ class JobCheckPhotoController extends GetxController {
 
     Loader.show();
     try {
-List<dio.MultipartFile> files = [];
+      List<dio.MultipartFile> files = [];
       for (var photo in photos) {
         var value = await dio.MultipartFile.fromFile(photo.path, filename: "image_${DateTime.now()}.jpg").then((value) {
           return value;
@@ -308,16 +308,18 @@ List<dio.MultipartFile> files = [];
         success: (value) async {
           List<String> imageUrlList = [];
 
-          value.data?.fileUrl?.forEach((item){
+          value.data?.fileUrl?.forEach((item) {
             imageUrlList.add(item);
           });
 
-      final result =
-              isCheckIn ? await _jobRepository.checkIn(
+          final result = isCheckIn
+              ? await _jobRepository.checkIn(
                   jobId: job?.id?.toInt() ?? 0,
                   checkInDate: scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "",
                   checkInTime: startTime.value != null ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : "",
-                  photos: imageUrlList,) : await _jobRepository.checkOut(
+                  photos: imageUrlList,
+                )
+              : await _jobRepository.checkOut(
                   jobId: job?.id?.toInt() ?? 0,
                   checkOutDate: scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "",
                   checkOutTime: startTime.value != null ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : "",

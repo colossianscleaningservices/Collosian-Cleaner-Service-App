@@ -56,7 +56,7 @@ class ChatController extends GetxController {
       chatKey = _effectiveUserId;
       headerTitle.value = 'Support';
       headerSubtitle.value = 'Message admin';
-      /*_initSupportChat();*/
+      _initSupportChat();
     } else {
       chatMode = ChatMode.job;
       chatKey = (args['jobId'] ?? '').toString();
@@ -70,7 +70,7 @@ class ChatController extends GetxController {
 
       headerTitle.value = chatJob?.jobType ?? 'Job Chat';
       headerSubtitle.value = chatJob?.propertyOneLine ?? '';
-      /*_initJobChat();*/
+      _initJobChat();
     }
 
     focusNode.addListener(() {

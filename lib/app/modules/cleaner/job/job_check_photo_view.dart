@@ -57,7 +57,7 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
                       }).marginOnly(bottom: 16),
                        CommonTextField(
                           controller: controller.startTimeDisplayController,
-                          label: 'Start Time',
+                          label: controller.timeLabel,
                           hint: '--:--',
                           isReadOnly: true,
                           onTap: () => _pickTime(context, controller),
