@@ -22,11 +22,13 @@ class Constants {
     NavigationDestination(icon: Icon(IconsaxPlusLinear.user), selectedIcon: Icon(IconsaxPlusBold.user), label: 'Profile'),
   ];
 
-
   static const jobCreated = 'job_created';
   static const jobRequestAccepted = 'job_request_accepted';
   static const cleanerAssigned = 'cleaner_assigned';
   static const cleanerCheckOut = 'cleaner_check_out';
   static const cleanerCheckIn = 'cleaner_check_in';
   static const jobReview = 'job_review';
+
+  static const jobFinished = 'Finished';
+  static const jobCompleted = 'Completed';
 }

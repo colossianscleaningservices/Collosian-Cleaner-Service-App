@@ -68,7 +68,7 @@ class Staff {
       this.emailSubscriptions, 
       this.isVerified, 
       this.immigrationStatus, 
-      this.shareCode, 
+      this.shareCode,
       this.hobbies, 
       this.interests, 
       this.imageUrl, 

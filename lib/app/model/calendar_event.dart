@@ -9,18 +9,20 @@ class CalendarEvent {
   CalendarEvent({
     required this.title,
     this.timeRange = '09:00 – 11:00',
-    this.status = 'Approved',
+    this.status,
     this.jobId,
     this.propertyName,
     this.address,
     this.subtitle,
     this.cleanerInfo,
+    this.cleanerJobStatus,
   });
 
   /// Cleaning type / job type (e.g. "Deep clean").
   final String title;
   final String timeRange;
-  final String status;
+  final String? status;
+  final String? cleanerJobStatus;
   /// Optional job id for navigation to client job detail.
   final num? jobId;
   /// Property name (e.g. "12 Maple St").

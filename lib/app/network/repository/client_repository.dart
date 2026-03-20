@@ -78,10 +78,12 @@ class ClientRepository extends BaseRepository {
   Future<NetworkResult<PropertyListResponse>> listProperties({
     int? perPage,
     String? search,
+    int page = 1,
   }) async {
     final query = <String, dynamic>{};
     if (perPage != null) query['per_page'] = perPage;
     if (search != null && search.isNotEmpty) query['search'] = search;
+    query['page'] = page;
     return get<PropertyListResponse>(
       endpoint: Endpoint.clientProperties,
       fromJson: (json) => PropertyListResponse.fromJson(json),

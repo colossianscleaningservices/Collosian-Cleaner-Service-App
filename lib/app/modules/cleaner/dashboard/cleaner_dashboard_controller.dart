@@ -571,6 +571,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
               address: item.property?.address ?? "",
               subtitle: item.property?.additionalDetails ?? "",
               cleanerInfo: item.cleaners?.map((cl) => cl.name ?? "").toList().join(', '),
+              cleanerJobStatus: item.cleanerJobStatus
             );
             map.putIfAbsent(dateKey, () => []).add(event);
           }

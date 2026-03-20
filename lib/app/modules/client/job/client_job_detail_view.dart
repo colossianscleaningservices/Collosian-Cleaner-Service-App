@@ -258,35 +258,38 @@ Widget _bodyForState({
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Divider(height: 32, thickness: 1, color: scheme.outline.withValues(alpha: 0.12)),
-              AppButton(
-                label: 'Chat',
-                type: ButtonType.tonal,
-                onPressed: hasCleaners
-                    ? () {
-                        final job = c.job.value;
-                        final chatJob = ChatJob(
-                          id: job?.id.toString() ?? '',
-                          jobType: job?.jobType,
-                          propertyOneLine: job?.property?.propertyName,
-                          date: DateTime.parse(job?.date ?? '').toIso8601String(),
-                          clientName: '',
-                        );
-                        final participants = <String, ChatParticipant>{};
-                        final userId = Prefs().userId;
-                        final userName = Prefs().userFullName;
-                        participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyClient);
-                        for (final cleaner in job?.cleaners ?? []) {
-                          participants[cleaner.id.toString()] =
-                              ChatParticipant(id: cleaner.id.toString(), name: cleaner.name, role: RoleConstants.roleKeyCleaner);
-                        }
-                        Get.toNamed(Routes.JOB_CHAT, arguments: {
-                          'type': ChatConstants.typeJob,
-                          'jobId': job?.id.toString(),
-                          'job': chatJob,
-                          'participants': participants,
-                        });
-                      }
-                    : null,
+              j?.jobCleaners?.isEmpty == true
+                      ? SizedBox.shrink()
+                      : AppButton(
+                          label: 'Chat',
+                          type: ButtonType.tonal,
+                          onPressed: hasCleaners
+                    ?() {
+                            final job = c.job.value;
+                            final chatJob = ChatJob(
+                              id: job?.id.toString() ?? '',
+                              jobType: job?.jobType,
+                              propertyOneLine: job?.property?.propertyName,
+                              date: DateTime.parse(job?.date ?? '').toIso8601String(),
+                              clientName: '',
+                            );
+                            final participants = <String, ChatParticipant>{};
+
+                            final userId = Prefs().userId;
+                            final userName = Prefs().userFullName;
+                            participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyClient);
+
+                            for (final cleaner in job?.cleaners ?? []) {
+                              participants[cleaner.id.toString()] =
+                                  ChatParticipant(id: cleaner.id.toString(), name: cleaner.name, role: RoleConstants.roleKeyCleaner);
+                            }
+                            Get.toNamed(Routes.JOB_CHAT, arguments: {
+                              'type': ChatConstants.typeJob,
+                              'jobId': job?.id.toString(),
+                              'job': chatJob,
+                              'participants': participants,
+                            });
+                          }: null,
               ),
               if (!hasCleaners)
                 Padding(

@@ -1,67 +1,126 @@
-import 'package:ccs_app/app/network/response/base_response.dart';
-
-class PropertyListResponse extends BaseResponse {
+class PropertyListResponse {
   PropertyListResponse({
-    this.data,
-  });
+      this.message, 
+      this.version, 
+      this.code, 
+      this.data,});
 
   PropertyListResponse.fromJson(dynamic json) {
     message = json['message'];
     version = json['version'];
     code = json['code'];
-    if (json['data'] != null) {
-      data = [];
-      json['data'].forEach((v) {
-        data?.add(PropertyModel.fromJson(v));
-      });
-    }
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
+  String? message;
+  String? version;
+  num? code;
+  Data? data;
 
-  List<PropertyModel>? data;
-
-  @override
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['message'] = message;
     map['version'] = version;
     map['code'] = code;
     if (data != null) {
-      map['data'] = data?.map((v) => v.toJson()).toList();
+      map['data'] = data?.toJson();
     }
     return map;
   }
+
+}
+
+class Data {
+  Data({
+      this.properties, 
+      this.pagination,});
+
+  Data.fromJson(dynamic json) {
+    if (json['properties'] != null) {
+      properties = [];
+      json['properties'].forEach((v) {
+        properties?.add(PropertyModel.fromJson(v));
+      });
+    }
+    pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
+  }
+  List<PropertyModel>? properties;
+  Pagination? pagination;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    if (properties != null) {
+      map['properties'] = properties?.map((v) => v.toJson()).toList();
+    }
+    if (pagination != null) {
+      map['pagination'] = pagination?.toJson();
+    }
+    return map;
+  }
+
+}
+
+class Pagination {
+  Pagination({
+      this.currentPage, 
+      this.perPage, 
+      this.total, 
+      this.lastPage, 
+      this.totalPages,});
+
+  Pagination.fromJson(dynamic json) {
+    currentPage = json['current_page'];
+    perPage = json['per_page'];
+    total = json['total'];
+    lastPage = json['last_page'];
+    totalPages = json['total_pages'];
+  }
+  num? currentPage;
+  num? perPage;
+  num? total;
+  num? lastPage;
+  num? totalPages;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['current_page'] = currentPage;
+    map['per_page'] = perPage;
+    map['total'] = total;
+    map['last_page'] = lastPage;
+    map['total_pages'] = totalPages;
+    return map;
+  }
+
 }
 
 class PropertyModel {
   PropertyModel({
-    this.id,
-    this.userId,
-    this.propertyName,
-    this.address,
-    this.city,
-    this.postalCode,
-    this.businessType,
-    this.propertyType,
-    this.subType,
-    this.animalProperty,
-    this.hoover,
-    this.provideCleaningProducts,
-    this.provideWashingMachine,
-    this.provideDryer,
-    this.staffPreference,
-    this.accessToProperty,
-    this.additionalDetails,
-    this.isDeleted,
-    this.bedrooms,
-    this.bathrooms,
-    this.separateGuestToilet,
-    this.livingRooms,
-    this.office,
-    this.conservatory,
-    this.diningRoom,
-    this.createdAt,
-    this.updatedAt,
-  });
+      this.id, 
+      this.userId, 
+      this.propertyName, 
+      this.address, 
+      this.city, 
+      this.postalCode, 
+      this.businessType,
+      this.propertyType, 
+      this.subType, 
+      this.animalProperty, 
+      this.hoover, 
+      this.provideCleaningProducts, 
+      this.provideWashingMachine, 
+      this.provideDryer, 
+      this.staffPreference, 
+      this.accessToProperty, 
+      this.additionalDetails, 
+      this.isDeleted, 
+      this.bedrooms, 
+      this.bathrooms, 
+      this.separateGuestToilet, 
+      this.livingRooms, 
+      this.office, 
+      this.conservatory, 
+      this.diningRoom, 
+      this.createdAt, 
+      this.updatedAt,});
 
   PropertyModel.fromJson(dynamic json) {
     id = json['id'];
@@ -92,7 +151,6 @@ class PropertyModel {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
-
   num? id;
   num? userId;
   String? propertyName;
@@ -101,15 +159,15 @@ class PropertyModel {
   String? postalCode;
   String? businessType;
   String? propertyType;
-  String? subType;
+  dynamic subType;
   String? animalProperty;
   String? hoover;
   bool? provideCleaningProducts;
   bool? provideWashingMachine;
   bool? provideDryer;
-  String? staffPreference;
+  dynamic staffPreference;
   String? accessToProperty;
-  String? additionalDetails;
+  dynamic additionalDetails;
   bool? isDeleted;
   num? bedrooms;
   num? bathrooms;
@@ -152,4 +210,5 @@ class PropertyModel {
     map['updated_at'] = updatedAt;
     return map;
   }
+
 }

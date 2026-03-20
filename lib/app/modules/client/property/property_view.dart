@@ -33,11 +33,13 @@ class PropertyView extends GetView<PropertyController> {
               );
             }
             return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
               padding: UiConstants.padding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   AppGrid(
+                    physics: NeverScrollableScrollPhysics(),
                     maxExtent: 104,
                     axisSpacing: 8,
                     phoneCount: 1,
@@ -52,6 +54,7 @@ class PropertyView extends GetView<PropertyController> {
                       ),
                     ),
                   ),
+                  controller.isPropertyMoreLoading.value ? PageLoader() : SizedBox.shrink()
                 ],
               ),
             );

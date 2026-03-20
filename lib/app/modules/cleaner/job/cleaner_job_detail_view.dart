@@ -20,9 +20,14 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
       final loading = controller.isFetching.value;
       final err = controller.fetchError.value;
 
-      final cleanerStatus =
-          j?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status;
-      final cleaner = j?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId);
+      // 'Accepted','Rejected'
+      var cleanerStatus = j?.cleanerJobStatus;
+      var cleaner = ((j?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)));
+
+      var status = cleanerStatus ?? (j?.status ?? "N/A");
+      if (j?.status == Constants.jobFinished) {
+        status = j?.status ?? status;
+      }
 
       return AppScaffold(
         appBar: Header(

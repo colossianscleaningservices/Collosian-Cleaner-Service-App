@@ -74,7 +74,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                                               return isCleanerAssign ? item.name ?? " - " : "";
                                             })
                                             .toList()
-                                            .join(',') ??
+                                            .join(', ') ??
                                         ' - ',
                                 propertyName: job.property?.propertyName ?? "N/A",
                                 address: job.property?.address ?? "N/A",

@@ -54,14 +54,35 @@ class PropertyController extends GetxController {
   final editingProperty = Rxn<PropertyModel>();
   var from = '';
 
+  ScrollController jobScrollController = ScrollController();
+  var propertyCurrentPage = 1;
+  var propertyTotalPage = 1;
+  RxBool isPropertyMoreLoading = false.obs;
+
   @override
   void onInit() {
     super.onInit();
-    if(Get.arguments != null ){
-      if(Get.arguments['from'] != null) from = Get.arguments['from'];
-      if(Get.arguments['property'] != null) editingProperty.value = Get.arguments['property'];
+    if (Get.arguments != null) {
+      if (Get.arguments['from'] != null) from = Get.arguments['from'];
+      if (Get.arguments['property'] != null) editingProperty.value = Get.arguments['property'];
     }
     _loadProperties();
+
+    jobScrollController.addListener(() {
+      if (_isScrollBottom) {
+        if (propertyCurrentPage <= propertyTotalPage && !isPropertyMoreLoading.value) {
+          isPropertyMoreLoading.value = true;
+          _loadProperties();
+        }
+      }
+    });
+  }
+
+  bool get _isScrollBottom {
+    if (!jobScrollController.hasClients) return false;
+    final maxScroll = jobScrollController.position.maxScrollExtent;
+    final currentScroll = jobScrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   @override
@@ -82,9 +103,9 @@ class PropertyController extends GetxController {
 
   @override
   Future<void> onReady() async {
-  await  getPropertyType(businessType.value);
+    await getPropertyType(businessType.value);
 
-    if(from == 'dash'){
+    if (from == 'dash') {
       _loadEditPropertyData();
     }
 
@@ -94,18 +115,28 @@ class PropertyController extends GetxController {
   String? validateRequired(String? value, String fieldName) => Validator.requiredField(value, fieldName: fieldName);
 
   Future<void> _loadProperties() async {
-    if(from == 'dash') return;
+    if (from == 'dash') return;
     try {
-      final result = await _clientRepository.listProperties();
+      final result = await _clientRepository.listProperties(page: propertyCurrentPage);
       result.handle(
         success: (response) {
+          isPropertyMoreLoading.value = false;
           final raw = response.data;
-          if (raw != null && raw.isNotEmpty) {
-            properties.assignAll(raw);
+          if (propertyCurrentPage == 1) properties.clear();
+          if (raw != null && raw.properties?.isNotEmpty == true) {
+            properties.addAll(raw.properties as Iterable<PropertyModel>);
+          }
+
+          propertyTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
+
+          if (propertyCurrentPage <= propertyTotalPage) {
+            propertyCurrentPage++;
           }
         },
       );
-    } catch (_) {}
+    } catch (_) {
+      isPropertyMoreLoading.value = false;
+    }
   }
 
   Future<void> getPropertyType(String businessType, {bool showLoader = true}) async {
@@ -346,7 +377,7 @@ class PropertyController extends GetxController {
   }
 
   void resetForm() {
-    if(from == 'dash') return;
+    if (from == 'dash') return;
     editingProperty.value = null;
     propertyNameCtrl.clear();
     addressCtrl.clear();
@@ -376,7 +407,7 @@ class PropertyController extends GetxController {
     diningRoomCtrl.clear();
   }
 
-  void updateDashContent(){
+  void updateDashContent() {
     bool isControllerRegistered = Get.isRegistered<ClientDashboardController>();
     if (isControllerRegistered) {
       ClientDashboardController ctrl = Get.find();

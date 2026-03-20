@@ -216,14 +216,21 @@ class _UpcomingEvents extends StatelessWidget {
       physics: NeverScrollableScrollPhysics(),
       child: List.generate(
         events.length,
-        (i) => JobCard(
-          title: events[i].title,
-          dateTime: '${CcsDateUtils.shortDateNoYear(dateKey)} · ${events[i].timeRange}',
-          status: events[i].status,
-          propertyName: events[i].propertyName,
-          address: events[i].address,
-          onTap: () => onJobTap(events[i]),
-        ),
+        (i) {
+          var status = events[i].cleanerJobStatus ?? (events[i].status ?? "N/A");
+          if (events[i].status == Constants.jobFinished) {
+            status = events[i].status ?? status;
+          }
+
+          return JobCard(
+            title: events[i].title,
+            dateTime: '${CcsDateUtils.shortDateNoYear(dateKey)} · ${events[i].timeRange}',
+            status: status,
+            propertyName: events[i].propertyName,
+            address: events[i].address,
+            onTap: () => onJobTap(events[i]),
+          );
+        },
       ),
     );
   }
@@ -269,14 +276,20 @@ class _ListContentView extends StatelessWidget {
             physics: NeverScrollableScrollPhysics(),
             child: List.generate(
               list.length,
-              (i) => JobCard(
-                title: list[i].$2.title,
-                dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
-                status: list[i].$2.status,
-                propertyName: list[i].$2.propertyName,
-                address: list[i].$2.address,
-                onTap: () =>  ctrl.openDetail(list[i].$2.jobId),
-              ),
+              (i) {
+                var status = list[i].$2.cleanerJobStatus ?? (list[i].$2.status ?? "N/A");
+                if (list[i].$2.status == Constants.jobFinished) {
+                  status = list[i].$2.status ?? status;
+                }
+                return JobCard(
+                  title: list[i].$2.title,
+                  dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
+                  status: status,
+                  propertyName: list[i].$2.propertyName,
+                  address: list[i].$2.address,
+                  onTap: () => ctrl.openDetail(list[i].$2.jobId),
+                );
+              },
             ),
           ),
       ],

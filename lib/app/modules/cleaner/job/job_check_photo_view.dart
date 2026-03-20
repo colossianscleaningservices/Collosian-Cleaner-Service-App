@@ -13,7 +13,7 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-
+print(controller.job?.cleanerJobStatus);
     return AppScaffold(
       appBar: Header(
         title: controller.pageTitle,
@@ -35,7 +35,7 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
                       Obx(() {
                         return CommonTextField(
                           controller: controller.dateDisplayController,
-                          label: 'Job Start Date',
+                          label: 'Job ${controller.job?.cleanerJobStatus?.toLowerCase() == 'In process' ? "Start" : "End"} Date',
                           hint: '-- / -- / ----',
                           isReadOnly: true,
                           onTap: () => _pickDate(context, controller),

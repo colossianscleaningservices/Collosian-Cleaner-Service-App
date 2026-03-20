@@ -21,7 +21,7 @@ class CleanerJobDetailController extends GetxController {
   /// //Approved
   bool get canStartJob {
     final s = job.value?.status?.toLowerCase();
-    var cleanerJobStatus = ((job.value?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status));
+    var cleanerJobStatus = job.value?.cleanerJobStatus;
     return s == 'scheduled' ||
         s == 'accepted' ||
         s == 'approved' && cleanerJobStatus?.toLowerCase() != 'in process' && cleanerJobStatus?.toLowerCase() != 'completed';
@@ -31,7 +31,7 @@ class CleanerJobDetailController extends GetxController {
   bool get canStopJob {
     /*final s = job.value?.status?.toLowerCase();*/
     /*return s == 'in progress' || s == 'in_progress';*/
-    var s = ((job.value?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status))?.toLowerCase();
+    var s = job.value?.cleanerJobStatus?.toLowerCase();
     return s == 'in process' || s == 'in_process';
   }
 
@@ -46,7 +46,7 @@ class CleanerJobDetailController extends GetxController {
   int get bottomBarState {
     if (canStartJob) return 1;
     if (canStopJob) return 2;
-    if (canShowReview) return 3;
+    /*if (canShowReview) return 3;*/
     return 0;
   }
 
@@ -122,6 +122,7 @@ class CleanerJobDetailController extends GetxController {
       if (result == true) {
         /*job.value?.status = 'In progress';*/
         fetchJobDetails();
+        updateHomeJob();
       }
     });
   }
@@ -132,6 +133,7 @@ class CleanerJobDetailController extends GetxController {
       if (result == true) {
         /*job.value?.status = 'Completed';*/
         fetchJobDetails();
+        updateHomeJob();
       }
     });
   }
@@ -241,12 +243,7 @@ class CleanerJobDetailController extends GetxController {
           Notifier.success(value.message ?? 'Job declined');
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            bool isControllerRegistered = Get.isRegistered<CleanerDashboardController>();
-            if (isControllerRegistered) {
-              CleanerDashboardController ctrl = Get.find();
-              ctrl.jobCurrentPage = 1;
-              ctrl.fetchJobs(isLoaderShown: false);
-            }
+            updateHomeJob();
             Get.back();
           });
         },
@@ -267,6 +264,7 @@ class CleanerJobDetailController extends GetxController {
           Notifier.success(value.message ?? 'Job Accepted');
           WidgetsBinding.instance.addPostFrameCallback((_) {
             fetchJobDetails();
+            updateHomeJob();
           });
         },
         contextTag: 'accept_job',
@@ -309,6 +307,15 @@ class CleanerJobDetailController extends GetxController {
     } finally {
       isFetching.value = false;
       if (isLoaderShown) Loader.hide();
+    }
+  }
+
+  void updateHomeJob(){
+    bool isControllerRegistered = Get.isRegistered<CleanerDashboardController>();
+    if (isControllerRegistered) {
+      CleanerDashboardController ctrl = Get.find();
+      ctrl.jobCurrentPage = 1;
+      ctrl.fetchJobs(isLoaderShown: false);
     }
   }
 }

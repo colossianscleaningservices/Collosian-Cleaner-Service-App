@@ -70,6 +70,7 @@ class StaffJobDetails {
     this.venueAddress,
     this.user,
     this.property,
+    this.cleanerJobStatus,
     this.createdAt,
     this.scheduler,
     this.updatedAt,});
@@ -104,6 +105,7 @@ class StaffJobDetails {
     additionalData = json['additional_data'];
     notified = json['notified'];
     scheduleId = json['schedule_id'];
+    cleanerJobStatus = json['job_status'];
     jobStartDate = json['job_start_date'];
     jobEndDate = json['job_end_date'];
     jobType = json['job_type'];
@@ -135,6 +137,7 @@ class StaffJobDetails {
   dynamic before;
   dynamic after;
   String? status;
+  String? cleanerJobStatus;
   num? propertyId;
   num? userId;
   dynamic pricingChartId;
@@ -175,6 +178,7 @@ class StaffJobDetails {
     map['before'] = before;
     map['after'] = after;
     map['status'] = status;
+    map['job_status'] = cleanerJobStatus;
     if (jobCleaners != null) {
       map['job_cleaners'] = jobCleaners?.map((v) => v.toJson()).toList();
     }

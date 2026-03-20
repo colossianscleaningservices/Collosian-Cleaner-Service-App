@@ -48,33 +48,32 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
 
               // Date range
               Obx(
-                    () =>
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _DateField(
-                            label: 'From',
-                            value: controller.scheduleValidFrom.value,
-                            onTap: () => _pickDate(context, controller, isFrom: true),
-                            onClear: () => controller.setStartDate(null),
-                            validator: (_) => controller.scheduleValidFrom.value == null ? 'Select start date' : null,
-                            scheme: scheme,
-                            ctrl: controller,
-                          ).marginOnly(right: 8),
-                        ),
-                        Expanded(
-                          child: _DateField(
-                            label: 'To',
-                            value: controller.scheduleValidTo.value,
-                            onTap: () => _pickDate(context, controller, isFrom: false),
-                            onClear: () => controller.setEndDate(null),
-                            validator: (_) => controller.scheduleValidTo.value == null ? 'Select end date' : null,
-                            scheme: scheme,
-                            ctrl: controller,
-                          ).marginOnly(left: 8),
-                        ),
-                      ],
-                    ).marginOnly(bottom: 24),
+                () => Row(
+                  children: [
+                    Expanded(
+                      child: _DateField(
+                        label: 'From',
+                        value: controller.scheduleValidFrom.value,
+                        onTap: () => _pickDate(context, controller, isFrom: true),
+                        onClear: () => controller.setStartDate(null),
+                        validator: (_) => controller.scheduleValidFrom.value == null ? 'Select start date' : null,
+                        scheme: scheme,
+                        ctrl: controller,
+                      ).marginOnly(right: 8),
+                    ),
+                    Expanded(
+                      child: _DateField(
+                        label: 'To',
+                        value: controller.scheduleValidTo.value,
+                        onTap: () => _pickDate(context, controller, isFrom: false),
+                        onClear: () => controller.setEndDate(null),
+                        validator: (_) => controller.scheduleValidTo.value == null ? 'Select end date' : null,
+                        scheme: scheme,
+                        ctrl: controller,
+                      ).marginOnly(left: 8),
+                    ),
+                  ],
+                ).marginOnly(bottom: 24),
               ),
 
               // Summary section title
@@ -98,67 +97,67 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
                   final isNarrow = constraints.maxWidth < 400;
                   return isNarrow
                       ? Obx(() {
-                    return Column(
-                      children: [
-                        _SummaryCard(
-                          label: 'Total Residential Earnings',
-                          value: controller.totalResidentialEarning.value ?? '0.0',
-                          scheme: scheme,
-                          accentColor: scheme.tertiary,
-                          icon: IconsaxPlusLinear.home_2,
-                        ).marginOnly(bottom: 12),
-                        _SummaryCard(
-                          label: 'Total Commercial Earnings',
-                          value: controller.totalCommercialEarning.value ?? '0.0',
-                          scheme: scheme,
-                          accentColor: scheme.primary,
-                          icon: IconsaxPlusLinear.building_4,
-                        ).marginOnly(bottom: 12),
-                        _SummaryCard(
-                          label: 'Total Payout',
-                          value: controller.totalPayout.value ?? '0.0',
-                          scheme: scheme,
-                          accentColor: scheme.secondary,
-                          icon: IconsaxPlusLinear.wallet_money,
-                          isHighlight: true,
-                        ),
-                      ],
-                    );
-                  })
+                          return Column(
+                            children: [
+                              _SummaryCard(
+                                label: 'Total Residential Earnings',
+                                value: controller.totalResidentialEarning.value ?? '0.0',
+                                scheme: scheme,
+                                accentColor: scheme.tertiary,
+                                icon: IconsaxPlusLinear.home_2,
+                              ).marginOnly(bottom: 12),
+                              _SummaryCard(
+                                label: 'Total Commercial Earnings',
+                                value: controller.totalCommercialEarning.value ?? '0.0',
+                                scheme: scheme,
+                                accentColor: scheme.primary,
+                                icon: IconsaxPlusLinear.building_4,
+                              ).marginOnly(bottom: 12),
+                              _SummaryCard(
+                                label: 'Total Payout',
+                                value: controller.totalPayout.value ?? '0.0',
+                                scheme: scheme,
+                                accentColor: scheme.secondary,
+                                icon: IconsaxPlusLinear.wallet_money,
+                                isHighlight: true,
+                              ),
+                            ],
+                          );
+                        })
                       : Obx(() {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: _SummaryCard(
-                            label: 'Residential Earnings',
-                            value: controller.totalResidentialEarning.value ?? '0.0',
-                            scheme: scheme,
-                            accentColor: scheme.tertiary,
-                            icon: IconsaxPlusLinear.home_2,
-                          ).marginOnly(right: 8),
-                        ),
-                        Expanded(
-                          child: _SummaryCard(
-                            label: 'Commercial Earnings',
-                            value: controller.totalCommercialEarning.value ?? '0.0',
-                            scheme: scheme,
-                            accentColor: scheme.primary,
-                            icon: IconsaxPlusLinear.building_4,
-                          ).marginOnly(right: 8),
-                        ),
-                        Expanded(
-                          child: _SummaryCard(
-                            label: 'Total Payout',
-                            value: controller.totalPayout.value ?? '0.0',
-                            scheme: scheme,
-                            accentColor: scheme.secondary,
-                            icon: IconsaxPlusLinear.wallet_money,
-                            isHighlight: true,
-                          ),
-                        ),
-                      ],
-                    );
-                  });
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: _SummaryCard(
+                                  label: 'Residential Earnings',
+                                  value: controller.totalResidentialEarning.value ?? '0.0',
+                                  scheme: scheme,
+                                  accentColor: scheme.tertiary,
+                                  icon: IconsaxPlusLinear.home_2,
+                                ).marginOnly(right: 8),
+                              ),
+                              Expanded(
+                                child: _SummaryCard(
+                                  label: 'Commercial Earnings',
+                                  value: controller.totalCommercialEarning.value ?? '0.0',
+                                  scheme: scheme,
+                                  accentColor: scheme.primary,
+                                  icon: IconsaxPlusLinear.building_4,
+                                ).marginOnly(right: 8),
+                              ),
+                              Expanded(
+                                child: _SummaryCard(
+                                  label: 'Total Payout',
+                                  value: controller.totalPayout.value ?? '0.0',
+                                  scheme: scheme,
+                                  accentColor: scheme.secondary,
+                                  icon: IconsaxPlusLinear.wallet_money,
+                                  isHighlight: true,
+                                ),
+                              ),
+                            ],
+                          );
+                        });
                 },
               ).marginOnly(bottom: 24),
 
@@ -201,12 +200,9 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
       ctrl.setScheduleValidTo(d);
     }
 
-    if(ctrl.scheduleValidFrom.value != null && ctrl.scheduleValidTo.value != null){
-
+    if (ctrl.scheduleValidFrom.value != null && ctrl.scheduleValidTo.value != null) {
       ctrl.getPayoutComputation();
-
     }
-
   }
 }
 
@@ -328,18 +324,20 @@ class _WorkEntriesTable extends StatelessWidget {
             DataColumn(label: Text('Status')),
             DataColumn(label: Text('Paid Date')),
           ],
-          rows:controller.entries.map((entry) {
+          rows: controller.entries.map((entry) {
             return DataRow(
               cells: [
                 DataCell(CommonText.regular(entry.clientName?.toString() ?? '', size: 12)),
                 DataCell(CommonText.regular(entry.workedHours?.toString() ?? '0', size: 12)),
-                DataCell(CommonText.regular(entry.commercialRate?.toString() ?? 'N/A', size: 12)),
-                DataCell(CommonText.regular(entry.commercialRate?.toString() ?? 'N/A', size: 12)),
+                DataCell(CommonText.regular("${controller.residentialRate}", size: 12)),
+                DataCell(CommonText.regular("${controller.commercialRate}", size: 12)),
                 DataCell(CommonText.semiBold(entry.totalPayout?.toString() ?? '0', size: 12, color: scheme.primary)),
                 DataCell(CommonText.regular(entry.residentialEarnings?.toString() ?? 'N/A', size: 12)),
-                DataCell(CommonText.regular(entry.commercialEarnings?.toString() ??'N/A', size: 12)),
+                DataCell(CommonText.regular(entry.commercialEarnings?.toString() ?? 'N/A', size: 12)),
                 DataCell(_StatusChip(label: entry.status?.toString().capitalizeFirst ?? '', scheme: scheme)),
-                DataCell(CommonText.regular(entry.paidOn?.toString() ?? 'N/A', size: 12)),
+                DataCell(CommonText.regular(
+                    entry.paidOn != null ? formatDate(entry.paidOn ?? "", inputFormat: 'yyyy-MM-dd', outputFormat: 'dd/MM/yyyy') : 'N/A',
+                    size: 12)),
               ],
             );
           }).toList(),

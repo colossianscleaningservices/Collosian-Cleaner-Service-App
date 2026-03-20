@@ -217,7 +217,7 @@ class _UpcomingEvents extends StatelessWidget {
         (i) => JobCard(
           title: events[i].title,
           dateTime: '${CcsDateUtils.shortDateNoYear(dateKey)} · ${events[i].timeRange}',
-          status: events[i].status,
+          status: events[i].status ?? "",
           propertyName: events[i].propertyName,
           address: events[i].address,
           onTap: () => onJobTap(events[i]),
@@ -267,7 +267,7 @@ class _ListContentView extends StatelessWidget {
               (i) => JobCard(
                 title: list[i].$2.title,
                 dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
-                status: list[i].$2.status,
+                status: list[i].$2.status ?? "",
                 propertyName: list[i].$2.propertyName,
                 address: list[i].$2.address,
                 onTap: () {

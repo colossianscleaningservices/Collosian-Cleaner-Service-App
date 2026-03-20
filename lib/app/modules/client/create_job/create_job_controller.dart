@@ -248,8 +248,8 @@ class CreateJobController extends GetxController {
       result.handle(
         success: (response) {
           final raw = response.data;
-          if (raw != null && raw.isNotEmpty) {
-            properties.assignAll(raw);
+          if (raw != null && raw.properties?.isNotEmpty == true) {
+            properties.assignAll(raw.properties as Iterable<PropertyModel>);
           }
 
           if (properties.isNotEmpty) {

@@ -74,6 +74,7 @@ class JobCheckPhotoController extends GetxController {
   String get submitLabel => isCheckIn ? 'Start job' : 'Stop job';
 
   String get timeLabel => isCheckIn ? 'Start Time' : 'Stop Time';
+  String get dateLabel => isCheckIn ? 'Job Start Date' : 'Job End Date';
 
   @override
   void onInit() {

@@ -225,6 +225,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       result.handle(
         success: (response) {
           final raw = response.data;
+          isJobMoreLoading.value = false;
           if (jobCurrentPage == 1) jobs.clear();
           if (raw != null && raw.jobs?.isNotEmpty == true) {
             jobs.assignAll(raw.jobs as Iterable<Jobs>);

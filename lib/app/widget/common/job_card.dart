@@ -67,7 +67,6 @@ class JobCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     final lineColor = statusLineColor(status, scheme);
-
     return AppCard(
       onTap: onTap,
       enableShadows: isFromDash ? false : true,

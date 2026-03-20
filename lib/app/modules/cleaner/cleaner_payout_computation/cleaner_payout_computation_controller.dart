@@ -20,6 +20,8 @@ class CleanerPayoutComputationController extends GetxController {
   final totalCommercialEarning = Rx<String?>('0.0');
   final totalPayout = Rx<String?>('0.0');
   final RxList<WorkEntries> entries = <WorkEntries>[].obs;
+  final residentialRate = Rx<num?>(0);
+  final commercialRate = Rx<num?>(0);
 
   @override
   void onInit() {
@@ -66,6 +68,8 @@ class CleanerPayoutComputationController extends GetxController {
           totalResidentialEarning.value = data?.residentialEarnings?.toString() ??'0.0';
           totalCommercialEarning.value = data?.commercialEarnings?.toString() ??'0.0';
           totalPayout.value = data?.totalPayout?.toString() ??'0.0';
+          residentialRate.value = data?.residentialRate;
+          commercialRate.value = data?.commercialRate;
 
           entries.assignAll(data?.workEntries as Iterable<WorkEntries>);
 

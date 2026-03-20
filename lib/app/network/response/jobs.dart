@@ -21,6 +21,8 @@ class Jobs {
     this.provideWashingMachine,
     this.provideDryer,
     this.additionalData,
+    this.isAccepted,
+    this.cleanerJobStatus,
     this.notified,
     this.scheduleId,
     this.jobStartDate,
@@ -57,6 +59,8 @@ class Jobs {
     cleaningType = json['cleaning_type'] != null ? CleaningType.fromJson(json['cleaning_type']) : null;
     additionalDetails = json['additional_details'];
     hoover = json['hoover'];
+    isAccepted = json['is_accepted'];
+    cleanerJobStatus = json['job_status'];
     provideWashingMachine = json['provide_washing_machine'];
     provideDryer = json['provide_dryer'];
     additionalData = json['additional_data'];
@@ -98,6 +102,7 @@ class Jobs {
   dynamic before;
   dynamic after;
   String? status;
+  String? cleanerJobStatus;
   num? propertyId;
   num? userId;
   dynamic pricingChartId;
@@ -107,6 +112,7 @@ class Jobs {
   String? hoover;
   bool? provideWashingMachine;
   bool? provideDryer;
+  bool? isAccepted;
   dynamic additionalData;
   dynamic notified;
   dynamic scheduleId;
@@ -140,6 +146,8 @@ class Jobs {
     map['status'] = status;
     map['property_id'] = propertyId;
     map['user_id'] = userId;
+    map['job_status'] = cleanerJobStatus;
+    map['is_accepted'] = isAccepted;
     map['pricing_chart_id'] = pricingChartId;
     map['is_deleted'] = isDeleted;
     if (cleaningType != null) {
