@@ -59,8 +59,8 @@ Future<void> main() async {
             initialRoute: AppPages.INITIAL,
             getPages: AppPages.routes,
             title: 'CCS',
-            theme: getTheme(lightColorScheme),
-            darkTheme: getTheme(darkColorScheme),
+            theme: theme,
+            darkTheme: darkTheme,
             themeMode: ThemeMode.light,
           );
         },

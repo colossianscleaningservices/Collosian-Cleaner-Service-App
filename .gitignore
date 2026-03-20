@@ -51,6 +51,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /ios/Podfile.lock
+/ios/build
 #/docs
 /amend.sh
 /android/.kotlin/sessions/kotlin-compiler-18024566813893108002.salive

@@ -1,5 +1,7 @@
 import 'package:ccs_app/app/model/chat_message.dart';
+import 'package:ccs_app/app/network/response/get_client_job_details_response.dart';
 import 'package:ccs_app/app/services/pref.dart';
+import 'package:ccs_app/app/widget/job/job_detail_shared.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 
@@ -8,7 +10,6 @@ import 'client_job_detail_controller.dart';
 
 enum _JobMenuAction { edit, delete }
 
-//Missing Info :- Client Name, Recurrence
 /// Client job detail: status, schedule, property, preferences, cleaners.
 class ClientJobDetailView extends GetView<ClientJobDetailController> {
   const ClientJobDetailView({super.key});
@@ -20,57 +21,56 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
 
     return Obx(() {
       final j = c.job.value;
+      final loading = c.isFetching.value;
+      final err = c.fetchError.value;
+
       return AppScaffold(
         appBar: Header(
-          title: j?.cleaningType?.name ?? "",
+          title: j?.cleaningType?.name ?? (loading ? '' : 'Job details'),
           headerLogoIcon: false,
           hasBackIcon: true,
           titleCentered: false,
-          actions: [
-           /* IconButton(
-              icon: Icon(IconsaxPlusLinear.message_text, size: 22),
-              tooltip: 'Contact',
-              onPressed: controller.onContactClient,
-            ),*/
-
-            PopupMenuButton<_JobMenuAction>(
-              tooltip: 'More options',
-              color: context.colorScheme.onPrimary,
-              icon: Icon(Icons.more_vert, size: 24, color: scheme.onSurface),
-              onSelected: (action) {
-                switch (action) {
-                  case _JobMenuAction.edit:
-                    c.onEdit();
-                    break;
-                  case _JobMenuAction.delete:
-                    c.confirmDeleteJob(context);
-                    break;
-                }
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: _JobMenuAction.edit,
-                  child: Row(
-                    children: [
-                      Icon(IconsaxPlusLinear.edit_2, size: 18, color: scheme.onSurfaceVariant),
-                      const SizedBox(width: 8),
-                      const Text('Edit job'),
+          actions: j != null
+              ? [
+                  PopupMenuButton<_JobMenuAction>(
+                    tooltip: 'More options',
+                    color: context.colorScheme.onPrimary,
+                    icon: Icon(Icons.more_vert, size: 24, color: scheme.onSurface),
+                    onSelected: (action) {
+                      switch (action) {
+                        case _JobMenuAction.edit:
+                          c.onEdit();
+                          break;
+                        case _JobMenuAction.delete:
+                          c.confirmDeleteJob(context);
+                          break;
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: _JobMenuAction.edit,
+                        child: Row(
+                          children: [
+                            Icon(IconsaxPlusLinear.edit_2, size: 18, color: scheme.onSurfaceVariant),
+                            const SizedBox(width: 8),
+                            const Text('Edit job'),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: _JobMenuAction.delete,
+                        child: Row(
+                          children: [
+                            Icon(IconsaxPlusLinear.trash, size: 18, color: scheme.error),
+                            const SizedBox(width: 8),
+                            const Text('Delete job'),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                PopupMenuItem(
-                  value: _JobMenuAction.delete,
-                  child: Row(
-                    children: [
-                      Icon(IconsaxPlusLinear.trash, size: 18, color: scheme.error),
-                      const SizedBox(width: 8),
-                      const Text('Delete job'),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
+                ]
+              : [],
         ),
         backgroundColor: scheme.surface,
         body: SwipeRefresh(
@@ -78,187 +78,203 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
             await controller.fetchJobDetails(isLoaderShown: false);
           },
           child: SafeArea(
-            child: SingleChildScrollView(
-              padding: UiConstants.padding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Property & client
-                  AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CommonText.semiBold('Property', size: 16, color: scheme.onSurface),
-                        const SizedBox(height: 12),
-                        LabelValueRow(label: 'Property', value: j?.property?.propertyName ?? "N/A", scheme: scheme),
-                        if (j?.property?.propertyType != null) LabelValueRow(label: 'Property type', value: j?.property?.propertyType ?? "", scheme: scheme),
-                        if (j?.property?.subType != null) LabelValueRow(label: 'Subtype', value: j?.property?.subType ?? "", scheme: scheme),
-                        if (j?.property?.address != null || j?.property?.city != null || j?.property?.postalCode != null)
-                          LabelValueRow(
-                            label: 'Address',
-                            value: [j?.property?.address, j?.property?.city, j?.property?.postalCode].whereType<String>().join(', '),
-                            scheme: scheme,
-                          ),
-                        if (j?.accessToProperty != null) LabelValueRow(label: 'Access', value: j?.accessToProperty ?? "", scheme: scheme),
-                        if (j?.property?.animalProperty != null)
-                          LabelValueRow(label: 'Animals', value: j?.property?.animalProperty == "1" ? "Yes" : "No", scheme: scheme),
-                        if (j?.jobType != null) LabelValueRow(label: 'Payment source', value: j?.jobType?.capitalizeFirst ?? "", scheme: scheme),
-                        LabelValueRow(label: 'Cleaners needed', value: '${j?.numberOfCleaners ?? 0}', scheme: scheme),
-                      ],
-                    ).paddingAll(UiConstants.defaultPadding),
-                  ),
-                  const SizedBox(height: 16),
+            child: _bodyForState(
+              context: context,
+              c: c,
+              j: j,
+              loading: loading,
+              err: err,
+              scheme: scheme,
+            ),
+          ),
+        ),
+      );
+    });
+  }
+}
 
-                  // Status & schedule
-                  AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CommonText.semiBold('Status & schedule', size: 16, color: scheme.onSurface),
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            InfoChip(
-                              label: 'Job Scheduled: ${(j?.jobSchedule ?? false) ? 'Yes' : 'No'}',
-                              backgroundColor: (j?.jobSchedule ?? false) ? scheme.primaryContainer : scheme.primaryContainer,
-                              foregroundColor: (j?.jobSchedule ?? false) ? scheme.primary : scheme.primary,
-                            ),
-                            InfoChip(
-                                label: 'Status: ${j?.status?.capitalizeFirst ?? "N/A"}',
-                                backgroundColor: getBgColor(j?.status ?? "", scheme),
-                                foregroundColor: getFgColor(j?.status ?? "", scheme)),
-                            if (j?.scheduler?.frequency != null)
-                              InfoChip(
-                                  label: j?.scheduler?.frequency?.capitalizeFirst ?? "",
-                                  backgroundColor: scheme.tertiaryContainer,
-                                  foregroundColor: scheme.tertiary),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        if (j?.jobStartDate != null)
-                          LabelValueRow(label: 'Job start date', value: CcsDateUtils.fullDate(DateTime.parse(j?.jobStartDate ?? "")), scheme: scheme),
-                        if (j?.date != null && j?.jobStartDate == null)
-                          LabelValueRow(label: 'Job date', value: CcsDateUtils.fullDate(DateTime.parse(j?.date ?? "")), scheme: scheme),
-                        if (j?.startTime != null && j?.endTime != null)
-                          LabelValueRow(
-                              label: 'Job time',
-                              value: "${CcsDateTimeX.convertTime(j?.startTime ?? " ")}  -  ${CcsDateTimeX.convertTime(j?.endTime ?? "")}",
-                              scheme: scheme),
-                        if (j?.jobEndDate != null)
-                          LabelValueRow(
-                              label: 'Job end date',
-                              value: j?.jobEndDate != null ? CcsDateUtils.fullDate(DateTime.parse(j?.jobEndDate ?? "")) : '–',
-                              scheme: scheme),
-                        if (j?.jobSchedule == false && j?.status != 'Cancelled') ...[
-                          const SizedBox(height: 8),
-                          AppButton(
-                            label: 'Schedule',
-                            icon: IconsaxPlusLinear.calendar_1,
-                            onPressed: c.onScheduleJob,
-                            btnVerticalPadding: 8,
-                            btnCornerRadius: 12,
-                            btnHorizontalPadding: 12,
-                          ),
-                        ],
-                        if (j?.jobSchedule == true) ...[
-                          const SizedBox(height: 8),
-                          AppButton(
-                            label: 'Cancel job',
-                            onPressed: () => c.onCancelJob(),
-                            type: ButtonType.outline,
-                            txtClr: context.colorScheme.error,
-                            borderClr: context.colorScheme.error,
-                            btnVerticalPadding: 8,
-                            btnCornerRadius: 12,
-                            btnHorizontalPadding: 12,
-                          ),
-                        ],
-                      ],
-                    ).paddingAll(UiConstants.defaultPadding),
-                  ),
-                  const SizedBox(height: 16),
+Widget _bodyForState({
+  required BuildContext context,
+  required ClientJobDetailController c,
+  required ClientJobDetails? j,
+  required bool loading,
+  required String? err,
+  required ColorScheme scheme,
+}) {
+  if (c.jobId == null) {
+    return Center(
+      child: Padding(
+        padding: UiConstants.padding,
+        child: CommonText.regular(
+          'This job could not be opened.',
+          size: 15,
+          color: scheme.onSurfaceVariant,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+  if (j == null && loading) {
+    return JobDetailLoadingSkeleton(scheme: scheme);
+  }
+  if (j == null && err != null) {
+    return JobDetailFetchError(
+      message: err,
+      scheme: scheme,
+      onRetry: () => c.fetchJobDetails(isLoaderShown: false),
+    );
+  }
+  if (j == null) {
+    return Center(
+      child: CommonText.regular(
+        'No job data.',
+        size: 15,
+        color: scheme.onSurfaceVariant,
+      ),
+    );
+  }
 
-                  // Preferences & equipment
-                  AppCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CommonText.semiBold('Preferences & equipment', size: 16, color: scheme.onSurface),
-                        const SizedBox(height: 12),
-                        if (j?.property?.staffPreference != null) LabelValueRow(label: 'Staff preference', value: j?.staffPreference ?? "", scheme: scheme),
-                        if (j?.property?.hoover != null) LabelValueRow(label: 'Hoover', value: j?.property?.hoover ?? "", scheme: scheme),
-                        LabelValueRow(label: 'Cleaning products', value: j?.provideCleaningProducts == true ? 'Yes' : 'No', scheme: scheme),
-                        LabelValueRow(label: 'Washing machine', value: j?.provideWashingMachine == true ? 'Yes' : 'No', scheme: scheme),
-                        LabelValueRow(label: 'Dryer', value: j?.provideDryer == true ? 'Yes' : 'No', scheme: scheme),
-                      ],
-                    ).paddingAll(UiConstants.defaultPadding),
-                  ),
-                  const SizedBox(height: 16),
+  final p = j.property;
+  final streetCity = [p?.address, p?.city].whereType<String>().where((s) => s.trim().isNotEmpty).join(', ');
+  final postcode = p?.postalCode?.trim();
+  final addressText = [
+    if (streetCity.isNotEmpty) streetCity,
+    if (postcode != null && postcode.isNotEmpty) postcode,
+  ].join(', ');
+  final typeLine = [p?.propertyType, p?.subType]
+      .whereType<String>()
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .join(' · ');
+  final hasCleaners = j.cleaners != null && j.cleaners!.isNotEmpty;
 
-                  if (j?.additionalDetails != null && j?.additionalDetails?.isNotEmpty == true) ...[
-                    const SizedBox(height: 16),
-                    AppCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CommonText.semiBold('Additional notes', size: 16, color: scheme.onSurface),
-                          const SizedBox(height: 8),
-                          CommonText.regular(j?.additionalDetails ?? "", size: 14, color: scheme.onSurfaceVariant),
-                        ],
-                      ).paddingAll(UiConstants.defaultPadding),
+  return SingleChildScrollView(
+    padding: UiConstants.padding,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        JobDetailSection(
+          semanticLabel: 'Property',
+          emoji: '🏠',
+          title: 'Property',
+          scheme: scheme,
+          child: AppCard(
+            child: JobPropertyBlock(
+              propertyName: p?.propertyName ?? 'N/A',
+              typeLine: typeLine.isEmpty ? null : typeLine,
+              addressText: addressText.isEmpty ? null : addressText,
+              metaLine: _propertyMetaLine(j),
+              paymentLine: (j.jobType != null && j.jobType!.trim().isNotEmpty) ? 'Payment: ${j.jobType!.capitalizeFirst}' : null,
+              scheme: scheme,
+            ).paddingAll(UiConstants.defaultPadding),
+          ),
+        ),
+        const SizedBox(height: 20),
+        JobDetailSection(
+          semanticLabel: 'Status and schedule',
+          emoji: '📅',
+          title: 'Status & schedule',
+          scheme: scheme,
+          child: AppCard(
+            child: _StatusScheduleSection(j: j, scheme: scheme, c: c).paddingAll(UiConstants.defaultPadding),
+          ),
+        ),
+        const SizedBox(height: 20),
+        JobDetailSection(
+          semanticLabel: 'Preferences and equipment',
+          emoji: '🧰',
+          title: 'Preferences & equipment',
+          scheme: scheme,
+          child: AppCard(
+            child: JobPreferencesBlock(
+              scheme: scheme,
+              staffPreference: j.staffPreference ?? j.property?.staffPreference,
+              equipmentChips: buildJobEquipmentChips(
+                scheme: scheme,
+                hoover: j.hoover ?? j.property?.hoover,
+                provideCleaningProducts: j.provideCleaningProducts,
+                provideWashingMachine: j.provideWashingMachine,
+                provideDryer: j.provideDryer,
+              ),
+            ).paddingAll(UiConstants.defaultPadding),
+          ),
+        ),
+        const SizedBox(height: 20),
+        if (j.additionalDetails != null && j.additionalDetails!.trim().isNotEmpty) ...[
+          JobDetailSection(
+            semanticLabel: 'Additional notes',
+            emoji: '📝',
+            title: 'Additional notes',
+            scheme: scheme,
+            child: AppCard(
+              child: CommonText.regular(j.additionalDetails!.trim(), size: 14, color: scheme.onSurfaceVariant)
+                  .paddingAll(UiConstants.defaultPadding),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+        if (j.cleaners != null && j.cleaners!.isNotEmpty) ...[
+          JobDetailSection(
+            semanticLabel: 'Cleaners',
+            emoji: '👷',
+            title: c.cleanerHeading.value ?? 'Cleaners',
+            scheme: scheme,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: j.cleaners!.map((cl) {
+                final jobCleaners = j.jobCleaners;
+                final cleaner = jobCleaners?.firstWhereOrNull((element) => element.userId == cl.id);
+
+                final item = ClientJobCleaner(
+                  id: cl.id.toString(),
+                  avatarUrl: cl.imageUrl,
+                  name: cl.name ?? '',
+                  status: cleaner?.status ?? 'N/A',
+                );
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Semantics(
+                    label: 'Cleaner ${item.name}',
+                    child: CleanerCard(
+                      cleaner: item,
+                      isReview: cleaner?.isReviewed == true ? false : true,
+                      onShare: () => c.onShareCleanerProfile(item),
+                      scheme: scheme,
+                      onReview: () => c.onReviewCleanerProfile(item),
+                      onTap: () => Get.toNamed(Routes.STAFF_DETAILS, arguments: {'id': item.id.toInt(), 'type': 'staffDetail'}),
                     ),
-                  ],
-
-                  if (j?.cleaners?.isNotEmpty == true) ...[
-                    const SizedBox(height: 16),
-                    CommonText.semiBold(controller.cleanerHeading.value ?? 'Cleaners', size: 16, color: scheme.onSurface),
-                    const SizedBox(height: 8),
-                    ...?j?.cleaners?.map(
-                      (cl) {
-                        var cleaner = j.jobCleaners?.firstWhereOrNull((element) => element.userId == cl.id);
-
-                        var item = ClientJobCleaner(
-                          id: cl.id.toString(),
-                          avatarUrl: cl.imageUrl,
-                          name: cl.name ?? "",
-                          status: cleaner?.status ?? "N/A",
-                        );
-
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: CleanerCard(
-                            cleaner: item,
-                            isReview: cleaner?.isReviewed == true ? false : true,
-                            onShare: () => c.onShareCleanerProfile(item),
-                            scheme: scheme,
-                            onReview: () => c.onReviewCleanerProfile(item),
-                            onTap: () => Get.toNamed(Routes.STAFF_DETAILS, arguments: {"id": item.id.toInt(), "type": 'staffDetail'}),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-
-                  AppButton(
-                      label: 'Chat',
-                      type: ButtonType.tonal,
-                      onPressed: () {
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+        Semantics(
+          label: 'Job chat',
+          container: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Divider(height: 32, thickness: 1, color: scheme.outline.withValues(alpha: 0.12)),
+              AppButton(
+                label: 'Chat',
+                type: ButtonType.tonal,
+                onPressed: hasCleaners
+                    ? () {
                         final job = c.job.value;
                         final chatJob = ChatJob(
-                          id: job?.id.toString() ?? "",
+                          id: job?.id.toString() ?? '',
                           jobType: job?.jobType,
                           propertyOneLine: job?.property?.propertyName,
-                          date: DateTime.parse(job?.date ?? "").toIso8601String(),
-                          clientName: /*job?.clientName*/ "",
+                          date: DateTime.parse(job?.date ?? '').toIso8601String(),
+                          clientName: '',
                         );
                         final participants = <String, ChatParticipant>{};
-                        // Current user (client)
                         final userId = Prefs().userId;
                         final userName = Prefs().userFullName;
                         participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyClient);
-                        // Assigned cleaners
                         for (final cleaner in job?.cleaners ?? []) {
                           participants[cleaner.id.toString()] =
                               ChatParticipant(id: cleaner.id.toString(), name: cleaner.name, role: RoleConstants.roleKeyCleaner);
@@ -269,13 +285,140 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                           'job': chatJob,
                           'participants': participants,
                         });
-                      }).marginOnly(top: 12)
-                ],
+                      }
+                    : null,
               ),
-            ),
+              if (!hasCleaners)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: CommonText.regular(
+                    'Chat is available when at least one cleaner is assigned to this job.',
+                    size: 12,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
           ),
         ),
-      );
-    });
+      ],
+    ),
+  );
+}
+
+String _propertyMetaLine(ClientJobDetails j) {
+  final parts = <String>[];
+  final access = j.accessToProperty ?? j.property?.accessToProperty;
+  if (access != null && access.trim().isNotEmpty) {
+    parts.add(access.trim());
+  }
+  if (j.property?.animalProperty != null) {
+    parts.add(j.property!.animalProperty == '1' ? 'Animals on property' : 'No animals');
+  }
+  final n = j.numberOfCleaners ?? 0;
+  parts.add(n == 1 ? '1 cleaner' : '$n cleaners');
+  return parts.join(' • ');
+}
+
+class _StatusScheduleSection extends StatelessWidget {
+  const _StatusScheduleSection({required this.j, required this.scheme, required this.c});
+
+  final ClientJobDetails j;
+  final ColorScheme scheme;
+  final ClientJobDetailController c;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheduled = j.jobSchedule ?? false;
+    final statusLabel = j.status?.capitalizeFirst ?? 'N/A';
+
+    String? timeRange;
+    if (j.startTime != null && j.endTime != null) {
+      timeRange =
+          '${CcsDateTimeX.convertTime(j.startTime ?? '')}–${CcsDateTimeX.convertTime(j.endTime ?? '')}';
+    }
+    String? endsFormatted;
+    if (j.jobEndDate != null && j.jobEndDate!.trim().isNotEmpty) {
+      try {
+        endsFormatted = CcsDateUtils.fullDate(DateTime.parse(j.jobEndDate!));
+      } catch (_) {
+        endsFormatted = j.jobEndDate;
+      }
+    }
+    final scheduleSummary = jobScheduleSummaryLine(
+      dateFormatted: _hasScheduleDate(j) ? _scheduleDateText(j) : null,
+      timeRange: timeRange,
+      endsFormatted: endsFormatted,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            InfoChip(
+              label: statusLabel,
+              backgroundColor: getBgColor(j.status ?? '', scheme),
+              foregroundColor: getFgColor(j.status ?? '', scheme),
+            ),
+            InfoChip(
+              label: scheduled ? 'Scheduled' : 'Not scheduled',
+              backgroundColor: scheduled ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+              foregroundColor: scheduled ? scheme.primary : scheme.onSurfaceVariant,
+            ),
+            if (j.scheduler?.frequency != null && j.scheduler!.frequency!.trim().isNotEmpty)
+              InfoChip(
+                label: j.scheduler!.frequency!.capitalizeFirst ?? '',
+                backgroundColor: scheme.tertiaryContainer,
+                foregroundColor: scheme.tertiary,
+              ),
+          ],
+        ),
+        if (scheduleSummary.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          CommonText.regular(scheduleSummary, size: 14, color: scheme.onSurface),
+        ],
+        if (j.jobSchedule == false && j.status != 'Cancelled') ...[
+          const SizedBox(height: 12),
+          AppButton(
+            label: 'Schedule',
+            icon: IconsaxPlusLinear.calendar_1,
+            onPressed: c.onScheduleJob,
+            btnVerticalPadding: 8,
+            btnCornerRadius: 12,
+            btnHorizontalPadding: 12,
+          ),
+        ],
+        if (j.jobSchedule == true) ...[
+          const SizedBox(height: 12),
+          AppButton(
+            label: 'Cancel job',
+            onPressed: () => c.onCancelJob(),
+            type: ButtonType.outline,
+            txtClr: scheme.error,
+            borderClr: scheme.error,
+            btnVerticalPadding: 8,
+            btnCornerRadius: 12,
+            btnHorizontalPadding: 12,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+bool _hasScheduleDate(ClientJobDetails j) {
+  if (j.jobStartDate != null && j.jobStartDate!.trim().isNotEmpty) return true;
+  if (j.date != null && j.date!.trim().isNotEmpty) return true;
+  return false;
+}
+
+String _scheduleDateText(ClientJobDetails j) {
+  final raw = (j.jobStartDate != null && j.jobStartDate!.trim().isNotEmpty) ? j.jobStartDate! : (j.date ?? '');
+  try {
+    return CcsDateUtils.fullDate(DateTime.parse(raw));
+  } catch (_) {
+    return raw;
   }
 }

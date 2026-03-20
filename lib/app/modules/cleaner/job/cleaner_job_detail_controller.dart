@@ -14,6 +14,8 @@ class CleanerJobDetailController extends GetxController {
   final CleanerRepository _cleanerRepository = CleanerRepository();
 
   final job = Rx<StaffJobDetails?>(null);
+  final isFetching = false.obs;
+  final fetchError = RxnString();
 
   /// True when cleaner can tap "Start job" (e.g. Scheduled, Accepted).
   /// //Approved
@@ -283,22 +285,30 @@ class CleanerJobDetailController extends GetxController {
     Notifier.info('Review (coming soon)');
   }
 
-  Future<void> fetchJobDetails({bool isLoaderShown = true}) async {
+  Future<void> fetchJobDetails({bool isLoaderShown = false}) async {
     if (jobId == null) return;
+    isFetching.value = true;
+    fetchError.value = null;
     if (isLoaderShown) Loader.show();
     try {
       final result = await _cleanerRepository.getCleanerJobDetails(jobId!.toInt());
       result.handle(
+        showAlert: false,
         success: (response) {
-          Loader.hide();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            final raw = response.data;
-            job.value = raw;
-          });
+          final raw = response.data;
+          job.value = raw;
+          fetchError.value = null;
+          if (raw == null) {
+            fetchError.value = 'Job not found';
+          }
+        },
+        onError: (e) {
+          fetchError.value = e.message;
         },
       );
     } finally {
-      Loader.hide();
+      isFetching.value = false;
+      if (isLoaderShown) Loader.hide();
     }
   }
 }

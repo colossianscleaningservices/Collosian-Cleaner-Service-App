@@ -12,6 +12,8 @@ class ClientJobDetailController extends GetxController {
   final ClientRepository _clientRepository = ClientRepository();
 
   final job = Rx<ClientJobDetails?>(null);
+  final isFetching = false.obs;
+  final fetchError = RxnString();
 
   num? jobId;
   var from = '';
@@ -49,20 +51,30 @@ class ClientJobDetailController extends GetxController {
     super.onReady();
   }
 
-  Future<void> fetchJobDetails({bool isLoaderShown = true}) async {
+  Future<void> fetchJobDetails({bool isLoaderShown = false}) async {
     if (jobId == null) return;
+    isFetching.value = true;
+    fetchError.value = null;
     if (isLoaderShown) Loader.show();
     try {
       final result = await _clientRepository.getJobDetails(jobId!);
       result.handle(
+        showAlert: false,
         success: (response) {
           final raw = response.data;
           job.value = raw;
-
-          cleanerHeading.value = 'Cleaners(${raw?.jobCleaners?.length.toString()}/${raw?.numberOfCleaners.toString() ?? '0'})';
+          fetchError.value = null;
+          if (raw != null) {
+            cleanerHeading.value =
+                'Cleaners(${raw.jobCleaners?.length.toString()}/${raw.numberOfCleaners.toString()})';
+          }
+        },
+        onError: (NetworkException e) {
+          fetchError.value = e.message;
         },
       );
     } finally {
+      isFetching.value = false;
       if (isLoaderShown) Loader.hide();
     }
   }
@@ -183,10 +195,6 @@ class ClientJobDetailController extends GetxController {
   /// Navigates to the schedule-job page for a normal (one-off) job.
   void onScheduleJob() {
     Get.toNamed(Routes.CLIENT_SCHEDULE_JOB, arguments: job.value);
-  }
-
-  static String _formatTime(TimeOfDay t) {
-    return '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
   }
 
   Future<void> scheduleJob(ScheduleJobRequest request) async {
