@@ -35,7 +35,7 @@ print(controller.job?.cleanerJobStatus);
                       Obx(() {
                         return CommonTextField(
                           controller: controller.dateDisplayController,
-                          label: 'Job ${controller.job?.cleanerJobStatus?.toLowerCase() == 'In process' ? "Start" : "End"} Date',
+                          label: controller. dateLabel,
                           hint: '-- / -- / ----',
                           isReadOnly: true,
                           onTap: () => _pickDate(context, controller),

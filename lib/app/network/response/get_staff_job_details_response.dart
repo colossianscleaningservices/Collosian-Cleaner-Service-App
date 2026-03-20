@@ -105,7 +105,7 @@ class StaffJobDetails {
     additionalData = json['additional_data'];
     notified = json['notified'];
     scheduleId = json['schedule_id'];
-    cleanerJobStatus = json['job_status'];
+    cleanerJobStatus = json['cleaner_job_status'];
     jobStartDate = json['job_start_date'];
     jobEndDate = json['job_end_date'];
     jobType = json['job_type'];
@@ -178,7 +178,7 @@ class StaffJobDetails {
     map['before'] = before;
     map['after'] = after;
     map['status'] = status;
-    map['job_status'] = cleanerJobStatus;
+    map['cleaner_job_status'] = cleanerJobStatus;
     if (jobCleaners != null) {
       map['job_cleaners'] = jobCleaners?.map((v) => v.toJson()).toList();
     }

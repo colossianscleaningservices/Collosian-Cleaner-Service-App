@@ -28,7 +28,6 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
       if (j?.status == Constants.jobFinished) {
         status = j?.status ?? status;
       }
-
       return AppScaffold(
         appBar: Header(
           title: j?.cleaningType?.name ?? (loading ? '' : 'Job details'),
@@ -53,7 +52,7 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                     j: j,
                     loading: loading,
                     err: err,
-                    cleanerStatus: cleanerStatus,
+                    cleanerStatus: status,
                     cleaner: cleaner,
                   ),
                 ),
@@ -384,7 +383,7 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
             ],
           ),
         ],
-        if (cleanerStatus?.toLowerCase() == 'completed') ...[
+        if (cleanerStatus?.toLowerCase() == 'completed' || cleanerStatus?.toLowerCase() == Constants.jobFinished.toLowerCase()) ...[
           const SizedBox(height: 12),
           if (cleaner?.checkInDate != null)
             LabelValueRow(
