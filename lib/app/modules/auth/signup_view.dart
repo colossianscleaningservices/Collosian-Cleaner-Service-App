@@ -156,7 +156,7 @@ class SignupView extends GetView<AuthController> {
             label: 'Create account',
             onPressed: () {
               if (controller.signupFormKey.currentState?.validate() ?? false) {
-                controller.signup();
+                controller.sendOTP(controller.signupEmailCtrl.text);
               }
             },
           ),
