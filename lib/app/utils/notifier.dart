@@ -44,6 +44,7 @@ class Notifier {
     void Function()? onPrimaryPressed,
     void Function()? onSecondaryPressed,
     bool top = false,
+        bool isSheetAutoClose = true
   }) {
 
     final scheme = context.colorScheme;
@@ -140,7 +141,7 @@ class Notifier {
                         bgColor: fg,
                         onPressed: onPrimaryPressed != null
                             ? () {
-                                closeSheet();
+                              if(isSheetAutoClose)  closeSheet();
                                 onPrimaryPressed.call();
                               }
                             : () => closeSheet(),

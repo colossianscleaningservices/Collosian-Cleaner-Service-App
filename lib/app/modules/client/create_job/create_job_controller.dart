@@ -244,7 +244,7 @@ class CreateJobController extends GetxController {
   Future<void> _loadProperties() async {
     isLoading.value = true;
     try {
-      final result = await _clientRepository.listProperties();
+      final result = await _clientRepository.listProperties(withPagination: false);
       result.handle(
         success: (response) {
           final raw = response.data;

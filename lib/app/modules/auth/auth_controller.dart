@@ -492,7 +492,6 @@ class AuthController extends GetxController {
   }
 
   void openOtpSheet() {
-
     codeCtrl.text = '';
 
     Notifier.openSheet(
@@ -513,6 +512,7 @@ class AuthController extends GetxController {
       showPrimaryButton: true,
       showSecondaryButton: false,
       primaryButtonLabel: 'Verify OTP',
+      isSheetAutoClose: false,
       onPrimaryPressed: () => {verifyOTPCode(Get.context!, signupEmailCtrl.text, codeCtrl.text)},
     );
   }
@@ -564,6 +564,7 @@ class AuthController extends GetxController {
 
   Future<void> verifyOTPCode(BuildContext context, String email, String otp) async {
     if (otp.length != 6 || !RegExp(r'^\d{6}$').hasMatch(otp)) {
+      Notifier.error('Please enter 6 digit OTP');
       return;
     }
     try {
@@ -572,6 +573,7 @@ class AuthController extends GetxController {
       result.handle(
         success: (_) {
           Loader.hide();
+          Get.back();
           // Defer sheet to next frame so Loader.hide() from finally can close the loader first
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (Get.context == null) return;
@@ -582,11 +584,12 @@ class AuthController extends GetxController {
       );
     } catch (e) {
       Loader.hide();
-      final errorMessage = e.toString();
     }
   }
 
   Future<void> sendOTP(String email) async {
+    (Get.context as BuildContext).hideKeyboard();
+
     Loader.show();
     try {
       final result = await _authRepository.sendOtp(email: email);
@@ -602,7 +605,7 @@ class AuthController extends GetxController {
         contextTag: 'send_OTP',
       );
     } catch (e) {
-      await Notifier.apiError(e, contextTag: 'reset_password');
+      await Notifier.apiError(e, contextTag: 'send_OTP');
     } finally {
       Loader.hide();
     }

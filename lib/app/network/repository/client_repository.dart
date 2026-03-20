@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/app/network/response/get_client_calender_response.dart';
 import 'package:ccs_app/app/network/response/get_client_dash_response.dart';
@@ -78,11 +80,13 @@ class ClientRepository extends BaseRepository {
   Future<NetworkResult<PropertyListResponse>> listProperties({
     int? perPage,
     String? search,
+    bool? withPagination = true,
     int page = 1,
   }) async {
     final query = <String, dynamic>{};
     if (perPage != null) query['per_page'] = perPage;
     if (search != null && search.isNotEmpty) query['search'] = search;
+    query['with_pagination'] = withPagination;
     query['page'] = page;
     return get<PropertyListResponse>(
       endpoint: Endpoint.clientProperties,
