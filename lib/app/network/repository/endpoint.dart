@@ -13,6 +13,8 @@ class Endpoint {
   static const String authForgotPassword = '${root}auth/forgot-password';
   static const String authResetPassword = '${root}auth/reset-password';
   static const String authChangePassword = '${root}auth/change-password';
+  static const String sendOtp = '${root}auth/otp/send';
+  static const String verifyOtp = '${root}auth/otp/verify';
 
   // ─── Profile (shared) ─────────────────────────────────────────────────────
   static const String profile = '${root}shared/profile';

@@ -196,4 +196,17 @@ class AuthRepository extends BaseRepository {
       data: request,
     );
   }
+
+  /// Send verification code.
+  Future<NetworkResult<BaseResponse>> sendOtp({required String email}) async {
+    return post<BaseResponse>(
+        endpoint: Endpoint.sendOtp, fromJson: (json) => BaseResponse.fromJson(json), data: <String, String>{'email': email});
+  }
+
+  /// Send verification code.
+  Future<NetworkResult<BaseResponse>> verifyOtp({required String email, required String otp}) async {
+    return post<BaseResponse>(
+        endpoint: Endpoint.verifyOtp, fromJson: (json) => BaseResponse.fromJson(json), data: <String, String>{'email': email,'otp': otp});
+  }
+
 }

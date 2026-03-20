@@ -193,7 +193,7 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
 
   Future<void> _pickDate(BuildContext context, CleanerPayoutComputationController ctrl, {required bool isFrom}) async {
     final initial = isFrom ? ctrl.scheduleValidFrom.value : ctrl.scheduleValidTo.value;
-    final d = await showDatePicker(context: context, initialDate: initial, firstDate: DateTime(2020, 1, 1), lastDate: DateTime(2030, 12, 31));
+    final d = await showDatePicker(context: context, initialDate:  DateTime.now(), firstDate: DateTime(2020, 1, 1), lastDate: DateTime(2030, 12, 31));
     if (d == null || !context.mounted) return;
     if (isFrom) {
       ctrl.setScheduleValidFrom(d);

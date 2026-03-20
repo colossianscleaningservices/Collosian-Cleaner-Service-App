@@ -7,6 +7,7 @@ import 'package:ccs_app/app/network/response/user_response.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
+import 'package:pinput/pinput.dart';
 import 'package:step_progress/step_progress.dart';
 
 class AuthController extends GetxController {
@@ -60,6 +61,8 @@ class AuthController extends GetxController {
   final selectedAgreementAnswers = <int, Map<int, String>>{}.obs;
   List<num?> answersId = [];
   var from = '';
+
+  final TextEditingController codeCtrl = TextEditingController();
 
   // ─── Lifecycle ───────────────────────────────────────────────────────────
 
@@ -485,6 +488,123 @@ class AuthController extends GetxController {
 
     if (data.imageUrl != null && data.imageUrl?.isNotEmpty == true) {
       prefs.putData(Prefs.image, data.imageUrl ?? "");
+    }
+  }
+
+  void openOtpSheet() {
+
+    codeCtrl.text = '';
+
+    Notifier.openSheet(
+      Get.context!,
+      title: 'Verify OTP',
+      type: SheetType.info,
+      message: 'Enter the OTP that is sent your Email',
+      isDismissable: false,
+      body: Column(
+        spacing: 8,
+        children: [
+          CommonText.bold('Verify OTP!', size: 24, color: Get.context?.colorScheme.primary, fontWeight: FontWeight.w900).marginOnly(bottom: 8),
+          CommonText.regular('Enter the verification code sent to your email address.',
+              textAlign: TextAlign.center, size: 18, color: Get.context?.colorScheme.onSurface.withValues(alpha: 0.7)),
+          _pinCode(Get.context!)
+        ],
+      ).marginSymmetric(vertical: 8),
+      showPrimaryButton: true,
+      showSecondaryButton: false,
+      primaryButtonLabel: 'Verify OTP',
+      onPrimaryPressed: () => {verifyOTPCode(Get.context!, signupEmailCtrl.text, codeCtrl.text)},
+    );
+  }
+
+  Widget _pinCode(BuildContext context) {
+    final defaultPinTheme = PinTheme(
+      width: 48,
+      height: 48,
+      textStyle: context.textTheme.titleMedium?.copyWith(fontSize: 18, color: context.colorScheme.onPrimary),
+      decoration: BoxDecoration(
+        border: Border.all(color: context.colorScheme.outline),
+        borderRadius: BorderRadius.circular(8),
+        color: context.colorScheme.surface,
+      ),
+    );
+
+    final focusedPinTheme = defaultPinTheme.copyWith(
+      textStyle: context.textTheme.titleMedium?.copyWith(fontSize: 18, color: context.colorScheme.tertiary),
+      decoration: BoxDecoration(
+        border: Border.all(color: context.colorScheme.secondary),
+        borderRadius: BorderRadius.circular(8),
+        color: context.colorScheme.surface,
+      ),
+    );
+
+    final submittedPinTheme = defaultPinTheme.copyWith(
+      textStyle: context.textTheme.titleMedium?.copyWith(fontSize: 18, color: context.colorScheme.secondary),
+      decoration: defaultPinTheme.decoration?.copyWith(
+        border: Border.all(color: context.colorScheme.secondary),
+        color: context.colorScheme.secondaryContainer,
+      ),
+    );
+
+    return Center(
+      child: Pinput(
+        controller: codeCtrl,
+        onChanged: (code) => codeCtrl.text = code,
+        onCompleted: (pin) {
+          codeCtrl.text = pin;
+          verifyOTPCode(Get.context!, signupEmailCtrl.text, pin);
+        },
+        submittedPinTheme: submittedPinTheme,
+        defaultPinTheme: defaultPinTheme,
+        focusedPinTheme: focusedPinTheme,
+        length: 6,
+      ),
+    );
+  }
+
+  Future<void> verifyOTPCode(BuildContext context, String email, String otp) async {
+    if (otp.length != 6 || !RegExp(r'^\d{6}$').hasMatch(otp)) {
+      return;
+    }
+    try {
+      Loader.show();
+      final result = await _authRepository.verifyOtp(email: email, otp: otp);
+      result.handle(
+        success: (_) {
+          Loader.hide();
+          // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (Get.context == null) return;
+            signup();
+          });
+        },
+        contextTag: 'send_OTP',
+      );
+    } catch (e) {
+      Loader.hide();
+      final errorMessage = e.toString();
+    }
+  }
+
+  Future<void> sendOTP(String email) async {
+    Loader.show();
+    try {
+      final result = await _authRepository.sendOtp(email: email);
+      result.handle(
+        success: (_) {
+          Loader.hide();
+          // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (Get.context == null) return;
+            openOtpSheet();
+          });
+        },
+        contextTag: 'send_OTP',
+      );
+    } catch (e) {
+      await Notifier.apiError(e, contextTag: 'reset_password');
+    } finally {
+      Loader.hide();
     }
   }
 }
