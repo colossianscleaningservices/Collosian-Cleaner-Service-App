@@ -100,10 +100,20 @@ class ChatView extends GetView<ChatController> {
                       isSelectionMode: isSelectionMode,
                       isSelected: controller.isSelected(msg),
                       isGroupChat: isGroupChat,
-                      onLongPress: () => _onMessageLongPress(context, msg),
+                      onLongPress: ()  {
+                        _onMessageLongPress(context, msg);
+                        controller.messages.refresh();
+                      },
                       onTap: () => _onMessageTap(msg),
                       onSwipeToReply: () => controller.setReplyTo(msg),
-                      onImageTap: () => _showFullscreenImage(context, msg.imageUrl),
+                      onImageTap: () {
+                        if (msg.imageUrl != null) {
+                          log('tag', 'Image URL : ${msg.imageUrl}');
+                          _showFullscreenImage(context, msg.imageUrl);
+                        } else {
+                          Notifier.error('Something went wrong');
+                        }
+                      },
                     );
                   },
                 );
@@ -351,7 +361,7 @@ class _MessageBubble extends StatelessWidget {
               ),
               if (isSelectionMode && isOut)
                 Positioned(
-                  left: -4,
+                  left: -24,
                   top: 0,
                   bottom: 0,
                   child: Center(
@@ -599,8 +609,12 @@ class _ChatComposer extends StatelessWidget {
                   onKeyEvent: (node, event) {
                     if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.enter && !HardwareKeyboard.instance.isShiftPressed) {
                       if (controller.canSend.value) {
-                        controller.sendMessage();
-                        return KeyEventResult.handled;
+                        if (controller.isNetworkConnected.value) {
+                          controller.sendMessage();
+                          return KeyEventResult.handled;
+                        } else {
+                          Notifier.error('Please check your internet connection and try again.');
+                        }
                       }
                     }
                     return KeyEventResult.ignored;
@@ -618,7 +632,15 @@ class _ChatComposer extends StatelessWidget {
               ),
               Obx(
                 () => IconButton(
-                  onPressed: controller.canSend.value ? controller.sendMessage : null,
+                  onPressed: () {
+                    if (controller.canSend.value) {
+                      if (controller.isNetworkConnected.value) {
+                        controller.sendMessage();
+                      } else {
+                        Notifier.error('Please check your internet connection and try again.');
+                      }
+                    }
+                  },
                   style: filledIconButtonStyle(context),
                   icon: Icon(Icons.send_rounded, size: 22, color: controller.canSend.value ? scheme.primary : scheme.onSurfaceVariant.withValues(alpha: 0.5)),
                 ),

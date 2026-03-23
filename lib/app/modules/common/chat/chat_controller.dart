@@ -1,15 +1,21 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:ccs_app/export.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:intl/intl.dart';
+import 'package:dio/dio.dart' as dio;
 
 import '../../../model/chat_message.dart';
+import '../../../network/repository/common_repository.dart';
 import '../../../services/pref.dart';
 import '../../../utils/fire_ref.dart';
 
 class ChatController extends GetxController {
   ChatController();
+
+  final CommonRepository _commonRepository = CommonRepository();
 
   final textController = TextEditingController();
   final scrollController = ScrollController();
@@ -24,6 +30,8 @@ class ChatController extends GetxController {
   final isEmojiPickerVisible = false.obs;
   final isLoading = false.obs;
   final canSend = false.obs;
+  var isNetworkConnected = true.obs;
+  RxList<String> imageUrl = <String>[].obs;
 
   late final ChatMode chatMode;
   late final String chatKey;
@@ -43,6 +51,12 @@ class ChatController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    Connectivity().onConnectivityChanged.listen((results) {
+      _updateConnectionStatus(results);
+    });
+
+    _checkConnectivity();
 
     final prefsId = Prefs().userId;
     final prefsName = Prefs().userFullName;
@@ -205,7 +219,49 @@ class ChatController extends GetxController {
     });
   }
 
-  void sendMessage() {
+  Future<void> uploadImages() async {
+    Get.context!.hideKeyboard();
+
+    if (pendingImagePaths.isNotEmpty) {
+      Loader.show();
+
+      List<dio.MultipartFile> files = [];
+
+      for (var path in pendingImagePaths) {
+        var value = await dio.MultipartFile.fromFile(
+          path,
+          filename: "image_${DateTime.now()}.jpg",
+        );
+
+        files.add(value);
+      }
+
+      final data = <String, dynamic>{};
+      data["files[]"] = files;
+      data["mediaable_type"] = 'App\\Models\\chat';
+      data["mediaable_id"] = '1';
+      data["media_type"] = 'chat';
+
+      log(runtimeType.toString(), 'Media Upload Data => $data');
+
+      var result = await _commonRepository.mediaUpload(data);
+      result.handle(
+        success: (value) {
+          Loader.hide();
+
+          final data = value.data;
+
+          imageUrl.assignAll(data?.fileUrl as Iterable<String>);
+        },
+        onError: (_) {
+          Loader.hide();
+        },
+        contextTag: 'media-upload',
+      );
+    }
+  }
+
+  Future<void> sendMessage() async {
     final text = textController.text.trim();
     if (text.isEmpty && pendingImagePaths.isEmpty) return;
 
@@ -213,65 +269,97 @@ class ChatController extends GetxController {
     var userName = Prefs().userFullName;
     if (userId.isEmpty) userId = 'user_${DateTime.now().millisecondsSinceEpoch}';
     if (userName.isEmpty) userName = 'Me';
+
     final userRole = Prefs().userRoleString;
     final time = DateTime.now().millisecondsSinceEpoch.toString();
-
     final reply = replyTo.value;
-    final msgType = (pendingImagePaths.isNotEmpty && text.isEmpty) ? ChatConstants.messageTypeImage : ChatConstants.messageTypeText;
 
-    final message = ChatMessage(
-      id: '',
-      text: text.isEmpty ? '(Image)' : text,
-      type: msgType,
-      timeStamp: time,
-      senderId: userId,
-      senderName: userName,
-      senderRole: userRole,
-      imageUrl: pendingImagePaths.isNotEmpty ? pendingImagePaths.first : null,
-      replyToId: reply?.id,
-      replyToPreview: reply?.text,
-    );
+    final isImageMsg = pendingImagePaths.isNotEmpty && text.isEmpty;
 
-    final pushKey = _messagesRef.push().key;
-    if (pushKey == null) {
-      _showSendError();
-      return;
-    }
-    final messageKey = pushKey;
+    List<String> urls = [];
 
-    void sendRealMessage() {
-      final json = message.toJson();
-      _messagesRef.child(messageKey).set(json).then((_) {
-        _updateChatList(message);
-        textController.clear();
-        pendingImagePaths.clear();
-        clearReplyTo();
-        _updateCanSend();
-        _scrollToBottom();
-      }).catchError((_) {
+    // ✅ Upload images if needed
+    if (isImageMsg) {
+      try {
+        await uploadImages();
+        urls = imageUrl; // assuming this is List<String>
+        if (urls.isEmpty) {
+          _showSendError();
+          return;
+        }
+      } catch (_) {
         _showSendError();
-      });
+        return;
+      }
     }
 
-    if (_shouldInsertDateMessage()) {
-      final dateMsg = ChatMessage(
+    // ✅ Insert date message once (not inside loop)
+    Future<void> insertDateIfNeeded() async {
+      if (_shouldInsertDateMessage()) {
+        final dateKey = _messagesRef.push().key;
+        if (dateKey != null) {
+          final dateMsg = ChatMessage(
+            id: '',
+            text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+            type: ChatConstants.messageTypeDate,
+            timeStamp: time,
+            senderId: '',
+            senderName: '',
+            senderRole: '',
+          );
+          await _messagesRef.child(dateKey).set(dateMsg.toJson());
+        }
+      }
+    }
+
+    await insertDateIfNeeded();
+
+    // ✅ Helper to send one message
+    Future<void> sendSingleMessage(String? url) async {
+      final message = ChatMessage(
         id: '',
-        text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
-        type: ChatConstants.messageTypeDate,
+        text: text.isEmpty ? '(Image)' : text,
+        type: isImageMsg ? ChatConstants.messageTypeImage : ChatConstants.messageTypeText,
         timeStamp: time,
-        senderId: '',
-        senderName: '',
-        senderRole: '',
+        senderId: userId,
+        senderName: userName,
+        senderRole: userRole,
+        imageUrl: url,
+        replyToId: reply?.id,
+        replyToPreview: reply?.text,
       );
-      final dateKey = _messagesRef.push().key;
-      if (dateKey != null) {
-        _messagesRef.child(dateKey).set(dateMsg.toJson()).then((_) => sendRealMessage()).catchError((_) => sendRealMessage());
-      } else {
-        sendRealMessage();
+
+      final key = _messagesRef.push().key;
+      if (key == null) {
+        _showSendError();
+        return;
+      }
+
+      try {
+        await _messagesRef.child(key).set(message.toJson());
+        _updateChatList(message);
+      } catch (_) {
+        _showSendError();
+      }
+    }
+
+    // ✅ Send messages
+    if (isImageMsg) {
+      for (final url in urls) {
+        await sendSingleMessage(url);
       }
     } else {
-      sendRealMessage();
+      await sendSingleMessage(
+        imageUrl.value.isNotEmpty ? imageUrl.value.first : null,
+      );
     }
+
+    // ✅ Clear UI ONCE (not inside loop)
+    textController.clear();
+    pendingImagePaths.clear();
+    clearReplyTo();
+    _updateCanSend();
+    _scrollToBottom();
   }
 
   bool _shouldInsertDateMessage() {
@@ -387,4 +475,15 @@ class ChatController extends GetxController {
   }
 
   void hideEmojiPicker() => isEmojiPickerVisible.value = false;
+
+  void _checkConnectivity() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    _updateConnectionStatus(connectivityResult);
+  }
+
+  void _updateConnectionStatus(List<ConnectivityResult> results) {
+    isNetworkConnected.value = results.any(
+      (result) => result == ConnectivityResult.mobile || result == ConnectivityResult.wifi || result == ConnectivityResult.ethernet,
+    );
+  }
 }
