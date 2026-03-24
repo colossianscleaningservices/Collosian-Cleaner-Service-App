@@ -141,11 +141,7 @@ Widget _bodyForState({
     if (streetCity.isNotEmpty) streetCity,
     if (postcode != null && postcode.isNotEmpty) postcode,
   ].join(', ');
-  final typeLine = [p?.propertyType, p?.subType]
-      .whereType<String>()
-      .map((s) => s.trim())
-      .where((s) => s.isNotEmpty)
-      .join(' · ');
+  final typeLine = [p?.propertyType, p?.subType].whereType<String>().map((s) => s.trim()).where((s) => s.isNotEmpty).join(' · ');
   final hasCleaners = j.cleaners != null && j.cleaners!.isNotEmpty;
 
   return SingleChildScrollView(
@@ -207,8 +203,7 @@ Widget _bodyForState({
             title: 'Additional notes',
             scheme: scheme,
             child: AppCard(
-              child: CommonText.regular(j.additionalDetails!.trim(), size: 14, color: scheme.onSurfaceVariant)
-                  .paddingAll(UiConstants.defaultPadding),
+              child: CommonText.regular(j.additionalDetails!.trim(), size: 14, color: scheme.onSurfaceVariant).paddingAll(UiConstants.defaultPadding),
             ),
           ),
           const SizedBox(height: 20),
@@ -259,38 +254,37 @@ Widget _bodyForState({
             children: [
               Divider(height: 32, thickness: 1, color: scheme.outline.withValues(alpha: 0.12)),
               j?.jobCleaners?.isEmpty == true
-                      ? SizedBox.shrink()
-                      : AppButton(
-                          label: 'Chat',
-                          type: ButtonType.tonal,
-                          onPressed: hasCleaners
-                    ?() {
-                            final job = c.job.value;
-                            final chatJob = ChatJob(
-                              id: job?.id.toString() ?? '',
-                              jobType: job?.jobType,
-                              propertyOneLine: job?.property?.propertyName,
-                              date: DateTime.parse(job?.date ?? '').toIso8601String(),
-                              clientName: '',
-                            );
-                            final participants = <String, ChatParticipant>{};
-
-                            final userId = Prefs().userId;
-                            final userName = Prefs().userFullName;
-                            participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyClient);
-
-                            for (final cleaner in job?.cleaners ?? []) {
-                              participants[cleaner.id.toString()] =
-                                  ChatParticipant(id: cleaner.id.toString(), name: cleaner.name, role: RoleConstants.roleKeyCleaner);
+                  ? SizedBox.shrink()
+                  : AppButton(
+                      label: 'Chat',
+                      type: ButtonType.tonal,
+                      onPressed: hasCleaners
+                          ? () {
+                              final job = c.job.value;
+                              final chatJob = ChatJob(
+                                id: job?.id.toString() ?? '',
+                                jobType: job?.jobType,
+                                propertyOneLine: job?.property?.propertyName,
+                                date: DateTime.parse(job?.date ?? '').toIso8601String(),
+                                clientName: '',
+                              );
+                              final participants = <String, ChatParticipant>{};
+                              final userId = Prefs().userId;
+                              final userName = Prefs().userFullName;
+                              participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyClient);
+                              for (final cleaner in job?.cleaners ?? []) {
+                                participants[cleaner.id.toString()] =
+                                    ChatParticipant(id: cleaner.id.toString(), name: cleaner.name, role: RoleConstants.roleKeyCleaner);
+                              }
+                              Get.toNamed(Routes.JOB_CHAT, arguments: {
+                                'type': ChatConstants.typeJob,
+                                'jobId': job?.id.toString(),
+                                'job': chatJob,
+                                'participants': participants,
+                              });
                             }
-                            Get.toNamed(Routes.JOB_CHAT, arguments: {
-                              'type': ChatConstants.typeJob,
-                              'jobId': job?.id.toString(),
-                              'job': chatJob,
-                              'participants': participants,
-                            });
-                          }: null,
-              ),
+                          : null,
+                    ),
               if (!hasCleaners)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -336,8 +330,7 @@ class _StatusScheduleSection extends StatelessWidget {
 
     String? timeRange;
     if (j.startTime != null && j.endTime != null) {
-      timeRange =
-          '${CcsDateTimeX.convertTime(j.startTime ?? '')}–${CcsDateTimeX.convertTime(j.endTime ?? '')}';
+      timeRange = '${CcsDateTimeX.convertTime(j.startTime ?? '')}–${CcsDateTimeX.convertTime(j.endTime ?? '')}';
     }
     String? endsFormatted;
     if (j.jobEndDate != null && j.jobEndDate!.trim().isNotEmpty) {
@@ -365,11 +358,12 @@ class _StatusScheduleSection extends StatelessWidget {
               backgroundColor: getBgColor(j.status ?? '', scheme),
               foregroundColor: getFgColor(j.status ?? '', scheme),
             ),
-            InfoChip(
-              label: scheduled ? 'Scheduled' : 'Not scheduled',
-              backgroundColor: scheduled ? scheme.primaryContainer : scheme.surfaceContainerHighest,
-              foregroundColor: scheduled ? scheme.primary : scheme.onSurfaceVariant,
-            ),
+            if (j.status != 'Finished' && j.status != 'Cancelled')
+              InfoChip(
+                label: scheduled ? 'Scheduled' : 'Not scheduled',
+                backgroundColor: scheduled ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+                foregroundColor: scheduled ? scheme.primary : scheme.onSurfaceVariant,
+              ),
             if (j.scheduler?.frequency != null && j.scheduler!.frequency!.trim().isNotEmpty)
               InfoChip(
                 label: j.scheduler!.frequency!.capitalizeFirst ?? '',
@@ -382,7 +376,7 @@ class _StatusScheduleSection extends StatelessWidget {
           const SizedBox(height: 10),
           CommonText.regular(scheduleSummary, size: 14, color: scheme.onSurface),
         ],
-        if (j.jobSchedule == false && j.status != 'Cancelled') ...[
+        if (j.jobSchedule == false && j.status != 'Cancelled' && j.status != 'Finished') ...[
           const SizedBox(height: 12),
           AppButton(
             label: 'Schedule',
@@ -393,7 +387,7 @@ class _StatusScheduleSection extends StatelessWidget {
             btnHorizontalPadding: 12,
           ),
         ],
-        if (j.jobSchedule == true) ...[
+        if (j.jobSchedule == true && j.status != 'Cancelled') ...[
           const SizedBox(height: 12),
           AppButton(
             label: 'Cancel job',
