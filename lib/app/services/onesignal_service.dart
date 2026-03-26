@@ -85,9 +85,9 @@ class OneSignalService {
     Map<String, dynamic>? data,
   }) {
     try {
+      final jobId = data?['related_id'];
       // CCS-specific: e.g. job updates, general alerts. Extend as backend adds types.
       if ((type == Constants.jobCreated || type == Constants.jobRequestAccepted || type == Constants.cleanerAssigned) && data != null) {
-        final jobId = data['related_id'];
         if (jobId != null) {
           final id = jobId is int ? jobId : (jobId is String ? int.tryParse(jobId) : null);
           if (id != null) {
@@ -100,9 +100,15 @@ class OneSignalService {
             }
           }
         }
+      }else if(type == 'chat'){
+        Get.toNamed(Routes.JOB_CHAT, arguments: {
+          'type': ChatConstants.typeNotification,
+          'jobId': jobId,
+        });
+      }else{
+        _navigateToDefaultScreen();
       }
 
-      _navigateToDefaultScreen();
     } catch (e) {
       log(_tag, 'Error routing notification: $e');
       _navigateToDefaultScreen();
@@ -112,7 +118,16 @@ class OneSignalService {
   static void _navigateToDefaultScreen() {
     _debounceNavigation(() {
       if (_isUserLoggedIn()) {
-        Get.offAllNamed(Routes.CLIENT_DASHBOARD);
+        var token = Prefs().token;
+        if (token.isNotEmpty) {
+          final roleIdStr = Prefs().getData(Prefs.roleId);
+          final roleId = int.tryParse(roleIdStr);
+          if (RoleConstants.isClient(roleId)) {
+            Get.offAllNamed(Routes.CLIENT_DASHBOARD);
+          } else {
+            Get.offAllNamed(Routes.CLEANER_DASHBOARD);
+          }
+        }
       } else {
         Get.offAllNamed(Routes.AUTH);
       }

@@ -4,6 +4,7 @@ class ChatConstants {
   ChatConstants._();
 
   static const String typeJob = 'job';
+  static const String typeNotification = 'notification';
   static const String typeSupport = 'support';
 
   static const String messageTypeText = 'text';

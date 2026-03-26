@@ -102,6 +102,7 @@ class Endpoint {
   static const String helpFaq = '${root}shared/help/faq';
   static const String notifications = '${root}shared/notifications';
   static const String readAllNotifications = '${root}shared/notifications/read-all';
+  static const String sendNotification = '${root}shared/send-notification';
   static const String trainingResources = '${root}shared/training-resources';
 
   static String seenTrainingResources(int id) => '$trainingResources/$id/seen';

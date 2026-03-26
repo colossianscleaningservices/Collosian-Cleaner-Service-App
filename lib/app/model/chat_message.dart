@@ -104,18 +104,21 @@ class ChatParticipant {
     required this.id,
     required this.name,
     required this.role,
+    this.isActive ,
     this.image,
   });
 
   final String id;
   final String name;
   final String role;
+  final bool? isActive;
   final String? image;
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'role': role,
+        'isActive': isActive,
         if (image != null) 'image': image,
       };
 
@@ -124,7 +127,20 @@ class ChatParticipant {
       id: id,
       name: (json['name'] ?? '').toString(),
       role: (json['role'] ?? '').toString(),
+      isActive: (json['isActive'] ?? false),
       image: json['image']?.toString(),
+    );
+  }
+
+  factory ChatParticipant.fromSnapshot(DataSnapshot snapshot) {
+    final json = snapshot.value as Map<dynamic, dynamic>?;
+
+    return ChatParticipant(
+      id: snapshot.key ?? '',
+      name: (json?['name'] ?? '').toString(),
+      role: (json?['role'] ?? '').toString(),
+      isActive: json?['isActive']?? false ,
+      image: json?['image']?.toString(),
     );
   }
 }
@@ -155,6 +171,17 @@ class ChatJob {
   factory ChatJob.fromJson(dynamic json) {
     return ChatJob(
       id: (json['id'] ?? '').toString(),
+      jobType: json['jobType']?.toString(),
+      propertyOneLine: json['propertyOneLine']?.toString(),
+      date: json['date']?.toString(),
+      clientName: json['clientName']?.toString(),
+    );
+  }
+
+  factory ChatJob.fromSnapshot(DataSnapshot snapshot) {
+    final json = snapshot.value as Map<dynamic, dynamic>? ?? {};
+    return ChatJob(
+      id: (json['id']??'').toString(),
       jobType: json['jobType']?.toString(),
       propertyOneLine: json['propertyOneLine']?.toString(),
       date: json['date']?.toString(),

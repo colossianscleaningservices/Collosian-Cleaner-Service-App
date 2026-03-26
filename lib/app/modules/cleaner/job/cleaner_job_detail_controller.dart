@@ -143,36 +143,37 @@ class CleanerJobDetailController extends GetxController {
   }
 
   void onContactClient() {
+    final currentJob = job.value;
+
     final chatJob = ChatJob(
-      id: job.value?.id.toString() ?? "",
-      jobType: job.value?.jobType,
-      propertyOneLine: job.value?.property?.propertyName,
-      date: DateTime.parse(job.value?.date ?? "").toIso8601String(),
-      clientName: job.value?.user?.name ?? "",
+      id: currentJob?.id.toString() ?? "",
+      jobType: currentJob?.jobType,
+      propertyOneLine: currentJob?.property?.propertyName,
+      date: DateTime.parse(currentJob?.date ?? "").toIso8601String(),
+      clientName: currentJob?.user?.name ?? "",
     );
     final participants = <String, ChatParticipant>{};
     // Client
-    if (job.value?.user?.id != null) {
-      participants[job.value?.user?.id.toString() ?? ""] = ChatParticipant(
-        id: job.value?.user?.id.toString() ?? "",
-        name: job.value?.user?.name ?? "",
+    if (currentJob?.user?.id != null) {
+      participants[currentJob?.user?.id.toString() ?? ""] = ChatParticipant(
+        id: currentJob?.user?.id.toString() ?? "",
+        name: currentJob?.user?.name ?? "",
         role: RoleConstants.roleKeyClient,
       );
     }
-    // Current user (cleaner)
+    /*// Current user (cleaner)
     final userId = Prefs().userId;
     final userName = Prefs().userFullName;
-    participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyCleaner);
+    participants[userId] = ChatParticipant(id: userId, name: userName, role: RoleConstants.roleKeyCleaner);*/
     // Other cleaners on the same job
-    /*for (final cleaner in job.cleaners) {
-      if (cleaner.id != userId) {
-        participants[cleaner.id] = ChatParticipant(
-          id: cleaner.id,
-          name: cleaner.name,
-          role: RoleConstants.roleKeyCleaner,
-        );
-      }
-    }*/
+
+    for (final cleaner in currentJob?.cleaners ?? []) {
+      participants[cleaner.id.toString()] = ChatParticipant(
+        id: cleaner.id.toString(),
+        name: cleaner.name,
+        role: RoleConstants.roleKeyCleaner,
+      );
+    }
     Get.toNamed(Routes.JOB_CHAT, arguments: {
       'type': ChatConstants.typeJob,
       'jobId': job.value?.id.toString(),
@@ -310,7 +311,7 @@ class CleanerJobDetailController extends GetxController {
     }
   }
 
-  void updateHomeJob(){
+  void updateHomeJob() {
     bool isControllerRegistered = Get.isRegistered<CleanerDashboardController>();
     if (isControllerRegistered) {
       CleanerDashboardController ctrl = Get.find();

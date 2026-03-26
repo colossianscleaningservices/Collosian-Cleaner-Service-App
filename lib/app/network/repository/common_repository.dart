@@ -131,4 +131,13 @@ class CommonRepository extends BaseRepository {
       fromJson: (json) => MediaUploadResponse.fromJson(json),
     );
   }
+
+  Future<NetworkResult<BaseResponse>> sendNotification(Map<String, dynamic> data) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.sendNotification,
+      data: FormData.fromMap(data),
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
 }

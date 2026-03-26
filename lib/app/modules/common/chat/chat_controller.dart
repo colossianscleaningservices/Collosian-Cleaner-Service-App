@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:ccs_app/export.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -47,9 +46,10 @@ class ChatController extends GetxController {
   bool _initialLoadDone = false;
   String _effectiveUserId = '';
   String _effectiveUserName = '';
+  String type = '';
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
 
     Connectivity().onConnectivityChanged.listen((results) {
@@ -58,6 +58,8 @@ class ChatController extends GetxController {
 
     _checkConnectivity();
 
+    // addAndUpdateUser(true);
+
     final prefsId = Prefs().userId;
     final prefsName = Prefs().userFullName;
     _effectiveUserId = prefsId.isNotEmpty ? prefsId : 'user_${DateTime.now().millisecondsSinceEpoch}';
@@ -65,12 +67,21 @@ class ChatController extends GetxController {
 
     final args = Get.arguments as Map<String, dynamic>? ?? {};
 
-    if (args['type'] == ChatConstants.typeSupport) {
+    type = args['type'];
+
+    if (type == ChatConstants.typeSupport) {
       chatMode = ChatMode.support;
       chatKey = _effectiveUserId;
       headerTitle.value = 'Support';
       headerSubtitle.value = 'Message admin';
       _initSupportChat();
+    } else if (type == ChatConstants.typeNotification) {
+      chatMode = ChatMode.job;
+      chatKey = (args['jobId'] ?? '').toString();
+      initChatFromFirebase();
+      headerTitle.value = chatJob?.jobType ?? 'Job Chat';
+      headerSubtitle.value = chatJob?.propertyOneLine ?? '';
+      _initJobChat();
     } else {
       chatMode = ChatMode.job;
       chatKey = (args['jobId'] ?? '').toString();
@@ -98,8 +109,23 @@ class ChatController extends GetxController {
     canSend.value = textController.text.trim().isNotEmpty || pendingImagePaths.isNotEmpty;
   }
 
+  void initChatFromFirebase() {
+    FireRef.jobChats.child(chatKey).once().then((value) {
+      if (value.snapshot.hasChild('job')) {
+        chatJob = ChatJob.fromSnapshot(value.snapshot.child('job'));
+      }
+      if (value.snapshot.hasChild('participants')) {
+        value.snapshot.child('participants').children.forEach((item) {
+          var member = ChatParticipant.fromSnapshot(item);
+          participants[member.id] = member;
+        });
+      }
+    });
+  }
+
   @override
   void onClose() {
+    updateStatus(false);
     _newMessageSub?.cancel();
     textController.dispose();
     scrollController.dispose();
@@ -114,7 +140,9 @@ class ChatController extends GetxController {
 
   DatabaseReference get _chatListRef => chatMode == ChatMode.job ? FireRef.jobChatList : FireRef.supportChatList;
 
-  void _initJobChat() {
+  DatabaseReference get _userListRef => FireRef.users;
+
+  Future _initJobChat() async {
     _ensureJobThread();
     _loadInitialMessages();
   }
@@ -124,7 +152,7 @@ class ChatController extends GetxController {
     _loadInitialMessages();
   }
 
-  void _ensureJobThread() {
+  Future _ensureJobThread() async {
     if (chatJob != null) {
       _chatRef.child(JOB_NODE).update(chatJob!.toJson()).catchError((_) {});
     }
@@ -132,8 +160,28 @@ class ChatController extends GetxController {
     final validParticipants = participants.entries.where((e) => e.key.isNotEmpty);
     if (validParticipants.isNotEmpty) {
       final map = Map.fromEntries(validParticipants.map((e) => MapEntry(e.key, e.value.toJson())));
-      _chatRef.child(PARTICIPANTS_NODE).update(map).catchError((_) {});
+
+      final ref = _chatRef.child(PARTICIPANTS_NODE);
+
+      final snapshot = await ref.get();
+      final existing = snapshot.value as Map? ?? {};
+
+      final hasChange = map.entries.any(
+        (e) => existing[e.key] != e.value,
+      );
+
+      if (hasChange) {
+        await ref.update(map);
+        updateStatus(true);
+      }
+
+      /* final map = Map.fromEntries(validParticipants.map((e) => MapEntry(e.key, e.value.toJson())));
+      _chatRef.child(PARTICIPANTS_NODE).update(map).then((onValue){
+        updateStatus(true);
+      }).catchError((_) {});*/
     }
+
+    print('Participant Node Updated:');
   }
 
   void _ensureCurrentUserInParticipants() {
@@ -278,6 +326,22 @@ class ChatController extends GetxController {
 
     List<String> urls = [];
 
+    if (type != ChatConstants.typeSupport) {
+      final inactiveUsers = await fetchInactiveUserList();
+
+      inactiveUsers.removeWhere((element) => element == _effectiveUserId.toInt());
+
+      /* List<int> filterInactiveUsers = [];
+
+      participants.keys.forEach((item) {
+        if (!inactiveUsers.contains(item.toInt())) {
+          filterInactiveUsers.add(item.toInt());
+        }
+      });*/
+
+      if (inactiveUsers.isNotEmpty) sendNotification(inactiveUsers, isImageMsg, text);
+    }
+
     // ✅ Upload images if needed
     if (isImageMsg) {
       try {
@@ -350,7 +414,7 @@ class ChatController extends GetxController {
       }
     } else {
       await sendSingleMessage(
-        imageUrl.value.isNotEmpty ? imageUrl.value.first : null,
+        imageUrl.isNotEmpty ? imageUrl.first : null,
       );
     }
 
@@ -360,6 +424,27 @@ class ChatController extends GetxController {
     clearReplyTo();
     _updateCanSend();
     _scrollToBottom();
+  }
+
+  Future<void> sendNotification(List<int> inactiveUsers, bool msgTypeImage, String msg) async {
+    final data = <String, dynamic>{};
+    data["receiver_ids[]"] = inactiveUsers;
+    data["sender_id"] = Prefs().userId;
+    data["title"] = Prefs().userFullName.isEmpty ? "New Message Received" : Prefs().userFullName;
+    data["message"] = msg;
+    data["flag"] = 'chat';
+    data["message_type"] = msgTypeImage ? 'chat_image' : 'chat_text';
+    data["related_id"] = chatJob?.id;
+
+    log(runtimeType.toString(), 'Media Upload Data => $data');
+
+    var result = await _commonRepository.sendNotification(data);
+    result.handle(
+      success: (value) {},
+      onError: (_) {},
+      showAlert: false,
+      contextTag: 'media-upload',
+    );
   }
 
   bool _shouldInsertDateMessage() {
@@ -479,6 +564,51 @@ class ChatController extends GetxController {
   void _checkConnectivity() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     _updateConnectionStatus(connectivityResult);
+  }
+
+  void updateStatus(bool isActive) {
+    try {
+      _chatRef.child(PARTICIPANTS_NODE).child(_effectiveUserId).update({'isActive': isActive});
+      print('Update Updated:');
+    } catch (e) {
+      print('Update failed: $e');
+    }
+  }
+
+  /*void addAndUpdateUser(bool isActive) {
+    var userId = Prefs().userId;
+    var userName = Prefs().userFullName;
+    if (userId.isEmpty) userId = 'user_${DateTime.now().millisecondsSinceEpoch}';
+    if (userName.isEmpty) userName = 'Me';
+
+    final userRole = Prefs().userRoleString;
+    final time = DateTime.now().millisecondsSinceEpoch.toString();
+
+    final userData = <String, dynamic>{'userId': userId, 'userName': userName, 'userRole': userRole, 'isActive': isActive, 'time': time};
+
+    _userListRef.child(userId).update(userData).catchError((_) {});
+
+    print('USER DATA UPDATED');
+  }*/
+
+  Future<List<int>> fetchInactiveUserList() async {
+    final snapshot = await _chatRef.child(PARTICIPANTS_NODE).get();
+
+    if (!snapshot.exists || snapshot.value == null) return [];
+
+    final data = Map<String, dynamic>.from(snapshot.value as Map);
+
+    print('USERS : $data');
+
+    final userList = data.values
+        .whereType<Map>() // ensures safe casting
+        .map((e) => Map<String, dynamic>.from(e))
+        .where((user) => user['isActive'] != true)
+        .map((user) => int.tryParse(user['id']?.toString() ?? ''))
+        .whereType<int>() // removes nulls
+        .toList();
+
+    return userList;
   }
 
   void _updateConnectionStatus(List<ConnectivityResult> results) {

@@ -100,7 +100,7 @@ class ChatView extends GetView<ChatController> {
                       isSelectionMode: isSelectionMode,
                       isSelected: controller.isSelected(msg),
                       isGroupChat: isGroupChat,
-                      onLongPress: ()  {
+                      onLongPress: () {
                         _onMessageLongPress(context, msg);
                         controller.messages.refresh();
                       },
@@ -318,7 +318,7 @@ class _MessageBubble extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (isGroupChat && !isOut) ...[
+                    if (!isOut) ...[
                       _buildSenderLabel(scheme),
                       const SizedBox(height: 4),
                     ],
