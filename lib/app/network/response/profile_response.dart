@@ -39,10 +39,17 @@ class Data {
   Data.fromJson(dynamic json) {
     user = json['user'] != null ? User.fromJson(json['user']) : null;
     profileCompletion = json['profile_completion'];
+    if (json['admins'] != null) {
+      admins = [];
+      json['admins'].forEach((v) {
+        admins?.add(Admins.fromJson(v));
+      });
+    }
   }
 
   User? user;
   num? profileCompletion;
+  List<Admins>? admins;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -50,6 +57,9 @@ class Data {
       map['user'] = user?.toJson();
     }
     map['profile_completion'] = profileCompletion;
+    if (admins != null) {
+      map['admins'] = admins?.map((v) => v.toJson()).toList();
+    }
     return map;
   }
 }
@@ -435,6 +445,32 @@ class Immigration {
     map['id'] = id;
     map['name'] = name;
     map['is_active'] = isActive;
+    return map;
+  }
+}
+
+class Admins {
+  Admins({
+    this.id,
+    this.firstName,
+    this.lastName,
+  });
+
+  Admins.fromJson(dynamic json) {
+    id = json['id'];
+    firstName = json['first_name'];
+    lastName = json['last_name'];
+  }
+
+  num? id;
+  String? firstName;
+  String? lastName;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    map['first_name'] = firstName;
+    map['last_name'] = lastName;
     return map;
   }
 }

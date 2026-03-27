@@ -30,7 +30,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
           headerLogoIcon: false,
           hasBackIcon: true,
           titleCentered: false,
-          actions: j != null
+          actions: j != null && j.cleaners?.isEmpty == true
               ? [
                   PopupMenuButton<_JobMenuAction>(
                     tooltip: 'More options',

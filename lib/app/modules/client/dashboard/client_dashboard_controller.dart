@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:ccs_app/app/model/menu_model.dart';
 import 'package:ccs_app/app/network/repository/auth_repository.dart';
+import 'package:ccs_app/app/network/repository/common_repository.dart';
 import 'package:ccs_app/app/network/response/property_list_response.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
@@ -20,6 +21,7 @@ import 'view/client_profile_view.dart';
 
 class ClientDashboardController extends GetxController with GetSingleTickerProviderStateMixin {
   final AuthRepository _authRepository = AuthRepository();
+  final CommonRepository _commonRepository = CommonRepository();
   final ClientRepository _clientRepository = ClientRepository();
 
   final tabIndex = 0.obs;
@@ -94,6 +96,9 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
         }
       }
     });
+
+    getProfile();
+
   }
 
   bool get _isScrollBottom {
@@ -354,6 +359,39 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       if (isLoaderShown) Loader.hide();
     }
   }
+
+  Future<void> getProfile() async {
+    Loader.show();
+
+    try {
+      final result = await _commonRepository.getProfile();
+      result.handle(
+        success: (value) {
+          Loader.hide();
+          final prefs = Prefs();
+
+          final admins = value.data?.admins;
+
+          if (admins?.isNotEmpty == true) {
+
+            for(final admin in  admins!){
+              prefs.addAdminId(admin.id?.toInt() ?? 0);
+            }
+
+          }
+
+          print('Admin IDS : ${prefs.getAdminsIds()}');
+
+        },
+        contextTag: 'get-profile',
+      );
+    } catch (e) {
+      Notifier.info('Failed to get profile: $e');
+    } finally {
+      Loader.hide();
+    }
+  }
+
 
   @override
   void onReady() {

@@ -20,6 +20,7 @@ class Prefs {
   static const String roleId = 'role_id';
   static const String timezone = 'timezone';
   static const String ipAddress = 'ip_address';
+  static const String adminsKey = "admins_ids";
 
   late final GetStorage _box;
 
@@ -61,8 +62,36 @@ class Prefs {
 
   String get userRoleString => RoleConstants.roleIdToRoleKey(int.tryParse(getData(roleId)));
 
+
+  /// Get Admin IDs
+  List<int> getAdminsIds() {
+    final data = _box.read<List>(adminsKey);
+
+    if (data == null) return [];
+
+    return data.map((e) => e as int).toList();
+  }
+
+  /// Add Admin ID
+  Future<void> addAdminId(int id) async {
+    final List<int> admins = getAdminsIds();
+
+    if (!admins.contains(id)) {
+      admins.add(id);
+      await _box.write(adminsKey, admins);
+    }
+  }
+
+  /// Clear Admins
+  Future<void> clearAdmins() async {
+    await _box.remove(adminsKey);
+  }
+
+
+
   Future<void> clearAll() async {
     await _box.erase();
     _setTimezoneIfMissing();
   }
+
 }

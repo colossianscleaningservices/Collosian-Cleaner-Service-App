@@ -15,6 +15,7 @@ import '../../../model/calendar_event.dart';
 import '../../../model/common_model.dart';
 import '../../../model/menu_model.dart';
 import '../../../network/repository/cleaner_repository.dart';
+import '../../../network/repository/common_repository.dart';
 import '../../../network/response/get_availability_response.dart' as avail_resp;
 import '../../../network/response/jobs.dart';
 import '../../../network/response/staff_dashboard_response.dart';
@@ -27,6 +28,7 @@ import 'view/cleaner_profile_view.dart';
 
 class CleanerDashboardController extends GetxController with GetSingleTickerProviderStateMixin {
   final AuthRepository _authRepository = AuthRepository();
+  final CommonRepository _commonRepository = CommonRepository();
   final CleanerRepository _cleanerRepository = CleanerRepository();
 
   final tabIndex = 0.obs;
@@ -166,6 +168,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
         }
       }
     });
+
+    getProfile();
 
     getAppVersion();
     _registerDevice();
@@ -801,4 +805,37 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       Loader.hide();
     }
   }
+
+  Future<void> getProfile() async {
+    Loader.show();
+
+    try {
+      final result = await _commonRepository.getProfile();
+      result.handle(
+        success: (value) {
+          Loader.hide();
+          final prefs = Prefs();
+
+          final admins = value.data?.admins;
+
+          if (admins?.isNotEmpty == true) {
+
+            for(final admin in  admins!){
+              prefs.addAdminId(admin.id?.toInt() ?? 0);
+            }
+
+          }
+
+          print('Admin IDS : ${prefs.getAdminsIds()}');
+
+        },
+        contextTag: 'get-profile',
+      );
+    } catch (e) {
+      Notifier.info('Failed to get profile: $e');
+    } finally {
+      Loader.hide();
+    }
+  }
+
 }

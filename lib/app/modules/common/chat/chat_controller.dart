@@ -140,8 +140,6 @@ class ChatController extends GetxController {
 
   DatabaseReference get _chatListRef => chatMode == ChatMode.job ? FireRef.jobChatList : FireRef.supportChatList;
 
-  DatabaseReference get _userListRef => FireRef.users;
-
   Future _initJobChat() async {
     _ensureJobThread();
     _loadInitialMessages();
@@ -331,15 +329,11 @@ class ChatController extends GetxController {
 
       inactiveUsers.removeWhere((element) => element == _effectiveUserId.toInt());
 
-      /* List<int> filterInactiveUsers = [];
-
-      participants.keys.forEach((item) {
-        if (!inactiveUsers.contains(item.toInt())) {
-          filterInactiveUsers.add(item.toInt());
-        }
-      });*/
-
       if (inactiveUsers.isNotEmpty) sendNotification(inactiveUsers, isImageMsg, text);
+    } else {
+      final adminsIds = Prefs().getAdminsIds();
+
+      sendNotification(adminsIds, isImageMsg, text);
     }
 
     // ✅ Upload images if needed
@@ -431,20 +425,14 @@ class ChatController extends GetxController {
     data["receiver_ids[]"] = inactiveUsers;
     data["sender_id"] = Prefs().userId;
     data["title"] = Prefs().userFullName.isEmpty ? "New Message Received" : Prefs().userFullName;
-    data["message"] = msg;
+    data["message"] = msgTypeImage ? '📷 Image received' : msg;
     data["flag"] = 'chat';
     data["message_type"] = msgTypeImage ? 'chat_image' : 'chat_text';
     data["related_id"] = chatJob?.id;
 
     log(runtimeType.toString(), 'Media Upload Data => $data');
 
-    var result = await _commonRepository.sendNotification(data);
-    result.handle(
-      success: (value) {},
-      onError: (_) {},
-      showAlert: false,
-      contextTag: 'media-upload',
-    );
+    _commonRepository.sendNotification(data);
   }
 
   bool _shouldInsertDateMessage() {
