@@ -388,6 +388,7 @@ class AuthController extends GetxController {
         phoneNumber: signupPhoneCtrl.text.trim().isNotEmpty ? signupPhoneCtrl.text.trim() : null,
         verificationCode: role == UserRole.cleaner ? signupNiNumberCtrl.text.trim() : null,
         answersId: role == UserRole.cleaner ? answersId : null,
+        isVerified: true,
       );
       result.handle(
         success: (response) async {

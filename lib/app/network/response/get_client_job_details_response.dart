@@ -126,6 +126,7 @@ class ClientJobDetails {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     scheduler = json['scheduler'] != null ? Scheduler.fromJson(json['scheduler']) : null;
+    invoice = json['invoice'] != null ? Invoice.fromJson(json['invoice']) : null;
   }
 
   num? id;
@@ -166,6 +167,7 @@ class ClientJobDetails {
   String? updatedAt;
   List<JobCleaners>? jobCleaners;
   Scheduler? scheduler;
+  Invoice? invoice;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -218,6 +220,39 @@ class ClientJobDetails {
     }
     return map;
   }
+}
+
+class Invoice {
+  Invoice({
+    this.id,
+    this.invoiceNumber,
+    this.status,
+    this.totalAmount,
+    this.pdfUrl,});
+
+  Invoice.fromJson(dynamic json) {
+    id = json['id'];
+    invoiceNumber = json['invoice_number'];
+    status = json['status'];
+    totalAmount = json['total_amount'];
+    pdfUrl = json['pdf_url'];
+  }
+  num? id;
+  String? invoiceNumber;
+  String? status;
+  String? totalAmount;
+  String? pdfUrl;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    map['invoice_number'] = invoiceNumber;
+    map['status'] = status;
+    map['total_amount'] = totalAmount;
+    map['pdf_url'] = pdfUrl;
+    return map;
+  }
+
 }
 
 class Property {

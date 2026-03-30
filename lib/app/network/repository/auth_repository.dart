@@ -35,6 +35,7 @@ class AuthRepository extends BaseRepository {
     String? phoneNumber,
     String? verificationCode,
     List<num?>? answersId,
+    bool? isVerified
   }) async {
     final payload = <String, dynamic>{
       'first_name': firstName.trim(),
@@ -44,7 +45,8 @@ class AuthRepository extends BaseRepository {
       'password_confirmation': passwordConfirmation,
       'role': role,
       'verification_code': verificationCode,
-      'answer_ids': answersId
+      'answer_ids': answersId,
+      'is_verified': isVerified
     };
     if (phoneNumber != null && phoneNumber.trim().isNotEmpty) {
       payload['phone_number'] = phoneNumber.trim();

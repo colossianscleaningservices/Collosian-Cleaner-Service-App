@@ -1,12 +1,17 @@
+import 'dart:io';
+
 import 'package:ccs_app/app/network/repository/client_repository.dart';
 import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/export.dart';
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../../model/client_job.dart';
 import '../../../network/response/get_client_job_details_response.dart';
 import '../dashboard/client_dashboard_controller.dart';
 
-enum Options { yes, no }
+enum UserOptions { yes, no }
 
 class ClientJobDetailController extends GetxController {
   final ClientRepository _clientRepository = ClientRepository();
@@ -18,10 +23,10 @@ class ClientJobDetailController extends GetxController {
   num? jobId;
   var from = '';
 
-  Rx<Options?> arrive = Rx<Options?>(null);
-  Rx<Options?> uniform = Rx<Options?>(null);
-  Rx<Options?> completedJob = Rx<Options?>(null);
-  Rx<Options?> requestAgain = Rx<Options?>(null);
+  Rx<UserOptions?> arrive = Rx<UserOptions?>(null);
+  Rx<UserOptions?> uniform = Rx<UserOptions?>(null);
+  Rx<UserOptions?> completedJob = Rx<UserOptions?>(null);
+  Rx<UserOptions?> requestAgain = Rx<UserOptions?>(null);
   Rx<double> rating = 0.0.obs;
   final messageController = TextEditingController();
   final jobCleaner = Rx<ClientJobCleaner?>(null);
@@ -240,6 +245,55 @@ class ClientJobDetailController extends GetxController {
     Get.toNamed(Routes.ADD_REVIEW, arguments: job.value);
   }
 
+  Future<void> onViewFile(String url) async {
+      final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
+      Notifier.openSheet(Get.context as BuildContext,
+          showIcon: false,
+          showPrimaryButton: false,
+          showSecondaryButton: false,
+          top: true,
+          body: Expanded(
+            child: SfPdfViewer.network(
+              url ?? '',
+              key: pdfViewerKey,
+              password: "1234",
+            ),
+          ));
+
+
+  }
+
+
+  Future<void> downloadFile(String url) async {
+    try {
+
+      Loader.show();
+      final dio = Dio();
+
+      Directory dir = Directory('/storage/emulated/0/Download');
+      // Extract filename from URL (fallback if needed)
+      String fileName = url.split('/').last;
+      if (!fileName.contains('.')) {
+        fileName = "file_${DateTime.now().millisecondsSinceEpoch}.pdf";
+      }
+
+      final filePath = "${dir.path}/$fileName";
+
+      await dio.download(
+        url,
+        filePath,
+      );
+
+      Loader.hide();
+
+      Notifier.success('Your file has been downloaded successfully.');
+
+      print("Downloaded: $filePath");
+    } catch (e) {
+      print("Download error: $e");
+    }
+  }
+
   Future<void> submitReview() async {
     final jobId = job.value?.id?.toInt();
     if (jobId == null) {
@@ -282,10 +336,10 @@ class ClientJobDetailController extends GetxController {
       final result = await _clientRepository.submitJobReview(
         jobId: jobId,
         cleanerId: jobCleaner.value?.id.toInt() ?? 0,
-        arrivedOnTime: arrive.value == Options.yes,
-        woreUniform: uniform.value == Options.yes,
-        completedOnTime: completedJob.value == Options.yes,
-        wouldRehire: requestAgain.value == Options.yes,
+        arrivedOnTime: arrive.value == UserOptions.yes,
+        woreUniform: uniform.value == UserOptions.yes,
+        completedOnTime: completedJob.value == UserOptions.yes,
+        wouldRehire: requestAgain.value == UserOptions.yes,
         satisfactionRating: rating.value.toInt(),
         message: messageController.text.trim().isNotEmpty ? messageController.text.trim() : null,
       );

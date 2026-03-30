@@ -246,6 +246,39 @@ Widget _bodyForState({
           ),
           const SizedBox(height: 8),
         ],
+        if (j.invoice != null && j.invoice?.pdfUrl != null) ...[
+          JobDetailSection(
+            semanticLabel: 'Invoice',
+            emoji: '📋',
+            title: 'Invoice',
+            scheme: scheme,
+            child: AppCard(
+              onTap: () => c.onViewFile(j.invoice?.pdfUrl ?? ''),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(IconsaxPlusLinear.note, size: 28, color: context.colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CommonText.semiBold(j.invoice?.invoiceNumber ??'invoice.pdf', size: 15, color: scheme.onSurface),
+                        const SizedBox(height: 4),
+                        CommonText.regular('Status:${j.invoice?.status ??''}', size: 13, color: scheme.onSurfaceVariant),
+                      ],
+                    ),
+                  ),
+                  InkWell(onTap: () {
+                    c.downloadFile(j.invoice?.pdfUrl ?? '');
+
+                  }, child: Icon(IconsaxPlusLinear.arrow_down_2, size: 28, color: context.colorScheme.primary)),
+                ],
+              ).paddingAll(UiConstants.defaultPadding),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
         Semantics(
           label: 'Job chat',
           container: true,

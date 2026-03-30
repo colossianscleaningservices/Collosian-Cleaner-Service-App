@@ -1,6 +1,7 @@
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
+import 'package:linear_progress_bar/linear_progress_bar.dart';
 
 import 'client_edit_profile_controller.dart';
 
@@ -15,13 +16,41 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
       backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.only(left: 24,right: 24,bottom: 24,top: 8),
           child: Form(
             key: controller.formKey,
             child: Column(
               spacing: 18,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Obx(() {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CommonText.semiBold(
+                        controller.profileText.value,
+                        size: 16,
+                      ).marginOnly(bottom: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: LinearProgressBar(
+                              maxSteps: 100,
+                              progressType: ProgressType.linear,
+                              currentStep: controller.profileStatus.value,
+                              progressColor: context.colorScheme.secondary,
+                              backgroundColor: context.colorScheme.secondary.withValues(alpha: 0.12),
+                              animateProgress: true,
+                              borderRadius: BorderRadius.circular(10),
+                              minHeight: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                }),
                 Center(
                   child: Stack(
                     clipBehavior: Clip.none,

@@ -6,6 +6,7 @@ import 'package:ccs_app/export.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:step_progress/step_progress.dart';
 
 import '../../../network/repository/common_repository.dart';
 import '../../../services/pref.dart';
@@ -25,6 +26,8 @@ class ClientEditProfileController extends GetxController {
   final dobCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
   final companyCtrl = TextEditingController();
+  RxString profileText = "Profile Completion: 0%".obs;
+  RxInt profileStatus = 0.obs;
 
   final gender = Rxn<String>();
   final enableReminders = false.obs;
@@ -272,6 +275,10 @@ class ClientEditProfileController extends GetxController {
             prefs.putData(Prefs.image, value.data?.user?.imageUrl ?? "");
             imageUrl.value = value.data?.user?.imageUrl ?? "";
           }
+
+          profileText.value = 'Profile Completion: ${value.data?.profileCompletion?.toInt()}%';
+          profileStatus.value = value.data?.profileCompletion?.toInt() ?? 0;
+
           showProfileData(profile: value.data?.user);
         },
         contextTag: 'get-profile',
