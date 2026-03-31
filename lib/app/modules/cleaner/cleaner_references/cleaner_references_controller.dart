@@ -18,6 +18,9 @@ class CleanerReferencesController extends GetxController {
 
   final references = <References>[].obs;
 
+  var isEditingReference = false.obs;
+  final selectedReference = Rxn<References>();
+
   @override
   void onInit() {
     super.onInit();
@@ -37,12 +40,33 @@ class CleanerReferencesController extends GetxController {
   void increment() => count.value++;
 
   void clearForm() {
+    isEditingReference.value = false;
+    selectedReference.value = null;
     firstNameCtrl.clear();
     lastNameCtrl.clear();
     emailCtrl.clear();
     phoneCtrl.clear();
     companyNameCtrl.clear();
     relationship.value = null;
+  }
+
+  void setEditingData(References ref) {
+    isEditingReference.value = true;
+    selectedReference.value = ref;
+    firstNameCtrl.text = ref.firstName ?? '';
+    lastNameCtrl.text = ref.lastName ?? '';
+    emailCtrl.text = ref.email ?? '';
+    phoneCtrl.text = ref.phoneNumber ?? '';
+    companyNameCtrl.text = ref.companyName ?? '';
+    relationship.value = ref.relationship;
+    refresh();
+  }
+
+  void onEditReference(References ref) {
+    setEditingData(ref);
+    Get.toNamed(Routes.ADD_REFERENCES)?.then((result) {
+      if (result == true) refreshReferences();
+    });
   }
 
   Future<void> addReferences() async {
@@ -87,6 +111,10 @@ class CleanerReferencesController extends GetxController {
     data["company_name"] = companyNameCtrl.text;
     data["relationship"] = relationship.value;
 
+    isEditingReference.value ? _updateReference(data) : _createReference(data);
+  }
+
+  Future<void> _createReference(Map<String, dynamic> data) async {
     var result = await _cleanerRepository.addReference(data);
 
     result.handle(
@@ -94,7 +122,7 @@ class CleanerReferencesController extends GetxController {
         Loader.hide();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (Get.context == null) return;
-          Notifier.openSheet(Get.context as BuildContext,type: SheetType.success, title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+          Notifier.openSheet(Get.context as BuildContext, type: SheetType.success, title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
             clearForm();
             getCleanerReference();
             Get.back(result: true);
@@ -106,6 +134,64 @@ class CleanerReferencesController extends GetxController {
       },
       contextTag: 'media-upload',
     );
+  }
+
+  Future<void> _updateReference(Map<String, dynamic> data) async {
+    var result = await _cleanerRepository.updateReference(
+      selectedReference.value?.id?.toInt() ?? 0,
+      data,
+    );
+
+    result.handle(
+      success: (value) {
+        Loader.hide();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (Get.context == null) return;
+          Notifier.openSheet(Get.context as BuildContext, type: SheetType.success, title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+            clearForm();
+            getCleanerReference();
+            Get.back(result: true);
+          });
+        });
+      },
+      onError: (_) {
+        Loader.hide();
+      },
+      contextTag: 'media-upload',
+    );
+  }
+
+  Future<void> refreshReferences() => getCleanerReference();
+
+  void onDeleteReference(References ref) {
+    confirmDeleteReference(Get.context!, ref.id?.toInt() ?? 0);
+  }
+
+  void confirmDeleteReference(BuildContext context, int id) {
+    Notifier.openSheet(
+      context,
+      type: SheetType.error,
+      title: 'Delete Reference?',
+      message: 'Are you sure you want to delete this reference?',
+      primaryButtonLabel: 'Yes',
+      secondaryButtonLabel: 'No',
+      showPrimaryButton: true,
+      showSecondaryButton: true,
+      onPrimaryPressed: () => deleteReference(id),
+      onSecondaryPressed: () {},
+    );
+  }
+
+  Future<void> deleteReference(int id) async {
+    Loader.show();
+    try {
+      final result = await _cleanerRepository.deleteReference(id);
+      result.handle(
+        success: (_) => getCleanerReference(),
+      );
+    } finally {
+      Loader.hide();
+    }
   }
 
   Future<void> getCleanerReference() async {

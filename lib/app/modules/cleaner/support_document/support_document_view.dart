@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/network/response/get_staff_document_response.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../../../../export.dart';
 import '../../../widget/layout/app_scaffold.dart';
@@ -24,20 +25,26 @@ class SupportDocumentView extends GetView<SupportDocumentController> {
         }
         return SwipeRefresh(
           onRefresh: controller.refreshDocuments,
-          child: ListView.builder(
-            padding: EdgeInsets.fromLTRB(16, 12, 16, 100),
-            itemCount: controller.documents.length,
-            itemBuilder: (context, index) {
-              final item = controller.documents[index];
-              return _DocumentCard(
-                item: item,
-                scheme: scheme,
-                onViewFile: () => controller.onViewFile(item),
-                onEdit: () => controller.onEditDocument(item),
-                onDelete: () => controller.onDeleteDocument(item),
-                iconForType: controller.iconForDocumentType(item.documentName?.replaceAll('_', ' ').toLowerCase() ?? ''),
-              );
-            },
+          child: SlidableAutoCloseBehavior(
+            child: ListView.separated(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+              itemCount: controller.documents.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final item = controller.documents[index];
+                return _DocumentTile(
+                  key: ValueKey(item.id),
+                  item: item,
+                  scheme: scheme,
+                  onViewFile: () => controller.onViewFile(item),
+                  onEdit: () => controller.onEditDocument(item),
+                  onDelete: () => controller.onDeleteDocument(item),
+                  iconForType: controller.iconForDocumentType(
+                    item.documentName?.replaceAll('_', ' ').toLowerCase() ?? '',
+                  ),
+                );
+              },
+            ),
           ),
         );
       }),
@@ -62,8 +69,9 @@ class SupportDocumentView extends GetView<SupportDocumentController> {
   }
 }
 
-class _DocumentCard extends StatelessWidget {
-  const _DocumentCard({
+class _DocumentTile extends StatelessWidget {
+  const _DocumentTile({
+    super.key,
     required this.item,
     required this.scheme,
     required this.onViewFile,
@@ -84,114 +92,110 @@ class _DocumentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final expiry = item.expiryDate;
-    final expiryText = expiry;
     final expiryStatus = _expiryStatus(expiry);
 
-    return AppCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      enableShadows: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return Container(
+      decoration: BoxDecoration(
+        color: scheme.errorContainer.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(UiConstants.radiusLarge),
+      ),
+      child: Slidable(
+        key: ValueKey(item.id),
+        groupTag: 'documents',
+        endActionPane: ActionPane(
+          motion: const ScrollMotion(),
+          children: [
+            SlidableAction(
+              borderRadius: const BorderRadius.only(
+                bottomRight: Radius.circular(8),
+                topRight: Radius.circular(8),
+              ),
+              onPressed: (_) => onDelete(),
+              backgroundColor: Colors.transparent,
+              foregroundColor: scheme.error,
+              icon: Icons.delete,
+              label: 'Delete',
+            ),
+          ],
+        ),
+        child: AppCard(
+          onTap: onViewFile,
+          enableScale: false,
+          margin: EdgeInsets.zero,
+          enableShadows: true,
+          borderWidth: 1,
+          borderColor: expiryStatus == 'expired'
+              ? scheme.error.withValues(alpha: 0.4)
+              : scheme.outline.withValues(alpha: 0.08),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppCard.iconContainer(
-                context: context,
-                child: Icon(iconForType, color: scheme.primary, size: 24),
-              ).marginOnly(right: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: scheme.primaryContainer.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
-                      ),
-                      child: CommonText.medium(
-                        item.documentName?.replaceAll('_', ' ').capitalize ?? '',
-                        size: 12,
-                        color: scheme.onPrimaryContainer,
-                      ),
-                    ).marginOnly(bottom: 8),
-                    CommonText.regular(
-                      'Number: ${item.documentNumber}',
-                      size: 14,
-                      color: scheme.onSurface,
-                    ).marginOnly(bottom: 4),
-                    Row(
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  AppCard.iconContainer(
+                    context: context,
+                    child: Icon(iconForType, color: scheme.primary, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CommonText.regular(
-                          'Expiry: $expiryText',
-                          size: 14,
-                          color: scheme.onSurfaceVariant,
+                        CommonText.semiBold(
+                          item.documentName?.replaceAll('_', ' ').capitalize ?? '',
+                          size: 15,
+                          color: scheme.onSurface,
                         ),
-                        if (expiryStatus != null) ...[
-                          const SizedBox(width: 8),
-                          _ExpiryChip(status: expiryStatus, scheme: scheme),
+                        if (item.status != null) ...[
+                          const SizedBox(height: 4),
+                          _StatusBadge(status: item.status!, scheme: scheme),
                         ],
                       ],
                     ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          InkWell(
-            onTap: onViewFile,
-            borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.open_in_new, size: 18, color: scheme.primary),
-                  const SizedBox(width: 6),
-                  CommonText.medium(
-                    'View file',
-                    size: 14,
-                    color: scheme.primary,
-                    isUnderLine: true,
+                  ),
+                  const SizedBox(width: 8),
+                  AppCard(
+                    onTap: onEdit,
+                    borderWidth: 1,
+                    enableShadows: false,
+                    enableScale: false,
+                    borderColor: scheme.primary.withValues(alpha: 0.3),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.edit_outlined, size: 16, color: scheme.primary),
+                        const SizedBox(width: 4),
+                        CommonText.medium('Edit', color: scheme.primary, size: 13),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              AppCard(
-                onTap: onEdit,
-                borderWidth: 1,
-                enableShadows: false,
-                borderColor: scheme.primary,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.edit_outlined, size: 18, color: scheme.primary),
-                    const SizedBox(width: 6),
-                    CommonText.medium('Edit', color: scheme.primary, size: 14),
-                  ],
-                ),
-              ).marginOnly(right: 10),
-              AppCard(
-                onTap: onDelete,
-                color: scheme.errorContainer,
-                padding: const EdgeInsets.all(10),
-                child: Icon(
-                  Icons.delete_outline_outlined,
-                  size: 20,
-                  color: scheme.onErrorContainer,
-                ),
+              Divider(
+                height: 24,
+                thickness: 1,
+                color: scheme.outlineVariant.withValues(alpha: 0.3),
+              ),
+              _InfoRow(
+                label: 'Number',
+                value: item.documentNumber ?? '-',
+                scheme: scheme,
+              ),
+              const SizedBox(height: 8),
+              _InfoRow(
+                label: 'Expiry',
+                value: expiry ?? '-',
+                scheme: scheme,
+                trailing: expiryStatus != null
+                    ? _ExpiryChip(status: expiryStatus, scheme: scheme)
+                    : null,
               ),
             ],
-          ),
-        ],
-      ).paddingAll(16),
+          ).paddingAll(16),
+        ),
+      ),
     );
   }
 
@@ -211,17 +215,71 @@ class _DocumentCard extends StatelessWidget {
 
     return null;
   }
+}
 
-/*String? _expiryStatus(DateTime? expiry) {
-    if (expiry == null) return null;
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final expiryDate = DateTime(expiry.year, expiry.month, expiry.day);
-    if (expiryDate.isBefore(today)) return 'expired';
-    final daysLeft = expiryDate.difference(today).inDays;
-    if (daysLeft <= _expiringDaysThreshold) return 'expiring_soon';
-    return null;
-  }*/
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    required this.scheme,
+    this.trailing,
+  });
+
+  final String label;
+  final String value;
+  final ColorScheme scheme;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 64,
+          child: CommonText.regular(label, size: 13, color: scheme.onSurfaceVariant),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: CommonText.medium(value, size: 14, color: scheme.onSurface),
+        ),
+        if (trailing != null) ...[
+          const SizedBox(width: 8),
+          trailing!,
+        ],
+      ],
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  const _StatusBadge({required this.status, required this.scheme});
+
+  final String status;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final isPending = status.toLowerCase() == 'pending';
+    final bg = isPending
+        ? scheme.tertiaryContainer
+        : scheme.primaryContainer.withValues(alpha: 0.6);
+    final fg = isPending
+        ? scheme.onTertiaryContainer
+        : scheme.onPrimaryContainer;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
+      ),
+      child: CommonText.medium(
+        status.capitalize!,
+        size: 11,
+        color: fg,
+      ),
+    );
+  }
 }
 
 class _ExpiryChip extends StatelessWidget {

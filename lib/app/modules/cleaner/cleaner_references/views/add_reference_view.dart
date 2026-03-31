@@ -8,8 +8,10 @@ class AddReferenceView extends GetView<CleanerReferencesController> {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-        appBar: Header(title: "Add Reference"),
+    return Obx(() {
+      final isEditing = controller.isEditingReference.value;
+      return AppScaffold(
+        appBar: Header(title: isEditing ? "Edit Reference" : "Add Reference"),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
@@ -47,8 +49,10 @@ class AddReferenceView extends GetView<CleanerReferencesController> {
           ),
         ),
         bottomNavigationBar: SingleActionBottomBar(
-          label: 'Add Reference',
+          label: isEditing ? 'Update Reference' : 'Add Reference',
           onPressed: controller.addReferences,
-        ));
+        ),
+      );
+    });
   }
 }

@@ -196,6 +196,21 @@ class CleanerRepository extends BaseRepository {
     );
   }
 
+  Future<NetworkResult<BaseResponse>> deleteReference(int id) async {
+    return delete<BaseResponse>(
+      endpoint: Endpoint.deleteReference(id),
+      fromJson: (json) => BaseResponse.fromJson(json),
+    );
+  }
+
+  Future<NetworkResult<BaseResponse>> updateReference(int id, Map<String, dynamic> data) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.updateReference(id),
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data: FormData.fromMap(data),
+    );
+  }
+
   Future<NetworkResult<GetTransactionHistoryResponse>> getTransactionHistory({int page = 1}) async {
     return get<GetTransactionHistoryResponse>(
       endpoint: Endpoint.getTransactionHistory,

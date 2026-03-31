@@ -27,13 +27,13 @@ Future<void> main() async {
   try {
     await CrashlyticsService.instance.initialize();
   } catch (e) {
-    debugPrint('main: Failed to initialize Crashlytics: $e');
+    SecureLogger.log('MAIN' ,'Failed to initialize Crashlytics: $e');
   }
 
   try {
     await OneSignalService.initialize(EnvService.onesignalAppId);
   } on Exception catch (e) {
-    debugPrint('main: OneSignal initialization failed: $e');
+    SecureLogger.log('MAIN' ,'OneSignal initialization failed: $e');
   }
 
   getTimeZone().then((onValue) {

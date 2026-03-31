@@ -3,7 +3,8 @@ import 'package:ccs_app/export.dart';
 
 import 'cleaner_payout_computation_controller.dart';
 
-class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationController> {
+class CleanerPayoutComputationView
+    extends GetView<CleanerPayoutComputationController> {
   const CleanerPayoutComputationView({super.key});
 
   @override
@@ -34,7 +35,9 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CommonText.bold('Work hour & payout calculation', size: 20, color: scheme.onSurface).marginOnly(bottom: 4),
+                        CommonText.bold('Work hour & payout calculation',
+                                size: 20, color: scheme.onSurface)
+                            .marginOnly(bottom: 4),
                         CommonText.regular(
                           'Select a date range to view work entries and earnings.',
                           size: 14,
@@ -46,6 +49,48 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
                 ],
               ).marginOnly(bottom: 20),
 
+              // Summary cards – 2×1 grid
+              Obx(() {
+                return Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _SummaryCard(
+                            label: 'Residential Earnings',
+                            value: controller.totalResidentialEarning.value ??
+                                '0.0',
+                            scheme: scheme,
+                            accentColor: scheme.tertiary,
+                            icon: IconsaxPlusLinear.home_2,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _SummaryCard(
+                            label: 'Commercial Earnings',
+                            value: controller.totalCommercialEarning.value ??
+                                '0.0',
+                            scheme: scheme,
+                            accentColor: scheme.primary,
+                            icon: IconsaxPlusLinear.building_4,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _SummaryCard(
+                      label: 'Total Payout',
+                      value: controller.totalPayout.value ?? '0.0',
+                      scheme: scheme,
+                      accentColor: scheme.secondary,
+                      icon: IconsaxPlusLinear.wallet_money,
+                      isHighlight: true,
+                    ),
+                  ],
+                );
+              }).marginOnly(bottom: 24),
+
               // Date range
               Obx(
                 () => Row(
@@ -54,9 +99,13 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
                       child: _DateField(
                         label: 'From',
                         value: controller.scheduleValidFrom.value,
-                        onTap: () => _pickDate(context, controller, isFrom: true),
+                        onTap: () =>
+                            _pickDate(context, controller, isFrom: true),
                         onClear: () => controller.setStartDate(null),
-                        validator: (_) => controller.scheduleValidFrom.value == null ? 'Select start date' : null,
+                        validator: (_) =>
+                            controller.scheduleValidFrom.value == null
+                                ? 'Select start date'
+                                : null,
                         scheme: scheme,
                         ctrl: controller,
                       ).marginOnly(right: 8),
@@ -65,9 +114,13 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
                       child: _DateField(
                         label: 'To',
                         value: controller.scheduleValidTo.value,
-                        onTap: () => _pickDate(context, controller, isFrom: false),
+                        onTap: () =>
+                            _pickDate(context, controller, isFrom: false),
                         onClear: () => controller.setEndDate(null),
-                        validator: (_) => controller.scheduleValidTo.value == null ? 'Select end date' : null,
+                        validator: (_) =>
+                            controller.scheduleValidTo.value == null
+                                ? 'Select end date'
+                                : null,
                         scheme: scheme,
                         ctrl: controller,
                       ).marginOnly(left: 8),
@@ -75,91 +128,6 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
                   ],
                 ).marginOnly(bottom: 24),
               ),
-
-              // Summary section title
-              Row(
-                children: [
-                  Container(
-                    width: 4,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: scheme.secondary.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ).marginOnly(right: 12),
-                  CommonText.semiBold('Summary', size: 18, color: scheme.onSurface),
-                ],
-              ).marginOnly(bottom: 14),
-
-              // Summary cards
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 400;
-                  return isNarrow
-                      ? Obx(() {
-                          return Column(
-                            children: [
-                              _SummaryCard(
-                                label: 'Total Residential Earnings',
-                                value: controller.totalResidentialEarning.value ?? '0.0',
-                                scheme: scheme,
-                                accentColor: scheme.tertiary,
-                                icon: IconsaxPlusLinear.home_2,
-                              ).marginOnly(bottom: 12),
-                              _SummaryCard(
-                                label: 'Total Commercial Earnings',
-                                value: controller.totalCommercialEarning.value ?? '0.0',
-                                scheme: scheme,
-                                accentColor: scheme.primary,
-                                icon: IconsaxPlusLinear.building_4,
-                              ).marginOnly(bottom: 12),
-                              _SummaryCard(
-                                label: 'Total Payout',
-                                value: controller.totalPayout.value ?? '0.0',
-                                scheme: scheme,
-                                accentColor: scheme.secondary,
-                                icon: IconsaxPlusLinear.wallet_money,
-                                isHighlight: true,
-                              ),
-                            ],
-                          );
-                        })
-                      : Obx(() {
-                          return Row(
-                            children: [
-                              Expanded(
-                                child: _SummaryCard(
-                                  label: 'Residential Earnings',
-                                  value: controller.totalResidentialEarning.value ?? '0.0',
-                                  scheme: scheme,
-                                  accentColor: scheme.tertiary,
-                                  icon: IconsaxPlusLinear.home_2,
-                                ).marginOnly(right: 8),
-                              ),
-                              Expanded(
-                                child: _SummaryCard(
-                                  label: 'Commercial Earnings',
-                                  value: controller.totalCommercialEarning.value ?? '0.0',
-                                  scheme: scheme,
-                                  accentColor: scheme.primary,
-                                  icon: IconsaxPlusLinear.building_4,
-                                ).marginOnly(right: 8),
-                              ),
-                              Expanded(
-                                child: _SummaryCard(
-                                  label: 'Total Payout',
-                                  value: controller.totalPayout.value ?? '0.0',
-                                  scheme: scheme,
-                                  accentColor: scheme.secondary,
-                                  icon: IconsaxPlusLinear.wallet_money,
-                                  isHighlight: true,
-                                ),
-                              ),
-                            ],
-                          );
-                        });
-                },
-              ).marginOnly(bottom: 24),
 
               // Work entries section title
               Row(
@@ -172,7 +140,8 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ).marginOnly(right: 12),
-                  CommonText.semiBold('Work entries detail', size: 18, color: scheme.onSurface),
+                  CommonText.semiBold('Work entries detail',
+                      size: 18, color: scheme.onSurface),
                 ],
               ).marginOnly(bottom: 14),
 
@@ -181,7 +150,8 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
                 if (controller.entries.isEmpty) {
                   return _EmptyWorkEntries(scheme: scheme);
                 }
-                return _WorkEntriesTable(scheme: scheme, controller: controller);
+                return _WorkEntriesTable(
+                    scheme: scheme, controller: controller);
               }),
             ],
           ),
@@ -190,9 +160,16 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
     );
   }
 
-  Future<void> _pickDate(BuildContext context, CleanerPayoutComputationController ctrl, {required bool isFrom}) async {
-    final initial = isFrom ? ctrl.scheduleValidFrom.value : ctrl.scheduleValidTo.value;
-    final d = await showDatePicker(context: context, initialDate:  DateTime.now(), firstDate: DateTime(2020, 1, 1), lastDate: DateTime(2030, 12, 31));
+  Future<void> _pickDate(
+      BuildContext context, CleanerPayoutComputationController ctrl,
+      {required bool isFrom}) async {
+    final initial =
+        isFrom ? ctrl.scheduleValidFrom.value : ctrl.scheduleValidTo.value;
+    final d = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2020, 1, 1),
+        lastDate: DateTime(2030, 12, 31));
     if (d == null || !context.mounted) return;
     if (isFrom) {
       ctrl.setScheduleValidFrom(d);
@@ -200,7 +177,8 @@ class CleanerPayoutComputationView extends GetView<CleanerPayoutComputationContr
       ctrl.setScheduleValidTo(d);
     }
 
-    if (ctrl.scheduleValidFrom.value != null && ctrl.scheduleValidTo.value != null) {
+    if (ctrl.scheduleValidFrom.value != null &&
+        ctrl.scheduleValidTo.value != null) {
       ctrl.getPayoutComputation();
     }
   }
@@ -228,9 +206,13 @@ class _SummaryCard extends StatelessWidget {
     return AppCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       borderWidth: 1,
-      borderColor: isHighlight ? accentColor.withValues(alpha: 0.35) : scheme.outline.withValues(alpha: 0.15),
+      borderColor: isHighlight
+          ? accentColor.withValues(alpha: 0.35)
+          : scheme.outline.withValues(alpha: 0.15),
       enableShadows: isHighlight ? false : true,
-      color: isHighlight ? accentColor.withValues(alpha: 0.08) : scheme.surfaceContainerHighest,
+      color: isHighlight
+          ? accentColor.withValues(alpha: 0.08)
+          : scheme.surfaceContainerHighest,
       child: Row(
         children: [
           Container(
@@ -245,8 +227,10 @@ class _SummaryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CommonText.regular(label, size: 12, color: scheme.onSurfaceVariant).marginOnly(bottom: 4),
-                CommonText.semiBold('£$value', size: 18, color: accentColor),
+                CommonText.medium(label,
+                        size: 14, color: scheme.onSurfaceVariant)
+                    .marginOnly(bottom: 4),
+                CommonText.bold('£$value', size: 18, color: accentColor),
               ],
             ),
           ),
@@ -271,8 +255,13 @@ class _EmptyWorkEntries extends StatelessWidget {
       enableShadows: true,
       child: Column(
         children: [
-          Icon(IconsaxPlusLinear.document_text, size: 44, color: scheme.onSurfaceVariant.withValues(alpha: 0.6)).marginOnly(bottom: 16),
-          CommonText.semiBold('No work entries', size: 16, color: scheme.onSurface).marginOnly(bottom: 6),
+          Icon(IconsaxPlusLinear.document_text,
+                  size: 44,
+                  color: scheme.onSurfaceVariant.withValues(alpha: 0.6))
+              .marginOnly(bottom: 16),
+          CommonText.semiBold('No work entries',
+                  size: 16, color: scheme.onSurface)
+              .marginOnly(bottom: 6),
           CommonText.regular(
             'Select a date range to load work entries. If none appear, there are no records for this period.',
             size: 14,
@@ -327,16 +316,34 @@ class _WorkEntriesTable extends StatelessWidget {
           rows: controller.entries.map((entry) {
             return DataRow(
               cells: [
-                DataCell(CommonText.regular(entry.clientName?.toString() ?? '', size: 12)),
-                DataCell(CommonText.regular(entry.workedHours?.toString() ?? '0', size: 12)),
-                DataCell(CommonText.regular("${controller.residentialRate}", size: 12)),
-                DataCell(CommonText.regular("${controller.commercialRate}", size: 12)),
-                DataCell(CommonText.semiBold(entry.totalPayout?.toString() ?? '0', size: 12, color: scheme.primary)),
-                DataCell(CommonText.regular(entry.residentialEarnings?.toString() ?? 'N/A', size: 12)),
-                DataCell(CommonText.regular(entry.commercialEarnings?.toString() ?? 'N/A', size: 12)),
-                DataCell(_StatusChip(label: entry.status?.toString().capitalizeFirst ?? '', scheme: scheme)),
+                DataCell(CommonText.regular(entry.clientName?.toString() ?? '',
+                    size: 12)),
                 DataCell(CommonText.regular(
-                    entry.paidOn != null ? formatDate(entry.paidOn ?? "", inputFormat: 'yyyy-MM-dd', outputFormat: 'dd/MM/yyyy') : 'N/A',
+                    entry.workedHours?.toString() ?? '0',
+                    size: 12)),
+                DataCell(CommonText.regular("${controller.residentialRate}",
+                    size: 12)),
+                DataCell(CommonText.regular("${controller.commercialRate}",
+                    size: 12)),
+                DataCell(CommonText.semiBold(
+                    entry.totalPayout?.toString() ?? '0',
+                    size: 12,
+                    color: scheme.primary)),
+                DataCell(CommonText.regular(
+                    entry.residentialEarnings?.toString() ?? 'N/A',
+                    size: 12)),
+                DataCell(CommonText.regular(
+                    entry.commercialEarnings?.toString() ?? 'N/A',
+                    size: 12)),
+                DataCell(_StatusChip(
+                    label: entry.status?.toString().capitalizeFirst ?? '',
+                    scheme: scheme)),
+                DataCell(CommonText.regular(
+                    entry.paidOn != null
+                        ? formatDate(entry.paidOn ?? "",
+                            inputFormat: 'yyyy-MM-dd',
+                            outputFormat: 'dd/MM/yyyy')
+                        : 'N/A',
                     size: 12)),
               ],
             );
@@ -394,9 +401,11 @@ class _DateField extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CommonText.semiBold(label, size: 14, color: scheme.onSurface).marginOnly(bottom: 6),
+            CommonText.semiBold(label, size: 14, color: scheme.onSurface)
+                .marginOnly(bottom: 6),
             Material(
-              color: context.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              color: context.colorScheme.surfaceContainerHighest
+                  .withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
               child: InkWell(
                 onTap: onTap,
@@ -412,17 +421,21 @@ class _DateField extends StatelessWidget {
                       children: [
                         if (value != null && onClear != null)
                           IconButton(
-                            icon: Icon(IconsaxPlusLinear.close_circle, size: 18, color: scheme.onSurfaceVariant),
+                            icon: Icon(IconsaxPlusLinear.close_circle,
+                                size: 18, color: scheme.onSurfaceVariant),
                             onPressed: onClear,
                             constraints: const BoxConstraints(),
                             padding: const EdgeInsets.all(4),
                           ),
-                        Icon(IconsaxPlusLinear.calendar_1, size: 18, color: scheme.primary),
+                        Icon(IconsaxPlusLinear.calendar_1,
+                            size: 18, color: scheme.primary),
                       ],
                     ).marginOnly(right: 8),
                   ),
                   isEmpty: value == null,
-                  child: CommonText.regular(value != null ? CcsDateUtils.forInput(value!) : '', color: scheme.onSurface),
+                  child: CommonText.regular(
+                      value != null ? CcsDateUtils.forInput(value!) : '',
+                      color: scheme.onSurface),
                 ),
               ),
             ),
