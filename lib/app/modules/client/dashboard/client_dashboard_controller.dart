@@ -8,6 +8,7 @@ import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:step_progress/step_progress.dart';
 
 import '../../../model/calendar_event.dart';
 import '../../../network/repository/client_repository.dart';
@@ -24,6 +25,12 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   final CommonRepository _commonRepository = CommonRepository();
   final ClientRepository _clientRepository = ClientRepository();
 
+  late StepProgressController stepProgressController;
+  final nodeIcons = [
+    Icon(IconsaxPlusBold.user),
+    Icon(IconsaxPlusBold.home),
+    Icon(IconsaxPlusBold.briefcase),
+  ];
   final tabIndex = 0.obs;
   var appVersion = "".obs;
 
@@ -32,6 +39,12 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
         // ClientNotificationsView(),
         ClientProfileView()
       ];
+
+  List<MenuModel> alertItems = [
+    MenuModel(icon: IconsaxPlusLinear.user, title: 'Complete Profile (Verify Email If Pending', subtitle: ""),
+    MenuModel(icon: IconsaxPlusLinear.home_2, title: 'Create Property', subtitle: ""),
+    MenuModel(icon: IconsaxPlusLinear.briefcase, title: 'Create Jobs', subtitle: ""),
+  ];
 
   List<MenuModel> profileItems = [
     MenuModel(icon: IconsaxPlusLinear.lock_1, title: 'Change password', subtitle: "Change password to protect your account"),
@@ -67,11 +80,16 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
 
   /// Properties for dashboard home listing (fetched via listProperties).
   final RxList<PropertyModel> dashboardProperties = <PropertyModel>[].obs;
-  final Rxn<ClientDashModel> clientDash = Rxn<ClientDashModel>(null);
+  final Rxn<ClientDashModel> clientDash = Rxn<ClientDashModel>();
+
+  var registrationProgress = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
+
+    stepProgressController = StepProgressController(initialStep: 0, totalSteps: 3);
+
     if (!Get.find<SessionService>().isLoggedIn) {
       Get.offAllNamed(Routes.LOGIN);
       return;
@@ -96,9 +114,6 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
         }
       }
     });
-
-    getProfile();
-
   }
 
   bool get _isScrollBottom {
@@ -345,11 +360,39 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
         success: (response) {
           final raw = response.data;
           clientDash.value = raw;
+
+          registrationProgress.value = clientDash.value?.registrationProgress?.toInt() ?? 0;
+
+          final profileCreated = true;
+          final propertyAdded = clientDash.value?.propertyAdded ?? false;
+          final jobAdded = clientDash.value?.jobAdded ?? false;
+
+          if (profileCreated && propertyAdded && jobAdded) {
+            stepProgressController.setCurrentStep(2);
+          } else if (profileCreated && propertyAdded) {
+            stepProgressController.setCurrentStep(1);
+          } else if (profileCreated) {
+            stepProgressController.setCurrentStep(0);
+          }
+
           if (raw != null && raw.properties?.isNotEmpty == true) {
             dashboardProperties.assignAll(raw.properties as Iterable<PropertyModel>);
           } else {
             dashboardProperties.clear();
           }
+
+          if (!jobAdded) {
+            Loader.hide();
+            // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (Get.context == null) return;
+
+              showAlertSheet(Get.context!);
+            });
+          }
+        },
+        onError: (e) {
+          log(runtimeType.toString(), "ERROR ${e}");
         },
         contextTag: 'get-client-dash',
       );
@@ -373,15 +416,12 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
           final admins = value.data?.admins;
 
           if (admins?.isNotEmpty == true) {
-
-            for(final admin in  admins!){
+            for (final admin in admins!) {
               prefs.addAdminId(admin.id?.toInt() ?? 0);
             }
-
           }
 
           print('Admin IDS : ${prefs.getAdminsIds()}');
-
         },
         contextTag: 'get-profile',
       );
@@ -392,10 +432,55 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     }
   }
 
+  Future showAlertSheet(BuildContext context) async {
+    Notifier.openSheet(
+      context,
+      top: true,
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      showIcon: false,
+      body: Column(
+        children: [
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: alertItems.length,
+            itemBuilder: (context, index) {
+              final item = alertItems[index];
+              return AppCard(
+                color: context.colorScheme.onPrimary,
+                borderWidth: 0,
+                  onTap: () {
+                    if(index == 0){
+                      Get.toNamed(Routes.CLIENT_EDIT_PROFILE);
+                    }else if(index == 1){
+                      Get.toNamed(Routes.ADD_PROPERTY);
+                    }else{
+                      goToCreateJob();
+                    }
+                  },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(item.icon, size: 48, color: context.colorScheme.secondary.withValues(alpha: 0.9)).marginOnly(bottom: 16),
+                    CommonText.semiBold(
+                      item.title ?? '',
+                      size: 16,
+                    ).marginOnly(bottom: 4),
+                  ],
+                ).paddingAll(16),
+              ).marginAll(8);
+            },
+          ),
+          CommonText.regular('Follow these quick steps to get started', size: 16).marginOnly(bottom: 16),
+        ],
+      ),
+    );
+  }
 
   @override
   void onReady() {
     getClientDash();
+    getProfile();
     super.onReady();
   }
 }

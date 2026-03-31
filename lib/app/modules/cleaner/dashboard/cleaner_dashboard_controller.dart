@@ -169,7 +169,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       }
     });
 
-    getProfile();
 
     getAppVersion();
     _registerDevice();
@@ -213,6 +212,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   void onReady() {
     super.onReady();
     _fetchDashboardData();
+    getProfile();
   }
 
   Future<void> _fetchDashboardData() async {

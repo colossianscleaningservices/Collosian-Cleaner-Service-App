@@ -39,6 +39,12 @@ class ClientDashModel {
     this.properties,
     this.todayJobs,
     this.upcomingJobs,
+    this.profileCompletion,
+    this.profileCreated,
+    this.propertyAdded,
+    this.jobAdded,
+    this.registrationProgress,
+    this.missingFields,
   });
 
   ClientDashModel.fromJson(dynamic json) {
@@ -60,11 +66,23 @@ class ClientDashModel {
         upcomingJobs?.add(Jobs.fromJson(v));
       });
     }
+    profileCompletion = json['profile_completion'];
+    profileCreated = json['profile_created'];
+    propertyAdded = json['property_added'];
+    jobAdded = json['job_added'];
+    registrationProgress = json['registration_progress'];
+    missingFields = json['missing_fields'] != null ? json['missing_fields'].cast<String>() : [];
   }
 
   List<PropertyModel>? properties;
   List<Jobs>? todayJobs;
   List<Jobs>? upcomingJobs;
+  num? profileCompletion;
+  bool? profileCreated;
+  bool? propertyAdded;
+  bool? jobAdded;
+  num? registrationProgress;
+  List<String>? missingFields;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
