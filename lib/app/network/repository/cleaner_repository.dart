@@ -204,10 +204,10 @@ class CleanerRepository extends BaseRepository {
   }
 
   Future<NetworkResult<BaseResponse>> updateReference(int id, Map<String, dynamic> data) async {
-    return post<BaseResponse>(
+    return put<BaseResponse>(
       endpoint: Endpoint.updateReference(id),
       fromJson: (json) => BaseResponse.fromJson(json),
-      data: FormData.fromMap(data),
+      data: data,
     );
   }
 

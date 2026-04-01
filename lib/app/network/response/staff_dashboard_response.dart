@@ -1,9 +1,10 @@
 class StaffDashboardResponse {
   StaffDashboardResponse({
-      this.message, 
-      this.version, 
-      this.code, 
-      this.data,});
+    this.message,
+    this.version,
+    this.code,
+    this.data,
+  });
 
   StaffDashboardResponse.fromJson(dynamic json) {
     message = json['message'];
@@ -11,6 +12,7 @@ class StaffDashboardResponse {
     code = json['code'];
     data = json['data'] != null ? StaffDashModel.fromJson(json['data']) : null;
   }
+
   String? message;
   String? version;
   num? code;
@@ -26,16 +28,10 @@ class StaffDashboardResponse {
     }
     return map;
   }
-
 }
 
 class StaffDashModel {
-  StaffDashModel({
-      this.totalSchedules, 
-      this.upcomingJob, 
-      this.totalEarnings, 
-      this.profileCompletion, 
-      this.actionNeededCount,});
+  StaffDashModel({this.totalSchedules, this.upcomingJob, this.totalEarnings, this.profileCompletion, this.actionNeededCount, this.isDocumentAdded});
 
   StaffDashModel.fromJson(dynamic json) {
     totalSchedules = json['total_schedules'];
@@ -43,12 +39,15 @@ class StaffDashModel {
     totalEarnings = json['total_earnings'];
     profileCompletion = json['profile_completion'] != null ? ProfileCompletion.fromJson(json['profile_completion']) : null;
     actionNeededCount = json['action_needed_count'];
+    isDocumentAdded = json['is_document_added'];
   }
+
   num? totalSchedules;
   UpcomingJob? upcomingJob;
   num? totalEarnings;
   ProfileCompletion? profileCompletion;
   num? actionNeededCount;
+  bool? isDocumentAdded;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -61,20 +60,22 @@ class StaffDashModel {
       map['profile_completion'] = profileCompletion?.toJson();
     }
     map['action_needed_count'] = actionNeededCount;
+    map['is_document_added'] = isDocumentAdded;
     return map;
   }
-
 }
 
 class ProfileCompletion {
   ProfileCompletion({
-      this.percentage, 
-      this.status,});
+    this.percentage,
+    this.status,
+  });
 
   ProfileCompletion.fromJson(dynamic json) {
     percentage = json['percentage'];
     status = json['status'];
   }
+
   num? percentage;
   String? status;
 
@@ -84,44 +85,44 @@ class ProfileCompletion {
     map['status'] = status;
     return map;
   }
-
 }
 
 class UpcomingJob {
   UpcomingJob({
-      this.id, 
-      this.date, 
-      this.startTime, 
-      this.endTime, 
-      this.areaRequirement, 
-      this.accessToProperty, 
-      this.provideCleaningProducts, 
-      this.staffPreference, 
-      this.before, 
-      this.after, 
-      this.status, 
-      this.propertyId, 
-      this.userId, 
-      this.pricingChartId, 
-      this.isDeleted, 
-      this.cleaningType, 
-      this.additionalDetails, 
-      this.hoover, 
-      this.provideWashingMachine, 
-      this.provideDryer, 
-      this.additionalData, 
-      this.notified, 
-      this.scheduleId, 
-      this.jobStartDate, 
-      this.jobEndDate, 
-      this.jobType, 
-      this.numberOfCleaners, 
-      this.numberOfGuests, 
-      this.celebrationType, 
-      this.venueAddress, 
-      this.createdAt, 
-      this.updatedAt, 
-      this.property,});
+    this.id,
+    this.date,
+    this.startTime,
+    this.endTime,
+    this.areaRequirement,
+    this.accessToProperty,
+    this.provideCleaningProducts,
+    this.staffPreference,
+    this.before,
+    this.after,
+    this.status,
+    this.propertyId,
+    this.userId,
+    this.pricingChartId,
+    this.isDeleted,
+    this.cleaningType,
+    this.additionalDetails,
+    this.hoover,
+    this.provideWashingMachine,
+    this.provideDryer,
+    this.additionalData,
+    this.notified,
+    this.scheduleId,
+    this.jobStartDate,
+    this.jobEndDate,
+    this.jobType,
+    this.numberOfCleaners,
+    this.numberOfGuests,
+    this.celebrationType,
+    this.venueAddress,
+    this.createdAt,
+    this.updatedAt,
+    this.property,
+  });
 
   UpcomingJob.fromJson(dynamic json) {
     id = json['id'];
@@ -158,6 +159,7 @@ class UpcomingJob {
     updatedAt = json['updated_at'];
     property = json['property'] != null ? Property.fromJson(json['property']) : null;
   }
+
   num? id;
   String? date;
   String? startTime;
@@ -233,38 +235,38 @@ class UpcomingJob {
     }
     return map;
   }
-
 }
 
 class Property {
   Property({
-      this.id, 
-      this.propertyName, 
-      this.city, 
-      this.postalCode, 
-      this.animalProperty, 
-      this.userId, 
-      this.propertyType, 
-      this.subType, 
-      this.isDeleted, 
-      this.address, 
-      this.additionalDetails, 
-      this.accessToProperty, 
-      this.hoover, 
-      this.provideCleaningProducts, 
-      this.provideWashingMachine, 
-      this.provideDryer, 
-      this.staffPreference, 
-      this.bussinessType, 
-      this.createdAt, 
-      this.updatedAt, 
-      this.bedrooms, 
-      this.bathrooms, 
-      this.separateGuestToilet, 
-      this.livingRooms, 
-      this.office, 
-      this.conservatory, 
-      this.diningRoom,});
+    this.id,
+    this.propertyName,
+    this.city,
+    this.postalCode,
+    this.animalProperty,
+    this.userId,
+    this.propertyType,
+    this.subType,
+    this.isDeleted,
+    this.address,
+    this.additionalDetails,
+    this.accessToProperty,
+    this.hoover,
+    this.provideCleaningProducts,
+    this.provideWashingMachine,
+    this.provideDryer,
+    this.staffPreference,
+    this.bussinessType,
+    this.createdAt,
+    this.updatedAt,
+    this.bedrooms,
+    this.bathrooms,
+    this.separateGuestToilet,
+    this.livingRooms,
+    this.office,
+    this.conservatory,
+    this.diningRoom,
+  });
 
   Property.fromJson(dynamic json) {
     id = json['id'];
@@ -295,6 +297,7 @@ class Property {
     conservatory = json['conservatory'];
     diningRoom = json['dining_room'];
   }
+
   num? id;
   String? propertyName;
   String? city;
@@ -354,19 +357,19 @@ class Property {
     map['dining_room'] = diningRoom;
     return map;
   }
-
 }
 
 class CleaningType {
   CleaningType({
-      this.id, 
-      this.name, 
-      this.description, 
-      this.isActive, 
-      this.isDeleted, 
-      this.sortOrder, 
-      this.createdAt, 
-      this.updatedAt,});
+    this.id,
+    this.name,
+    this.description,
+    this.isActive,
+    this.isDeleted,
+    this.sortOrder,
+    this.createdAt,
+    this.updatedAt,
+  });
 
   CleaningType.fromJson(dynamic json) {
     id = json['id'];
@@ -378,6 +381,7 @@ class CleaningType {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
+
   num? id;
   String? name;
   String? description;
@@ -399,5 +403,4 @@ class CleaningType {
     map['updated_at'] = updatedAt;
     return map;
   }
-
 }

@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/network/request/save_cleaner_assessment_request.dart';
+import 'package:ccs_app/app/network/response/get_agency_response.dart';
 import 'package:ccs_app/app/network/response/login_signup_response.dart';
 import 'package:ccs_app/app/network/response/save_cleaner_assessment_response.dart';
 
@@ -35,7 +36,8 @@ class AuthRepository extends BaseRepository {
     String? phoneNumber,
     String? verificationCode,
     List<num?>? answersId,
-    bool? isVerified
+    bool? isVerified,
+    // int? agencyId
   }) async {
     final payload = <String, dynamic>{
       'first_name': firstName.trim(),
@@ -46,7 +48,8 @@ class AuthRepository extends BaseRepository {
       'role': role,
       'verification_code': verificationCode,
       'answer_ids': answersId,
-      'is_verified': isVerified
+      'is_verified': isVerified,
+      // 'agency_id': agencyId
     };
     if (phoneNumber != null && phoneNumber.trim().isNotEmpty) {
       payload['phone_number'] = phoneNumber.trim();
@@ -209,6 +212,14 @@ class AuthRepository extends BaseRepository {
   Future<NetworkResult<BaseResponse>> verifyOtp({required String email, required String otp}) async {
     return post<BaseResponse>(
         endpoint: Endpoint.verifyOtp, fromJson: (json) => BaseResponse.fromJson(json), data: <String, String>{'email': email,'otp': otp});
+  }
+  /// Get Agencies.
+  Future<NetworkResult<GetAgencyResponse>> getAgencies({String? search}) async {
+    return get<GetAgencyResponse>(
+      endpoint: Endpoint.getAgencies,
+      fromJson: (json) => GetAgencyResponse.fromJson(json),
+      queryParameters: search != null ? {'search': search} : null,
+    );
   }
 
 }

@@ -111,6 +111,8 @@ class CleanerReferencesController extends GetxController {
     data["company_name"] = companyNameCtrl.text;
     data["relationship"] = relationship.value;
 
+    print('Reference Data : $data');
+
     isEditingReference.value ? _updateReference(data) : _createReference(data);
   }
 
@@ -149,8 +151,8 @@ class CleanerReferencesController extends GetxController {
           if (Get.context == null) return;
           Notifier.openSheet(Get.context as BuildContext, type: SheetType.success, title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
             clearForm();
-            getCleanerReference();
             Get.back(result: true);
+            getCleanerReference();
           });
         });
       },

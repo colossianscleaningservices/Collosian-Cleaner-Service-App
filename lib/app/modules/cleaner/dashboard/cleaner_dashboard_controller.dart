@@ -33,6 +33,12 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
   final tabIndex = 0.obs;
 
+  List<MenuModel> alertItems = [
+    MenuModel(icon: IconsaxPlusLinear.user, title: 'Complete Profile', subtitle: ""),
+    MenuModel(icon: IconsaxPlusLinear.document, title: 'Upload Documents', subtitle: ""),
+    MenuModel(icon: IconsaxPlusLinear.calendar, title: 'View Calendar', subtitle: ""),
+  ];
+
   late final TabController tabController;
   final focusedDay = DateTime.now().obs;
   final selectedDay = Rxn<DateTime>();
@@ -211,11 +217,11 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   @override
   void onReady() {
     super.onReady();
-    _fetchDashboardData();
+    _fetchDashboardData(showAlert: true);
     getProfile();
   }
 
-  Future<void> _fetchDashboardData() async {
+  Future<void> _fetchDashboardData({bool showAlert = false}) async {
     Loader.show();
     try {
       final compResult = await _cleanerRepository.getCleanerDashboard();
@@ -225,6 +231,18 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           profileCompletionPercentage.value = staffDash.value?.profileCompletion?.percentage?.toInt() ?? 0;
           isProfileComplete.value = profileCompletionPercentage.value == 100;
           earningsTotal.value = "£${staffDash.value?.totalEarnings?.toString()}";
+
+          final documentAdded = staffDash.value?.isDocumentAdded ?? false;
+
+          if (showAlert && !documentAdded) {
+            Loader.hide();
+            // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (Get.context == null) return;
+              showAlertSheet(Get.context!);
+            });
+          }
+
         },
       );
       /*final actionResult = await _cleanerRepository.getActionNeeded();
@@ -836,6 +854,52 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     } finally {
       Loader.hide();
     }
+  }
+
+  Future showAlertSheet(BuildContext context) async {
+    Notifier.openSheet(
+      context,
+      top: true,
+      showPrimaryButton: false,
+      showSecondaryButton: false,
+      showIcon: false,
+      body: Column(
+        children: [
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: alertItems.length,
+            itemBuilder: (context, index) {
+              final item = alertItems[index];
+              return AppCard(
+                color: context.colorScheme.onPrimary,
+                borderWidth: 0,
+                onTap: () {
+                  Get.back();
+                  if(index == 0){
+                    Get.toNamed(Routes.CLEANER_EDIT_PROFILE);
+                  }else if(index == 1){
+                    Get.toNamed(Routes.SUPPORT_DOCUMENT, arguments: {'from': ' dash'});
+                  }else{
+                    setTab(1);
+                  }
+                },
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(item.icon, size: 48, color: context.colorScheme.secondary.withValues(alpha: 0.9)).marginOnly(bottom: 16),
+                    CommonText.semiBold(
+                      item.title ?? '',
+                      size: 16,
+                    ).marginOnly(bottom: 4),
+                  ],
+                ).paddingAll(16),
+              ).marginAll(8);
+            },
+          ),
+          CommonText.regular('Follow these quick steps to get started', size: 16).marginOnly(bottom: 16),
+        ],
+      ),
+    );
   }
 
 }

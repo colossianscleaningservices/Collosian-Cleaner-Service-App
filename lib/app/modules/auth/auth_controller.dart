@@ -3,6 +3,7 @@ import 'package:ccs_app/app/network/request/save_cleaner_assessment_request.dart
 import 'package:ccs_app/app/network/response/assessment_category_response.dart';
 import 'package:ccs_app/app/network/response/assessment_question_response.dart' as aq;
 import 'package:ccs_app/app/network/response/base_response.dart';
+import 'package:ccs_app/app/network/response/get_agency_response.dart';
 import 'package:ccs_app/app/network/response/user_response.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
@@ -14,6 +15,15 @@ class AuthController extends GetxController {
   // ─── Dependencies & role ─────────────────────────────────────────────────
   final AuthRepository _authRepository = AuthRepository();
   final selectedRole = Rxn<UserRole>();
+
+  final agencyList = <Agency>[].obs;
+  final mainAgencyList = <Agency>[].obs;
+  final agencyController = TextEditingController();
+  var isLoadingAgency = false.obs;
+  var searchController = TextEditingController();
+  var searchFocus = FocusNode();
+  var searchTerm = ''.obs;
+  var prevSearch = '';
 
   // ─── Login ───────────────────────────────────────────────────────────────
   final loginFormKey = GlobalKey<FormState>();
@@ -75,6 +85,23 @@ class AuthController extends GetxController {
         from = Get.arguments['from'];
       }
     }
+
+/*    _loadAgencies(isFromInit: true);
+
+    searchController.addListener(() {
+      if (searchController.text.trim().length > 2) {
+        if (searchController.text.isNotEmpty) {
+          if (prevSearch == searchController.text.trim()) return;
+        }
+        _loadAgencies(isFromSearch: true);
+      } else if (searchController.text.isEmpty) {
+        if (mainAgencyList.isNotEmpty) {
+          agencyList.clear();
+          agencyList.addAll(mainAgencyList);
+        }
+      }
+    });*/
+
     super.onInit();
   }
 
@@ -100,7 +127,13 @@ class AuthController extends GetxController {
     changePasswordCurrentCtrl.dispose();
     changePasswordNewCtrl.dispose();
     changePasswordConfirmCtrl.dispose();
+    // agencyController.dispose();
     super.onClose();
+  }
+
+  String? validateRequired(String? v, [String name = 'This field']) {
+    if (v == null || v.isEmpty) return '$name is required';
+    return null;
   }
 
   // ─── Role & navigation ───────────────────────────────────────────────────
@@ -379,17 +412,16 @@ class AuthController extends GetxController {
       final lastName = signupLastNameCtrl.text.trim().isNotEmpty ? signupLastNameCtrl.text.trim() : signupEmailCtrl.text.trim();
       final roleStr = role == UserRole.client ? 'client' : 'staff';
       final result = await _authRepository.userRegister(
-        firstName: firstName,
-        lastName: lastName,
-        email: signupEmailCtrl.text.trim(),
-        password: signupPasswordCtrl.text,
-        passwordConfirmation: signupPasswordCtrl.text,
-        role: roleStr,
-        phoneNumber: signupPhoneCtrl.text.trim().isNotEmpty ? signupPhoneCtrl.text.trim() : null,
-        verificationCode: role == UserRole.cleaner ? signupNiNumberCtrl.text.trim() : null,
-        answersId: role == UserRole.cleaner ? answersId : null,
-        isVerified: true,
-      );
+          firstName: firstName,
+          lastName: lastName,
+          email: signupEmailCtrl.text.trim(),
+          password: signupPasswordCtrl.text,
+          passwordConfirmation: signupPasswordCtrl.text,
+          role: roleStr,
+          phoneNumber: signupPhoneCtrl.text.trim().isNotEmpty ? signupPhoneCtrl.text.trim() : null,
+          verificationCode: role == UserRole.cleaner ? signupNiNumberCtrl.text.trim() : null,
+          answersId: role == UserRole.cleaner ? answersId : null,
+          isVerified: true);
       result.handle(
         success: (response) async {
           final data = response.data;
@@ -609,6 +641,37 @@ class AuthController extends GetxController {
       await Notifier.apiError(e, contextTag: 'send_OTP');
     } finally {
       Loader.hide();
+    }
+  }
+
+  Future<void> _loadAgencies({bool isFromSearch = false, bool isFromInit = false}) async {
+    isLoadingAgency.value = true;
+    try {
+      final result = await _authRepository.getAgencies(search: searchController.text);
+      result.handle(
+        success: (response) {
+          final raw = response.data;
+          agencyList.clear();
+          if (!isFromSearch) {
+            mainAgencyList.clear();
+          } else {
+            prevSearch = searchController.text.trim();
+          }
+          if (raw != null && raw.isNotEmpty) {
+            agencyList.assignAll(raw);
+            if (!isFromSearch) {
+              mainAgencyList.assignAll(agencyList);
+            }
+          }
+
+          if (searchController.text.isEmpty) {
+            agencyList.clear();
+            agencyList.addAll(mainAgencyList);
+          }
+        },
+      );
+    } finally {
+      isLoadingAgency.value = false;
     }
   }
 }

@@ -41,7 +41,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       ];
 
   List<MenuModel> alertItems = [
-    MenuModel(icon: IconsaxPlusLinear.user, title: 'Complete Profile (Verify Email If Pending', subtitle: ""),
+    MenuModel(icon: IconsaxPlusLinear.user, title: 'Complete Profile', subtitle: ""),
     MenuModel(icon: IconsaxPlusLinear.home_2, title: 'Create Property', subtitle: ""),
     MenuModel(icon: IconsaxPlusLinear.briefcase, title: 'Create Jobs', subtitle: ""),
   ];
@@ -352,7 +352,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   static String _formatDateForApi(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-  Future<void> getClientDash({bool isLoaderShown = true}) async {
+  Future<void> getClientDash({bool isLoaderShown = true, bool showAlert = false}) async {
     if (isLoaderShown) Loader.show();
     try {
       final result = await _clientRepository.getClientDash();
@@ -381,12 +381,11 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
             dashboardProperties.clear();
           }
 
-          if (!jobAdded) {
+          if (showAlert && !jobAdded) {
             Loader.hide();
             // Defer sheet to next frame so Loader.hide() from finally can close the loader first
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (Get.context == null) return;
-
               showAlertSheet(Get.context!);
             });
           }
@@ -450,6 +449,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
                 color: context.colorScheme.onPrimary,
                 borderWidth: 0,
                   onTap: () {
+                    Get.back();
                     if(index == 0){
                       Get.toNamed(Routes.CLIENT_EDIT_PROFILE);
                     }else if(index == 1){
@@ -479,7 +479,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
 
   @override
   void onReady() {
-    getClientDash();
+    getClientDash(showAlert: true);
     getProfile();
     super.onReady();
   }
