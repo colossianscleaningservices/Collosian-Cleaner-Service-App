@@ -111,8 +111,6 @@ class CleanerReferencesController extends GetxController {
     data["company_name"] = companyNameCtrl.text;
     data["relationship"] = relationship.value;
 
-    print('Reference Data : $data');
-
     isEditingReference.value ? _updateReference(data) : _createReference(data);
   }
 

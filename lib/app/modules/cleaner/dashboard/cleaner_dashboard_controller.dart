@@ -175,7 +175,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       }
     });
 
-
     getAppVersion();
     _registerDevice();
   }
@@ -242,7 +241,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
               showAlertSheet(Get.context!);
             });
           }
-
         },
       );
       /*final actionResult = await _cleanerRepository.getActionNeeded();
@@ -585,16 +583,15 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
             final dateKey = _parseCalendarDate(item.date);
             if (dateKey == null) continue;
             final event = CalendarEvent(
-              title: item.cleaningType?.name ?? "",
-              timeRange: _formatTimeRange(item.startTime, item.endTime),
-              status: item.status ?? 'Pending',
-              jobId: item.id,
-              propertyName: item.property?.propertyName ?? "",
-              address: item.property?.address ?? "",
-              subtitle: item.property?.additionalDetails ?? "",
-              cleanerInfo: item.cleaners?.map((cl) => cl.name ?? "").toList().join(', '),
-              cleanerJobStatus: item.cleanerJobStatus
-            );
+                title: item.cleaningType?.name ?? "",
+                timeRange: _formatTimeRange(item.startTime, item.endTime),
+                status: item.status ?? 'Pending',
+                jobId: item.id,
+                propertyName: item.property?.propertyName ?? "",
+                address: item.property?.address ?? "",
+                subtitle: item.property?.additionalDetails ?? "",
+                cleanerInfo: item.cleaners?.map((cl) => cl.name ?? "").toList().join(', '),
+                cleanerJobStatus: item.cleanerJobStatus);
             map.putIfAbsent(dateKey, () => []).add(event);
           }
           calendarEventsMap.value = map;
@@ -837,15 +834,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           final admins = value.data?.admins;
 
           if (admins?.isNotEmpty == true) {
-
-            for(final admin in  admins!){
+            for (final admin in admins!) {
               prefs.addAdminId(admin.id?.toInt() ?? 0);
             }
-
           }
-
-          print('Admin IDS : ${prefs.getAdminsIds()}');
-
         },
         contextTag: 'get-profile',
       );
@@ -875,11 +867,11 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
                 borderWidth: 0,
                 onTap: () {
                   Get.back();
-                  if(index == 0){
+                  if (index == 0) {
                     Get.toNamed(Routes.CLEANER_EDIT_PROFILE);
-                  }else if(index == 1){
+                  } else if (index == 1) {
                     Get.toNamed(Routes.SUPPORT_DOCUMENT, arguments: {'from': ' dash'});
-                  }else{
+                  } else {
                     setTab(1);
                   }
                 },
@@ -901,5 +893,4 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       ),
     );
   }
-
 }

@@ -420,7 +420,6 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
             }
           }
 
-          print('Admin IDS : ${prefs.getAdminsIds()}');
         },
         contextTag: 'get-profile',
       );

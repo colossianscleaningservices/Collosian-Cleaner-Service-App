@@ -13,7 +13,6 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-print(controller.job?.cleanerJobStatus);
     return AppScaffold(
       appBar: Header(
         title: controller.pageTitle,

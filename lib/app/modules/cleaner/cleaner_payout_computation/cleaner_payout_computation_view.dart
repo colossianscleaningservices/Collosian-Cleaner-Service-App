@@ -163,8 +163,6 @@ class CleanerPayoutComputationView
   Future<void> _pickDate(
       BuildContext context, CleanerPayoutComputationController ctrl,
       {required bool isFrom}) async {
-    final initial =
-        isFrom ? ctrl.scheduleValidFrom.value : ctrl.scheduleValidTo.value;
     final d = await showDatePicker(
         context: context,
         initialDate: DateTime.now(),

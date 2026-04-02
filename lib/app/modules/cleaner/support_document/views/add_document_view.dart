@@ -61,8 +61,6 @@ class AddDocumentView extends GetView<SupportDocumentController> {
                   ).marginSymmetric(vertical: 8).marginSymmetric(horizontal: 4),
                 ),
                 Obx(() {
-                  print(controller.selectedDocument.value?.documentUrl?.split('/').last);
-                  print(controller.pickedFiles.length);
                   return Visibility(
                     visible: controller.isEditingDocument.value || controller.pickedFiles.isNotEmpty,
                     child: ListView.builder(

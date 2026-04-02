@@ -43,7 +43,6 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Obx(() {
-
                               return CommonText.semiBold(
                                 controller.userDisplayName.value,
                                 size: 18,

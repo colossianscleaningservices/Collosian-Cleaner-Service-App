@@ -216,7 +216,6 @@ class JobPropertyBlock extends StatelessWidget {
     final addr = addressText?.trim() ?? '';
     final title = propertyName?.trim() ?? '';
     final hasClient = clientName != null && clientName!.trim().isNotEmpty;
-    final gapBeforeAddress = title.isNotEmpty || (typeLine?.trim().isNotEmpty ?? false) || hasClient;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

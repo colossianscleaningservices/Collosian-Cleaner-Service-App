@@ -179,7 +179,6 @@ class ChatController extends GetxController {
       }).catchError((_) {});*/
     }
 
-    print('Participant Node Updated:');
   }
 
   void _ensureCurrentUserInParticipants() {
@@ -585,8 +584,6 @@ class ChatController extends GetxController {
     if (!snapshot.exists || snapshot.value == null) return [];
 
     final data = Map<String, dynamic>.from(snapshot.value as Map);
-
-    print('USERS : $data');
 
     final userList = data.values
         .whereType<Map>() // ensures safe casting

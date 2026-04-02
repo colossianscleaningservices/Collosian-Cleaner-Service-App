@@ -6,7 +6,6 @@ import 'package:ccs_app/export.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:step_progress/step_progress.dart';
 
 import '../../../network/repository/common_repository.dart';
 import '../../../services/pref.dart';
