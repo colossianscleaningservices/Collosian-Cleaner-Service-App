@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/export.dart';
+import 'package:linear_progress_bar/ui/circular_percent_indicator.dart';
 
 import '../cleaner_dashboard_controller.dart';
 import 'cleaner_earnings_view.dart';
@@ -259,6 +260,8 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
 
           // Enhanced profile completion card
           Obx(() {
+            final completion = controller.staffDash.value?.profileCompletion?.percentage ?? 0;
+
             if (controller.isProfileComplete.value) return const SizedBox.shrink();
             return AppCard(
               radius: UiConstants.radiusLarge,
@@ -268,11 +271,16 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AppCard(
-                    enableShadows: false,
-                    color: scheme.secondaryContainer,
-                    padding: const EdgeInsets.all(12),
-                    child: Icon(IconsaxPlusLinear.user_edit, size: 24, color: scheme.secondary),
+                  Center(
+                    child: CircularPercentIndicator(
+                      radius: 32,
+                      lineWidth: 6.0,
+                      percent: completion > 0 ? completion / 100 : 0.0,
+                      center: Text("$completion%"),
+                      progressColor: context.colorScheme.secondary,
+                      backgroundColor: Colors.grey.shade300,
+                      animation: true,
+                    ),
                   ),
                   SizedBox(width: 14),
                   Expanded(
