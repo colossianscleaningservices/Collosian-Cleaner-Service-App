@@ -38,7 +38,8 @@ class Jobs {
     this.scheduler,
     this.cleaners,
     this.createdAt,
-    this.updatedAt,});
+    this.updatedAt,
+  });
 
   Jobs.fromJson(dynamic json) {
     id = json['id'];
@@ -91,6 +92,7 @@ class Jobs {
     updatedAt = json['updated_at'];
     scheduler = json['scheduler'] != null ? Scheduler.fromJson(json['scheduler']) : null;
   }
+
   num? id;
   String? date;
   String? startTime;
@@ -184,7 +186,6 @@ class Jobs {
     }
     return map;
   }
-
 }
 
 class CleaningType {
@@ -195,7 +196,8 @@ class CleaningType {
     this.isActive,
     this.sortOrder,
     this.createdAt,
-    this.updatedAt,});
+    this.updatedAt,
+  });
 
   CleaningType.fromJson(dynamic json) {
     id = json['id'];
@@ -206,6 +208,7 @@ class CleaningType {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
+
   num? id;
   String? name;
   String? description;
@@ -225,7 +228,6 @@ class CleaningType {
     map['updated_at'] = updatedAt;
     return map;
   }
-
 }
 
 class Property {
@@ -256,7 +258,8 @@ class Property {
     this.conservatory,
     this.diningRoom,
     this.createdAt,
-    this.updatedAt,});
+    this.updatedAt,
+  });
 
   Property.fromJson(dynamic json) {
     id = json['id'];
@@ -287,6 +290,7 @@ class Property {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
+
   num? id;
   num? userId;
   String? propertyName;
@@ -346,7 +350,6 @@ class Property {
     map['updated_at'] = updatedAt;
     return map;
   }
-
 }
 
 class Cleaners {
@@ -363,7 +366,8 @@ class Cleaners {
     this.createdAt,
     this.imageUrl,
     this.updatedAt,
-    this.token,});
+    this.token,
+  });
 
   Cleaners.fromJson(dynamic json) {
     id = json['id'];
@@ -385,6 +389,7 @@ class Cleaners {
     updatedAt = json['updated_at'];
     token = json['token'];
   }
+
   num? id;
   String? firstName;
   String? lastName;
@@ -418,18 +423,19 @@ class Cleaners {
     map['token'] = token;
     return map;
   }
-
 }
 
 class Roles {
   Roles({
     this.id,
-    this.name,});
+    this.name,
+  });
 
   Roles.fromJson(dynamic json) {
     id = json['id'];
     name = json['name'];
   }
+
   num? id;
   String? name;
 
@@ -439,7 +445,6 @@ class Roles {
     map['name'] = name;
     return map;
   }
-
 }
 
 class JobCleaners {
@@ -456,7 +461,8 @@ class JobCleaners {
     this.checkOutDate,
     this.createdAt,
     this.user,
-    this.updatedAt,});
+    this.updatedAt,
+  });
 
   JobCleaners.fromJson(dynamic json) {
     id = json['id'];
@@ -473,6 +479,7 @@ class JobCleaners {
     updatedAt = json['updated_at'];
     user = json['user'] != null ? User.fromJson(json['user']) : null;
   }
+
   num? id;
   String? status;
   String? reason;
@@ -506,18 +513,17 @@ class JobCleaners {
     }
     return map;
   }
-
-
-
 }
 
 class ExtraFields {
   ExtraFields({
-    this.device,});
+    this.device,
+  });
 
   ExtraFields.fromJson(dynamic json) {
     device = json['device'] != null ? Device.fromJson(json['device']) : null;
   }
+
   Device? device;
 
   Map<String, dynamic> toJson() {
@@ -527,7 +533,6 @@ class ExtraFields {
     }
     return map;
   }
-
 }
 
 class Device {
@@ -538,7 +543,8 @@ class Device {
     this.ip,
     this.timezone,
     this.onesignalPlayerId,
-    this.lastUpdated,});
+    this.lastUpdated,
+  });
 
   Device.fromJson(dynamic json) {
     platform = json['platform'];
@@ -549,6 +555,7 @@ class Device {
     onesignalPlayerId = json['onesignal_player_id'];
     lastUpdated = json['last_updated'];
   }
+
   String? platform;
   String? appVersion;
   bool? debug;
@@ -568,7 +575,6 @@ class Device {
     map['last_updated'] = lastUpdated;
     return map;
   }
-
 }
 
 class User {
@@ -614,7 +620,8 @@ class User {
     this.bankName,
     this.accountHolderName,
     this.accountNumber,
-    this.sortCode,});
+    this.sortCode,
+  });
 
   User.fromJson(dynamic json) {
     id = json['id'];
@@ -660,6 +667,7 @@ class User {
     accountNumber = json['account_number'];
     sortCode = json['sort_code'];
   }
+
   num? id;
   String? firstName;
   String? lastName;
@@ -751,7 +759,6 @@ class User {
     map['sort_code'] = sortCode;
     return map;
   }
-
 }
 
 class Scheduler {
@@ -764,7 +771,8 @@ class Scheduler {
     this.repeatOn,
     this.startTime,
     this.endTime,
-    this.active,});
+    this.active,
+  });
 
   Scheduler.fromJson(dynamic json) {
     id = json['id'];
@@ -777,6 +785,7 @@ class Scheduler {
     endTime = json['end_time'];
     active = json['active'];
   }
+
   num? id;
   String? frequency;
   String? nextJobDate;
@@ -802,7 +811,6 @@ class Scheduler {
     map['active'] = active;
     return map;
   }
-
 }
 
 class RepeatOn {
@@ -813,7 +821,8 @@ class RepeatOn {
     this.thursday,
     this.friday,
     this.saturday,
-    this.sunday,});
+    this.sunday,
+  });
 
   RepeatOn.fromJson(dynamic json) {
     monday = json['monday'];
@@ -824,6 +833,7 @@ class RepeatOn {
     saturday = json['saturday'];
     sunday = json['sunday'];
   }
+
   bool? monday;
   bool? tuesday;
   bool? wednesday;
@@ -843,5 +853,4 @@ class RepeatOn {
     map['sunday'] = sunday;
     return map;
   }
-
 }

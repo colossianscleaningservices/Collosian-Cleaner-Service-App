@@ -44,9 +44,14 @@ class UpcomingJobView extends GetView<UpcomingJobController> {
                             child: controller.jobs.map((job) {
                               final approvedCleaners = job.jobCleaners?.where((cleaner) => cleaner.status == 'Approved').toList();
 
+                              String? timeRange;
+                              if (job.startTime != null && job.endTime != null) {
+                                timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
+                              }
+
                               return JobCard(
                                 title: job.cleaningType?.name ?? "N/A",
-                                dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
+                                dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
                                 status: job.status ?? "N/A",
                                 subtitle: (job.cleaners == null || job.cleaners?.isEmpty == true)
                                     ? ' - '

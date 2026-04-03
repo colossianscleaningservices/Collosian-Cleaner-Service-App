@@ -310,10 +310,14 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
           final map = <DateTime, List<CalendarEvent>>{};
           for (final item in list) {
             final dateKey = _parseCalendarDate(item.date);
+            String? timeRange;
+            if (item.startTime != null && item.endTime != null) {
+              timeRange = '${CcsDateTimeX.convertTime(item.startTime ?? '')} – ${CcsDateTimeX.convertTime(item.endTime ?? '')}';
+            }
             if (dateKey == null) continue;
             final event = CalendarEvent(
               title: item.cleaningType?.name ?? "",
-              timeRange: _formatTimeRange(item.startTime, item.endTime),
+              timeRange: timeRange,
               status: item.status ?? 'Pending',
               jobId: item.id,
               propertyName: item.property?.propertyName ?? "",
@@ -340,13 +344,6 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     final parsed = DateTime.tryParse(dateStr);
     if (parsed == null) return null;
     return DateTime(parsed.year, parsed.month, parsed.day);
-  }
-
-  String _formatTimeRange(String? start, String? end) {
-    if (start != null && end != null) return '$start – $end';
-    if (start != null) return start;
-    if (end != null) return end;
-    return '09:00 – 11:00';
   }
 
   static String _formatDateForApi(DateTime d) =>
@@ -419,7 +416,6 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
               prefs.addAdminId(admin.id?.toInt() ?? 0);
             }
           }
-
         },
         contextTag: 'get-profile',
       );
@@ -447,16 +443,16 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
               return AppCard(
                 color: context.colorScheme.onPrimary,
                 borderWidth: 0,
-                  onTap: () {
-                    Get.back();
-                    if(index == 0){
-                      Get.toNamed(Routes.CLIENT_EDIT_PROFILE);
-                    }else if(index == 1){
-                      Get.toNamed(Routes.ADD_PROPERTY);
-                    }else{
-                      goToCreateJob();
-                    }
-                  },
+                onTap: () {
+                  Get.back();
+                  if (index == 0) {
+                    Get.toNamed(Routes.CLIENT_EDIT_PROFILE);
+                  } else if (index == 1) {
+                    Get.toNamed(Routes.ADD_PROPERTY);
+                  } else {
+                    goToCreateJob();
+                  }
+                },
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

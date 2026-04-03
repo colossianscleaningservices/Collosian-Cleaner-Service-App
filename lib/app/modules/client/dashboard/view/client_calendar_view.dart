@@ -221,7 +221,7 @@ class _UpcomingEvents extends StatelessWidget {
           propertyName: events[i].propertyName,
           address: events[i].address,
           onTap: () => onJobTap(events[i]),
-        ).marginOnly(left: 6,right: 6,bottom: i == (events.length -1) ? 8 : 0),
+        ).marginOnly(left: 6, right: 6, bottom: i == (events.length - 1) ? 8 : 0),
       ),
     );
   }
@@ -278,11 +278,10 @@ class _ListContentView extends StatelessWidget {
                     Notifier.info('Job details (coming soon)');
                   }
                 },
-              ).marginOnly(left: 6,right: 6,bottom: i == (list.length -1) ? 8 : 0),
+              ).marginOnly(left: 6, right: 6, bottom: i == (list.length - 1) ? 8 : 0),
             ),
           ),
       ],
     );
   }
 }
-

@@ -309,7 +309,7 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
     String? timeRange;
     if (j.startTime != null && j.endTime != null) {
       timeRange =
-          '${CcsDateTimeX.convertTime(j.startTime ?? '')}–${CcsDateTimeX.convertTime(j.endTime ?? '')}';
+          '${CcsDateTimeX.convertTime(j.startTime ?? '')} – ${CcsDateTimeX.convertTime(j.endTime ?? '')}';
     }
     String? endsFormatted;
     if (j.jobEndDate != null && j.jobEndDate.toString().trim().isNotEmpty) {

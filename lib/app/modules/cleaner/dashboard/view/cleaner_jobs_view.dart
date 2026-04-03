@@ -85,12 +85,17 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: upcoming.map(
                       (job) {
                         var status = job.cleanerJobStatus ?? ( job.status ?? "N/A");
+                        String? timeRange;
+                        if (job.startTime != null && job.endTime != null) {
+                          timeRange =
+                          '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
+                        }
                         if (job.status == Constants.jobFinished) {
                           status = job.status ?? status;
                         }
                         return JobCard(
                           title: job.cleaningType?.name ?? "N/A",
-                          dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
+                          dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
                           status: status,
                           subtitle: (job.jobCleaners == null || job.jobCleaners?.isEmpty == true)
                               ? ' - '
@@ -123,12 +128,19 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: past.map(
                       (job) {
                         var status = job.cleanerJobStatus ?? ( job.status ?? "N/A");
+
+                        String? timeRange;
+                        if (job.startTime != null && job.endTime != null) {
+                          timeRange =
+                          '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
+                        }
+
                         if (job.status == Constants.jobFinished) {
                           status = job.status ?? status;
                         }
                         return JobCard(
                           title: job.cleaningType?.name ?? "N/A",
-                          dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
+                          dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
                           status: status,
                           subtitle: job.jobCleaners?.map((item) => "${item.user?.firstName} ${item.user?.lastName}").toList().join(', ') ?? "N/A",
                           propertyName: job.property?.propertyName ?? "N/A",

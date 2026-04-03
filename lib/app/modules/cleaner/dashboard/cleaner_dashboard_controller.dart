@@ -216,11 +216,11 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   @override
   void onReady() {
     super.onReady();
-    _fetchDashboardData(showAlert: true);
+    fetchDashboardData(showAlert: true);
     getProfile();
   }
 
-  Future<void> _fetchDashboardData({bool showAlert = false}) async {
+  Future<void> fetchDashboardData({bool showAlert = false, showLoader}) async {
     Loader.show();
     try {
       final compResult = await _cleanerRepository.getCleanerDashboard();
@@ -581,10 +581,15 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           final map = <DateTime, List<CalendarEvent>>{};
           for (final item in list) {
             final dateKey = _parseCalendarDate(item.date);
+            String? timeRange;
+            if (item.startTime != null && item.endTime != null) {
+              timeRange =
+              '${CcsDateTimeX.convertTime(item.startTime ?? '')} – ${CcsDateTimeX.convertTime(item.endTime ?? '')}';
+            }
             if (dateKey == null) continue;
             final event = CalendarEvent(
                 title: item.cleaningType?.name ?? "",
-                timeRange: _formatTimeRange(item.startTime, item.endTime),
+                timeRange: timeRange,
                 status: item.status ?? 'Pending',
                 jobId: item.id,
                 propertyName: item.property?.propertyName ?? "",
@@ -611,13 +616,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     final parsed = DateTime.tryParse(dateStr);
     if (parsed == null) return null;
     return DateTime(parsed.year, parsed.month, parsed.day);
-  }
-
-  String _formatTimeRange(String? start, String? end) {
-    if (start != null && end != null) return '$start – $end';
-    if (start != null) return start;
-    if (end != null) return end;
-    return '09:00 – 11:00';
   }
 
   static String _formatDateForApi(DateTime d) =>

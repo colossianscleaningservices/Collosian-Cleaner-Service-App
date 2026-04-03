@@ -363,7 +363,7 @@ class _StatusScheduleSection extends StatelessWidget {
 
     String? timeRange;
     if (j.startTime != null && j.endTime != null) {
-      timeRange = '${CcsDateTimeX.convertTime(j.startTime ?? '')}–${CcsDateTimeX.convertTime(j.endTime ?? '')}';
+      timeRange = '${CcsDateTimeX.convertTime(j.startTime ?? '')} – ${CcsDateTimeX.convertTime(j.endTime ?? '')}';
     }
     String? endsFormatted;
     if (j.jobEndDate != null && j.jobEndDate!.trim().isNotEmpty) {

@@ -126,10 +126,11 @@ class CcsDateUtils {
   }
 
   static String parseTimeRange(String startTime, String endTime) {
-    var start = CcsDateUtils.parseTimeOfDay(startTime);
-    var end = CcsDateUtils.parseTimeOfDay(endTime);
+    String? timeRange;
 
-    return ("${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')} - ${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}");
+    timeRange = '${CcsDateTimeX.convertTime(startTime)} – ${CcsDateTimeX.convertTime(endTime)}';
+
+    return timeRange;
   }
 }
 

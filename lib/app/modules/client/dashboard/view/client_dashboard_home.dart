@@ -188,10 +188,14 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                                 tabletCount: 2,
                                 landscapeCount: 3,
                                 child: upcoming.map((job) {
+                                  String? timeRange;
+                                  if (job.startTime != null && job.endTime != null) {
+                                    timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
+                                  }
                                   return JobCard(
                                     padding: 4,
                                     title: job.cleaningType?.name ?? "N/A",
-                                    dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · ${job.startTime} – ${job.endTime}',
+                                    dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
                                     status: job.status ?? "N/A",
                                     propertyName: job.property?.propertyName ?? "N/A",
                                     address: job.property?.address ?? "N/A",
@@ -617,6 +621,4 @@ class _RegistrationProgressCard extends StatelessWidget {
       ).paddingAll(UiConstants.defaultPadding),
     );
   }
-
 }
-
