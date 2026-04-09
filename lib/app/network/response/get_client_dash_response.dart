@@ -44,6 +44,7 @@ class ClientDashModel {
     this.propertyAdded,
     this.jobAdded,
     this.registrationProgress,
+    this.unreadNotifications,
     this.missingFields,
   });
 
@@ -71,6 +72,7 @@ class ClientDashModel {
     propertyAdded = json['property_added'];
     jobAdded = json['job_added'];
     registrationProgress = json['registration_progress'];
+    unreadNotifications = json['unread_notifications'];
     missingFields = json['missing_fields'] != null ? json['missing_fields'].cast<String>() : [];
   }
 
@@ -82,6 +84,7 @@ class ClientDashModel {
   bool? propertyAdded;
   bool? jobAdded;
   num? registrationProgress;
+  num? unreadNotifications;
   List<String>? missingFields;
 
   Map<String, dynamic> toJson() {

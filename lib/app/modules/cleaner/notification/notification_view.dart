@@ -21,8 +21,7 @@ class NotificationView extends GetView<NotificationController> {
 
       return AppScaffold(
         appBar: Header(
-          title: 'Notifications',
-          actions: [],
+          title: 'Notifications'
         ),
         body: SwipeRefresh(
           onRefresh: () => controller.refreshNotification(),
@@ -151,8 +150,10 @@ class _NotificationCard extends StatelessWidget {
     switch (notification.flag) {
       case Constants.cleanerAssigned:
         return IconsaxPlusLinear.task_square;
-      case Constants.cleanerCheckIn || Constants.cleanerCheckOut:
-        return IconsaxPlusLinear.refresh;
+      case Constants.cleanerCheckIn:
+        return Icons.more_time;
+        case  Constants.cleanerCheckOut:
+        return Icons.done;
 
       default:
         return IconsaxPlusLinear.message_text;

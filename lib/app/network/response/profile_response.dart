@@ -34,6 +34,7 @@ class Data {
   Data({
     this.user,
     this.profileCompletion,
+    this.appSettings,
   });
 
   Data.fromJson(dynamic json) {
@@ -45,11 +46,13 @@ class Data {
         admins?.add(Admins.fromJson(v));
       });
     }
+    appSettings = json['app_settings'] != null ? AppSettings.fromJson(json['app_settings']) : null;
   }
 
   User? user;
   num? profileCompletion;
   List<Admins>? admins;
+  AppSettings? appSettings;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -60,6 +63,39 @@ class Data {
     if (admins != null) {
       map['admins'] = admins?.map((v) => v.toJson()).toList();
     }
+    if (appSettings != null) {
+      map['app_settings'] = appSettings?.toJson();
+    }
+    return map;
+  }
+}
+
+class AppSettings {
+  AppSettings({
+    this.appName,
+    this.appEmail,
+    this.appPhone,
+    this.appAddress,
+  });
+
+  AppSettings.fromJson(dynamic json) {
+    appName = json['app_name'];
+    appEmail = json['app_email'];
+    appPhone = json['app_phone'];
+    appAddress = json['app_address'];
+  }
+
+  String? appName;
+  String? appEmail;
+  String? appPhone;
+  dynamic appAddress;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['app_name'] = appName;
+    map['app_email'] = appEmail;
+    map['app_phone'] = appPhone;
+    map['app_address'] = appAddress;
     return map;
   }
 }

@@ -27,20 +27,22 @@ Future<void> main() async {
   try {
     await CrashlyticsService.instance.initialize();
   } catch (e) {
-    SecureLogger.log('MAIN' ,'Failed to initialize Crashlytics: $e');
+    SecureLogger.log('MAIN', 'Failed to initialize Crashlytics: $e');
   }
 
   try {
     await OneSignalService.initialize(EnvService.onesignalAppId);
   } on Exception catch (e) {
-    SecureLogger.log('MAIN' ,'OneSignal initialization failed: $e');
+    SecureLogger.log('MAIN', 'OneSignal initialization failed: $e');
   }
 
   getTimeZone().then((onValue) {
     Get
       ..put(NetworkMonitorService(), permanent: true)
       ..put(ApiHandler(), tag: 'handler', permanent: true)
-      ..put(DioClient().getClient(), tag: 'dio_client', permanent: true)..put(SessionService(), permanent: true)..put(ApiErrorHandler(), permanent: true);
+      ..put(DioClient().getClient(), tag: 'dio_client', permanent: true)
+      ..put(SessionService(), permanent: true)
+      ..put(ApiErrorHandler(), permanent: true);
   });
 
   final savedThemeMode = await AdaptiveTheme.getThemeMode();

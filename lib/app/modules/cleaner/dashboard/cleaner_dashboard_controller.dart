@@ -42,6 +42,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   late final TabController tabController;
   final focusedDay = DateTime.now().obs;
   final selectedDay = Rxn<DateTime>();
+  final hasUnreadNotifications = false.obs;
 
   static const modes = [CalendarViewMode.week, CalendarViewMode.month, CalendarViewMode.list];
   final mode = CalendarViewMode.month.obs;
@@ -230,6 +231,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           profileCompletionPercentage.value = staffDash.value?.profileCompletion?.percentage?.toInt() ?? 0;
           isProfileComplete.value = profileCompletionPercentage.value == 100;
           earningsTotal.value = "£${staffDash.value?.totalEarnings?.toString()}";
+
+          hasUnreadNotifications.value = ((staffDash.value?.unreadNotifications ?? 0) > 0);
 
           final documentAdded = staffDash.value?.isDocumentAdded ?? false;
 
@@ -583,8 +586,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
             final dateKey = _parseCalendarDate(item.date);
             String? timeRange;
             if (item.startTime != null && item.endTime != null) {
-              timeRange =
-              '${CcsDateTimeX.convertTime(item.startTime ?? '')} – ${CcsDateTimeX.convertTime(item.endTime ?? '')}';
+              timeRange = '${CcsDateTimeX.convertTime(item.startTime ?? '')} – ${CcsDateTimeX.convertTime(item.endTime ?? '')}';
             }
             if (dateKey == null) continue;
             final event = CalendarEvent(
@@ -831,10 +833,17 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
           final admins = value.data?.admins;
 
+          final appSetting = value.data?.appSettings;
+
           if (admins?.isNotEmpty == true) {
             for (final admin in admins!) {
               prefs.addAdminId(admin.id?.toInt() ?? 0);
             }
+          }
+
+          if (appSetting != null) {
+            prefs.putData(Prefs.supportMail, appSetting.appEmail ?? 'support@collosian.com');
+            prefs.putData(Prefs.supportPhone, appSetting.appPhone ?? '+44 (0) 123 456 7890');
           }
         },
         contextTag: 'get-profile',

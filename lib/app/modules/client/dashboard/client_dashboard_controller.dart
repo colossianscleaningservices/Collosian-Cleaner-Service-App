@@ -32,6 +32,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     Icon(IconsaxPlusBold.briefcase),
   ];
   final tabIndex = 0.obs;
+  final hasUnreadNotifications = false.obs;
   var appVersion = "".obs;
 
   List<Widget> get pages => const [
@@ -378,6 +379,8 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
             dashboardProperties.clear();
           }
 
+          hasUnreadNotifications.value = (raw?.unreadNotifications ?? 0) > 0;
+
           if (showAlert && !jobAdded) {
             Loader.hide();
             // Defer sheet to next frame so Loader.hide() from finally can close the loader first
@@ -411,10 +414,17 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
 
           final admins = value.data?.admins;
 
+          final appSetting = value.data?.appSettings;
+
           if (admins?.isNotEmpty == true) {
             for (final admin in admins!) {
               prefs.addAdminId(admin.id?.toInt() ?? 0);
             }
+          }
+
+          if (appSetting != null) {
+            prefs.putData(Prefs.supportMail, appSetting.appEmail ?? 'support@collosian.com');
+            prefs.putData(Prefs.supportPhone, appSetting.appPhone ?? '+44 (0) 123 456 7890');
           }
         },
         contextTag: 'get-profile',

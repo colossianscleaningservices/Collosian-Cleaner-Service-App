@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/network/response/faq_response.dart';
 import 'package:ccs_app/app/services/pref.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../export.dart';
 import '../../../network/repository/common_repository.dart';
@@ -13,6 +14,9 @@ class HelpSupportController extends GetxController {
   final count = 0.obs;
   var from = '';
 
+  final supportMail = 'support@collosian.com'.obs;
+  final supportPhone = '+44 (0) 123 456 7890'.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -22,6 +26,9 @@ class HelpSupportController extends GetxController {
     if (Get.arguments != null) {
       if (Get.arguments.containsKey('from')) from = Get.arguments['from'];
     }
+
+    supportMail.value = Prefs().getData(Prefs.supportMail);
+    supportPhone.value = Prefs().getData(Prefs.supportPhone);
   }
 
   @override
@@ -91,6 +98,32 @@ class HelpSupportController extends GetxController {
       await Notifier.apiError(e, contextTag: 'get_faqs');
     } finally {
       Loader.hide();
+    }
+  }
+
+  Future<void> openDialPad(String phoneNumber) async {
+    final Uri url = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  Future<void> openEmail() async {
+    final Uri emailUri = Uri.parse(
+      'mailto:$supportMail?subject=Support&body=Hello',
+    );
+
+    if (!await launchUrl(
+      emailUri,
+      mode: LaunchMode.externalApplication,
+    )) {
+      throw 'Could not launch $emailUri';
     }
   }
 }

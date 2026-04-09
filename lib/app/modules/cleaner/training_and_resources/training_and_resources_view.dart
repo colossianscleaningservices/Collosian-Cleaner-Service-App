@@ -38,6 +38,7 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
                     icon: IconsaxPlusLinear.document,
                   );
                 }
+
                 final itemCount = list.length;
                 return ListView.separated(
                   shrinkWrap: true,
@@ -63,6 +64,7 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
       ),
     );
   }
+
 }
 
 class _StatsRow extends StatelessWidget {

@@ -28,7 +28,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
                       label: 'Email',
                       icon: IconsaxPlusLinear.sms,
                       scheme: scheme,
-                      onTap: () => Notifier.info('support@collosian.com'),
+                      onTap: () => controller.openEmail(),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -37,7 +37,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
                       label: 'Call',
                       icon: IconsaxPlusLinear.call,
                       scheme: scheme,
-                      onTap: () => Notifier.info('+44 (0) 123 456 7890'),
+                      onTap: () => controller.openDialPad(controller.supportPhone.value),
                     ),
                   ),
                 ],
@@ -47,7 +47,9 @@ class HelpSupportView extends GetView<HelpSupportController> {
               // Contact info
               CommonText.semiBold('Contact information', size: 16, color: scheme.onSurface),
               const SizedBox(height: 12),
-              _ContactInfoCard(scheme: scheme),
+              Obx(() {
+                return _ContactInfoCard(scheme: scheme, supportEmail: controller.supportMail.value, supportPhone: controller.supportPhone.value);
+              }),
 
               // Contact Us
               const SizedBox(height: 24),
@@ -100,14 +102,12 @@ class HelpSupportView extends GetView<HelpSupportController> {
                 ).paddingAll(UiConstants.defaultPadding),
               ),
               const SizedBox(height: UiConstants.gap),
-
             ],
           ),
         ),
       ),
     );
   }
-
 }
 
 class _QuickActionCard extends StatelessWidget {
@@ -145,9 +145,11 @@ class _QuickActionCard extends StatelessWidget {
 }
 
 class _ContactInfoCard extends StatelessWidget {
-  const _ContactInfoCard({required this.scheme});
+  const _ContactInfoCard({required this.scheme, required this.supportEmail, required this.supportPhone});
 
   final ColorScheme scheme;
+  final String supportEmail;
+  final String supportPhone;
 
   @override
   Widget build(BuildContext context) {
@@ -159,9 +161,9 @@ class _ContactInfoCard extends StatelessWidget {
       color: scheme.surfaceContainerHighest,
       child: Column(
         children: [
-          _InfoRow(icon: IconsaxPlusLinear.sms, value: 'support@collosian.com', scheme: scheme),
+          _InfoRow(icon: IconsaxPlusLinear.sms, value: supportEmail, scheme: scheme),
           const SizedBox(height: 12),
-          _InfoRow(icon: IconsaxPlusLinear.call, value: '+44 (0) 123 456 7890', scheme: scheme),
+          _InfoRow(icon: IconsaxPlusLinear.call, value: supportPhone, scheme: scheme),
           const SizedBox(height: 12),
           _InfoRow(icon: IconsaxPlusLinear.clock, value: 'Mon-Fri, 9 AM - 6 PM', scheme: scheme),
         ],

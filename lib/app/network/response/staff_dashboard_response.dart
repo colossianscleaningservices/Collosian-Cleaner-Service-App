@@ -31,7 +31,7 @@ class StaffDashboardResponse {
 }
 
 class StaffDashModel {
-  StaffDashModel({this.totalSchedules, this.upcomingJob, this.totalEarnings, this.profileCompletion, this.actionNeededCount, this.isDocumentAdded});
+  StaffDashModel({this.totalSchedules, this.upcomingJob, this.totalEarnings, this.profileCompletion, this.actionNeededCount, this.isDocumentAdded, this.unreadNotifications});
 
   StaffDashModel.fromJson(dynamic json) {
     totalSchedules = json['total_schedules'];
@@ -39,7 +39,7 @@ class StaffDashModel {
     totalEarnings = json['total_earnings'];
     profileCompletion = json['profile_completion'] != null ? ProfileCompletion.fromJson(json['profile_completion']) : null;
     actionNeededCount = json['action_needed_count'];
-    isDocumentAdded = json['is_document_added'];
+    unreadNotifications = json['unread_notifications'];
   }
 
   num? totalSchedules;
@@ -48,6 +48,7 @@ class StaffDashModel {
   ProfileCompletion? profileCompletion;
   num? actionNeededCount;
   bool? isDocumentAdded;
+  num? unreadNotifications;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -61,6 +62,7 @@ class StaffDashModel {
     }
     map['action_needed_count'] = actionNeededCount;
     map['is_document_added'] = isDocumentAdded;
+    map['unread_notifications'] = unreadNotifications;
     return map;
   }
 }
