@@ -146,6 +146,8 @@ class Trainings {
     this.id,
     this.title,
     this.fileUrl,
+    this.fileCategory,
+    this.fileExtension,
     this.description,
     this.content,
     this.allowedTypes,
@@ -160,6 +162,8 @@ class Trainings {
     id = json['id'];
     title = json['title'];
     fileUrl = json['file_url'];
+    fileCategory = json['file_category'];
+    fileExtension = json['file_extension'];
     description = json['description'];
     content = json['content'];
     allowedTypes = json['allowed_types'];
@@ -171,6 +175,8 @@ class Trainings {
   num? id;
   String? title;
   String? fileUrl;
+  String? fileCategory;
+  String? fileExtension;
   String? description;
   dynamic content;
   dynamic allowedTypes;
@@ -186,6 +192,8 @@ class Trainings {
     map['id'] = id;
     map['title'] = title;
     map['file_url'] = fileUrl;
+    map['file_category'] = fileCategory;
+    map['file_extension'] = fileExtension;
     map['description'] = description;
     map['content'] = content;
     map['allowed_types'] = allowedTypes;

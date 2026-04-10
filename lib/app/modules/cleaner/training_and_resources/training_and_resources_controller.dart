@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/model/common_model.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../export.dart';
@@ -97,8 +98,14 @@ class TrainingAndResourcesController extends GetxController {
       String? filterItem;
       filterItem = filter.firstWhereOrNull((item) => item.isSelected)?.type;
 
-      final result =
-          await _commonRepository.getTrainingResources(page: currentPage, filter: filterItem == "All" ? null : filterItem, search: searchController.text);
+      final result = await _commonRepository.getTrainingResources(
+          page: currentPage,
+          filter: filterItem == "All"
+              ? null
+              : filterItem == 'Flyer'
+                  ? 'Flyer/Document'
+                  : filterItem,
+          search: searchController.text);
       result.handle(
         success: (value) async {
           if (currentPage == 1) trainingList.clear();
@@ -163,5 +170,21 @@ class TrainingAndResourcesController extends GetxController {
     } catch (e) {
       Notifier.error('Failed to mark as seen');
     } finally {}
+  }
+
+  Future<void> onViewFile(String url) async {
+    final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
+    Notifier.openSheet(Get.context as BuildContext,
+        showIcon: false,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        top: true,
+        body: Expanded(
+          child: SfPdfViewer.network(
+            url ?? '',
+            key: pdfViewerKey,
+            password: "1234",
+          ),
+        ));
   }
 }

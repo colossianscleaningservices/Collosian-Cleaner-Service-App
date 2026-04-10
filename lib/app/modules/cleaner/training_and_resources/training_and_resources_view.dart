@@ -64,7 +64,6 @@ class TrainingAndResourcesView extends GetView<TrainingAndResourcesController> {
       ),
     );
   }
-
 }
 
 class _StatsRow extends StatelessWidget {
@@ -524,7 +523,7 @@ class _TrainingCard extends StatelessWidget {
     return AppCard(
       onTap: () {
         if (isSeen == false && item.id != null) {
-        ctrl.seenTrainingResources(item.id!.toInt(), ctrl.trainingList.indexOf(item));
+          ctrl.seenTrainingResources(item.id!.toInt(), ctrl.trainingList.indexOf(item));
         }
       },
       radius: UiConstants.radiusLarge,
@@ -541,39 +540,72 @@ class _TrainingCard extends StatelessWidget {
               topLeft: Radius.circular(UiConstants.radiusLarge),
               topRight: Radius.circular(UiConstants.radiusLarge),
             ),
-            child: item.contentType?.toLowerCase() == 'video'
+            child: item.fileCategory?.toLowerCase() == 'video'
                 ? _VideoPlaceholder(
                     controller: item.videoPlayerController,
                     scheme: scheme,
                   )
-                : Container(
-                    height: 160,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          scheme.primaryContainer.withValues(alpha: 0.35),
-                          scheme.secondaryContainer.withValues(alpha: 0.25),
-                        ],
-                      ),
-                    ),
-                    child: Center(
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
+                : item.fileCategory?.toLowerCase() == 'image'
+                    ? Container(
+                        width: double.infinity,
                         decoration: BoxDecoration(
-                          color: scheme.primary.withValues(alpha: 0.12),
-                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              scheme.primaryContainer.withValues(alpha: 0.35),
+                              scheme.secondaryContainer.withValues(alpha: 0.25),
+                            ],
+                          ),
                         ),
-                        child: Icon(
-                          _iconForMediaType(item.contentType ?? ""),
-                          size: 40,
-                          color: scheme.primary,
+                        child: Center(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: scheme.primary.withValues(alpha: 0.12),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Image.network(
+                              item.fileUrl!,
+                              fit: BoxFit.fitWidth,
+                            ),
+                          ),
+                        ),
+                      )
+                    : InkWell(
+                        onTap: () {
+                          if (item.fileUrl != null) {
+                            ctrl.onViewFile(item.fileUrl!);
+                          }
+                        },
+                        child: Container(
+                          height: 160,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                scheme.primaryContainer.withValues(alpha: 0.35),
+                                scheme.secondaryContainer.withValues(alpha: 0.25),
+                              ],
+                            ),
+                          ),
+                          child: Center(
+                            child: Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: scheme.primary.withValues(alpha: 0.12),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                _iconForMediaType(item.fileCategory ?? ""),
+                                size: 40,
+                                color: scheme.primary,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
@@ -653,7 +685,7 @@ class _TrainingCard extends StatelessWidget {
     switch (type.toLowerCase()) {
       case 'video':
         return IconsaxPlusLinear.video_play;
-      case 'flyer':
+      case 'document':
         return IconsaxPlusLinear.document;
       default:
         return IconsaxPlusLinear.book_1;
