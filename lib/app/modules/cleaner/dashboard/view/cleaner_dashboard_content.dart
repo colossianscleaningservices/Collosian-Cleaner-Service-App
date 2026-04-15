@@ -14,7 +14,10 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     return SwipeRefresh(
-      onRefresh: () async => await controller.fetchDashboardData(showAlert: false),
+      onRefresh: () async {
+        await controller.fetchDashboardData(showAlert: false);
+        await controller.getProfile();
+      },
       child: SafeArea(
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),

@@ -14,7 +14,10 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     return SwipeRefresh(
-      onRefresh: () async => await controller.getClientDash(),
+      onRefresh: () async {
+        await controller.getClientDash();
+        await controller.getProfile();
+      },
       child: SafeArea(
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),

@@ -71,6 +71,8 @@ class AuthController extends GetxController {
   final selectedAgreementAnswers = <int, Map<int, String>>{}.obs;
   List<num?> answersId = [];
   var from = '';
+  final isHiring = true.obs;
+  final hiringMessage = ''.obs;
 
   final TextEditingController codeCtrl = TextEditingController();
 
@@ -155,10 +157,27 @@ class AuthController extends GetxController {
         Get.toNamed(Routes.SIGN_UP);
       },
       onSecondaryPressed: () {
+        Get.back();
         selectRole(UserRole.cleaner);
         resetAgreement();
-        Get.toNamed(Routes.AGREEMENT);
+
+        isHiring.value ? Get.toNamed(Routes.AGREEMENT) : hiringClosedSheet(context);
       },
+    );
+  }
+
+  void hiringClosedSheet(BuildContext context) {
+    Notifier.openSheet(
+      context,
+      showPrimaryButton: true,
+      showSecondaryButton: false,
+      title: "Hiring Closed",
+      message: hiringMessage.value,
+      icon: IconsaxPlusLinear.info_circle,
+      primaryButtonLabel: "Okay",
+      type: SheetType.info,
+      onPrimaryPressed: () {},
+      onSecondaryPressed: () {},
     );
   }
 
@@ -175,9 +194,14 @@ class AuthController extends GetxController {
       catResult.handle(
         success: (value) async {
           final categories = value.data?.categories ?? [];
+
+          isHiring.value = value.data?.isHiring ?? true;
+          hiringMessage.value = value.message ?? 'Hiring Closed';
+
           if (categories.isEmpty) return;
 
           final questionsByStep = <List<aq.Questions>>[];
+
 
           for (final category in categories) {
             final id = category.id;

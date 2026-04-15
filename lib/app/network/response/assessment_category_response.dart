@@ -34,6 +34,7 @@ class Data {
   Data({
     this.categories,
     this.pagination,
+    this.isHiring,
   });
 
   Data.fromJson(dynamic json) {
@@ -44,10 +45,12 @@ class Data {
       });
     }
     pagination = json['pagination'];
+    isHiring = json['is_hiring'];
   }
 
   List<Categories>? categories;
   dynamic pagination;
+  bool? isHiring;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -55,6 +58,7 @@ class Data {
       map['categories'] = categories?.map((v) => v.toJson()).toList();
     }
     map['pagination'] = pagination;
+    map['is_hiring'] = isHiring;
     return map;
   }
 }

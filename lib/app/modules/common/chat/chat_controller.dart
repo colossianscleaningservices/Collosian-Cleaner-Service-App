@@ -414,6 +414,7 @@ class ChatController extends GetxController {
     // ✅ Clear UI ONCE (not inside loop)
     textController.clear();
     pendingImagePaths.clear();
+    imageUrl.clear();
     clearReplyTo();
     _updateCanSend();
     _scrollToBottom();

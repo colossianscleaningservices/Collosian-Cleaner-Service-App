@@ -321,6 +321,11 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
       endsFormatted: endsFormatted,
     );
 
+    String? checkInTimeRange;
+    if (cleaner?.checkInTime != null && cleaner?.checkOutTime != null) {
+      checkInTimeRange = '${CcsDateTimeX.convertTime(cleaner?.checkInTime ?? '')} – ${CcsDateTimeX.convertTime(cleaner?.checkOutTime ?? '')}';
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -399,7 +404,7 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
             ),
           LabelValueRow(
             label: 'Check-In/Check-Out Time',
-            value: '${cleaner?.checkInTime ?? 'N/A'} – ${cleaner?.checkOutTime ?? 'N/A'}',
+            value: checkInTimeRange ??'',
             scheme: scheme,
           ),
           const SizedBox(height: 8),
