@@ -16,6 +16,7 @@ class CreateJobController extends GetxController {
   final CommonRepository _commonRepository = CommonRepository();
   final formKey = GlobalKey<FormState>();
   final notesController = TextEditingController();
+  // final jobTitleController = TextEditingController();
   final dateDisplayController = TextEditingController();
   final startTimeDisplayController = TextEditingController();
   final endTimeDisplayController = TextEditingController();
@@ -171,6 +172,7 @@ class CreateJobController extends GetxController {
         }
       }
       final req = CreateJobRequest(
+        // jobTitle: jobTitleController.text.isEmpty ? null : jobTitleController.text,
         propertyId: properties.firstWhereOrNull((item) => item.propertyName?.toLowerCase() == selectedProperty.value?.toLowerCase())?.id,
         date: jobStartDate.value?.toDisplayDate('yyyy-MM-dd'),
         startTime: startTime.value != null ? '${startTime.value!.hour.toString().padLeft(2, '0')}:${startTime.value!.minute.toString().padLeft(2, '0')}' : null,

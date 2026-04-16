@@ -28,6 +28,8 @@ class ClientJobDetailController extends GetxController {
   Rx<UserOptions?> requestAgain = Rx<UserOptions?>(null);
   Rx<double> rating = 0.0.obs;
   final messageController = TextEditingController();
+  final hoursController = TextEditingController();
+  final reasonController = TextEditingController();
   final jobCleaner = Rx<ClientJobCleaner?>(null);
   final cleanerHeading = Rxn<String?>('Cleaners');
 
@@ -262,6 +264,89 @@ class ClientJobDetailController extends GetxController {
 
   }
 
+  void openFilter(BuildContext context) {
+    Notifier.openSheet(context, body: filterJob(context), showIcon: false, showPrimaryButton: false, showSecondaryButton: false);
+  }
+
+  Widget filterJob(BuildContext context) {
+    final scheme = context.colorScheme;
+    return Column(
+      children: [
+        AppCard(
+          color: Colors.transparent,
+          enableShadows: false,
+          child: Row(
+            children: [
+              AppCard(
+                enableShadows: false,
+                radius: UiConstants.radiusDefault,
+                color: scheme.secondaryContainer.withValues(alpha: 0.7),
+                child: Icon(
+                  IconsaxPlusLinear.clock_1,
+                  size: 20,
+                  color: scheme.secondary,
+                ).paddingAll(10),
+              ).marginOnly(right: UiConstants.gap),
+              Expanded(
+                child: CommonText.bold('Extend Job Time', size: 18, color: scheme.onSurface),
+              ),
+            ],
+          ),
+        ).marginOnly(bottom: 12),
+
+        // Filter card
+        AppCard(
+            radius: 0,
+            enableShadows: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CommonTextField(
+                  hint: 'Enter Hours',
+                  controller: hoursController,
+                  action: TextInputAction.next,
+                  keyboardType: TextInputType.number,
+                  maxLength: 1,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+                SizedBox(height: UiConstants.gap),
+                CommonTextField(
+                  hint: 'Enter Reason',
+                  controller: reasonController,
+                  minLines: 4,
+                  maxLines: 4,
+                  action: TextInputAction.next,
+                ),
+              ],
+            ).paddingSymmetric(vertical: 0),
+          ).marginOnly(bottom: 18),
+
+        Row(
+          children: [
+            Expanded(
+              child: AppButton(
+                type: ButtonType.tonal,
+                label: 'Cancel',
+                onPressed: () {
+                  Get.back();
+                },
+              ).marginOnly(right: 4),
+            ),
+            Expanded(
+              child: AppButton(
+                type: ButtonType.primary,
+                label: 'Send Request',
+                onPressed: () {
+                  Get.back();
+                },
+              ).marginOnly(left: 4),
+            ),
+          ],
+        ),
+
+      ],
+    );
+  }
 
   Future<void> downloadFile(String url) async {
     try {

@@ -191,7 +191,7 @@ class ChatController extends GetxController {
     }
   }
 
-  void _ensureSupportThread() {
+  Future<void> _ensureSupportThread() async {
     final userRole = Prefs().userRoleString;
 
     final supportParticipants = <String, ChatParticipant>{
@@ -205,7 +205,11 @@ class ChatController extends GetxController {
 
     participants = supportParticipants;
     final map = supportParticipants.map((k, v) => MapEntry(k, v.toJson()));
-    _chatRef.child(PARTICIPANTS_NODE).update(map).catchError((_) {});
+
+    await _chatRef.child(PARTICIPANTS_NODE).update(map).catchError((_) {});
+
+    updateStatus(true);
+
   }
 
   void _loadInitialMessages() {
