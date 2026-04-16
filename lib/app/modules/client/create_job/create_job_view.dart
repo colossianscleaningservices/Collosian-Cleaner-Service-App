@@ -36,6 +36,12 @@ class CreateJobView extends GetView<CreateJobController> {
                       spacing: 14,
                       children: [
                         CommonText.semiBold('Property & scheduling', size: 16, color: scheme.onSurface),
+                   /*     CommonTextField(
+                          controller: controller.jobTitleController,
+                          label: 'Job Title',
+                          hint: 'Enter Job Title',
+                          keyboardType: TextInputType.text,
+                        ),*/
                         Obx(() => controller.isLoading.value
                             ? Center(child: CircularProgressIndicator())
                             : GestureDetector(

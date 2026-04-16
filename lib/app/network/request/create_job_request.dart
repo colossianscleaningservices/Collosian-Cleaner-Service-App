@@ -1,21 +1,24 @@
 class CreateJobRequest {
   CreateJobRequest({
-      this.propertyId, 
-      this.date, 
-      this.startTime, 
-      this.endTime, 
-      this.jobType, 
-      this.numberOfCleaners, 
-      this.cleaningType, 
-      this.accessToProperty, 
-      this.provideCleaningProducts, 
-      this.provideWashingMachine, 
-      this.provideDryer, 
-      this.hoover, 
-      this.staffPreference, 
-      this.additionalDetails,});
+    // this.jobTitle,
+    this.propertyId,
+    this.date,
+    this.startTime,
+    this.endTime,
+    this.jobType,
+    this.numberOfCleaners,
+    this.cleaningType,
+    this.accessToProperty,
+    this.provideCleaningProducts,
+    this.provideWashingMachine,
+    this.provideDryer,
+    this.hoover,
+    this.staffPreference,
+    this.additionalDetails,
+  });
 
   CreateJobRequest.fromJson(dynamic json) {
+    // jobTitle = json['job_title'];
     propertyId = json['property_id'];
     date = json['date'];
     startTime = json['start_time'];
@@ -31,6 +34,8 @@ class CreateJobRequest {
     staffPreference = json['staff_preference'];
     additionalDetails = json['additional_details'];
   }
+
+  // String? jobTitle;
   num? propertyId;
   String? date;
   String? startTime;
@@ -48,6 +53,7 @@ class CreateJobRequest {
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
+    // map['job_title'] = jobTitle;
     map['property_id'] = propertyId;
     map['date'] = date;
     map['start_time'] = startTime;
@@ -64,5 +70,4 @@ class CreateJobRequest {
     map['additional_details'] = additionalDetails;
     return map;
   }
-
 }

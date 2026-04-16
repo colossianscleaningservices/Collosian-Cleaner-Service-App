@@ -409,17 +409,38 @@ class _StatusScheduleSection extends StatelessWidget {
           const SizedBox(height: 10),
           CommonText.regular(scheduleSummary, size: 14, color: scheme.onSurface),
         ],
-        if (j.jobSchedule == false && j.status != 'Cancelled' && j.status != 'Finished') ...[
-          const SizedBox(height: 12),
-          AppButton(
-            label: 'Schedule',
-            icon: IconsaxPlusLinear.calendar_1,
-            onPressed: c.onScheduleJob,
-            btnVerticalPadding: 8,
-            btnCornerRadius: 12,
-            btnHorizontalPadding: 12,
-          ),
-        ],
+
+        const SizedBox(height: 12),
+
+        Row(
+          children: [
+            if (j.jobSchedule == false && j.status != 'Cancelled' && j.status != 'Finished') ...[
+              AppButton(
+                label: 'Schedule',
+                icon: IconsaxPlusLinear.calendar_1,
+                onPressed: c.onScheduleJob,
+                btnVerticalPadding: 8,
+                btnCornerRadius: 12,
+                btnHorizontalPadding: 12,
+              ).marginOnly(right: 8),
+            ],
+
+            AppButton(
+              label: 'Extend Time',
+              icon: IconsaxPlusLinear.clock_1,
+              onPressed: (){
+                c.openFilter(context);
+              },
+              btnVerticalPadding: 8,
+              btnCornerRadius: 12,
+              btnHorizontalPadding: 12,
+            ),
+
+
+          ],
+
+        ),
+
         if (j.jobSchedule == true && j.status != 'Cancelled') ...[
           const SizedBox(height: 12),
           AppButton(
