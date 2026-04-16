@@ -4,10 +4,7 @@ import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, Tar
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -38,7 +35,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCnWBCvEQ_8r6hC7BxRLIAsC-sWPz0RNI8',
-    appId: '1:514524285235:android:9c7af02e424c95d8791646',
+    appId: '1:514524285235:android:b4f52c7f14a67267791646',
     messagingSenderId: '514524285235',
     projectId: 'collosian-cleaner-service-app',
     databaseURL: 'https://collosian-cleaner-service-app-default-rtdb.firebaseio.com',
@@ -47,11 +44,23 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDdQi5qBoHHjkCASwrup7yXwCO6nMU5kfQ',
-    appId: '1:514524285235:ios:9b3f2524ece9e2b0791646',
+    appId: '1:514524285235:ios:4edc3b2b41ee8af4791646',
     messagingSenderId: '514524285235',
     projectId: 'collosian-cleaner-service-app',
     databaseURL: 'https://collosian-cleaner-service-app-default-rtdb.firebaseio.com',
     storageBucket: 'collosian-cleaner-service-app.firebasestorage.app',
-    iosBundleId: 'io.ccs.app',
+    iosBundleId: 'app.ccs.io',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCzzP4Ko5CPkFv7_z5bqLBBDiCbNJ4J6M4',
+    appId: '1:514524285235:web:d90a90a22a389a38791646',
+    messagingSenderId: '514524285235',
+    projectId: 'collosian-cleaner-service-app',
+    authDomain: 'collosian-cleaner-service-app.firebaseapp.com',
+    databaseURL: 'https://collosian-cleaner-service-app-default-rtdb.firebaseio.com',
+    storageBucket: 'collosian-cleaner-service-app.firebasestorage.app',
+    measurementId: 'G-KVX2B0C6WG',
+  );
+
 }

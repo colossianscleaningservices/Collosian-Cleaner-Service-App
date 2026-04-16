@@ -8,7 +8,26 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:514524285235:android:9c7af02e424c95d8791646",
+        "mobilesdk_app_id": "1:514524285235:android:b4f52c7f14a67267791646",
+        "android_client_info": {
+          "package_name": "app.ccs.io"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnWBCvEQ_8r6hC7BxRLIAsC-sWPz0RNI8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:514524285235:android:767bd80730370d66791646",
         "android_client_info": {
           "package_name": "com.ccs.app"
         }

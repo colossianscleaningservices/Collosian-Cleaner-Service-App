@@ -1,4 +1,4 @@
-package com.ccs.app
+package app.ccs.io
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -1,3 +1,5 @@
+// dart format width=80
+
 /// GENERATED CODE - DO NOT MODIFY BY HAND
 /// *****************************************************
 ///  FlutterGen
@@ -5,12 +7,15 @@
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
-// ignore_for_file: directives_ordering,unnecessary_import,implicit_dynamic_list_literal,deprecated_member_use
+// ignore_for_file: deprecated_member_use,directives_ordering,implicit_dynamic_list_literal,unnecessary_import
 
 import 'package:flutter/widgets.dart';
 
 class Assets {
   const Assets._();
+
+  /// File path: .env
+  static const String aEnv = '.env';
 
   /// File path: assets/images/app_logo.png
   static const AssetGenImage imagesAppLogo =
@@ -36,7 +41,8 @@ class Assets {
       AssetGenImage('assets/launcher/splash_icon.png');
 
   /// List of all assets
-  static List<AssetGenImage> get values => [
+  static List<dynamic> get values => [
+        aEnv,
         imagesAppLogo,
         imagesBg,
         imagesDummy,
@@ -48,12 +54,17 @@ class Assets {
 
 class AssetGenImage {
   const AssetGenImage(
-    this._assetName, {this.size, this.flavors = const {}});
+    this._assetName, {
+    this.size,
+    this.flavors = const {},
+    this.animation,
+  });
 
   final String _assetName;
 
   final Size? size;
   final Set<String> flavors;
+  final AssetGenImageAnimation? animation;
 
   Image image({
     Key? key,
