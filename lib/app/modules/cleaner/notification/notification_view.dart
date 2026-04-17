@@ -20,9 +20,7 @@ class NotificationView extends GetView<NotificationController> {
       }
 
       return AppScaffold(
-        appBar: Header(
-          title: 'Notifications'
-        ),
+        appBar: Header(title: 'Notifications'),
         body: SwipeRefresh(
           onRefresh: () => controller.refreshNotification(),
           child: SafeArea(
@@ -49,6 +47,7 @@ class NotificationView extends GetView<NotificationController> {
                                 scheme: scheme,
                                 ctrl: controller,
                                 onTap: () {
+                                  print(notification.toJson());
                                   if (notification.isRead == false && notification.id != null) {
                                     controller.markAsRead(notification.id!.toInt(), index);
                                   }
@@ -62,7 +61,8 @@ class NotificationView extends GetView<NotificationController> {
                                       notification.flag == Constants.jobRequestAccepted ||
                                       notification.flag == Constants.cleanerAssigned ||
                                       notification.flag == Constants.cleanerCheckOut ||
-                                      notification.flag == Constants.cleanerCheckIn) {
+                                      notification.flag == Constants.cleanerCheckIn ||
+                                      notification.flag == Constants.extensionRequestApproved) {
                                     if (notification.relatedId == null) {
                                       Notifier.error('Invalid job');
                                       return;
@@ -86,19 +86,6 @@ class NotificationView extends GetView<NotificationController> {
                       ),
                       Row(
                         children: [
-                          if (!isAllNotificationRead)
-                            Expanded(
-                              child: AppButton(
-                                label: 'Read All',
-                                onPressed: () => controller.readAllNotifications(),
-                                type: ButtonType.tonal,
-                                icon: IconsaxPlusLinear.tick_circle,
-                                btnVerticalPadding: 10,
-                                btnHorizontalPadding: 12,
-                                textSize: 14,
-                              ),
-                            ),
-                          if (!isAllNotificationRead && controller.notifications.isNotEmpty) const SizedBox(width: 12),
                           if (controller.notifications.isNotEmpty)
                             Expanded(
                               child: AppButton(
@@ -110,10 +97,23 @@ class NotificationView extends GetView<NotificationController> {
                                       type: SheetType.error,
                                       onPrimaryPressed: () => controller.deleteAllNotifications());
                                 },
-                                type: ButtonType.outline,
                                 icon: IconsaxPlusLinear.trash,
                                 txtClr: scheme.error,
                                 borderClr: scheme.error,
+                                bgColor: scheme.errorContainer,
+                                btnVerticalPadding: 10,
+                                btnHorizontalPadding: 12,
+                                textSize: 14,
+                              ),
+                            ),
+                          if (!isAllNotificationRead && controller.notifications.isNotEmpty) const SizedBox(width: 12),
+                          if (!isAllNotificationRead)
+                            Expanded(
+                              child: AppButton(
+                                label: 'Read All',
+                                onPressed: () => controller.readAllNotifications(),
+                                type: ButtonType.tonal,
+                                icon: IconsaxPlusLinear.tick_circle,
                                 btnVerticalPadding: 10,
                                 btnHorizontalPadding: 12,
                                 textSize: 14,
@@ -152,7 +152,7 @@ class _NotificationCard extends StatelessWidget {
         return IconsaxPlusLinear.task_square;
       case Constants.cleanerCheckIn:
         return Icons.more_time;
-        case  Constants.cleanerCheckOut:
+      case Constants.cleanerCheckOut:
         return Icons.done;
 
       default:
@@ -292,8 +292,6 @@ class _NotificationCard extends StatelessWidget {
                       notification.message ?? "",
                       size: 14,
                       color: scheme.onSurface.withValues(alpha: 0.85),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 8),
                     Row(

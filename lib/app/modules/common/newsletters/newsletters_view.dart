@@ -19,21 +19,24 @@ class NewslettersView extends GetView<NewslettersController> {
           child: SafeArea(
             child: controller.newsletters.isEmpty
                 ? NoDataView(
-              title: 'No newsletters',
-              subtitle: "We'll share updates and offers here when they're available.",
-              icon: IconsaxPlusLinear.sms_edit,
-            )
+                    title: 'No newsletters',
+                    subtitle: "We'll share updates and offers here when they're available.",
+                    icon: IconsaxPlusLinear.sms_edit,
+                  )
                 : ListView.separated(
                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                     itemCount: controller.newsletters.length,
                     separatorBuilder: (_, __) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final item = controller.newsletters[index];
+
                       return _NewsletterCard(
                         item: item,
                         scheme: scheme,
-                        onTap: () => {
-                          _showNewsletterDetail(context, item, scheme)
+                        onTap: () {
+                          {
+                            _showNewsletterDetail(context, item, scheme);
+                          }
                         },
                       );
                     },
@@ -82,7 +85,7 @@ class NewslettersView extends GetView<NewslettersController> {
                     Icon(IconsaxPlusLinear.calendar_1, size: 14, color: scheme.onSurfaceVariant),
                     const SizedBox(width: 6),
                     CommonText.regular(
-                      _formatDate(DateTime.parse(item.createdAt??"")),
+                      _formatDate(DateTime.parse(item.createdAt ?? "")),
                       size: 12,
                       color: scheme.onSurfaceVariant,
                     ),
@@ -139,11 +142,11 @@ class _NewsletterCard extends StatelessWidget {
           AppCard(
             enableShadows: false,
             radius: UiConstants.radiusDefault,
-            color: scheme.primary.withValues(alpha: 0.15),
+            color: scheme.secondary.withValues(alpha: 0.12),
             child: Icon(
               IconsaxPlusLinear.sms_edit,
               size: 22,
-              color: scheme.primary,
+              color: scheme.secondary,
             ).paddingAll(12),
           ).marginOnly(right: 14),
           Expanded(
@@ -189,7 +192,7 @@ class _NewsletterCard extends StatelessWidget {
                       Icon(IconsaxPlusLinear.calendar_1, size: 14, color: scheme.onSurfaceVariant),
                       const SizedBox(width: 6),
                       CommonText.regular(
-                        _timeAgo(DateTime.parse(item.createdAt??"")),
+                        _timeAgo(DateTime.parse(item.createdAt ?? "")),
                         size: 12,
                         color: scheme.onSurfaceVariant,
                       ),

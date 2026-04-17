@@ -53,7 +53,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
           ).marginOnly(left: 18, right: 18, top: 18, bottom: 16),
           Expanded(
             child: Obx(() {
-              final list = controller.jobs;
+              final list = controller.jobs.value;
               if (list.isEmpty) {
                 return NoDataView(
                   icon: IconsaxPlusLinear.briefcase,

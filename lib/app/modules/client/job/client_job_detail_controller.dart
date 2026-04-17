@@ -71,8 +71,7 @@ class ClientJobDetailController extends GetxController {
           job.value = raw;
           fetchError.value = null;
           if (raw != null) {
-            cleanerHeading.value =
-                'Cleaners(${raw.jobCleaners?.length.toString()}/${raw.numberOfCleaners.toString()})';
+            cleanerHeading.value = 'Cleaners(${raw.jobCleaners?.length.toString()}/${raw.numberOfCleaners.toString()})';
           }
         },
         onError: (NetworkException e) {
@@ -247,21 +246,19 @@ class ClientJobDetailController extends GetxController {
   }
 
   Future<void> onViewFile(String url) async {
-      final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
-      Notifier.openSheet(Get.context as BuildContext,
-          showIcon: false,
-          showPrimaryButton: false,
-          showSecondaryButton: false,
-          top: true,
-          body: Expanded(
-            child: SfPdfViewer.network(
-              url ?? '',
-              key: pdfViewerKey,
-              password: "1234",
-            ),
-          ));
-
-
+    final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
+    Notifier.openSheet(Get.context as BuildContext,
+        showIcon: false,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        top: true,
+        body: Expanded(
+          child: SfPdfViewer.network(
+            url ?? '',
+            key: pdfViewerKey,
+            password: "1234",
+          ),
+        ));
   }
 
   void openFilter(BuildContext context) {
@@ -270,6 +267,9 @@ class ClientJobDetailController extends GetxController {
 
   Widget filterJob(BuildContext context) {
     final scheme = context.colorScheme;
+    hoursController.clear();
+    reasonController.clear();
+
     return Column(
       children: [
         AppCard(
@@ -296,30 +296,30 @@ class ClientJobDetailController extends GetxController {
 
         // Filter card
         AppCard(
-            radius: 0,
-            enableShadows: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                CommonTextField(
-                  hint: 'Enter Hours',
-                  controller: hoursController,
-                  action: TextInputAction.next,
-                  keyboardType: TextInputType.number,
-                  maxLength: 1,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                ),
-                SizedBox(height: UiConstants.gap),
-                CommonTextField(
-                  hint: 'Enter Reason',
-                  controller: reasonController,
-                  minLines: 4,
-                  maxLines: 4,
-                  action: TextInputAction.next,
-                ),
-              ],
-            ).paddingSymmetric(vertical: 0),
-          ).marginOnly(bottom: 18),
+          radius: 0,
+          enableShadows: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CommonTextField(
+                hint: 'Enter Hours',
+                controller: hoursController,
+                action: TextInputAction.next,
+                keyboardType: TextInputType.number,
+                maxLength: 1,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              ),
+              SizedBox(height: UiConstants.gap),
+              CommonTextField(
+                hint: 'Enter Reason',
+                controller: reasonController,
+                minLines: 4,
+                maxLines: 4,
+                action: TextInputAction.next,
+              ),
+            ],
+          ).paddingSymmetric(vertical: 0),
+        ).marginOnly(bottom: 18),
 
         Row(
           children: [
@@ -337,20 +337,18 @@ class ClientJobDetailController extends GetxController {
                 type: ButtonType.primary,
                 label: 'Send Request',
                 onPressed: () {
-                 submitRequest();
+                  submitRequest();
                 },
               ).marginOnly(left: 4),
             ),
           ],
         ),
-
       ],
     );
   }
 
   Future<void> downloadFile(String url) async {
     try {
-
       Loader.show();
       final dio = Dio();
 
@@ -455,35 +453,36 @@ class ClientJobDetailController extends GetxController {
   Future<void> submitRequest() async {
     final jobId = job.value?.id?.toInt();
     if (jobId == null) {
-      Notifier.info('Invalid job');
+      Notifier.error('Invalid job');
       return;
     }
 
     if (hoursController.text.isEmpty) {
-      Notifier.info('Please Enter Hours');
+      Notifier.error('Please Enter Hours');
+      return;
+    }
+
+    if (hoursController.text.toInt() > 3) {
+      Notifier.error('The hours must not exceed three.');
       return;
     }
 
     if (reasonController.text.isEmpty) {
-      Notifier.info('Please enter the reason for hour extension');
+      Notifier.error('Please enter the reason for hour extension');
       return;
     }
+    (Get.context as BuildContext).hideKeyboard();
+    Get.back();
 
     Loader.show();
     try {
-      final result = await _clientRepository.extensionRequest(
-        jobId: jobId,
-        requestedHours: hoursController.text.toInt(),
-        reason: reasonController.text
-      );
+      final result = await _clientRepository.extensionRequest(jobId: jobId, requestedHours: hoursController.text.toInt(), reason: reasonController.text);
       result.handle(
         success: (value) {
           Loader.hide();
-
-          Get.back();
-
-          fetchJobDetails(isLoaderShown: false);
-
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            fetchJobDetails(isLoaderShown: true);
+          });
         },
         contextTag: 'submit_review',
       );

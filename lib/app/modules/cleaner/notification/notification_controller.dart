@@ -73,6 +73,9 @@ class NotificationController extends GetxController {
   }
 
   Future<void> markAsRead(int notificationId, int index) async {
+    //UI update Locally
+    notifications[index].isRead = true;
+    notifications.refresh();
     try {
       final result = await _commonRepository.readNotifications(notificationId);
       result.handle(

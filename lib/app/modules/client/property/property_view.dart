@@ -51,7 +51,7 @@ class PropertyView extends GetView<PropertyController> {
                         property: controller.properties[index],
                         onTap: () => controller.goToEditProperty(index),
                         scheme: scheme,
-                      ),
+                      ).marginSymmetric(vertical: 4),
                     ),
                   ),
                   controller.isPropertyMoreLoading.value ? PageLoader() : SizedBox.shrink()

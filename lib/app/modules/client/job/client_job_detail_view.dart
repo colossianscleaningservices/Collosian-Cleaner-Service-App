@@ -379,7 +379,7 @@ class _StatusScheduleSection extends StatelessWidget {
       timeRange: timeRange,
       endsFormatted: endsFormatted,
     );
-
+print(j.status);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -410,7 +410,7 @@ class _StatusScheduleSection extends StatelessWidget {
           const SizedBox(height: 10),
           CommonText.regular(scheduleSummary, size: 14, color: scheme.onSurface),
         ],
-        if(j.isRequested == true)...[
+        if(j.isRequested == true && j.status != 'Finished' && j.status != 'Pending')...[
           const SizedBox(height: 10),
           CommonText.regular('Job time extension requested', size: 14, color: scheme.onSurface.withValues(alpha: 0.5)),
         ],
@@ -427,7 +427,7 @@ class _StatusScheduleSection extends StatelessWidget {
                 btnHorizontalPadding: 12,
               ).marginOnly(right: 8),
             ],
-            if(j.isRequested == false)...[
+            if(j.isRequested == false && j.status != 'Finished' && j.status != 'Pending')...[
               AppButton(
                 label: 'Extend Time',
                 icon: IconsaxPlusLinear.clock_1,

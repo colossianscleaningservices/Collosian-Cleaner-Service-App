@@ -28,6 +28,7 @@ class Constants {
   static const cleanerCheckOut = 'cleaner_check_out';
   static const cleanerCheckIn = 'cleaner_check_in';
   static const jobReview = 'job_review';
+  static const extensionRequestApproved = 'extension_request_approved';
 
   static const jobFinished = 'Finished';
   static const jobCompleted = 'Completed';
