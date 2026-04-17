@@ -46,6 +46,7 @@ class ClientJobDetails {
     this.before,
     this.after,
     this.status,
+    this.isRequested,
     this.propertyId,
     this.userId,
     this.pricingChartId,
@@ -89,6 +90,7 @@ class ClientJobDetails {
     before = json['before'];
     after = json['after'];
     status = json['status'];
+    isRequested = json['is_requested'];
     propertyId = json['property_id'];
     userId = json['user_id'];
     pricingChartId = json['pricing_chart_id'];
@@ -140,6 +142,7 @@ class ClientJobDetails {
   dynamic before;
   dynamic after;
   String? status;
+  bool? isRequested;
   num? propertyId;
   num? userId;
   dynamic pricingChartId;
@@ -182,6 +185,7 @@ class ClientJobDetails {
     map['before'] = before;
     map['after'] = after;
     map['status'] = status;
+    map['is_requested'] = isRequested;
     map['property_id'] = propertyId;
     map['user_id'] = userId;
     map['pricing_chart_id'] = pricingChartId;
