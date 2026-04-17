@@ -256,6 +256,20 @@ class ClientRepository extends BaseRepository {
     );
   }
 
+  Future<NetworkResult<BaseResponse>> extensionRequest({
+    required int jobId,
+    required int requestedHours,
+    required String reason,
+  }) async {
+    final payload = <String, dynamic>{'requested_hours': requestedHours};
+    payload['reason'] = reason;
+    return post<BaseResponse>(
+      endpoint: Endpoint.extensionRequest(jobId),
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data: payload,
+    );
+  }
+
   Future<NetworkResult<PropertyTypeResponse>> getPropertyType({
     required String businessType,
   }) async {

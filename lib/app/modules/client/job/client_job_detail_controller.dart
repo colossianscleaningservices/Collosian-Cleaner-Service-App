@@ -337,7 +337,7 @@ class ClientJobDetailController extends GetxController {
                 type: ButtonType.primary,
                 label: 'Send Request',
                 onPressed: () {
-                  Get.back();
+                 submitRequest();
                 },
               ).marginOnly(left: 4),
             ),
@@ -448,6 +448,47 @@ class ClientJobDetailController extends GetxController {
         contextTag: 'submit_review',
       );
     } finally {
+      Loader.hide();
+    }
+  }
+
+  Future<void> submitRequest() async {
+    final jobId = job.value?.id?.toInt();
+    if (jobId == null) {
+      Notifier.info('Invalid job');
+      return;
+    }
+
+    if (hoursController.text.isEmpty) {
+      Notifier.info('Please Enter Hours');
+      return;
+    }
+
+    if (reasonController.text.isEmpty) {
+      Notifier.info('Please enter the reason for hour extension');
+      return;
+    }
+
+    Loader.show();
+    try {
+      final result = await _clientRepository.extensionRequest(
+        jobId: jobId,
+        requestedHours: hoursController.text.toInt(),
+        reason: reasonController.text
+      );
+      result.handle(
+        success: (value) {
+          Loader.hide();
+
+          Get.back();
+
+          fetchJobDetails(isLoaderShown: false);
+
+        },
+        contextTag: 'submit_review',
+      );
+    } finally {
+      Get.back();
       Loader.hide();
     }
   }

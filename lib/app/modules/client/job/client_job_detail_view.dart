@@ -263,16 +263,17 @@ Widget _bodyForState({
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CommonText.semiBold(j.invoice?.invoiceNumber ??'invoice.pdf', size: 15, color: scheme.onSurface),
+                        CommonText.semiBold(j.invoice?.invoiceNumber ?? 'invoice.pdf', size: 15, color: scheme.onSurface),
                         const SizedBox(height: 4),
-                        CommonText.regular('Status:${j.invoice?.status ??''}', size: 13, color: scheme.onSurfaceVariant),
+                        CommonText.regular('Status:${j.invoice?.status ?? ''}', size: 13, color: scheme.onSurfaceVariant),
                       ],
                     ),
                   ),
-                  InkWell(onTap: () {
-                    c.downloadFile(j.invoice?.pdfUrl ?? '');
-
-                  }, child: Icon(IconsaxPlusLinear.arrow_down_2, size: 28, color: context.colorScheme.primary)),
+                  InkWell(
+                      onTap: () {
+                        c.downloadFile(j.invoice?.pdfUrl ?? '');
+                      },
+                      child: Icon(IconsaxPlusLinear.arrow_down_2, size: 28, color: context.colorScheme.primary)),
                 ],
               ).paddingAll(UiConstants.defaultPadding),
             ),
@@ -409,9 +410,11 @@ class _StatusScheduleSection extends StatelessWidget {
           const SizedBox(height: 10),
           CommonText.regular(scheduleSummary, size: 14, color: scheme.onSurface),
         ],
-
+        if(j.isRequested == true)...[
+          const SizedBox(height: 10),
+          CommonText.regular('Job time extension requested', size: 14, color: scheme.onSurface.withValues(alpha: 0.5)),
+        ],
         const SizedBox(height: 12),
-
         Row(
           children: [
             if (j.jobSchedule == false && j.status != 'Cancelled' && j.status != 'Finished') ...[
@@ -424,23 +427,20 @@ class _StatusScheduleSection extends StatelessWidget {
                 btnHorizontalPadding: 12,
               ).marginOnly(right: 8),
             ],
-
-            AppButton(
-              label: 'Extend Time',
-              icon: IconsaxPlusLinear.clock_1,
-              onPressed: (){
-                c.openFilter(context);
-              },
-              btnVerticalPadding: 8,
-              btnCornerRadius: 12,
-              btnHorizontalPadding: 12,
-            ),
-
-
+            if(j.isRequested == false)...[
+              AppButton(
+                label: 'Extend Time',
+                icon: IconsaxPlusLinear.clock_1,
+                onPressed: () {
+                  c.openFilter(context);
+                },
+                btnVerticalPadding: 8,
+                btnCornerRadius: 12,
+                btnHorizontalPadding: 12,
+              ),
+            ]
           ],
-
         ),
-
         if (j.jobSchedule == true && j.status != 'Cancelled') ...[
           const SizedBox(height: 12),
           AppButton(
