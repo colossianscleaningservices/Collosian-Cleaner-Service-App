@@ -90,7 +90,8 @@ class AppCard extends StatefulWidget {
       borderColor: colorScheme.outline.withValues(alpha: 0.1),
       enableShadows: true,
       padding: padding ?? const EdgeInsets.all(24),
-      margin: margin ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      margin:
+          margin ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: child,
     );
   }
@@ -110,7 +111,9 @@ class AppCard extends StatefulWidget {
       color: colorScheme.secondaryContainer,
       padding: padding ?? const EdgeInsets.all(12),
       enableShadows: false,
-      child: size != null ? SizedBox(width: size, height: size, child: child) : child,
+      child: size != null
+          ? SizedBox(width: size, height: size, child: child)
+          : child,
     );
   }
 
@@ -126,7 +129,7 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 200),
       vsync: this,
     );
     _scaleAnimation = Tween<double>(begin: 1, end: 0.95).animate(
@@ -164,8 +167,10 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final effectiveRadius = widget.radius ?? UiConstants.radiusLarge;
-    final effectiveColor = widget.color ?? context.colorScheme.surfaceContainerHighest;
-    final effectiveBorderColor = widget.borderColor ?? context.colorScheme.outline.withValues(alpha: 0.1);
+    final effectiveColor =
+        widget.color ?? context.colorScheme.surfaceContainerHighest;
+    final effectiveBorderColor = widget.borderColor ??
+        context.colorScheme.outline.withValues(alpha: 0.1);
 
     Widget cardContent = AnimatedBuilder(
       animation: _scaleAnimation,
@@ -178,7 +183,9 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
             gradient: widget.gradient,
             borderRadius: BorderRadius.circular(effectiveRadius),
             border: Border.all(
-              color: (widget.borderWidth ?? 0) <= 0 ? Colors.transparent : effectiveBorderColor,
+              color: (widget.borderWidth ?? 0) <= 0
+                  ? Colors.transparent
+                  : effectiveBorderColor,
               width: widget.borderWidth ?? 0,
             ),
             boxShadow: widget.enableShadows ? context.effectiveShadows() : null,
@@ -204,7 +211,9 @@ class _AppCardState extends State<AppCard> with SingleTickerProviderStateMixin {
                 highlightColor: context.colorScheme.onPrimary.withValues(
                   alpha: 0.05,
                 ),
-                child: widget.padding != null ? Padding(padding: widget.padding!, child: widget.child) : widget.child,
+                child: widget.padding != null
+                    ? Padding(padding: widget.padding!, child: widget.child)
+                    : widget.child,
               ),
             ),
           ),
@@ -319,7 +328,8 @@ class AppSliverGrid extends StatelessWidget {
 }
 
 class MenuItem extends StatelessWidget {
-  const MenuItem(this.item, {super.key, this.onTap, this.isDestructive, this.padding, this.bgColor});
+  const MenuItem(this.item,
+      {super.key, this.onTap, this.isDestructive, this.padding, this.bgColor});
 
   final MenuModel item;
   final VoidCallback? onTap;
@@ -330,8 +340,10 @@ class MenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
-    final textColor = (isDestructive ?? false) ? colorScheme.error : colorScheme.onSurface;
-    final iconColor = (isDestructive ?? false) ? colorScheme.error : colorScheme.secondary;
+    final textColor =
+        (isDestructive ?? false) ? colorScheme.error : colorScheme.onSurface;
+    final iconColor =
+        (isDestructive ?? false) ? colorScheme.error : colorScheme.secondary;
 
     return AppCard(
       radius: UiConstants.radiusLarge,
@@ -410,7 +422,8 @@ class PageLoader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              CommonText.medium('Loading...', color: context.colorScheme.primary),
+              CommonText.medium('Loading...',
+                  color: context.colorScheme.primary),
             ],
           ),
         ).paddingOnly(bottom: MediaQuery.of(context).padding.bottom, top: 4),

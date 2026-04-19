@@ -141,35 +141,3 @@ class ClientProfileView extends GetView<ClientDashboardController> {
     );
   }
 }
-
-class _ProfileRow extends StatelessWidget {
-  const _ProfileRow({required this.icon, required this.label, this.onTap});
-
-  final IconData? icon;
-  final String? label;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = context.colorScheme;
-    return AppCard(
-      onTap: onTap,
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: cs.secondaryContainer.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(UiConstants.radiusMedium),
-            ),
-            child: Icon(icon, color: cs.secondary, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: CommonText.medium(label ?? "", size: 15, color: cs.onSurface)),
-          Icon(IconsaxPlusLinear.arrow_right_3, size: 18, color: cs.onSurfaceVariant),
-        ],
-      ).paddingSymmetric(vertical: 12, horizontal: 4),
-    );
-  }
-}

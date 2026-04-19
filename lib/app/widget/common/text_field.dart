@@ -113,7 +113,7 @@ class CommonTextField extends StatelessWidget {
     final scheme = context.colorScheme;
 
     final defaultTextColor = textColor ?? scheme.onSurface;
-    final defaultHintColor = hintColor ?? scheme.onSurface.withValues(alpha: 0.4);
+    final defaultHintColor = hintColor ?? scheme.onSurfaceVariant;
 
     final labelStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultTextColor, fontWeight: FontWeight.w600);
     final hintStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultHintColor, fontWeight: FontWeight.w400);
@@ -196,10 +196,10 @@ class CommonDropDownField<T> extends StatelessWidget {
     final colorScheme = context.colorScheme;
 
     final defaultTextColor = textColor ?? colorScheme.onSurface;
-    final defaultHintColor = hintColor ?? colorScheme.onSurface.withValues(alpha: 0.4);
+    final defaultHintColor = hintColor ?? colorScheme.onSurfaceVariant;
 
-    final labelStyle = context.textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultTextColor, fontWeight: FontWeight.w600);
-    final hintStyle = context.textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultHintColor, fontWeight: FontWeight.w400);
+    final labelStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultTextColor, fontWeight: FontWeight.w600);
+    final hintStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultHintColor, fontWeight: FontWeight.w400);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,9 +281,9 @@ class CommonTypeAheadField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final colorScheme = context.colorScheme;
     final defaultTextColor = textColor ?? colorScheme.onSurface;
-    final labelStyle = context.textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultTextColor, fontWeight: FontWeight.w600);
+    final labelStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultTextColor, fontWeight: FontWeight.w600);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,8 +299,8 @@ class CommonTypeAheadField<T> extends StatelessWidget {
           constraints: BoxConstraints(maxHeight: maxHeight),
           decorationBuilder: (context, child) => Material(
             borderRadius: BorderRadius.circular(borderRadius ?? 12),
-            shadowColor: Colors.black.withValues(alpha: .08),
-            color: colorScheme.onPrimary,
+            shadowColor: colorScheme.shadow.withValues(alpha: 0.12),
+            color: colorScheme.surfaceContainerHighest,
             elevation: 8,
             type: MaterialType.card,
             clipBehavior: Clip.hardEdge,
@@ -320,8 +320,8 @@ class CommonTypeAheadField<T> extends StatelessWidget {
           suggestionsCallback: suggestionsCallback,
           itemBuilder: (context, item) => Container(
             padding: const EdgeInsets.all(12),
-            color: colorScheme.onPrimary,
-            child: Text(item.toString(), style: const TextStyle(fontSize: 14)),
+            color: colorScheme.surfaceContainerHighest,
+            child: Text(item.toString(), style: TextStyle(fontSize: 14, color: colorScheme.onSurface)),
           ),
           onSelected: (selected) {
             FocusScope.of(context).unfocus();

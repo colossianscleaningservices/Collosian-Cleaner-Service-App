@@ -52,7 +52,7 @@ class NoDataView extends StatelessWidget {
               CommonText.regular(
                 subtitle!,
                 size: 14,
-                color: scheme.onSurface.withValues(alpha: 0.6),
+                color: scheme.onSurfaceVariant,
                 textAlign: TextAlign.center,
               ),
             ],

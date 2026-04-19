@@ -1,7 +1,4 @@
-import 'package:ccs_app/app/widget/common/text.dart';
-import 'package:flutter/material.dart';
-
-import '../../constants/ui_constants.dart';
+import 'package:ccs_app/export.dart';
 
 enum ButtonType { primary, outline, transparent, tonal }
 
@@ -37,9 +34,10 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.colorScheme;
 
     final baseStyle = ButtonStyle(
+      animationDuration: const Duration(milliseconds: 200),
       padding: WidgetStateProperty.all(EdgeInsets.symmetric(vertical: btnVerticalPadding, horizontal: btnHorizontalPadding)),
       shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(btnCornerRadius))),
     );
@@ -74,7 +72,24 @@ class AppButton extends StatelessWidget {
         backgroundColor: WidgetStateProperty.all(bg),
         foregroundColor: WidgetStateProperty.all(fg),
         side: side == null ? null : WidgetStateProperty.all(side),
-        elevation: WidgetStateProperty.all(type == ButtonType.primary ? 0 : 0),
+        elevation: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) return 0.0;
+          if (type == ButtonType.primary && onPressed != null && !isLoading) {
+            if (states.contains(WidgetState.pressed)) return 0.0;
+            return 1.0;
+          }
+          return 0.0;
+        }),
+        shadowColor: WidgetStateProperty.all(Colors.transparent),
+        overlayColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.pressed)) {
+            return fg.withValues(alpha: 0.12);
+          }
+          if (states.contains(WidgetState.hovered)) {
+            return fg.withValues(alpha: 0.08);
+          }
+          return null;
+        }),
         maximumSize: WidgetStatePropertyAll(Size.infinite),
       ),
       child: isLoading

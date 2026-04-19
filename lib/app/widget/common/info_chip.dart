@@ -18,10 +18,11 @@ class InfoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding:  EdgeInsets.only(left: leftPadding,right: 10, top: 6,bottom: 6),
+      padding: EdgeInsets.only(left: leftPadding, right: 10, top: 6, bottom: 6),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
+        border: Border.all(color: foregroundColor.withValues(alpha: 0.18)),
       ),
       child: CommonText.medium(label, size: 13, color: foregroundColor),
     );

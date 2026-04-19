@@ -55,7 +55,11 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
                 icon: const Icon(IconsaxPlusLinear.arrow_left_1),
               ).paddingOnly(left: 12, top: 8, bottom: 8)
             : null,
-        title: widget ?? CommonText.extraBold(title, color: context.colorScheme.primary, fontWeight: FontWeight.w700, size: size)
+        title: widget ??
+            CommonText.extraBold(title,
+                color: context.colorScheme.primary,
+                fontWeight: FontWeight.w700,
+                size: size)
         /*Column(
           spacing: subtitle?.isNullOrEmpty == false ? 4 : 0,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,7 +73,6 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
         ,
         centerTitle: false,
         actions: _buildActions(context),
-        scrolledUnderElevation: 0,
       );
 
   List<Widget>? _buildActions(BuildContext context) {
@@ -112,5 +115,6 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(56 + (bottom?.preferredSize.height ?? 0) + ((widget == null) ? 0 : 0));
+  Size get preferredSize => Size.fromHeight(
+      56 + (bottom?.preferredSize.height ?? 0) + ((widget == null) ? 0 : 0));
 }

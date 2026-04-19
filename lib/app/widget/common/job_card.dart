@@ -57,7 +57,7 @@ class JobCard extends StatelessWidget {
     final lower = status.toLowerCase();
     if (lower.contains('cancel')) return scheme.error;
     if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) return scheme.tertiary;
-    if (lower.contains('pending')) return Colors.yellow.shade800;
+    if (lower.contains('pending')) return scheme.secondary;
     return scheme.primary;
   }
 

@@ -30,10 +30,12 @@ Future<void> main() async {
     SecureLogger.log('MAIN', 'Failed to initialize Crashlytics: $e');
   }
 
-  try {
-    await OneSignalService.initialize(EnvService.onesignalAppId);
-  } on Exception catch (e) {
-    SecureLogger.log('MAIN', 'OneSignal initialization failed: $e');
+  if (!kIsWeb) {
+    try {
+      await OneSignalService.initialize(EnvService.onesignalAppId);
+    } catch (e) {
+      SecureLogger.log('MAIN', 'OneSignal initialization failed: $e');
+    }
   }
 
   getTimeZone().then((onValue) {
@@ -55,15 +57,19 @@ Future<void> main() async {
         dark: getTheme(darkColorScheme),
         initial: savedThemeMode ?? AdaptiveThemeMode.light,
         builder: (theme, darkTheme) {
-          return GetMaterialApp(
-            defaultTransition: Transition.native,
-            debugShowCheckedModeBanner: false,
-            initialRoute: AppPages.INITIAL,
-            getPages: AppPages.routes,
-            title: 'CCS',
-            theme: theme,
-            darkTheme: darkTheme,
-            themeMode: ThemeMode.light,
+          return Builder(
+            builder: (context) {
+              return GetMaterialApp(
+                defaultTransition: Transition.native,
+                debugShowCheckedModeBanner: false,
+                initialRoute: AppPages.INITIAL,
+                getPages: AppPages.routes,
+                title: 'CCS',
+                theme: theme,
+                darkTheme: darkTheme,
+                themeMode: themeModeFromAdaptive(AdaptiveTheme.of(context).mode),
+              );
+            },
           );
         },
       ),

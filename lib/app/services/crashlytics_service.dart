@@ -15,6 +15,12 @@ class CrashlyticsService {
   /// Initialize Crashlytics (call in main.dart after Firebase initialization).
   Future<void> initialize() async {
     if (_isInitialized) return;
+    if (kIsWeb) {
+      if (kDebugMode) {
+        debugPrint('CrashlyticsService: skipped on web');
+      }
+      return;
+    }
 
     try {
       _crashlytics = FirebaseCrashlytics.instance;

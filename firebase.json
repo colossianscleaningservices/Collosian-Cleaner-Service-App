@@ -1,1 +1,31 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"collosian-cleaner-service-app","appId":"1:514524285235:android:b4f52c7f14a67267791646","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"collosian-cleaner-service-app","configurations":{"android":"1:514524285235:android:b4f52c7f14a67267791646","ios":"1:514524285235:ios:4edc3b2b41ee8af4791646","web":"1:514524285235:web:d90a90a22a389a38791646"}}},"ios":{"default":{"projectId":"collosian-cleaner-service-app","appId":"1:514524285235:ios:4edc3b2b41ee8af4791646","uploadDebugSymbols":true,"fileOutput":"ios/Runner/GoogleService-Info.plist"}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "collosian-cleaner-service-app",
+          "appId": "1:514524285235:android:b4f52c7f14a67267791646",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "collosian-cleaner-service-app",
+          "configurations": {
+            "android": "1:514524285235:android:b4f52c7f14a67267791646",
+            "ios": "1:514524285235:ios:4edc3b2b41ee8af4791646",
+            "web": "1:514524285235:web:d90a90a22a389a38791646"
+          }
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "collosian-cleaner-service-app",
+          "appId": "1:514524285235:ios:4edc3b2b41ee8af4791646",
+          "uploadDebugSymbols": true,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      }
+    }
+  }
+}

@@ -135,7 +135,7 @@ Color getBgColor(String label, ColorScheme scheme){
   } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) {
     bg = scheme.tertiaryContainer.withValues(alpha: 0.6);
   } else if (lower.contains('pending')) {
-    bg = Colors.yellow.shade100.withValues(alpha: 0.6);
+    bg = scheme.secondaryContainer.withValues(alpha: 0.75);
   } else {
     bg = scheme.primaryContainer.withValues(alpha: 0.5);
   }
@@ -151,7 +151,7 @@ Color getFgColor(String label, ColorScheme scheme){
   } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) {
     fg = scheme.onTertiaryContainer;
   } else if (lower.contains('pending')) {
-    fg = Colors.yellow.shade800;
+    fg = scheme.onSecondaryContainer;
   } else {
     fg = scheme.primary;
   }

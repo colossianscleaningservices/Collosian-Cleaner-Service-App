@@ -34,7 +34,7 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
                   top: 4,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color: context.colorScheme.error,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     constraints: const BoxConstraints(
