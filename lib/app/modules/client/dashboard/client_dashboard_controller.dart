@@ -42,9 +42,9 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       ];
 
   List<MenuModel> alertItems = [
-    MenuModel(icon: IconsaxPlusLinear.user, title: 'Complete Profile', subtitle: ""),
-    MenuModel(icon: IconsaxPlusLinear.home_2, title: 'Create Property', subtitle: ""),
-    MenuModel(icon: IconsaxPlusLinear.briefcase, title: 'Create Jobs', subtitle: ""),
+    MenuModel(icon: IconsaxPlusLinear.user, title: 'Complete Profile', subtitle: "Add your personal and work details"),
+    MenuModel(icon: IconsaxPlusLinear.home_2, title: 'Create Property', subtitle: "Add a property to start creating jobs"),
+    MenuModel(icon: IconsaxPlusLinear.briefcase, title: 'Create Jobs', subtitle: "Set up a job for your property"),
   ];
 
   List<MenuModel> profileItems = [
@@ -437,6 +437,8 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   }
 
   Future showAlertSheet(BuildContext context) async {
+    final scheme = context.colorScheme;
+
     Notifier.openSheet(
       context,
       top: true,
@@ -445,8 +447,44 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       showIcon: false,
       body: Column(
         children: [
-          ListView.builder(
+          // Container(
+          //   padding: const EdgeInsets.all(14),
+          //   decoration: BoxDecoration(
+          //     color: scheme.primaryContainer.withValues(alpha: 0.22),
+          //     borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+          //     border: Border.all(
+          //       color: scheme.primary.withValues(alpha: 0.12),
+          //     ),
+          //   ),
+          //   child: Row(
+          //     children: [
+          //       AppCard(
+          //         color: scheme.primaryContainer.withValues(alpha: 0.45),
+          //         enableShadows: false,
+          //         padding: const EdgeInsets.all(10),
+          //         child: Icon(IconsaxPlusLinear.notification, size: 20, color: scheme.primary),
+          //       ),
+          //       const SizedBox(width: 10),
+          //       Expanded(
+          //         child: Column(
+          //           crossAxisAlignment: CrossAxisAlignment.start,
+          //           children: [
+          //             CommonText.semiBold('Action needed', size: 16, color: scheme.onSurface),
+          //             const SizedBox(height: 2),
+          //             CommonText.regular(
+          //               'Completed steps are marked below.',
+          //               size: 12,
+          //               color: scheme.onSurfaceVariant,
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ).marginOnly(bottom: 12),
+          ListView.separated(
             shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: alertItems.length,
             itemBuilder: (context, index) {
               final item = alertItems[index];
@@ -463,20 +501,39 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
                     goToCreateJob();
                   }
                 },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child:  Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(item.icon, size: 48, color: context.colorScheme.secondary.withValues(alpha: 0.9)).marginOnly(bottom: 16),
-                    CommonText.semiBold(
-                      item.title ?? '',
-                      size: 16,
-                    ).marginOnly(bottom: 4),
+                    AppCard.iconContainer(
+                      context: context,
+                      padding: const EdgeInsets.all(10),
+                      child: Icon(item.icon, size: 20, color: scheme.secondary),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CommonText.semiBold(item.title ?? '', size: 14, color: scheme.onSurface),
+                          if ((item.subtitle ?? '').isNotEmpty) ...[
+                            const SizedBox(height: 3),
+                            CommonText.regular(
+                              item.subtitle ?? '',
+                              size: 12,
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
                   ],
-                ).paddingAll(16),
-              ).marginAll(8);
+                ).paddingAll(14),
+              );
             },
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
           ),
-          CommonText.regular('Follow these quick steps to get started', size: 16).marginOnly(bottom: 16),
+          CommonText.regular('Follow these quick steps to get started', size: 16, color: scheme.onSecondary.withValues(alpha: 0.5),).marginOnly(bottom: 16),
         ],
       ),
     );

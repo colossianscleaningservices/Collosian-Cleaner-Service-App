@@ -19,6 +19,7 @@ class CleanerCard extends StatelessWidget {
   final VoidCallback onShare, onReview, onTap;
   final ColorScheme scheme;
   final bool isReview;
+
   /// When false, hides Share / Review / View (e.g. cleaner-facing job detail).
   final bool showActions;
 
@@ -55,16 +56,6 @@ class CleanerCard extends StatelessWidget {
                     alignment: WrapAlignment.end,
                     children: [
                       if (_isCompleted)
-                        TextButton(
-                          onPressed: onTap,
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: CommonText.regular('View', size: 14, color: scheme.primary),
-                        )
-                      else ...[
                         if (isReview)
                           TextButton(
                             onPressed: onReview,
@@ -74,17 +65,27 @@ class CleanerCard extends StatelessWidget {
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             child: CommonText.regular('Review', size: 14, color: scheme.primary),
+                          )
+                        else ...[
+                          TextButton(
+                            onPressed: onTap,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: CommonText.regular('View', size: 14, color: scheme.primary),
                           ),
-                        TextButton(
-                          onPressed: onShare,
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          TextButton(
+                            onPressed: onShare,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: CommonText.regular('Share', size: 14, color: scheme.primary),
                           ),
-                          child: CommonText.regular('Share', size: 14, color: scheme.primary),
-                        ),
-                      ],
+                        ],
                     ],
                   ),
                 ],

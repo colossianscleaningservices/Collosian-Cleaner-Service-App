@@ -84,7 +84,6 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                       ),
                       SizedBox(height: hasJobs ? 16 : 12),
                       if (hasJobs && nextJob != null) ...[
-
                         AppCard(
                           color: scheme.primaryContainer.withValues(alpha: 0.2),
                           child: Column(
