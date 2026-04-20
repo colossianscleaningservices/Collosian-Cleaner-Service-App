@@ -40,7 +40,7 @@ class PropertyView extends GetView<PropertyController> {
                 children: [
                   AppGrid(
                     physics: NeverScrollableScrollPhysics(),
-                    maxExtent: 104,
+                    maxExtent: 112,
                     axisSpacing: 8,
                     phoneCount: 1,
                     tabletCount: 2,

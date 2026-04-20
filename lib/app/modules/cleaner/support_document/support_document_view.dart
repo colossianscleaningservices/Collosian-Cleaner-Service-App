@@ -158,6 +158,7 @@ class _DocumentTile extends StatelessWidget {
                   AppCard(
                     onTap: onEdit,
                     borderWidth: 1,
+                    radius: 8,
                     enableShadows: false,
                     enableScale: false,
                     borderColor: scheme.primary.withValues(alpha: 0.3),
@@ -296,12 +297,12 @@ class _ExpiryChip extends StatelessWidget {
     final label = isExpired ? 'Expired' : 'Expiring soon';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
       ),
-      child: CommonText.medium(label, size: 11, color: fg),
+      child: CommonText.medium(label, size: 12, color: fg),
     );
   }
 }

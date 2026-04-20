@@ -47,7 +47,7 @@ class JobDetailLoadingSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = scheme.surfaceContainerHighest.withValues(alpha: 0.9);
+    final base = scheme.secondary.withValues(alpha: 0.08);
     Widget bar(double h, [double factor = 1]) => Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: Container(

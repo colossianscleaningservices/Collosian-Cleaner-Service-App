@@ -1,5 +1,5 @@
 import 'package:ccs_app/app/network/response/base_response.dart';
-import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
 class TrainingResourceResponse extends BaseResponse {
   TrainingResourceResponse({
@@ -155,7 +155,7 @@ class Trainings {
     this.isSelected = false,
     this.isSeen,
     this.createdAt,
-    this.videoPlayerController,
+    this.chewieController,
     this.updatedAt,});
 
   Trainings.fromJson(dynamic json) {
@@ -185,7 +185,7 @@ class Trainings {
   String? createdAt;
   String? updatedAt;
   bool? isSelected;
-  VideoPlayerController? videoPlayerController;
+  ChewieController? chewieController;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

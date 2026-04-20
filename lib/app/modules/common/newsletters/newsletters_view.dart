@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 import '../../../network/response/newsletter_response.dart';
 import 'newsletters_controller.dart';
@@ -93,10 +94,22 @@ class NewslettersView extends GetView<NewslettersController> {
                 ),
               ],
               const SizedBox(height: 16),
-              CommonText.regular(
-                item.description ?? '',
-                size: 15,
-                color: scheme.onSurface.withValues(alpha: 0.9),
+              Html(
+                data: item.description ?? "",
+                style: {
+                  "body": Style(
+                    fontSize: FontSize(15),
+                    color: scheme.onSurface.withValues(alpha: 0.9),
+                    margin: Margins.zero,
+                    padding: HtmlPaddings.zero,
+                    letterSpacing: 0.15,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  "p": Style(
+                    margin: Margins.zero,
+                    padding: HtmlPaddings.zero,
+                  ),
+                },
               ),
             ],
           ),
@@ -178,12 +191,24 @@ class _NewsletterCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 6),
-                CommonText.regular(
-                  item.description ?? '',
-                  size: 14,
-                  color: scheme.onSurface.withValues(alpha: 0.85),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                Html(
+                  data: item.description ?? "",
+                  style: {
+                    "body": Style(
+                      fontSize: FontSize(14),
+                      color: scheme.onSurface.withValues(alpha: 0.85),
+                      maxLines: 2,
+                      textOverflow: TextOverflow.ellipsis,
+                      margin: Margins.zero,
+                      padding: HtmlPaddings.zero,
+                      letterSpacing: 0.15,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    "p": Style(
+                      margin: Margins.zero,
+                      padding: HtmlPaddings.zero,
+                    ),
+                  },
                 ),
                 if (item.createdAt != null) ...[
                   const SizedBox(height: 8),

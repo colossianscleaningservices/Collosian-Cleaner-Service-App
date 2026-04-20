@@ -3,14 +3,14 @@ import 'dart:io';
 
 import 'package:ccs_app/app/network/repository/cleaner_repository.dart';
 import 'package:ccs_app/app/network/response/get_staff_document_response.dart';
+import 'package:dio/dio.dart' as dio;
 import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path;
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:dio/dio.dart' as dio;
 
 import '../../../../export.dart';
-import 'package:path/path.dart' as path;
 
 class SupportDocumentController extends GetxController {
   final CleanerRepository _cleanerRepository = CleanerRepository();
@@ -64,17 +64,19 @@ class SupportDocumentController extends GetxController {
   Future<void> onViewFile(Documents item) async {
     if (item.documentUrl!.endsWith('.pdf')) {
       final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
-      Notifier.openSheet(Get.context as BuildContext,
-          showIcon: false,
-          showPrimaryButton: false,
-          showSecondaryButton: false,
-          body: Expanded(
-            child: SfPdfViewer.network(
-              item.documentUrl ?? '',
-              key: pdfViewerKey,
-              password: "1234",
-            ),
-          ));
+      Notifier.openSheet(
+        Get.context as BuildContext,
+        showIcon: false,
+        showPrimaryButton: false,
+        showSecondaryButton: false,
+        body: Expanded(
+          child: SfPdfViewer.network(
+            item.documentUrl ?? '',
+            key: pdfViewerKey,
+            password: "1234",
+          ),
+        ),
+      );
     } else {
       var multiImageProvider = MultiImageProvider(
         [
@@ -92,12 +94,6 @@ class SupportDocumentController extends GetxController {
         doubleTapZoomable: true,
       );
     }
-
-    /*if (item.fileUrl != null && item.fileUrl!.isNotEmpty) {
-      // TODO: Open file (e.g. url_launcher or file viewer)
-    } else {
-      Notifier.info('No file attached');
-    }*/
   }
 
   void onEditDocument(Documents item) {
@@ -124,17 +120,11 @@ class SupportDocumentController extends GetxController {
   }
 
   void setEditingData(Documents item) {
-    log('tag', item.documentUrl?.split('/').last ?? '');
     isEditingDocument.value = true;
-
     selectedDocument.value = item;
-
     document.value = item.documentName?.replaceAll('_', ' ').capitalize;
-
     documentCtrl.text = item.documentNumber!;
-
     jobStartDate.value = DateTime.parse(item.expiryDate!);
-
     refresh();
   }
 
@@ -287,7 +277,12 @@ class SupportDocumentController extends GetxController {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (Get.context == null) return;
           Notifier.openSheet(Get.context as BuildContext,
-              title: "Success",type: SheetType.success, message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+              title: "Success",
+              type: SheetType.success,
+              message: "${value.message}",
+              isDismissable: false,
+              isShowCloseIcon: false,
+              showSecondaryButton: false, onPrimaryPressed: () {
             Get.back(result: {'isUpdate': true});
           });
         });
@@ -310,7 +305,12 @@ class SupportDocumentController extends GetxController {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (Get.context == null) return;
           Notifier.openSheet(Get.context as BuildContext,
-              title: "Success",type: SheetType.success, message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+              title: "Success",
+              type: SheetType.success,
+              message: "${value.message}",
+              isDismissable: false,
+              isShowCloseIcon: false,
+              showSecondaryButton: false, onPrimaryPressed: () {
             Get.back(result: {'isUpdate': true});
           });
         });

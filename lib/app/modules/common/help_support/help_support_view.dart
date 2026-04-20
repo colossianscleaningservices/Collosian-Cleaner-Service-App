@@ -1,5 +1,5 @@
-import 'package:ccs_app/export.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
+import 'package:ccs_app/export.dart';
 
 import 'help_support_controller.dart';
 
@@ -18,32 +18,6 @@ class HelpSupportView extends GetView<HelpSupportController> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Quick actions
-              CommonText.semiBold('Contact us', size: 16, color: scheme.onSurface),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _QuickActionCard(
-                      label: 'Email',
-                      icon: IconsaxPlusLinear.sms,
-                      scheme: scheme,
-                      onTap: () => controller.openEmail(),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _QuickActionCard(
-                      label: 'Call',
-                      icon: IconsaxPlusLinear.call,
-                      scheme: scheme,
-                      onTap: () => controller.openDialPad(controller.supportPhone.value),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
               // Contact info
               CommonText.semiBold('Contact information', size: 16, color: scheme.onSurface),
               const SizedBox(height: 12),
@@ -90,6 +64,7 @@ class HelpSupportView extends GetView<HelpSupportController> {
                       hint: 'How can we help?',
                       controller: controller.messageController,
                       maxLines: 4,
+                      minLines: 4,
                       action: TextInputAction.done,
                     ),
                     const SizedBox(height: 18),
@@ -110,40 +85,6 @@ class HelpSupportView extends GetView<HelpSupportController> {
   }
 }
 
-class _QuickActionCard extends StatelessWidget {
-  const _QuickActionCard({
-    required this.label,
-    required this.icon,
-    required this.scheme,
-    required this.onTap,
-  });
-
-  final String label;
-  final IconData icon;
-  final ColorScheme scheme;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppCard(
-      onTap: onTap,
-      margin: EdgeInsets.zero,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-      borderWidth: 1,
-      borderColor: scheme.outline.withValues(alpha: 0.15),
-      color: scheme.surfaceContainerHighest,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 24, color: scheme.secondary),
-          const SizedBox(height: 8),
-          CommonText.medium(label, size: 12, color: scheme.onSurface),
-        ],
-      ),
-    );
-  }
-}
-
 class _ContactInfoCard extends StatelessWidget {
   const _ContactInfoCard({required this.scheme, required this.supportEmail, required this.supportPhone});
 
@@ -153,40 +94,103 @@ class _ContactInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<HelpSupportController>();
+    final radius = BorderRadius.circular(UiConstants.radiusDefault);
+
     return AppCard(
       margin: EdgeInsets.zero,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.zero,
       borderWidth: 1,
-      borderColor: scheme.outline.withValues(alpha: 0.15),
-      color: scheme.surfaceContainerHighest,
+      borderColor: scheme.outline.withValues(alpha: 0.12),
+      color: scheme.onPrimary,
+      enableShadows: true,
+      radius: UiConstants.radiusDefault,
       child: Column(
         children: [
-          _InfoRow(icon: IconsaxPlusLinear.sms, value: supportEmail, scheme: scheme),
-          const SizedBox(height: 12),
-          _InfoRow(icon: IconsaxPlusLinear.call, value: supportPhone, scheme: scheme),
-          const SizedBox(height: 12),
-          _InfoRow(icon: IconsaxPlusLinear.clock, value: 'Mon-Fri, 9 AM - 6 PM', scheme: scheme),
+          _ContactActionRow(
+            scheme: scheme,
+            icon: IconsaxPlusLinear.sms,
+            title: 'Email',
+            value: supportEmail,
+            onTap: controller.openEmail,
+            inkBorderRadius: BorderRadius.only(topLeft: radius.topLeft, topRight: radius.topRight),
+          ),
+          Divider(height: 1, thickness: 1, indent: 16, endIndent: 16, color: scheme.outline.withValues(alpha: 0.12)),
+          _ContactActionRow(
+            scheme: scheme,
+            icon: IconsaxPlusLinear.call,
+            title: 'Phone',
+            value: supportPhone,
+            onTap: () => controller.openDialPad(supportPhone),
+            inkBorderRadius: BorderRadius.only(bottomLeft: radius.bottomLeft, bottomRight: radius.bottomRight),
+          ),
         ],
       ),
     );
   }
 }
 
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.icon, required this.value, required this.scheme});
+class _ContactActionRow extends StatelessWidget {
+  const _ContactActionRow({
+    required this.scheme,
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.onTap,
+    required this.inkBorderRadius,
+  });
 
-  final IconData icon;
-  final String value;
   final ColorScheme scheme;
+  final IconData icon;
+  final String title;
+  final String value;
+  final VoidCallback onTap;
+  final BorderRadius inkBorderRadius;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: scheme.primary),
-        const SizedBox(width: 12),
-        CommonText.regular(value, size: 12, color: scheme.onSurface),
-      ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: inkBorderRadius,
+        splashColor: scheme.primary.withValues(alpha: 0.08),
+        highlightColor: scheme.primary.withValues(alpha: 0.04),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AppCard(
+                radius: UiConstants.radiusDefault,
+                color: scheme.secondary.withValues(alpha: 0.07),
+                enableShadows: false,
+                padding: const EdgeInsets.all(10),
+                child: Icon(icon, size: 24, color: scheme.secondary),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CommonText.semiBold(title, size: 12, color: scheme.onSurfaceVariant),
+                    const SizedBox(height: 4),
+                    CommonText.regular(
+                      value,
+                      size: 14,
+                      color: scheme.onSurface,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(IconsaxPlusLinear.arrow_right_3, size: 20, color: scheme.onSurfaceVariant),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -66,6 +66,24 @@ android {
         }
     }*/
 
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
+
+}
+
+dependencies {
+    implementation("androidx.datastore:datastore:1.1.1")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("androidx.datastore:datastore:1.1.1")
+        force("androidx.datastore:datastore-preferences:1.1.1")
+    }
 }
 
 flutter {

@@ -44,7 +44,7 @@ class ClientCalendarView extends GetView<ClientDashboardController> {
               Obx(() => CommonText.bold(controller.periodLabel, size: 16, color: scheme.onSurface)),
               IconButton(
                 icon: Icon(
-                  IconsaxPlusLinear.arrow_right_2,
+                  IconsaxPlusLinear.arrow_right_3,
                   color: scheme.secondary,
                 ),
                 onPressed: controller.onCalendarNext,

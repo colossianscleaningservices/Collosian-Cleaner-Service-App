@@ -37,7 +37,7 @@ class CleanerDashboardView extends GetView<CleanerDashboardController> {
                     top: 4,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: context.colorScheme.error,
+                        color: context.colorScheme.secondary.withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       constraints: const BoxConstraints(

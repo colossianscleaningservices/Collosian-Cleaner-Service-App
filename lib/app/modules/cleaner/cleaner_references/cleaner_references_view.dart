@@ -183,6 +183,7 @@ class _ReferenceTile extends StatelessWidget {
                     borderWidth: 1,
                     enableShadows: false,
                     enableScale: false,
+                    radius: 8,
                     borderColor: scheme.primary.withValues(alpha: 0.3),
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Row(

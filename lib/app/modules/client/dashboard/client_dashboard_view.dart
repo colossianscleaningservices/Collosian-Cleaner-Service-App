@@ -9,7 +9,6 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
 
   @override
   Widget build(BuildContext context) {
-
     return Obx(
       () => AppScaffold(
         appBar: Header(
@@ -18,7 +17,6 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
           ),
           title: "",
           actions: [
-
             Stack(
               children: [
                 IconButton(
@@ -28,24 +26,23 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
                 ),
 
                 // Badge
-                if(controller.hasUnreadNotifications.value)
-                Positioned(
-                  right: 6,
-                  top: 4,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: context.colorScheme.error,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
+                if (controller.hasUnreadNotifications.value)
+                  Positioned(
+                    right: 6,
+                    top: 4,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: context.colorScheme.secondary.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
-
           ],
           hasBackIcon: false,
         ),

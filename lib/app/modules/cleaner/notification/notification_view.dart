@@ -47,7 +47,6 @@ class NotificationView extends GetView<NotificationController> {
                                 scheme: scheme,
                                 ctrl: controller,
                                 onTap: () {
-                                  print(notification.toJson());
                                   if (notification.isRead == false && notification.id != null) {
                                     controller.markAsRead(notification.id!.toInt(), index);
                                   }
@@ -154,40 +153,24 @@ class _NotificationCard extends StatelessWidget {
         return Icons.more_time;
       case Constants.cleanerCheckOut:
         return Icons.done;
-
       default:
         return IconsaxPlusLinear.message_text;
-
-      /* case NotificationType.payment:
-        return IconsaxPlusLinear.wallet_money;
-      case NotificationType.message:
-        return IconsaxPlusLinear.message_text;
-      case NotificationType.reminder:
-        return IconsaxPlusLinear.clock;*/
     }
   }
 
   Color _getIconBgColor() {
     switch (notification.flag) {
       case Constants.cleanerAssigned:
-        return scheme.primary.withValues(alpha: 0.15);
+        return scheme.primary.withValues(alpha: 0.07);
       case Constants.cleanerCheckIn || Constants.cleanerCheckOut:
-        return scheme.secondary.withValues(alpha: 0.15);
-
+        return scheme.secondary.withValues(alpha: 0.12);
       default:
         return scheme.primaryContainer.withValues(alpha: 0.6);
-
-      /*case NotificationType.payment:
-        return scheme.tertiary.withValues(alpha: 0.15);
-      case NotificationType.message:
-        return scheme.primaryContainer.withValues(alpha: 0.6);
-      case NotificationType.reminder:
-        return scheme.secondaryContainer.withValues(alpha: 0.6);*/
     }
   }
 
   Color _getIconColor() {
-    switch (/*notification.type*/ NotificationType.message) {
+    switch (NotificationType.message) {
       case NotificationType.jobAssigned:
         return scheme.primary;
       case NotificationType.jobUpdate:

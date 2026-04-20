@@ -34,9 +34,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   final tabIndex = 0.obs;
 
   List<MenuModel> alertItems = [
-    MenuModel(icon: IconsaxPlusLinear.user, title: 'Complete Profile', subtitle: ""),
-    MenuModel(icon: IconsaxPlusLinear.document, title: 'Upload Documents', subtitle: ""),
-    MenuModel(icon: IconsaxPlusLinear.calendar, title: 'View Calendar', subtitle: ""),
+    MenuModel(icon: IconsaxPlusLinear.user, title: 'Complete Profile', subtitle: 'Add your personal and work details'),
+    MenuModel(icon: IconsaxPlusLinear.document, title: 'Upload Documents', subtitle: 'Submit ID and required verification files'),
+    MenuModel(icon: IconsaxPlusLinear.calendar, title: 'View Calendar', subtitle: 'Check assigned jobs and upcoming schedule'),
   ];
 
   late final TabController tabController;
@@ -238,7 +238,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
           if (showAlert && !documentAdded) {
             Loader.hide();
-            // Defer sheet to next frame so Loader.hide() from finally can close the loader first
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (Get.context == null) return;
               showAlertSheet(Get.context!);
@@ -246,15 +245,6 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           }
         },
       );
-      /*final actionResult = await _cleanerRepository.getActionNeeded();
-      actionResult.handle(
-        success: (res) {
-          final data = res.data;
-          if (data is Map && data['action_needed_count'] is int) {
-            actionNeededCount.value = data['action_needed_count'] as int;
-          }
-        },
-      );*/
     } catch (_) {
     } finally {
       Loader.hide();
@@ -856,6 +846,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   }
 
   Future showAlertSheet(BuildContext context) async {
+    final scheme = context.colorScheme;
+
     Notifier.openSheet(
       context,
       top: true,
@@ -863,15 +855,52 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       showSecondaryButton: false,
       showIcon: false,
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          ListView.builder(
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer.withValues(alpha: 0.22),
+              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+              border: Border.all(
+                color: scheme.primary.withValues(alpha: 0.12),
+              ),
+            ),
+            child: Row(
+              children: [
+                AppCard(
+                  color: scheme.primaryContainer.withValues(alpha: 0.45),
+                  enableShadows: false,
+                  padding: const EdgeInsets.all(10),
+                  child: Icon(IconsaxPlusLinear.notification, size: 20, color: scheme.primary),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CommonText.semiBold('Action needed', size: 16, color: scheme.onSurface),
+                      const SizedBox(height: 2),
+                      CommonText.regular(
+                        'Completed steps are marked below.',
+                        size: 12,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ).marginOnly(bottom: 12),
+          ListView.separated(
             shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
             itemCount: alertItems.length,
             itemBuilder: (context, index) {
               final item = alertItems[index];
               return AppCard(
-                color: context.colorScheme.onPrimary,
-                borderWidth: 0,
+                color: scheme.onPrimary,
+                enableShadows: false,
                 onTap: () {
                   Get.back();
                   if (index == 0) {
@@ -882,20 +911,38 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
                     setTab(1);
                   }
                 },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(item.icon, size: 48, color: context.colorScheme.secondary.withValues(alpha: 0.9)).marginOnly(bottom: 16),
-                    CommonText.semiBold(
-                      item.title ?? '',
-                      size: 16,
-                    ).marginOnly(bottom: 4),
+                    AppCard.iconContainer(
+                      context: context,
+                      padding: const EdgeInsets.all(10),
+                      child: Icon(item.icon, size: 20, color: scheme.secondary),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CommonText.semiBold(item.title ?? '', size: 14, color: scheme.onSurface),
+                          if ((item.subtitle ?? '').isNotEmpty) ...[
+                            const SizedBox(height: 3),
+                            CommonText.regular(
+                              item.subtitle ?? '',
+                              size: 12,
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
                   ],
-                ).paddingAll(16),
-              ).marginAll(8);
+                ).paddingAll(14),
+              );
             },
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
           ),
-          CommonText.regular('Follow these quick steps to get started', size: 16).marginOnly(bottom: 16),
         ],
       ),
     );

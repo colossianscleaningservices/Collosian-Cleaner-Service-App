@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/model/common_model.dart';
+import 'package:chewie/chewie.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:video_player/video_player.dart';
 
@@ -75,7 +76,8 @@ class TrainingAndResourcesController extends GetxController {
   @override
   void onClose() {
     for (final item in trainingList) {
-      item.videoPlayerController?.dispose();
+      item.chewieController?.videoPlayerController.dispose();
+      item.chewieController?.dispose();
     }
     searchFocus.dispose();
     searchController.dispose();
@@ -85,8 +87,9 @@ class TrainingAndResourcesController extends GetxController {
   /// Called by pull-to-refresh. Disposes existing video controllers and reloads the list.
   Future<void> refreshTraining() async {
     for (final item in trainingList) {
-      item.videoPlayerController?.dispose();
-      item.videoPlayerController = null;
+      item.chewieController?.videoPlayerController.dispose();
+      item.chewieController?.dispose();
+      item.chewieController = null;
     }
     currentPage = 1;
     getTrainingResources();
@@ -119,8 +122,20 @@ class TrainingAndResourcesController extends GetxController {
           value.data?.resources?.trainings?.forEach((item) async {
             if (trainingList.firstWhereOrNull((tr) => tr.id == item.id) == null) {
               if (item.contentType?.toLowerCase() == 'video') {
-                final ctrl = VideoPlayerController.networkUrl(Uri.parse(item.fileUrl ?? ""));
-                item.videoPlayerController = ctrl;
+                final videoUrl = item.fileUrl;
+                if (videoUrl != null && videoUrl.isNotEmpty) {
+                  final ctrl = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
+                  final chewieCtrl = ChewieController(
+                    videoPlayerController: ctrl,
+                    autoInitialize: true,
+                    autoPlay: false,
+                    looping: false,
+                    allowFullScreen: true,
+                    allowPlaybackSpeedChanging: false,
+                    showControlsOnInitialize: false,
+                  );
+                  item.chewieController = chewieCtrl;
+                }
               }
               trainingList.add(item);
             }

@@ -1,6 +1,6 @@
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
-import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
 import '../../../network/response/training_resource_response.dart';
 import 'training_and_resources_controller.dart';
@@ -266,11 +266,11 @@ class _FilterChips extends StatelessWidget {
 
 class _VideoPlaceholder extends StatefulWidget {
   const _VideoPlaceholder({
-    required this.controller,
+    required this.chewieController,
     required this.scheme,
   });
 
-  final VideoPlayerController? controller;
+  final ChewieController? chewieController;
   final ColorScheme scheme;
 
   static const double _minHeight = 160;
@@ -321,56 +321,29 @@ class _VideoPlaceholder extends StatefulWidget {
 }
 
 class _VideoPlaceholderState extends State<_VideoPlaceholder> {
-  bool _initFailed = false;
-  bool _initStarted = false;
-
-  Future<void> _tryInitialize(VideoPlayerController ctrl) async {
-    if (_initStarted) return;
-    _initStarted = true;
-    try {
-      await ctrl.initialize();
-      if (mounted) setState(() {});
-    } on PlatformException catch (_) {
-      if (mounted) setState(() => _initFailed = true);
-    } catch (_) {
-      if (mounted) setState(() => _initFailed = true);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final scheme = widget.scheme;
-    if (widget.controller == null) {
+    if (widget.chewieController == null) {
       return _VideoPlaceholder._videoFallback(
         scheme: scheme,
         icon: IconsaxPlusLinear.video_play,
       );
     }
-    final ctrl = widget.controller!;
-
-    if (!ctrl.value.isInitialized && !_initFailed) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _tryInitialize(ctrl));
-    }
-
-    if (_initFailed) {
-      return _VideoPlaceholder._videoFallback(
-        scheme: scheme,
-        icon: IconsaxPlusLinear.video_slash,
-        label: 'Video unavailable on this device',
-      );
-    }
+    final chewieCtrl = widget.chewieController!;
+    final videoCtrl = chewieCtrl.videoPlayerController;
 
     return ListenableBuilder(
-      listenable: ctrl,
+      listenable: videoCtrl,
       builder: (_, __) {
-        if (ctrl.value.hasError) {
+        if (videoCtrl.value.hasError) {
           return _VideoPlaceholder._videoFallback(
             scheme: scheme,
             icon: IconsaxPlusLinear.video_slash,
             label: 'Video unavailable on this device',
           );
         }
-        if (!ctrl.value.isInitialized) {
+        if (!videoCtrl.value.isInitialized) {
           return SizedBox(
             height: _VideoPlaceholder._minHeight,
             width: double.infinity,
@@ -390,113 +363,12 @@ class _VideoPlaceholderState extends State<_VideoPlaceholder> {
           mainAxisSize: MainAxisSize.min,
           children: [
             AspectRatio(
-              aspectRatio: ctrl.value.aspectRatio,
-              child: VideoPlayer(ctrl),
-            ),
-            _VideoControlsBar(controller: ctrl, scheme: scheme),
+              aspectRatio: videoCtrl.value.aspectRatio,
+              child: Chewie(
+                controller: chewieCtrl,
+              ),
+            )
           ],
-        );
-      },
-    );
-  }
-}
-
-String _formatVideoDuration(Duration d) {
-  final m = d.inMinutes;
-  final s = d.inSeconds % 60;
-  return '$m:${s.toString().padLeft(2, '0')}';
-}
-
-class _VideoControlsBar extends StatefulWidget {
-  const _VideoControlsBar({
-    required this.controller,
-    required this.scheme,
-  });
-
-  final VideoPlayerController controller;
-  final ColorScheme scheme;
-
-  @override
-  State<_VideoControlsBar> createState() => _VideoControlsBarState();
-}
-
-class _VideoControlsBarState extends State<_VideoControlsBar> {
-  bool _isDragging = false;
-  double _dragPositionSeconds = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    final ctrl = widget.controller;
-    final scheme = widget.scheme;
-    return ListenableBuilder(
-      listenable: ctrl,
-      builder: (_, __) {
-        final position = ctrl.value.position;
-        final duration = ctrl.value.duration;
-        final totalSeconds = duration.inMilliseconds / 1000.0;
-        final currentSeconds = _isDragging ? _dragPositionSeconds : position.inMilliseconds / 1000.0;
-        final safeTotal = totalSeconds > 0 ? totalSeconds : 1.0;
-
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          color: scheme.surfaceContainerHighest.withValues(alpha: 0.95),
-          child: Row(
-            children: [
-              Material(
-                color: Colors.transparent,
-                child: IconButton(
-                  onPressed: () {
-                    if (ctrl.value.isPlaying) {
-                      ctrl.pause();
-                    } else {
-                      ctrl.play();
-                    }
-                  },
-                  icon: Icon(
-                    ctrl.value.isPlaying ? IconsaxPlusLinear.pause : IconsaxPlusLinear.play,
-                    color: scheme.primary,
-                    size: 28,
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-                ),
-              ),
-              Expanded(
-                child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: scheme.primary,
-                    inactiveTrackColor: scheme.outline.withValues(alpha: 0.3),
-                    thumbColor: scheme.primary,
-                    overlayColor: scheme.primary.withValues(alpha: 0.2),
-                  ),
-                  child: Slider(
-                    value: currentSeconds.clamp(0.0, safeTotal),
-                    max: safeTotal,
-                    onChanged: totalSeconds <= 0
-                        ? null
-                        : (v) {
-                            setState(() {
-                              _isDragging = true;
-                              _dragPositionSeconds = v;
-                            });
-                          },
-                    onChangeEnd: (v) {
-                      ctrl.seekTo(Duration(milliseconds: (v * 1000).round()));
-                      setState(() => _isDragging = false);
-                    },
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '${_formatVideoDuration(Duration(milliseconds: (currentSeconds * 1000).round()))} / ${_formatVideoDuration(duration)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
         );
       },
     );
@@ -542,7 +414,7 @@ class _TrainingCard extends StatelessWidget {
             ),
             child: item.fileCategory?.toLowerCase() == 'video'
                 ? _VideoPlaceholder(
-                    controller: item.videoPlayerController,
+                    chewieController: item.chewieController,
                     scheme: scheme,
                   )
                 : item.fileCategory?.toLowerCase() == 'image'
@@ -628,22 +500,6 @@ class _TrainingCard extends StatelessWidget {
                         color: scheme.onSecondaryContainer,
                       ),
                     ),
-                    /*Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          IconsaxPlusLinear.profile_2user,
-                          size: 16,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 6),
-                        CommonText.regular(
-                          'All',
-                          size: 12,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),*/
                   ],
                 ),
                 const SizedBox(height: 12),

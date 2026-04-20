@@ -117,28 +117,13 @@ const ColorScheme darkColorScheme = ColorScheme(
 ThemeData getTheme(ColorScheme colorScheme) {
   var timePickerTheme = TimePickerThemeData(
     backgroundColor: colorScheme.surfaceContainerHighest,
-    dayPeriodColor: WidgetStateColor.resolveWith((states) =>
-        states.contains(WidgetState.selected)
-            ? colorScheme.primary
-            : colorScheme.outlineVariant),
-    dayPeriodTextColor: WidgetStateColor.resolveWith((states) =>
-        states.contains(WidgetState.selected)
-            ? colorScheme.onPrimary
-            : colorScheme.onSurfaceVariant),
+    dayPeriodColor: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? colorScheme.primary : colorScheme.outlineVariant),
+    dayPeriodTextColor: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? colorScheme.onPrimary : colorScheme.onSurfaceVariant),
     dialBackgroundColor: colorScheme.secondaryContainer,
     dialHandColor: colorScheme.primary,
-    dialTextColor: WidgetStateColor.resolveWith((states) =>
-        states.contains(WidgetState.selected)
-            ? colorScheme.onPrimary
-            : colorScheme.primary),
-    hourMinuteColor: WidgetStateColor.resolveWith((states) =>
-        states.contains(WidgetState.selected)
-            ? colorScheme.primary
-            : colorScheme.outlineVariant),
-    hourMinuteTextColor: WidgetStateColor.resolveWith((states) =>
-        states.contains(WidgetState.selected)
-            ? colorScheme.onPrimary
-            : colorScheme.primary),
+    dialTextColor: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? colorScheme.onPrimary : colorScheme.primary),
+    hourMinuteColor: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? colorScheme.primary : colorScheme.outlineVariant),
+    hourMinuteTextColor: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? colorScheme.onPrimary : colorScheme.primary),
     hourMinuteTextStyle: textTheme.headlineMedium?.copyWith(
       fontSize: 28,
       fontWeight: FontWeight.w800,
@@ -151,12 +136,8 @@ ThemeData getTheme(ColorScheme colorScheme) {
       fontSize: 16,
       fontWeight: FontWeight.w400,
     ),
-    helpTextStyle: textTheme.titleMedium?.copyWith(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: colorScheme.onSurface),
-    timeSelectorSeparatorColor:
-        WidgetStateColor.resolveWith((states) => colorScheme.primary),
+    helpTextStyle: textTheme.titleMedium?.copyWith(fontSize: 16, fontWeight: FontWeight.w600, color: colorScheme.onSurface),
+    timeSelectorSeparatorColor: WidgetStateColor.resolveWith((states) => colorScheme.primary),
   );
 
   var datePickerTheme = DatePickerThemeData(
@@ -177,45 +158,28 @@ ThemeData getTheme(ColorScheme colorScheme) {
       fontWeight: FontWeight.w600,
       color: colorScheme.onSurfaceVariant,
     ),
-    dayBackgroundColor: WidgetStateColor.resolveWith((states) =>
-        states.contains(WidgetState.selected)
-            ? colorScheme.primary
-            : Colors.transparent),
-    dayForegroundColor: WidgetStateColor.resolveWith((states) =>
-        states.contains(WidgetState.selected)
-            ? colorScheme.onPrimary
-            : colorScheme.onSurface),
-    dayOverlayColor: WidgetStateProperty.resolveWith(
-        (states) => colorScheme.primary.withValues(alpha: 0.12)),
+    dayBackgroundColor: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? colorScheme.primary : Colors.transparent),
+    dayForegroundColor: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? colorScheme.onPrimary : colorScheme.onSurface),
+    dayOverlayColor: WidgetStateProperty.resolveWith((states) => colorScheme.primary.withValues(alpha: 0.12)),
     dayStyle: textTheme.bodyLarge?.copyWith(
       fontSize: 14,
       fontWeight: FontWeight.w500,
     ),
     todayForegroundColor: WidgetStatePropertyAll(colorScheme.primary),
-    todayBackgroundColor:
-        WidgetStateProperty.all(colorScheme.primary.withValues(alpha: .12)),
+    todayBackgroundColor: WidgetStateProperty.all(colorScheme.primary.withValues(alpha: .12)),
     todayBorder: BorderSide(
       color: colorScheme.primary,
       width: 1,
     ),
-    yearBackgroundColor: WidgetStateColor.resolveWith((states) =>
-        states.contains(WidgetState.selected)
-            ? colorScheme.primary
-            : Colors.transparent),
-    yearForegroundColor: WidgetStateColor.resolveWith((states) =>
-        states.contains(WidgetState.selected)
-            ? colorScheme.onPrimary
-            : colorScheme.onSurfaceVariant),
-    yearOverlayColor: WidgetStateProperty.resolveWith(
-        (states) => colorScheme.primary.withValues(alpha: 0.12)),
+    yearBackgroundColor: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? colorScheme.primary : Colors.transparent),
+    yearForegroundColor: WidgetStateColor.resolveWith((states) => states.contains(WidgetState.selected) ? colorScheme.onPrimary : colorScheme.onSurfaceVariant),
+    yearOverlayColor: WidgetStateProperty.resolveWith((states) => colorScheme.primary.withValues(alpha: 0.12)),
     yearStyle: textTheme.bodyLarge?.copyWith(
       fontSize: 14,
       fontWeight: FontWeight.w500,
     ),
-    cancelButtonStyle: ButtonStyle(
-        foregroundColor: WidgetStateProperty.all(colorScheme.onSurfaceVariant)),
-    confirmButtonStyle: ButtonStyle(
-        foregroundColor: WidgetStateProperty.all(colorScheme.primary)),
+    cancelButtonStyle: ButtonStyle(foregroundColor: WidgetStateProperty.all(colorScheme.onSurfaceVariant)),
+    confirmButtonStyle: ButtonStyle(foregroundColor: WidgetStateProperty.all(colorScheme.primary)),
   );
 
   final isDark = colorScheme.brightness == Brightness.dark;
@@ -252,8 +216,7 @@ ThemeData getTheme(ColorScheme colorScheme) {
       backgroundColor: colorScheme.surface.withValues(alpha: 0.94),
       surfaceTintColor: colorScheme.surfaceTint.withValues(alpha: 0.12),
       foregroundColor: colorScheme.primary,
-      systemOverlayStyle:
-          isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      systemOverlayStyle: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
@@ -290,8 +253,7 @@ ThemeData getTheme(ColorScheme colorScheme) {
         if (states.contains(WidgetState.selected)) {
           return IconThemeData(color: colorScheme.secondary);
         }
-        return IconThemeData(
-            color: colorScheme.onPrimary.withValues(alpha: 0.5));
+        return IconThemeData(color: colorScheme.onPrimary.withValues(alpha: 0.5));
       }),
     ),
   );

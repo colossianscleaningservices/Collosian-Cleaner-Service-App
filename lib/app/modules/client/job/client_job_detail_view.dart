@@ -286,8 +286,8 @@ Widget _bodyForState({
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Divider(height: 32, thickness: 1, color: scheme.outline.withValues(alpha: 0.12)),
-              j?.jobCleaners?.isEmpty == true
+              // Divider(height: 32, thickness: 1, color: scheme.outline.withValues(alpha: 0.12)),
+              j.jobCleaners?.isEmpty == true
                   ? SizedBox.shrink()
                   : AppButton(
                       label: 'Chat',
@@ -318,10 +318,10 @@ Widget _bodyForState({
                               });
                             }
                           : null,
-                    ),
+                    ).marginOnly(top: 8),
               if (!hasCleaners)
                 Padding(
-                  padding: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.only(top: 0),
                   child: CommonText.regular(
                     'Chat is available when at least one cleaner is assigned to this job.',
                     size: 12,
@@ -379,7 +379,7 @@ class _StatusScheduleSection extends StatelessWidget {
       timeRange: timeRange,
       endsFormatted: endsFormatted,
     );
-print(j.status);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -410,7 +410,7 @@ print(j.status);
           const SizedBox(height: 10),
           CommonText.regular(scheduleSummary, size: 14, color: scheme.onSurface),
         ],
-        if(j.isRequested == true && j.status != 'Finished' && j.status != 'Pending')...[
+        if (j.isRequested == true && j.status != 'Finished' && j.status != 'Pending') ...[
           const SizedBox(height: 10),
           CommonText.regular('Job time extension requested', size: 14, color: scheme.onSurface.withValues(alpha: 0.5)),
         ],
@@ -427,7 +427,7 @@ print(j.status);
                 btnHorizontalPadding: 12,
               ).marginOnly(right: 8),
             ],
-            if(j.isRequested == false && j.status != 'Finished' && j.status != 'Pending')...[
+            if (j.isRequested == false && j.status != 'Finished' && j.status != 'Pending') ...[
               AppButton(
                 label: 'Extend Time',
                 icon: IconsaxPlusLinear.clock_1,
