@@ -240,6 +240,7 @@ class ClientJobDetailController extends GetxController {
   }
 
   void onReviewCleanerProfile(ClientJobCleaner c) {
+    clearAddReview();
     jobCleaner.value = c;
     jobCleaner.refresh();
     Get.toNamed(Routes.ADD_REVIEW, arguments: job.value);
@@ -491,4 +492,14 @@ class ClientJobDetailController extends GetxController {
       Loader.hide();
     }
   }
+
+  void clearAddReview(){
+    arrive.value = null;
+    uniform.value = null;
+    completedJob.value = null;
+    requestAgain.value = null;
+    rating.value = 0;
+    messageController.clear();
+  }
+
 }

@@ -76,7 +76,7 @@ class CleanerCard extends StatelessWidget {
                             ),
                             child: CommonText.regular('View', size: 14, color: scheme.primary),
                           ),
-                          TextButton(
+                         /* TextButton(
                             onPressed: onShare,
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -84,7 +84,7 @@ class CleanerCard extends StatelessWidget {
                               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                             ),
                             child: CommonText.regular('Share', size: 14, color: scheme.primary),
-                          ),
+                          ),*/
                         ],
                     ],
                   ),
