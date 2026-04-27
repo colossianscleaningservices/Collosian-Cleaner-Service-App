@@ -42,13 +42,12 @@ class UpcomingJobView extends GetView<UpcomingJobController> {
                             tabletCount: 2,
                             landscapeCount: 3,
                             child: controller.jobs.map((job) {
-                              final approvedCleaners = job.jobCleaners?.where((cleaner) => cleaner.status == 'Approved').toList();
 
+                              final approvedCleaners = job.jobCleaners?.where((cleaner) => (cleaner.status?.toLowerCase() != 'rejected')).toList();
                               String? timeRange;
                               if (job.startTime != null && job.endTime != null) {
                                 timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
                               }
-
                               return JobCard(
                                 title: job.cleaningType?.name ?? "N/A",
                                 dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
@@ -56,20 +55,20 @@ class UpcomingJobView extends GetView<UpcomingJobController> {
                                 subtitle: (job.cleaners == null || job.cleaners?.isEmpty == true)
                                     ? ' - '
                                     : job.cleaners
-                                            ?.map((item) {
-                                              var isCleanerAssign = false;
+                                    ?.map((item) {
+                                  var isCleanerAssign = false;
 
-                                              isCleanerAssign =
-                                                  job.jobCleaners?.firstWhereOrNull((cl) => (cl.userId == item.id && cl.status?.toLowerCase() == 'approved')) !=
-                                                      null;
-                                              return isCleanerAssign ? item.name ?? " - " : "";
-                                            })
-                                            .toList()
-                                            .join(',') ??
-                                        ' - ',
+                                  isCleanerAssign = job.jobCleaners
+                                      ?.firstWhereOrNull((cl) => (cl.userId == item.id && (cl.status?.toLowerCase() != 'rejected'))) !=
+                                      null;
+                                  return isCleanerAssign ? item.name ?? " - " : "";
+                                })
+                                    .toList()
+                                    .join(', ') ??
+                                    ' - ',
                                 propertyName: job.property?.propertyName ?? "N/A",
                                 address: job.property?.address ?? "N/A",
-                                recurrence: /*job.recurrence*/ "N/A",
+                                recurrence: job.scheduler?.frequency?.capitalizeFirst ?? "N/A",
                                 cleanerInfo: job.cleaners?.isNotEmpty == true
                                     ? '${approvedCleaners?.length} of ${job.numberOfCleaners} assigned'
                                     : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',

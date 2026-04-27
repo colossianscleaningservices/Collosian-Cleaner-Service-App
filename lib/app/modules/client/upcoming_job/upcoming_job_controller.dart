@@ -51,7 +51,7 @@ class UpcomingJobController extends GetxController {
           final raw = response.data;
           if (jobCurrentPage == 1) jobs.clear();
           if (raw != null && raw.jobs?.isNotEmpty == true) {
-            jobs.assignAll(raw.jobs as Iterable<Jobs>);
+            jobs.addAll(raw.jobs as Iterable<Jobs>);
           }
           jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
 

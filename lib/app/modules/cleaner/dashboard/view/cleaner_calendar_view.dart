@@ -82,7 +82,7 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                 ),
                 SingleChildScrollView(
                   child: Obx(() {
-                    return _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap).marginSymmetric(horizontal: 8);
+                    return _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap).marginSymmetric(horizontal: 8).marginOnly(bottom: 16);
                   }),
                 ),
               ],
@@ -173,7 +173,7 @@ class _CalendarSection extends StatelessWidget {
           focusedDay: focusedDay,
           onMyJobsPressed: () => ctrl.setTab(2),
           onJobTap: (event) => ctrl.openDetail(event.jobId),
-        ).marginSymmetric(horizontal: 24),
+        ).marginSymmetric(horizontal: 24).marginOnly(bottom: 16),
       ],
     );
   }
