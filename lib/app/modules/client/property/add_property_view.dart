@@ -95,7 +95,7 @@ class AddPropertyView extends GetView<PropertyController> {
                           hint: 'Enter postal code',
                           keyboardType: TextInputType.number,
                           validator: (v) => controller.validateRequired(v, 'Postal code'),
-                          maxLength: 6,
+                          maxLength: 8,
                           prefixIcon: Icon(IconsaxPlusLinear.map_1, size: 20, color: scheme.onSurfaceVariant),
                         ),
                         Obx(() {
@@ -118,6 +118,14 @@ class AddPropertyView extends GetView<PropertyController> {
                             validator: (v) => v == null ? 'Type of property is required' : null,
                           );
                         }),
+                        if (controller.selectedPropertyType.value?.name?.toLowerCase() == 'others') ...[
+                          CommonTextField(
+                            controller: controller.newPropertyTypeCtrl,
+                            label: 'New Property Type',
+                            hint: 'Enter new property type',
+                            validator: (v) => controller.validateRequired(v, 'New property type'),
+                          )
+                        ],
                         if (controller.selectedPropertyType.value?.hasSubtypes == true) ...[
                           Obx(() {
                             return CommonDropDownField<PropertySubtypes>(
@@ -160,6 +168,11 @@ class AddPropertyView extends GetView<PropertyController> {
                           title: "Do you have a washing machine?",
                           value: controller.hasWashingMachine.value,
                           onChange: (v) => controller.hasWashingMachine.value = v,
+                        ),
+                        AppCheckBox(
+                          title: "Do you have a dishwasher?",
+                          value: controller.hasDishwasher.value,
+                          onChange: (v) => controller.hasDishwasher.value = v,
                         ),
                         CommonDropDownField<String>(
                           label: 'Staff Preference',

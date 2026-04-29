@@ -16,7 +16,7 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
       backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(left: 24,right: 24,bottom: 24,top: 8),
+          padding: const EdgeInsets.only(left: 24, right: 24, bottom: 24, top: 8),
           child: Form(
             key: controller.formKey,
             child: Column(
@@ -138,8 +138,8 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
                   controller: controller.postalCodeCtrl,
                   label: 'Postal Code',
                   hint: 'Enter your postal code',
-                  maxLength: 6,
-                  keyboardType: TextInputType.numberWithOptions(),
+                  maxLength: 8,
+                  keyboardType: TextInputType.text,
                 ),
                 Obx(() {
                   return CommonDropDownField(

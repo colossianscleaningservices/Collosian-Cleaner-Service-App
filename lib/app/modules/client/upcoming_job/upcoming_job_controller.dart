@@ -30,11 +30,6 @@ class UpcomingJobController extends GetxController {
     super.onReady();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
   bool get _isScrollBottom {
     if (!jobScrollController.hasClients) return false;
     final maxScroll = jobScrollController.position.maxScrollExtent;

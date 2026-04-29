@@ -439,6 +439,10 @@ class _TrainingCard extends StatelessWidget {
                             child: Image.network(
                               item.fileUrl!,
                               fit: BoxFit.fitWidth,
+                              loadingBuilder: (_, child, progress) {
+                                if (progress == null) return child;
+                                return _loadingPlaceholder(context);
+                              },
                             ),
                           ),
                         ),
@@ -536,6 +540,15 @@ class _TrainingCard extends StatelessWidget {
       ),
     );
   }
+
+  Widget _loadingPlaceholder(BuildContext context) {
+    return Container(
+      height:  120,
+      color: context.colorScheme.surfaceContainerHighest,
+      child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: context.colorScheme.primary)),
+    );
+  }
+
 
   IconData _iconForMediaType(String type) {
     switch (type.toLowerCase()) {

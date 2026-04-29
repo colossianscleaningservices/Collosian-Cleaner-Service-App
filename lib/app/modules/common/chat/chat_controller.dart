@@ -561,9 +561,9 @@ class ChatController extends GetxController {
   void updateStatus(bool isActive) {
     try {
       _chatRef.child(PARTICIPANTS_NODE).child(_effectiveUserId).update({'isActive': isActive});
-      print('Update Updated:');
+      log(runtimeType.toString(), 'Update Updated:');
     } catch (e) {
-      print('Update failed: $e');
+      log(runtimeType.toString(), 'Update failed: $e');
     }
   }
 

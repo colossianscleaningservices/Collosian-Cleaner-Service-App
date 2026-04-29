@@ -370,10 +370,8 @@ class ClientJobDetailController extends GetxController {
       Loader.hide();
 
       Notifier.success('Your file has been downloaded successfully.');
-
-      print("Downloaded: $filePath");
     } catch (e) {
-      print("Download error: $e");
+      log(runtimeType.toString(), "Download error: $e");
     }
   }
 

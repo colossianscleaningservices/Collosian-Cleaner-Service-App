@@ -11,7 +11,6 @@ class HelpSupportController extends GetxController {
   final messageController = TextEditingController();
   final CommonRepository _commonRepository = CommonRepository();
   final RxList<Faq> faqList = <Faq>[].obs;
-  final count = 0.obs;
   var from = '';
 
   final supportMail = 'support@collosian.com'.obs;
@@ -36,13 +35,6 @@ class HelpSupportController extends GetxController {
     if (from.isEmpty) getFaqs();
     super.onReady();
   }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 
   Future<void> onSubmitMessage() async {
     final name = nameController.text.trim();

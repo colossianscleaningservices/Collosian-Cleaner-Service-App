@@ -32,17 +32,17 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                         child: file != null
                             ? Image.file(file, width: 120, height: 120, fit: BoxFit.cover)
                             : controller.imageUrl.value.isNotEmpty
-                            ? Image.network(
-                          height: 120,
-                          width: 120,
-                          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                            if (wasSynchronouslyLoaded) return child;
-                            return frame == null ? const Center(child: CircularProgressIndicator()) : child;
-                          },
-                          controller.imageUrl.value,
-                          fit: BoxFit.cover,
-                        )
-                            : SizedBox(width: 120, height: 120, child: Icon(IconsaxPlusLinear.user, size: 48, color: context.colorScheme.primary)),
+                                ? Image.network(
+                                    height: 120,
+                                    width: 120,
+                                    frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                                      if (wasSynchronouslyLoaded) return child;
+                                      return frame == null ? const Center(child: CircularProgressIndicator()) : child;
+                                    },
+                                    controller.imageUrl.value,
+                                    fit: BoxFit.cover,
+                                  )
+                                : SizedBox(width: 120, height: 120, child: Icon(IconsaxPlusLinear.user, size: 48, color: context.colorScheme.primary)),
                       );
                     }),
                     Positioned(
@@ -80,8 +80,8 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 controller: controller.postalCodeCtrl,
                 label: 'Postal Code',
                 hint: 'Enter your postal code',
-                maxLength: 6,
-                keyboardType: TextInputType.numberWithOptions(),
+                maxLength: 8,
+                keyboardType: TextInputType.text,
               ).marginOnly(bottom: 18),
               Obx(() {
                 return CommonDropDownField(
@@ -103,16 +103,15 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 suffixIcon: Icon(IconsaxPlusLinear.calendar_1, size: 20, color: colorScheme.primary),
               ).marginOnly(bottom: 18),
               Obx(
-                    () =>
-                    CheckboxListTile(
-                      dense: true,
-                      visualDensity: VisualDensity.compact,
-                      title: CommonText.regular('Enable reminders via email / SMS', size: 14, color: colorScheme.onSurface),
-                      value: controller.enableReminders.value,
-                      onChanged: (v) => controller.enableReminders.value = v ?? false,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: EdgeInsets.zero,
-                    ).marginOnly(bottom: 16),
+                () => CheckboxListTile(
+                  dense: true,
+                  visualDensity: VisualDensity.compact,
+                  title: CommonText.regular('Enable reminders via email / SMS', size: 14, color: colorScheme.onSurface),
+                  value: controller.enableReminders.value,
+                  onChanged: (v) => controller.enableReminders.value = v ?? false,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                ).marginOnly(bottom: 16),
               ),
 
               //PERSONAL INFO
@@ -124,15 +123,15 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 return controller.isImmigrationsFetching.value
                     ? Center(child: CircularProgressIndicator())
                     : CommonDropDownField(
-                  itemLabel: (value) => value.toString(),
-                  hint: 'Select your immigration status',
-                  label: "Immigration status",
-                  onChanged: (value) {
-                    if (value != null) controller.immigrationStatus.value = value;
-                  },
-                  items: controller.immigrationList.map((item) => item.name ?? "").toList(),
-                  value: controller.immigrationStatus.value,
-                );
+                        itemLabel: (value) => value.toString(),
+                        hint: 'Select your immigration status',
+                        label: "Immigration status",
+                        onChanged: (value) {
+                          if (value != null) controller.immigrationStatus.value = value;
+                        },
+                        items: controller.immigrationList.map((item) => item.name ?? "").toList(),
+                        value: controller.immigrationStatus.value,
+                      );
               }).marginOnly(bottom: 18),
 
               CommonText.semiBold(
@@ -211,16 +210,15 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
               ).marginOnly(bottom: 18),
 
               Obx(
-                    () =>
-                    CheckboxListTile(
-                      dense: true,
-                      visualDensity: VisualDensity.compact,
-                      title: CommonText.regular('Are you a student?', size: 14, color: colorScheme.onSurface),
-                      value: controller.isStudent.value,
-                      onChanged: (v) => controller.isStudent.value = v ?? false,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      contentPadding: EdgeInsets.zero,
-                    ).marginOnly(bottom: 24),
+                () => CheckboxListTile(
+                  dense: true,
+                  visualDensity: VisualDensity.compact,
+                  title: CommonText.regular('Are you a student?', size: 14, color: colorScheme.onSurface),
+                  value: controller.isStudent.value,
+                  onChanged: (v) => controller.isStudent.value = v ?? false,
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                ).marginOnly(bottom: 24),
               ),
 
               //Your next of kin
@@ -308,45 +306,45 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 return controller.isCleaningServicesFetching.value
                     ? Center(child: CircularProgressIndicator())
                     : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: controller.cleaningServices.length,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      var service = controller.cleaningServices[index];
+                        shrinkWrap: true,
+                        itemCount: controller.cleaningServices.length,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          var service = controller.cleaningServices[index];
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CommonText.semiBold(
-                            service.name ?? "",
-                            size: 16,
-                          ).marginOnly(bottom: 6),
-                          service.options?.isEmpty == true
-                              ? NoDataView(
-                            title: '${service.name ?? ""} Options not found',
-                          )
-                              : ListView.builder(
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: service.options?.length ?? 0,
-                              shrinkWrap: true,
-                              itemBuilder: (context, index) {
-                                var item = service.options?[index];
-                                return CheckboxListTile(
-                                  dense: true,
-                                  visualDensity: VisualDensity.compact,
-                                  title: CommonText.regular(item?.name ?? "", size: 14, color: colorScheme.onSurface),
-                                  value: item?.isSelected,
-                                  onChanged: (v) {
-                                    item?.isSelected = v ?? false;
-                                    controller.cleaningServices.refresh();
-                                  },
-                                  controlAffinity: ListTileControlAffinity.leading,
-                                  contentPadding: EdgeInsets.zero,
-                                );
-                              }).marginOnly(bottom: 12)
-                        ],
-                      );
-                    });
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CommonText.semiBold(
+                                service.name ?? "",
+                                size: 16,
+                              ).marginOnly(bottom: 6),
+                              service.options?.isEmpty == true
+                                  ? NoDataView(
+                                      title: '${service.name ?? ""} Options not found',
+                                    )
+                                  : ListView.builder(
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemCount: service.options?.length ?? 0,
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        var item = service.options?[index];
+                                        return CheckboxListTile(
+                                          dense: true,
+                                          visualDensity: VisualDensity.compact,
+                                          title: CommonText.regular(item?.name ?? "", size: 14, color: colorScheme.onSurface),
+                                          value: item?.isSelected,
+                                          onChanged: (v) {
+                                            item?.isSelected = v ?? false;
+                                            controller.cleaningServices.refresh();
+                                          },
+                                          controlAffinity: ListTileControlAffinity.leading,
+                                          contentPadding: EdgeInsets.zero,
+                                        );
+                                      }).marginOnly(bottom: 12)
+                            ],
+                          );
+                        });
               }),
 
               //Bank Details
@@ -358,7 +356,7 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
               CommonTextField(controller: controller.bankNameCtrl, label: 'Bank Name', hint: 'Enter your bank name').marginOnly(bottom: 18),
               CommonTextField(controller: controller.yourNameCtrl, label: 'Your Name', hint: 'Enter your name').marginOnly(bottom: 18),
               CommonTextField(
-                  controller: controller.accountNumberCtrl, label: 'Account Number', hint: 'Enter your account Number', keyboardType: TextInputType.number)
+                      controller: controller.accountNumberCtrl, label: 'Account Number', hint: 'Enter your account Number', keyboardType: TextInputType.number)
                   .marginOnly(bottom: 18),
               CommonTextField(controller: controller.sortCodeCtrl, label: 'Sort Code', hint: 'Enter your sort Code'),
             ],

@@ -5,6 +5,7 @@ import 'package:ccs_app/export.dart';
 import 'package:easy_image_viewer/easy_image_viewer.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../widget/common/wheel_picker_time.dart';
 import 'job_check_photo_controller.dart';
 
 class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
@@ -59,7 +60,7 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
                           label: controller.timeLabel,
                           hint: '--:--',
                           isReadOnly: true,
-                          onTap: () => _pickTime(context, controller),
+                          onTap: () => wheelTimePicker(context, controller),
                           suffixIcon: Icon(Icons.access_time, size: 20, color: scheme.primary),
                         ).marginOnly(bottom: 16),
                       Obx(() {
@@ -219,11 +220,28 @@ Future<void> _pickDate(BuildContext context, JobCheckPhotoController ctrl) async
   if (d != null && context.mounted) ctrl.setScheduleValidFrom(d);
 }
 
-Future<void> _pickTime(BuildContext context, JobCheckPhotoController ctrl) async {
+/*Future<void> _pickTime(BuildContext context, JobCheckPhotoController ctrl) async {
   final t = await showTimePicker(
     context: context,
     initialTime: const TimeOfDay(hour: 9, minute: 0),
   );
 
   ctrl.setStartTime(t);
+}*/
+
+Future<void> wheelTimePicker(
+    BuildContext context,
+    JobCheckPhotoController ctrl,) async {
+  return Notifier.openSheet(
+    context,
+    top: true,
+    showPrimaryButton: false,
+    showSecondaryButton: false,
+    showIcon: false,
+    body: WheelPickerTime(
+      onSelected: (selected) {
+        ctrl.setStartTime(selected);
+      },
+    ),
+  );
 }

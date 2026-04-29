@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:ccs_app/app/widget/common/wheel_picker_time.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
@@ -36,7 +39,7 @@ class CreateJobView extends GetView<CreateJobController> {
                       spacing: 14,
                       children: [
                         CommonText.semiBold('Property & scheduling', size: 16, color: scheme.onSurface),
-                   /*     CommonTextField(
+                        /*     CommonTextField(
                           controller: controller.jobTitleController,
                           label: 'Job Title',
                           hint: 'Enter Job Title',
@@ -45,12 +48,12 @@ class CreateJobView extends GetView<CreateJobController> {
                         Obx(() => controller.isLoading.value
                             ? Center(child: CircularProgressIndicator())
                             : GestureDetector(
-                          onTap: (){
-                            if(controller.properties.isEmpty){
-                              Notifier.error('Please create property.');
-                            }
-                          },
-                              child: CommonDropDownField<String>(
+                                onTap: () {
+                                  if (controller.properties.isEmpty) {
+                                    Notifier.error('Please create property.');
+                                  }
+                                },
+                                child: CommonDropDownField<String>(
                                   label: 'Property',
                                   hint: 'Select',
                                   items: controller.properties.map((item) => item.propertyName ?? "").toList(),
@@ -59,7 +62,7 @@ class CreateJobView extends GetView<CreateJobController> {
                                   onChanged: (v) => controller.selectedProperty.value = v,
                                   validator: (v) => controller.validateProperty(v),
                                 ),
-                            )),
+                              )),
                         CommonTextField(
                           controller: controller.dateDisplayController,
                           label: 'Job Start Date',
@@ -89,7 +92,7 @@ class CreateJobView extends GetView<CreateJobController> {
                                 label: 'Start Time',
                                 hint: '--:--',
                                 isReadOnly: true,
-                                onTap: () => _pickTime(context, controller, isStart: true),
+                                onTap: () => wheelTimePicker(context, controller, isStart: true),
                                 suffixIcon: Icon(Icons.access_time, size: 20, color: scheme.primary),
                               ),
                             ),
@@ -100,7 +103,7 @@ class CreateJobView extends GetView<CreateJobController> {
                                 label: 'End Time',
                                 hint: '--:--',
                                 isReadOnly: true,
-                                onTap: () => _pickTime(context, controller, isStart: false),
+                                onTap: () => wheelTimePicker(context, controller, isStart: false),
                                 suffixIcon: Icon(Icons.access_time, size: 20, color: scheme.primary),
                               ),
                             ),
@@ -314,14 +317,14 @@ class _SearchSection extends StatelessWidget {
 Future<void> _pickDate(BuildContext context, CreateJobController ctrl) async {
   final d = await showDatePicker(
     context: context,
-    initialDate: ctrl.jobStartDate.value?.isBefore(DateTime.now()) == true ? DateTime.now() :  ctrl.jobStartDate.value ?? DateTime.now(),
+    initialDate: ctrl.jobStartDate.value?.isBefore(DateTime.now()) == true ? DateTime.now() : ctrl.jobStartDate.value ?? DateTime.now(),
     firstDate: DateTime.now(),
     lastDate: DateTime(2030, 12, 31),
   );
   if (d != null && context.mounted) ctrl.setJobStartDate(d);
 }
 
-Future<void> _pickTime(BuildContext context, CreateJobController ctrl, {required bool isStart}) async {
+/*Future<void> _pickTime(BuildContext context, CreateJobController ctrl, {required bool isStart}) async {
   final initial = isStart ? ctrl.startTime.value : ctrl.endTime.value;
   final t = await showTimePicker(
     context: context,
@@ -335,4 +338,30 @@ Future<void> _pickTime(BuildContext context, CreateJobController ctrl, {required
       ctrl.setEndTime(t);
     }
   }
+}*/
+
+Future<void> wheelTimePicker(
+  BuildContext context,
+  CreateJobController ctrl, {
+  required bool isStart,
+}) async {
+  final initial = isStart ? ctrl.startTime.value : ctrl.endTime.value;
+  return Notifier.openSheet(
+    context,
+    top: true,
+    showPrimaryButton: false,
+    showSecondaryButton: false,
+    showIcon: false,
+    body: WheelPickerTime(
+      onSelected: (selected) {
+        if (isStart) {
+          ctrl.setStartTime(selected);
+        } else {
+          ctrl.setEndTime(selected);
+        }
+      },
+      title: isStart ? 'Select Start Time' : 'Select End Time',
+      initial: initial,
+    ),
+  );
 }

@@ -24,19 +24,9 @@ class CleanerPayoutComputationController extends GetxController {
   final commercialRate = Rx<num?>(0);
 
   @override
-  void onInit() {
-    super.onInit();
-  }
-
-  @override
   void onReady() {
     getPayoutComputation();
     super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
   }
 
   void setScheduleValidFrom(DateTime d) {

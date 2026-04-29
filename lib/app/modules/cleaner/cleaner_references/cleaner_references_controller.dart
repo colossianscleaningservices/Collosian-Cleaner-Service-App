@@ -6,8 +6,6 @@ import '../../../network/repository/cleaner_repository.dart';
 class CleanerReferencesController extends GetxController {
   final CleanerRepository _cleanerRepository = CleanerRepository();
 
-  final count = 0.obs;
-
   final firstNameCtrl = TextEditingController();
   final lastNameCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
@@ -22,22 +20,10 @@ class CleanerReferencesController extends GetxController {
   final selectedReference = Rxn<References>();
 
   @override
-  void onInit() {
-    super.onInit();
-  }
-
-  @override
   void onReady() {
     getCleanerReference();
     super.onReady();
   }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  void increment() => count.value++;
 
   void clearForm() {
     isEditingReference.value = false;

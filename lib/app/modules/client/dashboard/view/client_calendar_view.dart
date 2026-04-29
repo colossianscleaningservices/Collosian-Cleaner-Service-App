@@ -86,7 +86,7 @@ class ClientCalendarView extends GetView<ClientDashboardController> {
             ),
           ),
         ],
-      ).paddingSymmetric(horizontal: 24, vertical: 16),
+      ).paddingSymmetric(horizontal: 24).paddingOnly(top: 16),
     );
   }
 }
@@ -203,7 +203,7 @@ class _UpcomingEvents extends StatelessWidget {
     final events = eventsMap?[dateKey] ?? [];
 
     if (events.isEmpty) {
-      return CalendarEmptyCard(scheme: scheme, onMyJobsPressed: onMyJobsPressed).marginSymmetric(horizontal: 6);
+      return CalendarEmptyCard(scheme: scheme, onMyJobsPressed: onMyJobsPressed).marginSymmetric(horizontal: 6).marginOnly(bottom: 16);
     }
     return AppGrid(
       maxExtent: 134,
@@ -223,7 +223,7 @@ class _UpcomingEvents extends StatelessWidget {
           onTap: () => onJobTap(events[i]),
         ).marginOnly(left: 6, right: 6, bottom: i == (events.length - 1) ? 8 : 0),
       ),
-    );
+    ).marginOnly(bottom: 8);
   }
 }
 
@@ -253,7 +253,7 @@ class _ListContentView extends StatelessWidget {
         CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface),
         const SizedBox(height: 8),
         if (list.isEmpty)
-          CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2)).marginSymmetric(horizontal: 6)
+          CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2)).marginSymmetric(horizontal: 6).marginOnly(bottom: 8)
         else
           AppGrid(
             physics: NeverScrollableScrollPhysics(),
@@ -282,6 +282,6 @@ class _ListContentView extends StatelessWidget {
             ),
           ),
       ],
-    );
+    ).marginOnly(bottom: 8);
   }
 }

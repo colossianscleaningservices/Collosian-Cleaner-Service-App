@@ -185,7 +185,6 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 24),
               ],
             ),
           ),

@@ -1,7 +1,9 @@
+import 'package:ccs_app/app/modules/cleaner/dashboard/cleaner_dashboard_controller.dart';
 import 'package:ccs_app/app/network/repository/common_repository.dart';
 
 import '../../../../export.dart';
 import '../../../network/response/notification_response.dart';
+import '../../client/dashboard/client_dashboard_controller.dart';
 
 class NotificationController extends GetxController {
   final CommonRepository _commonRepository = CommonRepository();
@@ -30,11 +32,6 @@ class NotificationController extends GetxController {
   void onReady() {
     getNotifications();
     super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
   }
 
   bool get _isScrollBottom {
@@ -101,6 +98,18 @@ class NotificationController extends GetxController {
               item.isRead = true;
             }
             notifications.refresh();
+
+            bool isClientControllerRegistered = Get.isRegistered<ClientDashboardController>();
+            if (isClientControllerRegistered) {
+              ClientDashboardController ctrl = Get.find();
+              ctrl.hasUnreadNotifications.value = false;
+            }
+
+            bool isCleanerControllerRegistered = Get.isRegistered<CleanerDashboardController>();
+            if (isCleanerControllerRegistered) {
+              CleanerDashboardController ctrl = Get.find();
+              ctrl.hasUnreadNotifications.value = false;
+            }
           });
         },
         contextTag: 'read_notifications',

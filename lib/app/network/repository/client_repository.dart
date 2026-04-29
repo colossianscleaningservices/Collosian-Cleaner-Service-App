@@ -40,9 +40,11 @@ class ClientRepository extends BaseRepository {
     String? haveHoover,
     bool? provideCleaningProduct,
     bool? haveWashingMachine,
+    bool? provideDishwasher,
     String? staffPreference,
     bool? haveDryer,
     String? accessProperty,
+    String? customPropertyType,
     bool? animalProperty,
   }) async {
     final payload = <String, dynamic>{
@@ -68,6 +70,8 @@ class ClientRepository extends BaseRepository {
     payload['provide_dryer'] = haveDryer;
     payload['access_to_property'] = accessProperty;
     payload['animal_property'] = animalProperty;
+    payload['custom_property_type'] = customPropertyType;
+    payload['provide_dishwasher'] = provideDishwasher;
     return post<BaseResponse>(
       endpoint: Endpoint.clientProperties,
       fromJson: (json) => BaseResponse.fromJson(json),
@@ -125,6 +129,8 @@ class ClientRepository extends BaseRepository {
     bool? haveDryer,
     String? accessProperty,
     bool? animalProperty,
+    bool? provideDishwasher,
+    String? customPropertyType,
   }) async {
     final payload = <String, dynamic>{
       'property_name': name,
@@ -149,6 +155,8 @@ class ClientRepository extends BaseRepository {
     payload['provide_dryer'] = haveDryer;
     payload['access_to_property'] = accessProperty;
     payload['animal_property'] = animalProperty;
+    payload['custom_property_type'] = customPropertyType;
+    payload['provide_dishwasher'] = provideDishwasher;
     return put<BaseResponse>(
       endpoint: Endpoint.clientProperty(id),
       fromJson: (json) => BaseResponse.fromJson(json),

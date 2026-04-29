@@ -89,7 +89,7 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
             ),
           ),
         ],
-      ).paddingSymmetric(vertical: 16),
+      ).paddingOnly(top: 16),
     );
   }
 }

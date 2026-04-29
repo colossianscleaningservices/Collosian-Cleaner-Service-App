@@ -15,7 +15,6 @@ import '../../../../export.dart';
 class SupportDocumentController extends GetxController {
   final CleanerRepository _cleanerRepository = CleanerRepository();
 
-  final count = 0.obs;
   final document = Rxn<String>();
   final documentCtrl = TextEditingController();
   final jobStartDate = Rxn<DateTime>();
@@ -33,14 +32,7 @@ class SupportDocumentController extends GetxController {
   var isEditingDocument = false.obs;
 
   void setJobStartDate(DateTime? d) => jobStartDate.value = d;
-
-  void increment() => count.value++;
   final picker = ImagePicker();
-
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
   /// Pull-to-refresh callback.
   Future<void> refreshDocuments() => geCleanerDocuments();
@@ -112,11 +104,6 @@ class SupportDocumentController extends GetxController {
   void onReady() {
     super.onReady();
     geCleanerDocuments();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
   }
 
   void setEditingData(Documents item) {

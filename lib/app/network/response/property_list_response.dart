@@ -113,7 +113,8 @@ class PropertyModel {
       this.additionalDetails, 
       this.isDeleted, 
       this.bedrooms, 
-      this.bathrooms, 
+      this.provideDishwasher,
+      this.bathrooms,
       this.separateGuestToilet, 
       this.livingRooms, 
       this.office, 
@@ -147,6 +148,7 @@ class PropertyModel {
     livingRooms = json['living_rooms'];
     office = json['office'];
     conservatory = json['conservatory'];
+    provideDishwasher = json['provide_dishwasher'];
     diningRoom = json['dining_room'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
@@ -164,6 +166,7 @@ class PropertyModel {
   String? hoover;
   bool? provideCleaningProducts;
   bool? provideWashingMachine;
+  bool? provideDishwasher;
   bool? provideDryer;
   dynamic staffPreference;
   String? accessToProperty;
@@ -202,6 +205,7 @@ class PropertyModel {
     map['bedrooms'] = bedrooms;
     map['bathrooms'] = bathrooms;
     map['separate_guest_toilet'] = separateGuestToilet;
+    map['provide_dishwasher'] = provideDishwasher;
     map['living_rooms'] = livingRooms;
     map['office'] = office;
     map['conservatory'] = conservatory;

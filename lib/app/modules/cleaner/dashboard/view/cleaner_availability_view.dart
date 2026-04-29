@@ -1,6 +1,7 @@
 import 'package:ccs_app/export.dart';
 
 import '../../../../model/availability.dart';
+import '../../../../widget/common/wheel_picker_time.dart';
 import '../cleaner_dashboard_controller.dart';
 
 class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
@@ -174,9 +175,33 @@ Future<void> _pickTime(BuildContext context, CleanerDashboardController ctrl, in
   if (slotIndex < 0 || slotIndex >= slots.length) return;
   final slot = slots[slotIndex];
   final initial = isStart ? slot.start : slot.end;
-  final t = await showTimePicker(context: context, initialTime: initial);
+  /*final t = await showTimePicker(context: context, initialTime: initial);
   if (t == null || !context.mounted) return;
-  ctrl.updateSlot(dayIndex, slotIndex, start: isStart ? t : null, end: isStart ? null : t);
+  ctrl.updateSlot(dayIndex, slotIndex, start: isStart ? t : null, end: isStart ? null : t);*/
+  wheelTimePicker(context, dayIndex, slotIndex, ctrl, isStart: isStart, initial: initial);
+}
+
+Future<void> wheelTimePicker(
+  BuildContext context,
+  int dayIndex,
+  int slotIndex,
+  CleanerDashboardController ctrl, {
+  required bool isStart,
+  required TimeOfDay initial,
+}) async {
+  return Notifier.openSheet(
+    context,
+    top: true,
+    showPrimaryButton: false,
+    showSecondaryButton: false,
+    showIcon: false,
+    body: WheelPickerTime(
+      onSelected: (selected) {
+        ctrl.updateSlot(dayIndex, slotIndex, start: isStart ? selected : null, end: isStart ? null : selected);
+      },
+      initial: initial,
+    ),
+  );
 }
 
 Future<void> _pickBlockedDate(BuildContext context, CleanerDashboardController ctrl) async {

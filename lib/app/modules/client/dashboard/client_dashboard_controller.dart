@@ -391,7 +391,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
           }
         },
         onError: (e) {
-          log(runtimeType.toString(), "ERROR ${e}");
+          log(runtimeType.toString(), "ERROR $e");
         },
         contextTag: 'get-client-dash',
       );

@@ -41,11 +41,6 @@ class CleanerReviewController extends GetxController {
     _fetchReviewData();
   }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
   Future<void> _fetchReviewData({bool isLoaderShown = true}) async {
     if (!isReviewMoreLoading.value && isLoaderShown) Loader.show();
     try {

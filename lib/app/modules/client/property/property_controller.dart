@@ -26,6 +26,7 @@ class PropertyController extends GetxController {
   final officeCtrl = TextEditingController(text: '0');
   final conservatoryCtrl = TextEditingController(text: '0');
   final diningRoomCtrl = TextEditingController(text: '0');
+  final newPropertyTypeCtrl = TextEditingController();
 
   final businessType = 'Residential'.obs;
   final propertyType = Rxn<String>();
@@ -39,6 +40,7 @@ class PropertyController extends GetxController {
 
   final provideCleaningProducts = false.obs;
   final hasWashingMachine = false.obs;
+  final hasDishwasher = false.obs;
   final hasDryer = false.obs;
 
   static const List<String> businessTypeOptions = ['Residential', 'Commercial'];
@@ -192,33 +194,35 @@ class PropertyController extends GetxController {
         final id = editing.id?.toInt();
         if (id != null) {
           final result = await _clientRepository.updateProperty(
-            id: id,
-            name: name.isNotEmpty ? name : '',
-            businessType: businessType.value.toUpperCase(),
-            address: address,
-            city: city,
-            postalCode: code,
-            propertyType: selectedPropertyType.value?.name ?? "",
-            propertySubType: selectedPropertySubType.value?.name ?? '',
-            noOfBedrooms: numberOfBedroomsCtrl.text.toInt(),
-            noOfBathrooms: numberOfBathroomsCtrl.text.toInt(),
-            noOfGuestToilet: numberOfGuestToiletCtrl.text.toInt(),
-            livingRoom: livingRoomCtrl.text.toInt(),
-            office: officeCtrl.text.toInt(),
-            conservatory: conservatoryCtrl.text.toInt(),
-            diningRoom: diningRoomCtrl.text.toInt(),
-            haveHoover: hoover.value,
-            provideCleaningProduct: provideCleaningProducts.value,
-            haveWashingMachine: hasWashingMachine.value,
-            staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
-            haveDryer: hasDryer.value,
-            accessProperty: accessToProperty.value,
-            animalProperty: animals.value != 'No',
-          );
+              id: id,
+              name: name.isNotEmpty ? name : '',
+              businessType: businessType.value.toUpperCase(),
+              address: address,
+              city: city,
+              postalCode: code,
+              propertyType: selectedPropertyType.value?.name ?? "",
+              propertySubType: selectedPropertySubType.value?.name ?? '',
+              noOfBedrooms: numberOfBedroomsCtrl.text.toInt(),
+              noOfBathrooms: numberOfBathroomsCtrl.text.toInt(),
+              noOfGuestToilet: numberOfGuestToiletCtrl.text.toInt(),
+              livingRoom: livingRoomCtrl.text.toInt(),
+              office: officeCtrl.text.toInt(),
+              conservatory: conservatoryCtrl.text.toInt(),
+              diningRoom: diningRoomCtrl.text.toInt(),
+              haveHoover: hoover.value,
+              provideCleaningProduct: provideCleaningProducts.value,
+              haveWashingMachine: hasWashingMachine.value,
+              staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
+              haveDryer: hasDryer.value,
+              accessProperty: accessToProperty.value,
+              animalProperty: animals.value != 'No',
+              customPropertyType: selectedPropertyType.value?.name?.toLowerCase() == 'others' ? newPropertyTypeCtrl.text.trim() : null,
+              provideDishwasher: hasDishwasher.value);
           result.handle(
             success: (value) async {
               Notifier.success(value.message ?? "Property updated Successfully!");
               WidgetsBinding.instance.addPostFrameCallback((_) async {
+                propertyCurrentPage = 1;
                 await _loadProperties();
                 resetForm();
                 Get.back();
@@ -232,28 +236,29 @@ class PropertyController extends GetxController {
       }
 
       final result = await _clientRepository.createProperty(
-        name: name.isNotEmpty ? name : '',
-        businessType: businessType.value.toUpperCase(),
-        address: address,
-        city: city,
-        postalCode: code,
-        propertyType: selectedPropertyType.value?.name ?? "",
-        propertySubType: selectedPropertySubType.value?.name ?? '',
-        noOfBedrooms: numberOfBedroomsCtrl.text.toInt(),
-        noOfBathrooms: numberOfBathroomsCtrl.text.toInt(),
-        noOfGuestToilet: numberOfGuestToiletCtrl.text.toInt(),
-        livingRoom: livingRoomCtrl.text.toInt(),
-        office: officeCtrl.text.toInt(),
-        conservatory: conservatoryCtrl.text.toInt(),
-        diningRoom: diningRoomCtrl.text.toInt(),
-        haveHoover: hoover.value,
-        provideCleaningProduct: provideCleaningProducts.value,
-        haveWashingMachine: hasWashingMachine.value,
-        staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
-        haveDryer: hasDryer.value,
-        accessProperty: accessToProperty.value,
-        animalProperty: animals.value != 'No',
-      );
+          name: name.isNotEmpty ? name : '',
+          businessType: businessType.value.toUpperCase(),
+          address: address,
+          city: city,
+          postalCode: code,
+          propertyType: selectedPropertyType.value?.name ?? "",
+          propertySubType: selectedPropertySubType.value?.name ?? '',
+          noOfBedrooms: numberOfBedroomsCtrl.text.toInt(),
+          noOfBathrooms: numberOfBathroomsCtrl.text.toInt(),
+          noOfGuestToilet: numberOfGuestToiletCtrl.text.toInt(),
+          livingRoom: livingRoomCtrl.text.toInt(),
+          office: officeCtrl.text.toInt(),
+          conservatory: conservatoryCtrl.text.toInt(),
+          diningRoom: diningRoomCtrl.text.toInt(),
+          haveHoover: hoover.value,
+          provideCleaningProduct: provideCleaningProducts.value,
+          haveWashingMachine: hasWashingMachine.value,
+          staffPreference: staffPreference.value != 'Male' ? staffPreference.value : null,
+          haveDryer: hasDryer.value,
+          accessProperty: accessToProperty.value,
+          animalProperty: animals.value != 'No',
+          customPropertyType: selectedPropertyType.value?.name?.toLowerCase() == 'others' ? newPropertyTypeCtrl.text.trim() : null,
+          provideDishwasher: hasDishwasher.value);
 
       result.handle(
         success: (value) async {
@@ -307,6 +312,7 @@ class PropertyController extends GetxController {
       hoover.value = property.hoover ?? "No";
       provideCleaningProducts.value = property.provideCleaningProducts ?? false;
       hasWashingMachine.value = property.provideWashingMachine ?? false;
+      hasDishwasher.value = property.provideDishwasher ?? false;
       staffPreference.value = property.staffPreference ?? 'Male';
       accessToProperty.value = property.accessToProperty ?? 'Client Will Open';
       animals.value = property.animalProperty == '1' ? 'Yes' : 'No';
@@ -394,6 +400,8 @@ class PropertyController extends GetxController {
     hasWashingMachine.value = false;
     hasDryer.value = false;
     selectedPropertyType.value = null;
+    newPropertyTypeCtrl.clear();
+    hasDishwasher.value = false;
   }
 
   void clearHouseFields() {

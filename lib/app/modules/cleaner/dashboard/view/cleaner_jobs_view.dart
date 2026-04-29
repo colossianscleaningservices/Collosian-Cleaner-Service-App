@@ -45,7 +45,9 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     children: [
                       Icon(IconsaxPlusLinear.calendar_1, size: 18, color: scheme.primary),
                       const SizedBox(width: 6),
-                      CommonText.semiBold('${controller.jobs.length}', size: 14, color: scheme.primary),
+                      Obx(() {
+                        return CommonText.semiBold('${controller.jobs.length}', size: 14, color: scheme.primary);
+                      }),
                     ],
                   ),
                 ),
@@ -84,11 +86,10 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     landscapeCount: 3,
                     child: upcoming.map(
                       (job) {
-                        var status = job.cleanerJobStatus ?? ( job.status ?? "N/A");
+                        var status = job.cleanerJobStatus ?? (job.status ?? "N/A");
                         String? timeRange;
                         if (job.startTime != null && job.endTime != null) {
-                          timeRange =
-                          '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
+                          timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
                         }
                         if (job.status == Constants.jobFinished) {
                           status = job.status ?? status;
@@ -127,12 +128,11 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     landscapeCount: 3,
                     child: past.map(
                       (job) {
-                        var status = job.cleanerJobStatus ?? ( job.status ?? "N/A");
+                        var status = job.cleanerJobStatus ?? (job.status ?? "N/A");
 
                         String? timeRange;
                         if (job.startTime != null && job.endTime != null) {
-                          timeRange =
-                          '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
+                          timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
                         }
 
                         if (job.status == Constants.jobFinished) {

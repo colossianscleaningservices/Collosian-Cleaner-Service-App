@@ -349,6 +349,13 @@ class JobCheckPhotoController extends GetxController {
 
   void setStartTime(TimeOfDay? t) {
     startTime.value = t;
-    startTimeDisplayController.text = t != null ? '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}' : '';
+    startTimeDisplayController.text = t != null ? _formatTimeWithAmPm(t) : '';
+  }
+
+  String _formatTimeWithAmPm(TimeOfDay time) {
+    final period = time.hour >= 12 ? 'PM' : 'AM';
+    final hour12 = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+    final minute = time.minute.toString().padLeft(2, '0');
+    return '$hour12:$minute $period';
   }
 }
