@@ -24,7 +24,13 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
           padding: UiConstants.padding,
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: MediaQuery.sizeOf(context).height - MediaQuery.paddingOf(context).top - MediaQuery.paddingOf(context).bottom,
+              minHeight: MediaQuery
+                  .sizeOf(context)
+                  .height - MediaQuery
+                  .paddingOf(context)
+                  .top - MediaQuery
+                  .paddingOf(context)
+                  .bottom,
             ),
             child: Obx(() {
               final progress = controller.registrationProgress.value;
@@ -37,185 +43,186 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                   if (progress < 100) ...{
                     _ProfileProgressCard(scheme: context.colorScheme, controller: controller),
                     _RegistrationProgressCard(scheme: context.colorScheme, controller: controller)
-                  } else ...{
-                    _CardSection(
-                      title: 'Properties',
-                      leadingIcon: IconsaxPlusLinear.home_2,
-                      leadingIconColor: scheme.secondary,
-                      trailing: _ViewAllChip(
-                        label: 'View all',
-                        scheme: scheme,
-                        onTap: () => Get.toNamed(Routes.PROPERTY),
-                      ),
-                      child: Obx(() {
-                        final list = controller.dashboardProperties;
-                        if (list.isEmpty) {
-                          return _EmptyStateInline(
-                            icon: IconsaxPlusLinear.home_2,
-                            title: 'No properties yet',
-                            subtitle: 'Add a property to book cleanings.',
-                            actionLabel: 'Add property',
-                            scheme: scheme,
-                            padding: 0,
-                            onAction: () => Get.toNamed(Routes.ADD_PROPERTY),
-                          );
-                        }
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            for (var i = 0; i < list.length; i++)
-                              _DashboardPropertyTile(
-                                property: list[i],
-                                scheme: scheme,
-                                onTap: () => Get.toNamed(Routes.ADD_PROPERTY, arguments: {'from': 'dash', 'property': list.value[i]}),
-                                isLast: i == (list.length - 1),
-                              ),
-                          ],
-                        );
-                      }),
-                    ),
-                    Obx(() {
-                      Jobs? todayJob;
-                      if (controller.clientDash.value?.todayJobs?.isNotEmpty == true) {
-                        todayJob = controller.clientDash.value?.todayJobs?.first;
-                      }
-                      return AppCard(
-                        color: scheme.primary,
-                        radius: UiConstants.radiusXLarge,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 18,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.onPrimary.withValues(alpha: 0.9)),
-                                const SizedBox(width: 8),
-                                CommonText.semiBold(
-                                  'Today',
-                                  size: 17,
-                                  color: scheme.onPrimary,
-                                ),
-                                const Spacer(),
-                                AppCard(
-                                  color: scheme.primaryContainer.withValues(alpha: 0.2),
-                                  onTap: () => controller.setTab(2),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      CommonText.medium('View all', size: 12, color: scheme.onPrimary),
-                                      const SizedBox(width: 4),
-                                      Icon(IconsaxPlusLinear.arrow_right_2, size: 14, color: scheme.onPrimary),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  AppCard(
-                                    color: scheme.primaryContainer.withValues(alpha: 0.2),
-                                    padding: const EdgeInsets.all(12),
-                                    child: Icon(IconsaxPlusLinear.calendar, size: 24, color: scheme.onPrimary),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(top: 2),
-                                      child: todayJob != null
-                                          ? Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                CommonText.semiBold(todayJob.cleaningType?.name ?? " - ", size: 16, color: scheme.onPrimary),
-                                                if (todayJob.startTime?.isNullOrEmpty == false && todayJob.endTime?.isNullOrEmpty == false) ...[
-                                                  const SizedBox(height: 6),
-                                                  Row(
-                                                    children: [
-                                                      Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onPrimary.withValues(alpha: 0.6)),
-                                                      const SizedBox(width: 6),
-                                                      CommonText.regular(
-                                                        CcsDateUtils.parseTimeRange(todayJob.startTime ?? "", todayJob.endTime ?? ""),
-                                                        size: 12,
-                                                        color: scheme.onPrimary.withValues(alpha: 0.6),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ],
-                                            )
-                                          : Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                CommonText.semiBold(
-                                                  'No jobs found for today.',
-                                                  size: 16,
-                                                  color: scheme.onPrimary,
-                                                ),
-                                                const SizedBox(height: 4),
-                                                CommonText.regular(
-                                                  'Your next booking will appear here.',
-                                                  size: 12,
-                                                  color: scheme.onPrimary.withValues(alpha: 0.75),
-                                                ),
-                                              ],
-                                            ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ).paddingAll(20),
-                      );
-                    }),
-                    Obx(() {
-                      var upcoming = controller.clientDash.value?.upcomingJobs;
-                      return _CardSection(
-                        title: 'Upcoming Pre-Bookings',
-                        leadingIcon: IconsaxPlusLinear.calendar_tick,
+                  } else
+                    ...{
+                      _CardSection(
+                        title: 'Properties',
+                        leadingIcon: IconsaxPlusLinear.home_2,
                         leadingIconColor: scheme.secondary,
                         trailing: _ViewAllChip(
                           label: 'View all',
                           scheme: scheme,
-                          onTap: () => Get.toNamed(Routes.UPCOMING_JOB),
+                          onTap: () => Get.toNamed(Routes.PROPERTY),
                         ),
-                        child: (upcoming != null && upcoming.isNotEmpty == true)
-                            ? AppGrid(
-                                physics: NeverScrollableScrollPhysics(),
-                                maxExtent: 126,
-                                axisSpacing: 16,
-                                phoneCount: 1,
-                                tabletCount: 2,
-                                landscapeCount: 3,
-                                child: upcoming.map((job) {
-                                  String? timeRange;
-                                  if (job.startTime != null && job.endTime != null) {
-                                    timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
-                                  }
-                                  return JobCard(
-                                    padding: 4,
-                                    title: job.cleaningType?.name ?? "N/A",
-                                    dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
-                                    status: job.status ?? "N/A",
-                                    propertyName: job.property?.propertyName ?? "N/A",
-                                    address: job.property?.address ?? "N/A",
-                                    onTap: () => controller.openDetail(job),
-                                    isFromDash: true,
-                                  );
-                                }).toList(),
-                              )
-                            : _EmptyStateInline(
-                                icon: IconsaxPlusLinear.calendar_tick,
-                                title: 'No upcoming bookings',
-                                subtitle: 'Scheduled bookings will appear here.',
-                                scheme: scheme,
+                        child: Obx(() {
+                          final list = controller.dashboardProperties;
+                          if (list.isEmpty) {
+                            return _EmptyStateInline(
+                              icon: IconsaxPlusLinear.home_2,
+                              title: 'No properties yet',
+                              subtitle: 'Add a property to book cleanings.',
+                              actionLabel: 'Add property',
+                              scheme: scheme,
+                              padding: 0,
+                              onAction: () => Get.toNamed(Routes.ADD_PROPERTY),
+                            );
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (var i = 0; i < list.length; i++)
+                                _DashboardPropertyTile(
+                                  property: list[i],
+                                  scheme: scheme,
+                                  onTap: () => Get.toNamed(Routes.ADD_PROPERTY, arguments: {'from': 'dash', 'property': list.value[i]}),
+                                  isLast: i == (list.length - 1),
+                                ),
+                            ],
+                          );
+                        }),
+                      ),
+                      Obx(() {
+                        Jobs? todayJob;
+                        if (controller.clientDash.value?.todayJobs?.isNotEmpty == true) {
+                          todayJob = controller.clientDash.value?.todayJobs?.first;
+                        }
+                        return AppCard(
+                          color: scheme.primary,
+                          radius: UiConstants.radiusXLarge,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 18,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.onPrimary.withValues(alpha: 0.9)),
+                                  const SizedBox(width: 8),
+                                  CommonText.semiBold(
+                                    'Today',
+                                    size: 17,
+                                    color: scheme.onPrimary,
+                                  ),
+                                  const Spacer(),
+                                  AppCard(
+                                    color: scheme.primaryContainer.withValues(alpha: 0.2),
+                                    onTap: () => controller.setTab(2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        CommonText.medium('View all', size: 12, color: scheme.onPrimary),
+                                        const SizedBox(width: 4),
+                                        Icon(IconsaxPlusLinear.arrow_right_2, size: 14, color: scheme.onPrimary),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
-                      );
-                    }),
-                  }
+                              Container(
+                                padding: const EdgeInsets.symmetric(vertical: 4),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    AppCard(
+                                      color: scheme.primaryContainer.withValues(alpha: 0.2),
+                                      padding: const EdgeInsets.all(12),
+                                      child: Icon(IconsaxPlusLinear.calendar, size: 24, color: scheme.onPrimary),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 2),
+                                        child: todayJob != null
+                                            ? Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            CommonText.semiBold(todayJob.cleaningType?.name ?? " - ", size: 16, color: scheme.onPrimary),
+                                            if (todayJob.startTime?.isNullOrEmpty == false && todayJob.endTime?.isNullOrEmpty == false) ...[
+                                              const SizedBox(height: 6),
+                                              Row(
+                                                children: [
+                                                  Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onPrimary.withValues(alpha: 0.6)),
+                                                  const SizedBox(width: 6),
+                                                  CommonText.regular(
+                                                    CcsDateUtils.parseTimeRange(todayJob.startTime ?? "", todayJob.endTime ?? ""),
+                                                    size: 12,
+                                                    color: scheme.onPrimary.withValues(alpha: 0.6),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ],
+                                        )
+                                            : Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            CommonText.semiBold(
+                                              'No jobs found for today.',
+                                              size: 16,
+                                              color: scheme.onPrimary,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            CommonText.regular(
+                                              'Your next booking will appear here.',
+                                              size: 12,
+                                              color: scheme.onPrimary.withValues(alpha: 0.75),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ).paddingAll(20),
+                        );
+                      }),
+                      Obx(() {
+                        var upcoming = controller.clientDash.value?.upcomingJobs;
+                        return _CardSection(
+                          title: 'Upcoming Pre-Bookings',
+                          leadingIcon: IconsaxPlusLinear.calendar_tick,
+                          leadingIconColor: scheme.secondary,
+                          trailing: _ViewAllChip(
+                            label: 'View all',
+                            scheme: scheme,
+                            onTap: () => Get.toNamed(Routes.UPCOMING_JOB),
+                          ),
+                          child: (upcoming != null && upcoming.isNotEmpty == true)
+                              ? AppGrid(
+                            physics: NeverScrollableScrollPhysics(),
+                            maxExtent: 126,
+                            axisSpacing: 16,
+                            phoneCount: 1,
+                            tabletCount: 2,
+                            landscapeCount: 3,
+                            child: upcoming.map((job) {
+                              String? timeRange;
+                              if (job.startTime != null && job.endTime != null) {
+                                timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
+                              }
+                              return JobCard(
+                                padding: 4,
+                                title: job.cleaningType?.name ?? "N/A",
+                                dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
+                                status: job.status ?? "N/A",
+                                propertyName: job.property?.propertyName ?? "N/A",
+                                address: job.property?.address ?? "N/A",
+                                onTap: () => controller.openDetail(job),
+                                isFromDash: true,
+                              );
+                            }).toList(),
+                          )
+                              : _EmptyStateInline(
+                            icon: IconsaxPlusLinear.calendar_tick,
+                            title: 'No upcoming bookings',
+                            subtitle: 'Scheduled bookings will appear here.',
+                            scheme: scheme,
+                          ),
+                        );
+                      }),
+                    }
 
                   /*CommonText.semiBold('Quick Actions', size: 16, color: scheme.onSurface),
               Row(
@@ -479,7 +486,6 @@ class _ProfileProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final completion = controller.clientDash.value?.profileCompletion ?? 0;
     final missingFields = controller.clientDash.value?.missingFields;
     return AppCard(
       onTap: null,
@@ -487,15 +493,18 @@ class _ProfileProgressCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Center(
-            child: CircularPercentIndicator(
-              radius: 32,
-              lineWidth: 6.0,
-              percent: completion > 0 ? completion / 100 : 0.0,
-              center: Text("$completion%"),
-              progressColor: context.colorScheme.secondary,
-              backgroundColor: Colors.grey.shade300,
-              animation: true,
-            ),
+            child: Obx(() {
+              final completion = controller.clientDash.value?.profileCompletion ?? 0;
+              return CircularPercentIndicator(
+                radius: 32,
+                lineWidth: 6.0,
+                percent: completion > 0 ? completion / 100 : 0.0,
+                center: Text("$completion%"),
+                progressColor: context.colorScheme.secondary,
+                backgroundColor: Colors.grey.shade300,
+                animation: true,
+              );
+            }),
           ),
           const SizedBox(width: 16),
           Expanded(

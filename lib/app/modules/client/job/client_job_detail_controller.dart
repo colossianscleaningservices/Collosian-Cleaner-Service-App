@@ -172,6 +172,7 @@ class ClientJobDetailController extends GetxController {
     );
   }
 
+
   Future<void> _cancelJob(num jobId, String msg) async {
     Loader.show();
     try {
