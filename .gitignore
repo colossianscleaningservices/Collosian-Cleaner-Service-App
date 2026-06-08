@@ -55,3 +55,4 @@ app.*.map.json
 #/docs
 /amend.sh
 /android/.kotlin/sessions/kotlin-compiler-18024566813893108002.salive
+/graphify-out

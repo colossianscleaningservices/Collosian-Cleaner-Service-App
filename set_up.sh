@@ -31,16 +31,16 @@ RESULTS=()
 # Display header
 display_header
 
-echo -e "${CYAN}Starting WAVTech app configuration...${RESET}\n"
+echo -e "${CYAN}Starting CCS-App app configuration...${RESET}\n"
 
-# Run commands for WAVTech setup
+# Run commands for CCS-App setup
 run_command "dart run change_app_package_name:main 'app.ccs.io'"
-run_command "dart run rename_app:main all='Colossians'"
+run_command "dart run rename_app:main all='Colossians Cleaning'"
 run_command "dart run flutter_native_splash:create"
 run_command "dart run flutter_launcher_icons"
 # run_command "flutterfire configure -p collosian-cleaner-service-app"
 
-# Additional setup commands for WAVTech
+# Additional setup commands for CCS-App
 echo -e "\n${CYAN}====== Additional Setup Commands ======${RESET}"
 run_command "flutter clean"
 run_command "flutter pub get"
