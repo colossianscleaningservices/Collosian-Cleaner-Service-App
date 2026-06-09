@@ -245,17 +245,20 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
       final result = await _clientRepository.getJob(page: jobCurrentPage);
       result.handle(
         success: (response) {
-          final raw = response.data;
-          isJobMoreLoading.value = false;
-          if (jobCurrentPage == 1) jobs.clear();
-          if (raw != null && raw.jobs?.isNotEmpty == true) {
-            jobs.addAll(raw.jobs as Iterable<Jobs>);
-          }
-          jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Loader.hide();
+            final raw = response.data;
+            isJobMoreLoading.value = false;
+            if (jobCurrentPage == 1) jobs.clear();
+            if (raw != null && raw.jobs?.isNotEmpty == true) {
+              jobs.addAll(raw.jobs as Iterable<Jobs>);
+            }
+            jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
 
-          if (jobCurrentPage <= jobTotalPage) {
-            jobCurrentPage++;
-          }
+            if (jobCurrentPage <= jobTotalPage) {
+              jobCurrentPage++;
+            }
+          });
         },
       );
     } finally {
@@ -501,7 +504,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
                     goToCreateJob();
                   }
                 },
-                child:  Row(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     AppCard.iconContainer(
@@ -533,7 +536,11 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
             },
             separatorBuilder: (_, __) => const SizedBox(height: 8),
           ),
-          CommonText.regular('Follow these quick steps to get started', size: 16, color: scheme.onSecondary.withValues(alpha: 0.5),).marginOnly(bottom: 16),
+          CommonText.regular(
+            'Follow these quick steps to get started',
+            size: 16,
+            color: scheme.onSecondary.withValues(alpha: 0.5),
+          ).marginOnly(bottom: 16),
         ],
       ),
     );

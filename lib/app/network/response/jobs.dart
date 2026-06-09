@@ -278,7 +278,7 @@ class Property {
     provideDryer = json['provide_dryer'];
     staffPreference = json['staff_preference'];
     accessToProperty = json['access_to_property'];
-    additionalDetails = json['additional_details'];
+    // additionalDetails = json['additional_details'];
     isDeleted = json['is_deleted'];
     bedrooms = json['bedrooms'];
     bathrooms = json['bathrooms'];

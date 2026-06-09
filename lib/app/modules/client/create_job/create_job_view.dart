@@ -59,7 +59,17 @@ class CreateJobView extends GetView<CreateJobController> {
                                   items: controller.properties.map((item) => item.propertyName ?? "").toList(),
                                   itemLabel: (v) => v,
                                   value: controller.selectedProperty.value,
-                                  onChanged: (v) => controller.selectedProperty.value = v,
+                                  onChanged: (v) {
+                                    controller.selectedProperty.value = v;
+                                    var property = controller.properties
+                                        .firstWhereOrNull((item) => item.propertyName?.toLowerCase() == controller.selectedProperty.value?.toLowerCase());
+                                    controller.staffPreference.value = property?.staffPreference ?? 'Male';
+                                    controller.accessToProperty.value = property?.accessToProperty ?? 'Client Will Open';
+                                    controller.hoover.value = property?.hoover ?? 'No';
+                                    controller.provideCleaningProducts.value = property?.provideCleaningProducts ?? false;
+                                    controller.provideWashingMachine.value = property?.provideWashingMachine ?? false;
+                                    controller.provideDryer.value = property?.provideDryer ?? false;
+                                  },
                                   validator: (v) => controller.validateProperty(v),
                                 ),
                               )),
@@ -268,7 +278,7 @@ class CreateJobView extends GetView<CreateJobController> {
         ),
         bottomNavigationBar: SingleActionBottomBar(
           label: controller.isEdit ? "Update" : "Create",
-          onPressed: controller.submit,
+          onPressed : () => controller.submit(context),
         ),
       );
     });

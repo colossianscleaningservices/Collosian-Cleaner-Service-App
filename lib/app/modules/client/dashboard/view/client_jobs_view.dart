@@ -28,7 +28,7 @@ class ClientJobsView extends GetView<ClientDashboardController> {
       body: SwipeRefresh(
         onRefresh: () async {
           controller.jobCurrentPage = 1;
-          await controller.fetchJobs(isLoaderShown: false);
+          await controller.fetchJobs(isLoaderShown: true);
         },
         child: SafeArea(
           child: SingleChildScrollView(

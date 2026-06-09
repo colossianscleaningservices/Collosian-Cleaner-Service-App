@@ -16,6 +16,7 @@ class CreateJobController extends GetxController {
   final CommonRepository _commonRepository = CommonRepository();
   final formKey = GlobalKey<FormState>();
   final notesController = TextEditingController();
+
   // final jobTitleController = TextEditingController();
   final dateDisplayController = TextEditingController();
   final startTimeDisplayController = TextEditingController();
@@ -163,10 +164,9 @@ class CreateJobController extends GetxController {
     }
   }
 
-  Future<void> submit() async {
+  Future<void> submit(BuildContext context) async {
     if (!formKey.currentState!.validate()) return;
 
-    Loader.show();
     try {
       final end = endTime.value;
       final start = startTime.value;
@@ -178,72 +178,96 @@ class CreateJobController extends GetxController {
           return;
         }
       }
-      final req = CreateJobRequest(
-        // jobTitle: jobTitleController.text.isEmpty ? null : jobTitleController.text,
-        propertyId: properties.firstWhereOrNull((item) => item.propertyName?.toLowerCase() == selectedProperty.value?.toLowerCase())?.id,
-        date: jobStartDate.value?.toDisplayDate('yyyy-MM-dd'),
-        startTime: startTime.value != null ? '${startTime.value!.hour.toString().padLeft(2, '0')}:${startTime.value!.minute.toString().padLeft(2, '0')}' : null,
-        endTime: endTime.value != null ? '${endTime.value!.hour.toString().padLeft(2, '0')}:${endTime.value!.minute.toString().padLeft(2, '0')}' : null,
-        jobType: invoicePaymentSource.value.isEmpty ? null : invoicePaymentSource.value,
-        numberOfCleaners: cleanersNeeded.value,
-        staffPreference: staffPreference.value,
-        accessToProperty: accessToProperty.value,
-        hoover: hoover.value,
-        provideCleaningProducts: provideCleaningProducts.value,
-        provideWashingMachine: provideWashingMachine.value,
-        provideDryer: provideDryer.value,
-        additionalDetails: notesController.text.isEmpty ? null : notesController.text,
-        cleaningType: cleaningTypeList.firstWhereOrNull((item) => item.name == cleaningTypeCtrl.text)?.id,
-      );
-      log(runtimeType.toString(), jsonEncode(req));
 
-      (Get.context as BuildContext).hideKeyboard();
+      if (jobStartDate.value != null && start != null) {
+        // Combine selected date + TimeOfDay into DateTime
+        DateTime startDateTime = DateTime(
+          jobStartDate.value!.year,
+          jobStartDate.value!.month,
+          jobStartDate.value!.day,
+          start.hour,
+          start.minute,
+        );
+        DateTime now = DateTime.now();
+        DateTime minAllowedTime = now.add(Duration(hours: 24));
 
-      if (isEdit) {
-        final result = await _clientRepository.updateJob(req, jobDetails?.id?.toInt());
-        result.handle(
-          success: (value) {
-            Loader.hide();
-            // Defer sheet to next frame so Loader.hide() from finally can close the loader first
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (Get.context == null) return;
-              Notifier.openSheet(Get.context as BuildContext,
-                  title: "Success",
-                  type: SheetType.success,
-                  message: "${value.message}",
-                  isDismissable: false,
-                  isShowCloseIcon: false,
-                  showSecondaryButton: false, onPrimaryPressed: () {
-                Get.back(result: {'isUpdate': true});
-              });
-            });
-            updateDashContent();
-            updateUpcomingContent();
-          },
-          contextTag: 'update-job',
-        );
-      } else {
-        final result = await _clientRepository.createJob(req);
-        result.handle(
-          success: (value) {
-            Loader.hide();
-            // Defer sheet to next frame so Loader.hide() from finally can close the loader first
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (Get.context == null) return;
-              Notifier.openSheet(Get.context as BuildContext,
-                  title: "Success",
-                  type: SheetType.success,
-                  message: "${value.message}",
-                  isDismissable: false,
-                  isShowCloseIcon: false,
-                  showSecondaryButton: false, onPrimaryPressed: () {
-                Get.back(result: {'isUpdate': true});
-              });
-            });
-            updateDashContent();
-          },
-          contextTag: 'create-job',
-        );
+        if (startDateTime.isAfter(minAllowedTime)) {
+          // Valid (after 24 hours)
+          final req = CreateJobRequest(
+            // jobTitle: jobTitleController.text.isEmpty ? null : jobTitleController.text,
+            propertyId: properties.firstWhereOrNull((item) => item.propertyName?.toLowerCase() == selectedProperty.value?.toLowerCase())?.id,
+            date: jobStartDate.value?.toDisplayDate('yyyy-MM-dd'),
+            startTime:
+                startTime.value != null ? '${startTime.value!.hour.toString().padLeft(2, '0')}:${startTime.value!.minute.toString().padLeft(2, '0')}' : null,
+            endTime: endTime.value != null ? '${endTime.value!.hour.toString().padLeft(2, '0')}:${endTime.value!.minute.toString().padLeft(2, '0')}' : null,
+            jobType: invoicePaymentSource.value.isEmpty ? null : invoicePaymentSource.value,
+            numberOfCleaners: cleanersNeeded.value,
+            staffPreference: staffPreference.value,
+            accessToProperty: accessToProperty.value,
+            hoover: hoover.value,
+            provideCleaningProducts: provideCleaningProducts.value,
+            provideWashingMachine: provideWashingMachine.value,
+            provideDryer: provideDryer.value,
+            additionalDetails: notesController.text.isEmpty ? null : notesController.text,
+            cleaningType: cleaningTypeList.firstWhereOrNull((item) => item.name == cleaningTypeCtrl.text)?.id,
+          );
+          log(runtimeType.toString(), jsonEncode(req));
+          Loader.show();
+          (Get.context as BuildContext).hideKeyboard();
+
+          if (isEdit) {
+            final result = await _clientRepository.updateJob(req, jobDetails?.id?.toInt());
+            result.handle(
+              success: (value) {
+                Loader.hide();
+                // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (Get.context == null) return;
+                  Notifier.openSheet(Get.context as BuildContext,
+                      title: "Success",
+                      type: SheetType.success,
+                      message: "${value.message}",
+                      isDismissable: false,
+                      isShowCloseIcon: false,
+                      showSecondaryButton: false, onPrimaryPressed: () {
+                    Get.back(result: {'isUpdate': true});
+                  });
+                });
+                updateDashContent();
+                updateUpcomingContent();
+              },
+              contextTag: 'update-job',
+            );
+          } else {
+            final result = await _clientRepository.createJob(req);
+            result.handle(
+              success: (value) {
+                Loader.hide();
+                // Defer sheet to next frame so Loader.hide() from finally can close the loader first
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (Get.context == null) return;
+                  Notifier.openSheet(Get.context as BuildContext,
+                      title: "Success",
+                      type: SheetType.success,
+                      message: "${value.message}",
+                      isDismissable: false,
+                      isShowCloseIcon: false,
+                      showSecondaryButton: false, onPrimaryPressed: () {
+                    Get.back(result: {'isUpdate': true});
+                  });
+                });
+                updateDashContent();
+              },
+              contextTag: 'create-job',
+            );
+          }
+        } else {
+          // Invalid (less than 24 hours) SHOW POP UP
+          Notifier.openSheet(context,
+              showSecondaryButton: false,
+              primaryButtonLabel: 'Okay',
+              message: 'Jobs can only be scheduled 24 hours in advance. Please pick a time that’s at least a day from now.');
+        }
       }
     } finally {
       Loader.hide();
