@@ -485,7 +485,7 @@ class User {
   bool? isHide;
   bool? enableReminder;
   ExtraFields? extraFields;
-  String? emailSubscriptions;
+  dynamic emailSubscriptions;
   dynamic shareCode;
   dynamic hobbies;
   dynamic interests;

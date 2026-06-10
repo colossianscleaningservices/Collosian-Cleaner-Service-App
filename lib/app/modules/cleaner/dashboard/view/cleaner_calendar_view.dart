@@ -282,7 +282,7 @@ class _ListContentView extends StatelessWidget {
                   status = list[i].$2.status ?? status;
                 }
                 return JobCard(
-                  title: list[i].$2.title,
+                  title: list[i].$2.title ?? "N/A",
                   dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
                   status: status,
                   propertyName: list[i].$2.propertyName,

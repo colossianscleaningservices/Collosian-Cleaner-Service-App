@@ -68,7 +68,7 @@ class AssessmentView extends GetView<AuthController> {
                       defualtColor: scheme.onSurfaceVariant.withValues(alpha: 0.5),
                       activeColor: scheme.secondary,
                       margin: const EdgeInsets.only(top: 6),
-                      maxWidth: 44,
+                      maxWidth: 50,
                     ),
                     stepNodeStyle: StepNodeStyle(
                       decoration: BoxDecoration(

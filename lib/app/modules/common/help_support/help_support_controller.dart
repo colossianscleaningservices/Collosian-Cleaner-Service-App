@@ -102,7 +102,7 @@ class HelpSupportController extends GetxController {
     if (await canLaunchUrl(url)) {
       await launchUrl(url);
     } else {
-      throw 'Could not launch $url';
+      Notifier.error('Could not launch dial pad.');
     }
   }
 
@@ -115,7 +115,7 @@ class HelpSupportController extends GetxController {
       emailUri,
       mode: LaunchMode.externalApplication,
     )) {
-      throw 'Could not launch $emailUri';
+      Notifier.error('Could not launch email.');
     }
   }
 }

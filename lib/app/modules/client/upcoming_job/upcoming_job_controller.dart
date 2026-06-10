@@ -43,16 +43,22 @@ class UpcomingJobController extends GetxController {
       final result = await _clientRepository.getJob(page: jobCurrentPage, upcoming: true);
       result.handle(
         success: (response) {
-          final raw = response.data;
-          if (jobCurrentPage == 1) jobs.clear();
-          if (raw != null && raw.jobs?.isNotEmpty == true) {
-            jobs.addAll(raw.jobs as Iterable<Jobs>);
-          }
-          jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            final raw = response.data;
+            if (jobCurrentPage == 1) jobs.clear();
+            if (raw != null && raw.jobs?.isNotEmpty == true) {
+              raw.jobs?.forEach((item) {
+                if (jobs.firstWhereOrNull((job) => job.id == item.id) == null) {
+                  jobs.add(item);
+                }
+              });
+            }
+            jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
 
-          if (jobCurrentPage <= jobTotalPage) {
-            jobCurrentPage++;
-          }
+            if (jobCurrentPage <= jobTotalPage) {
+              jobCurrentPage++;
+            }
+          });
         },
       );
     } finally {

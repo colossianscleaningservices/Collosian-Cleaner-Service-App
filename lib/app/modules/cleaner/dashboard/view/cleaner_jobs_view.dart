@@ -94,6 +94,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                         if (job.status == Constants.jobFinished) {
                           status = job.status ?? status;
                         }
+
                         return JobCard(
                           title: job.cleaningType?.name ?? "N/A",
                           dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
@@ -106,7 +107,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                           recurrence: job.scheduler?.frequency?.capitalizeFirst ?? "N/A",
                           cleanerInfo: job.jobCleaners?.isNotEmpty == true
                               ? '${job.jobCleaners?.length} of ${job.numberOfCleaners} assigned'
-                              : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
+                              : '${job.numberOfCleaners ?? 0} cleaner${(job.numberOfCleaners ?? 0) > 1 ? 's' : ''}',
                           onTap: () => controller.openDetail(job.id),
                         );
                       },
@@ -148,7 +149,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                           recurrence: job.scheduler?.frequency?.capitalizeFirst ?? "N/A",
                           cleanerInfo: job.jobCleaners?.isNotEmpty == true
                               ? '${job.jobCleaners?.length} of ${job.numberOfCleaners} assigned'
-                              : '${job.numberOfCleaners} cleaner${job.numberOfCleaners != 1 ? 's' : ''}',
+                              : '${job.numberOfCleaners ?? 0} cleaner${(job.numberOfCleaners ?? 0) > 1 ? 's' : ''}',
                           onTap: () => controller.openDetail(job.id),
                         );
                       },

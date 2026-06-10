@@ -67,6 +67,7 @@ class JobCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
     final lineColor = statusLineColor(status, scheme);
+
     return AppCard(
       onTap: onTap,
       enableShadows: isFromDash ? false : true,
@@ -95,7 +96,7 @@ class JobCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CommonText.semiBold(
-                            title,
+                            title.isEmpty ? 'N/A' :title,
                             size: 16,
                             color: scheme.onSurface,
                             maxLines: 1,

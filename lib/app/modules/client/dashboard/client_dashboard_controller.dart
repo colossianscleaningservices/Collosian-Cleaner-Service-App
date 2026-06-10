@@ -251,7 +251,11 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
             isJobMoreLoading.value = false;
             if (jobCurrentPage == 1) jobs.clear();
             if (raw != null && raw.jobs?.isNotEmpty == true) {
-              jobs.addAll(raw.jobs as Iterable<Jobs>);
+              raw.jobs?.forEach((item) {
+                if (jobs.firstWhereOrNull((job) => job.id == item.id) == null) {
+                  jobs.add(item);
+                }
+              });
             }
             jobTotalPage = (response.data?.pagination?.totalPages ?? 1).toInt();
 
