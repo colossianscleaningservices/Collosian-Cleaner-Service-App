@@ -33,7 +33,7 @@ class CleanerCard extends StatelessWidget {
     return AppCard(
       onTap: onTap,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           AppAvatar(
             imageUrl: cleaner.avatarUrl,

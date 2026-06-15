@@ -248,7 +248,6 @@ Widget _cleanerBody({
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              /*Divider(height: 32, thickness: 1, color: scheme.outline.withValues(alpha: 0.12)),*/
               AppButton(
                 label: 'Chat',
                 type: ButtonType.tonal,

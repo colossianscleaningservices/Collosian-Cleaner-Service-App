@@ -286,7 +286,6 @@ Widget _bodyForState({
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Divider(height: 32, thickness: 1, color: scheme.outline.withValues(alpha: 0.12)),
               j.jobCleaners?.isEmpty == true
                   ? SizedBox.shrink()
                   : AppButton(
