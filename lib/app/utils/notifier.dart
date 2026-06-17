@@ -119,7 +119,7 @@ class Notifier {
               Column(
                 spacing: 8,
                 children: [
-                  CommonText.bold(title, size: 24, color: scheme.primary, fontWeight: FontWeight.w900),
+                  CommonText.bold(title, size: 24, color: scheme.primary, fontWeight: FontWeight.w900,textAlign: TextAlign.center,),
                   if (message != null) CommonText.regular(message, textAlign: TextAlign.center, size: 18, color: scheme.onSurface.withValues(alpha: 0.7)),
                 ],
               ).marginSymmetric(vertical: 16),

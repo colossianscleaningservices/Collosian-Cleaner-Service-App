@@ -18,7 +18,7 @@ import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  setupErrorHandling();
+  /*setupErrorHandling();*/
 
   await EnvService.init();
   await Prefs().init();

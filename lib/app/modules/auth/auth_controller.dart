@@ -158,10 +158,27 @@ class AuthController extends GetxController {
       },
       onSecondaryPressed: () {
         Get.back();
+        popUp();
+      },
+    );
+  }
+
+  void popUp() {
+    Notifier.openSheet(
+      Get.context as BuildContext,
+      showPrimaryButton: true,
+      showSecondaryButton: false,
+      title: "Welcome to Colossians Cleaning Services",
+      message:
+          "Thank you for your interest in joining our team. Before you can apply for cleaning operative positions, you will be asked to complete a short screening questionnaire. These questions help us assess your suitability, reliability, and readiness for the role. Please answer all questions honestly and accurately. Only applicants who successfully meet our requirements will be eligible to apply for available cleaning jobs through the Colossians platform. We wish you the best of luck and thank you for considering a career with Colossians Cleaning Services.",
+      icon: IconsaxPlusLinear.profile_2user,
+      primaryButtonLabel: "Okay",
+      onPrimaryPressed: () {
+        Get.back();
         selectRole(UserRole.cleaner);
         resetAgreement();
 
-        isHiring.value ? Get.toNamed(Routes.AGREEMENT) : hiringClosedSheet(context);
+        isHiring.value ? Get.toNamed(Routes.AGREEMENT) : hiringClosedSheet(Get.context as BuildContext);
       },
     );
   }
@@ -201,7 +218,6 @@ class AuthController extends GetxController {
           if (categories.isEmpty) return;
 
           final questionsByStep = <List<aq.Questions>>[];
-
 
           for (final category in categories) {
             final id = category.id;

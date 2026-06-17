@@ -137,6 +137,24 @@ class AssessmentView extends GetView<AuthController> {
                               ),
                             ],
                           ).marginOnly(left: UiConstants.gap, right: UiConstants.gap, top: UiConstants.gap),
+                          item.answerType == 'multiple'
+                              ? Row(
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline,
+                                      size: 16,
+                                      color: context.colorScheme.secondary,
+                                    ).marginOnly(right: 4).marginOnly(left: UiConstants.margin32),
+                                    Flexible(
+                                      child: CommonText.semiBold(
+                                        'You can select more options.',
+                                        size: 14,
+                                        color: scheme.primary.withValues(alpha: 0.6),
+                                      ),
+                                    ),
+                                  ],
+                                ).marginOnly(left: UiConstants.gap, right: UiConstants.gap, top: 2)
+                              : SizedBox.shrink(),
                           ListView.builder(
                             itemBuilder: (context, index) {
                               final option = options[index];
@@ -148,17 +166,21 @@ class AssessmentView extends GetView<AuthController> {
                                 onTap: () => controller.setAgreementAnswer(currentStep, questionIndex, value),
                                 child: Row(
                                   children: [
-                                    Radio<String>(
-                                      value: value,
-                                      groupValue: selectedAnswer,
-                                      onChanged: (v) {
-                                        if (v != null) controller.setAgreementAnswer(currentStep, questionIndex, v);
-                                      },
-                                      fillColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
-                                        if (states.contains(WidgetState.selected)) return scheme.secondary;
-                                        return scheme.outline;
-                                      }),
-                                    ),
+                                    if (item.answerType == 'multiple') ...[
+                                      Checkbox(value: false, onChanged: (value) => {}),
+                                    ] else ...[
+                                      Radio<String>(
+                                        value: value,
+                                        groupValue: selectedAnswer,
+                                        onChanged: (v) {
+                                          if (v != null) controller.setAgreementAnswer(currentStep, questionIndex, v);
+                                        },
+                                        fillColor: WidgetStateColor.resolveWith((Set<WidgetState> states) {
+                                          if (states.contains(WidgetState.selected)) return scheme.secondary;
+                                          return scheme.outline;
+                                        }),
+                                      ),
+                                    ],
                                     Expanded(
                                       child: CommonText.regular(
                                         label,
