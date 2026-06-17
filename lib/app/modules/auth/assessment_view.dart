@@ -34,6 +34,8 @@ class AssessmentView extends GetView<AuthController> {
       final questions = currentStep < controller.assessmentQuestionsByStep.length ? controller.assessmentQuestionsByStep[currentStep] : <aq.Questions>[];
       final isLastStep = currentStep == totalSteps - 1;
       final isStepComplete = controller.isAgreementStepComplete(currentStep);
+      const stepNodeSize = 32.0;
+      final stepProgressWidth = totalSteps * 1.45 * stepNodeSize;
 
       return AppScaffold(
         backgroundColor: scheme.surface,
@@ -52,7 +54,8 @@ class AssessmentView extends GetView<AuthController> {
                 controller: controller.stepScrollController,
                 scrollDirection: Axis.horizontal,
                 child: StepProgress(
-                  stepNodeSize: 32,
+                  width: stepProgressWidth + 40,
+                  stepNodeSize: stepNodeSize,
                   theme: StepProgressThemeData(
                     shape: StepNodeShape.circle,
                     defaultForegroundColor: scheme.outline.withValues(alpha: 0.5),
@@ -107,7 +110,8 @@ class AssessmentView extends GetView<AuthController> {
                     final item = questions[questionIndex];
                     final questionText = item.questionText ?? '';
                     final options = item.options ?? [];
-                    final selectedAnswer = controller.getAgreementAnswer(currentStep, questionIndex);
+                    final selectedOptions = controller.getAgreementAnswer(currentStep, questionIndex) ?? [];
+                    final isMultiple = item.answerType == 'multiple';
 
                     return AppCard(
                       radius: UiConstants.radiusLarge,
@@ -144,10 +148,10 @@ class AssessmentView extends GetView<AuthController> {
                                       Icons.info_outline,
                                       size: 16,
                                       color: context.colorScheme.secondary,
-                                    ).marginOnly(right: 4).marginOnly(left: UiConstants.margin32),
+                                    ).marginOnly(right: 4).marginOnly(left: UiConstants.margin32 + 8),
                                     Flexible(
                                       child: CommonText.semiBold(
-                                        'You can select more options.',
+                                        'You can choose more options.',
                                         size: 14,
                                         color: scheme.primary.withValues(alpha: 0.6),
                                       ),
@@ -158,20 +162,42 @@ class AssessmentView extends GetView<AuthController> {
                           ListView.builder(
                             itemBuilder: (context, index) {
                               final option = options[index];
+                              final optionId = option.id;
+                              if (optionId == null) return const SizedBox.shrink();
+
                               final label = option.text ?? option.label ?? '';
-                              final value = option.label ?? option.text ?? '';
-                              final isSelected = selectedAnswer == value;
+                              final isSelected = controller.isAgreementOptionSelected(currentStep, questionIndex, optionId);
 
                               return InkWell(
-                                onTap: () => controller.setAgreementAnswer(currentStep, questionIndex, value),
+                                onTap: () {
+                                  if (isMultiple) {
+                                    controller.toggleAgreementAnswer(currentStep, questionIndex, optionId);
+                                  } else {
+                                    controller.setAgreementAnswer(currentStep, questionIndex, optionId);
+                                  }
+                                },
                                 child: Row(
                                   children: [
-                                    if (item.answerType == 'multiple') ...[
-                                      Checkbox(value: false, onChanged: (value) => {}),
+                                    if (isMultiple) ...[
+                                      Checkbox(
+                                        value: isSelected,
+                                        onChanged: (_) => controller.toggleAgreementAnswer(currentStep, questionIndex, optionId),
+                                        fillColor: WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+                                          if (states.contains(WidgetState.selected)) return scheme.secondary;
+                                          return null;
+                                        }),
+                                        checkColor: scheme.onPrimary,
+                                        side: WidgetStateBorderSide.resolveWith((Set<WidgetState> states) {
+                                          if (states.contains(WidgetState.selected)) {
+                                            return BorderSide(color: scheme.secondary, width: 2);
+                                          }
+                                          return BorderSide(color: scheme.outline, width: 2);
+                                        }),
+                                      ),
                                     ] else ...[
-                                      Radio<String>(
-                                        value: value,
-                                        groupValue: selectedAnswer,
+                                      Radio<num>(
+                                        value: optionId,
+                                        groupValue: selectedOptions.isNotEmpty ? selectedOptions.first : null,
                                         onChanged: (v) {
                                           if (v != null) controller.setAgreementAnswer(currentStep, questionIndex, v);
                                         },

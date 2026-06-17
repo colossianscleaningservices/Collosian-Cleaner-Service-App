@@ -31,11 +31,16 @@ class Answers {
   Answers.fromJson(dynamic json) {
     categoryId = json['category_id'];
     questionId = json['question_id'];
-    option = json['option'];
+    if (json['option'] != null) {
+      option = [];
+      json['option'].forEach((v) {
+        option?.add(v);
+      });
+    }
   }
   num? categoryId;
   num? questionId;
-  String? option;
+  List<num>? option;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

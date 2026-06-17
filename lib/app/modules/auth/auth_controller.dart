@@ -68,7 +68,7 @@ class AuthController extends GetxController {
   RxList<List<aq.Questions>> assessmentQuestionsByStep = <List<aq.Questions>>[].obs;
   ScrollController scrollController = ScrollController();
   ScrollController stepScrollController = ScrollController();
-  final selectedAgreementAnswers = <int, Map<int, String>>{}.obs;
+  final selectedAgreementAnswers = <int, Map<int, List<num>>>{}.obs;
   List<num?> answersId = [];
   var from = '';
   final isHiring = true.obs;
@@ -272,13 +272,29 @@ class AuthController extends GetxController {
 
   // ─── Agreement (assessment steps) ─────────────────────────────────────────
 
-  void setAgreementAnswer(int sectionIndex, int questionIndex, String answer) {
+  void setAgreementAnswer(int sectionIndex, int questionIndex, num optionId) {
     selectedAgreementAnswers.value[sectionIndex] ??= {};
-    selectedAgreementAnswers.value[sectionIndex]![questionIndex] = answer;
+    selectedAgreementAnswers.value[sectionIndex]![questionIndex] = [optionId];
     selectedAgreementAnswers.refresh();
   }
 
-  String? getAgreementAnswer(int sectionIndex, int questionIndex) => selectedAgreementAnswers.value[sectionIndex]?[questionIndex];
+  void toggleAgreementAnswer(int sectionIndex, int questionIndex, num optionId) {
+    selectedAgreementAnswers.value[sectionIndex] ??= {};
+    final current = List<num>.from(selectedAgreementAnswers.value[sectionIndex]![questionIndex] ?? []);
+    if (current.contains(optionId)) {
+      current.remove(optionId);
+    } else {
+      current.add(optionId);
+    }
+    selectedAgreementAnswers.value[sectionIndex]![questionIndex] = current;
+    selectedAgreementAnswers.refresh();
+  }
+
+  List<num>? getAgreementAnswer(int sectionIndex, int questionIndex) => selectedAgreementAnswers.value[sectionIndex]?[questionIndex];
+
+  bool isAgreementOptionSelected(int sectionIndex, int questionIndex, num optionId) {
+    return getAgreementAnswer(sectionIndex, questionIndex)?.contains(optionId) ?? false;
+  }
 
   bool isAgreementStepComplete(int sectionIndex) {
     if (sectionIndex >= assessmentQuestionsByStep.length) return true;
@@ -287,7 +303,10 @@ class AuthController extends GetxController {
     final answers = selectedAgreementAnswers.value[sectionIndex];
     if (answers == null) return false;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].options?.isNotEmpty == true) if (!answers.containsKey(i) || answers[i]!.isEmpty) return false;
+      if (questions[i].options?.isNotEmpty == true) {
+        final selected = answers[i];
+        if (selected == null || selected.isEmpty) return false;
+      }
     }
     return true;
   }
@@ -300,12 +319,18 @@ class AuthController extends GetxController {
 
   Future<void> saveCleanerAssessment() async {
     answersId.clear();
-    List<Answers> answers = [];
-    selectedAgreementAnswers.value.forEach((key, value) {
-      if (assessmentQuestionsByStep[key].length == value.length) {
-        for (var item in assessmentQuestionsByStep[key]) {
-          answers.add(Answers(categoryId: item.categoryId, questionId: item.id, option: value[assessmentQuestionsByStep[key].indexOf(item)]));
-        }
+    final answers = <Answers>[];
+    selectedAgreementAnswers.value.forEach((sectionIndex, questionAnswers) {
+      if (sectionIndex >= assessmentQuestionsByStep.length) return;
+      final questions = assessmentQuestionsByStep[sectionIndex];
+      for (var i = 0; i < questions.length; i++) {
+        final optionIds = questionAnswers[i];
+        if (optionIds == null || optionIds.isEmpty) continue;
+        answers.add(Answers(
+          categoryId: questions[i].categoryId,
+          questionId: questions[i].id,
+          option: optionIds,
+        ));
       }
     });
 
