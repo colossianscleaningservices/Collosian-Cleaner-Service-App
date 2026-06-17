@@ -142,21 +142,10 @@ class AssessmentView extends GetView<AuthController> {
                             ],
                           ).marginOnly(left: UiConstants.gap, right: UiConstants.gap, top: UiConstants.gap),
                           item.answerType == 'multiple'
-                              ? Row(
-                                  children: [
-                                    Icon(
-                                      Icons.info_outline,
-                                      size: 16,
-                                      color: context.colorScheme.secondary,
-                                    ).marginOnly(right: 4).marginOnly(left: UiConstants.margin32 + 8),
-                                    Flexible(
-                                      child: CommonText.semiBold(
-                                        'You can choose more options.',
-                                        size: 14,
-                                        color: scheme.primary.withValues(alpha: 0.6),
-                                      ),
-                                    ),
-                                  ],
+                              ? CommonText.semiBold(
+                                  '9You can choose 1 or more options)',
+                                  size: 14,
+                                  color: scheme.primary.withValues(alpha: 0.6),
                                 ).marginOnly(left: UiConstants.gap, right: UiConstants.gap, top: 2)
                               : SizedBox.shrink(),
                           ListView.builder(
