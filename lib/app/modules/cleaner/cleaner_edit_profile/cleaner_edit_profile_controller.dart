@@ -49,7 +49,27 @@ class CleanerEditProfileController extends GetxController {
   final scheduleValidFrom = Rx<DateTime>(DateTime.now());
 
   List<String> genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
-  List<String> relationshipOptions = ['Aunt', 'Boyfriend', 'Friend', 'Brother', 'Sister', 'Other'];
+  List<String> relationshipOptions = [
+    'Father',
+    'Mother',
+    'Brother',
+    'Sister',
+    'Husband',
+    'Wife',
+    'Boyfriend',
+    'Girlfriend',
+    'Son',
+    'Daughter',
+    'Grandfather',
+    'Grandmother',
+    'Uncle',
+    'Aunt',
+    'Friend',
+    'Guardian',
+    'Colleague',
+    'Partner',
+    'Other',
+  ];
   List<String> childrenOptions = ['No', '1', '2', '3', '4', '5+'];
   List<String> driverOptions = ['Yes, I have a car', "Yes, but I don't have a car", 'No'];
 

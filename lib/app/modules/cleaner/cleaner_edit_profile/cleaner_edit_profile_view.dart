@@ -370,6 +370,16 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                label: 'Save changes',
+                onPressed: controller.saveProfile,
+                type: ButtonType.primary,
+              ),
+            ).marginOnly(bottom: 16),
+
             SizedBox(
               width: double.infinity,
               child: AppButton(
@@ -388,14 +398,6 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                 bgColor: context.colorScheme.errorContainer,
                 txtClr: context.colorScheme.error,
                 type: ButtonType.tonal,
-              ),
-            ).marginOnly(bottom: 16),
-            SizedBox(
-              width: double.infinity,
-              child: AppButton(
-                label: 'Save changes',
-                onPressed: controller.saveProfile,
-                type: ButtonType.primary,
               ),
             ),
           ],
