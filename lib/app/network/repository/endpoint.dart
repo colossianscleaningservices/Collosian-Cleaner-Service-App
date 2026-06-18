@@ -71,6 +71,10 @@ class Endpoint {
 
   static String clientJobSchedule(int id) => '${root}client/jobs/$id/schedule';
 
+  static String clientScheduledJobPause(int scheduleId) => '${root}client/scheduled-jobs/$scheduleId/pause';
+
+  static String clientScheduledJobResume(int scheduleId) => '${root}client/scheduled-jobs/$scheduleId/resume';
+
   static String clientJobReview(int id) => '${root}client/jobs/$id/review';
   static const String clientJob = '${root}client/jobs';
 

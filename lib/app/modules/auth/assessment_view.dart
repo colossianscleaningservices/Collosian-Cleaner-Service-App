@@ -120,7 +120,7 @@ class AssessmentView extends GetView<AuthController> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               AppCard(
                                 enableShadows: false,
@@ -143,10 +143,10 @@ class AssessmentView extends GetView<AuthController> {
                           ).marginOnly(left: UiConstants.gap, right: UiConstants.gap, top: UiConstants.gap),
                           item.answerType == 'multiple'
                               ? CommonText.semiBold(
-                                  '9You can choose 1 or more options)',
+                                  '(You can choose 1 or more options)',
                                   size: 14,
                                   color: scheme.primary.withValues(alpha: 0.6),
-                                ).marginOnly(left: UiConstants.gap, right: UiConstants.gap, top: 2)
+                                ).marginOnly(left: UiConstants.margin32 + 24, right: UiConstants.gap, top: 2)
                               : SizedBox.shrink(),
                           ListView.builder(
                             itemBuilder: (context, index) {

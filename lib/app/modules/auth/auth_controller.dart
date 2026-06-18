@@ -173,6 +173,7 @@ class AuthController extends GetxController {
           "Thank you for your interest in joining our team.\n\nBefore you can apply for cleaning operative positions, you will be asked to complete a short screening questionnaire. These questions help us assess your suitability, reliability, and readiness for the role.\n\nPlease answer all questions honestly and accurately. Only applicants who successfully meet our requirements will be eligible to apply for available cleaning jobs through the Colossians platform.\n\nWe wish you the best of luck and thank you for considering a career with Colossians Cleaning Services.",
       icon: IconsaxPlusLinear.profile_2user,
       primaryButtonLabel: "Okay",
+      msgAlign: TextAlign.justify,
       onPrimaryPressed: () {
         Get.back();
         selectRole(UserRole.cleaner);

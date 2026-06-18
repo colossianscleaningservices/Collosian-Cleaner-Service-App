@@ -26,27 +26,25 @@ class Notifier {
     }
   }
 
-  static void openSheet(
-    BuildContext context, {
-    String title = "Alert!",
-    String? message,
-    Widget? iconWidget,
-    Widget? body,
-    IconData? icon,
-    SheetType? type = SheetType.info,
-    String primaryButtonLabel = "Confirm",
-    String secondaryButtonLabel = "Cancel",
-    bool isDismissable = true,
-    bool showPrimaryButton = true,
-    bool showSecondaryButton = true,
-    bool showIcon = true,
-    bool isShowCloseIcon = true,
-    void Function()? onPrimaryPressed,
-    void Function()? onSecondaryPressed,
-    bool top = false,
-        bool isSheetAutoClose = true
-  }) {
-
+  static void openSheet(BuildContext context,
+      {String title = "Alert!",
+      String? message,
+      Widget? iconWidget,
+      Widget? body,
+      IconData? icon,
+      SheetType? type = SheetType.info,
+      String primaryButtonLabel = "Confirm",
+      String secondaryButtonLabel = "Cancel",
+      bool isDismissable = true,
+      bool showPrimaryButton = true,
+      bool showSecondaryButton = true,
+      bool showIcon = true,
+      bool isShowCloseIcon = true,
+      void Function()? onPrimaryPressed,
+      void Function()? onSecondaryPressed,
+      bool top = false,
+      bool isSheetAutoClose = true,
+      TextAlign msgAlign = TextAlign.center}) {
     final scheme = context.colorScheme;
 
     Color bg;
@@ -119,8 +117,14 @@ class Notifier {
               Column(
                 spacing: 8,
                 children: [
-                  CommonText.bold(title, size: 24, color: scheme.primary, fontWeight: FontWeight.w900,textAlign: TextAlign.center,),
-                  if (message != null) CommonText.regular(message, textAlign: TextAlign.center, size: 18, color: scheme.onSurface.withValues(alpha: 0.7)),
+                  CommonText.bold(
+                    title,
+                    size: 24,
+                    color: scheme.primary,
+                    fontWeight: FontWeight.w900,
+                    textAlign: TextAlign.center,
+                  ),
+                  if (message != null) CommonText.regular(message, textAlign: msgAlign, size: 18, color: scheme.onSurface.withValues(alpha: 0.7)),
                 ],
               ).marginSymmetric(vertical: 16),
 
@@ -141,7 +145,7 @@ class Notifier {
                         bgColor: fg,
                         onPressed: onPrimaryPressed != null
                             ? () {
-                              if(isSheetAutoClose)  closeSheet();
+                                if (isSheetAutoClose) closeSheet();
                                 onPrimaryPressed.call();
                               }
                             : () => closeSheet(),
@@ -170,7 +174,8 @@ class Notifier {
       ).marginSymmetric(horizontal: 18, vertical: 24),
     );
 
-    Get.bottomSheet(content, isDismissible: isDismissable, enterBottomSheetDuration: Duration(milliseconds: 250), isScrollControlled: true,ignoreSafeArea: false);
+    Get.bottomSheet(content,
+        isDismissible: isDismissable, enterBottomSheetDuration: Duration(milliseconds: 250), isScrollControlled: true, ignoreSafeArea: false);
   }
 
   static void _show({required String title, required String message, required ToastificationType type}) {

@@ -359,6 +359,7 @@ class _StatusScheduleSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheduled = j.jobSchedule ?? false;
+    final isPaused = j.scheduler?.active == false;
     final statusLabel = j.status?.capitalizeFirst ?? 'N/A';
 
     String? timeRange;
@@ -396,6 +397,12 @@ class _StatusScheduleSection extends StatelessWidget {
                 label: scheduled ? 'Scheduled' : 'Not scheduled',
                 backgroundColor: scheduled ? scheme.primaryContainer : scheme.surfaceContainerHighest,
                 foregroundColor: scheduled ? scheme.primary : scheme.onSurfaceVariant,
+              ),
+            if (scheduled && isPaused && j.status != 'Finished' && j.status != 'Cancelled')
+              InfoChip(
+                label: 'Paused',
+                backgroundColor: scheme.errorContainer,
+                foregroundColor: scheme.onErrorContainer,
               ),
             if (j.scheduler?.frequency != null && j.scheduler!.frequency!.trim().isNotEmpty)
               InfoChip(
@@ -442,15 +449,40 @@ class _StatusScheduleSection extends StatelessWidget {
         ),
         if (j.jobSchedule == true && j.status != 'Cancelled') ...[
           const SizedBox(height: 12),
-          AppButton(
-            label: 'Cancel job',
-            onPressed: () => c.onCancelJob(),
-            type: ButtonType.outline,
-            txtClr: scheme.error,
-            borderClr: scheme.error,
-            btnVerticalPadding: 8,
-            btnCornerRadius: 12,
-            btnHorizontalPadding: 12,
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              if (!isPaused)
+                AppButton(
+                  label: 'Pause schedule',
+                  icon: IconsaxPlusLinear.pause,
+                  onPressed: c.onPauseSchedule,
+                  type: ButtonType.outline,
+                  btnVerticalPadding: 8,
+                  btnCornerRadius: 12,
+                  btnHorizontalPadding: 12,
+                ),
+              if (isPaused)
+                AppButton(
+                  label: 'Resume schedule',
+                  icon: IconsaxPlusLinear.play,
+                  onPressed: c.onResumeSchedule,
+                  btnVerticalPadding: 8,
+                  btnCornerRadius: 12,
+                  btnHorizontalPadding: 12,
+                ),
+              AppButton(
+                label: 'Cancel job',
+                onPressed: () => c.onCancelJob(),
+                type: ButtonType.outline,
+                txtClr: scheme.error,
+                borderClr: scheme.error,
+                btnVerticalPadding: 8,
+                btnCornerRadius: 12,
+                btnHorizontalPadding: 12,
+              ),
+            ],
           ),
         ],
       ],

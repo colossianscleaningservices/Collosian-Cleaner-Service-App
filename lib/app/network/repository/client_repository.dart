@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/network/request/pause_schedule_request.dart';
 import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/app/network/response/get_client_calender_response.dart';
 import 'package:ccs_app/app/network/response/get_client_dash_response.dart';
@@ -228,14 +229,34 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  /// PUT schedule job with recurrence. [frequency]: daily|weekly|monthly.
-  /// Optional: start_date, end_date, occurrence, copy_cleaners.
+  /// PUT schedule job with recurrence. [frequency]: daily|weekly|fortnightly|monthly|custom.
+  /// Optional: start_date, repeat_on_day, copy_cleaners, cleaner_ids.
   Future<NetworkResult<BaseResponse>> scheduleJob(
       {required int jobId, required ScheduleJobRequest request}) async {
     return put<BaseResponse>(
       endpoint: Endpoint.clientJobSchedule(jobId),
       fromJson: (json) => BaseResponse.fromJson(json),
       data: request,
+    );
+  }
+
+  /// POST pause a scheduled job. Empty [request] pauses from today until resumed.
+  Future<NetworkResult<BaseResponse>> pauseScheduledJob({
+    required int scheduleId,
+    PauseScheduleRequest? request,
+  }) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.clientScheduledJobPause(scheduleId),
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data: request?.toJson() ?? <String, dynamic>{},
+    );
+  }
+
+  /// POST resume a paused scheduled job.
+  Future<NetworkResult<BaseResponse>> resumeScheduledJob({required int scheduleId}) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.clientScheduledJobResume(scheduleId),
+      fromJson: (json) => BaseResponse.fromJson(json),
     );
   }
 

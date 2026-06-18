@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ccs_app/app/network/repository/client_repository.dart';
+import 'package:ccs_app/app/network/request/pause_schedule_request.dart';
 import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/export.dart';
 import 'package:dio/dio.dart';
@@ -230,6 +231,121 @@ class ClientJobDetailController extends GetxController {
           });
         },
         contextTag: 'schedule_job',
+      );
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  num? get _scheduleId => job.value?.scheduler?.id ?? job.value?.scheduleId;
+
+  bool get isSchedulePaused => job.value?.scheduler?.active == false;
+
+  String _formatApiDate(DateTime date) =>
+      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+  void onPauseSchedule() {
+    final scheduleId = _scheduleId;
+    if (scheduleId == null) {
+      Notifier.info('Schedule not found');
+      return;
+    }
+
+    final scheme = (Get.context as BuildContext).colorScheme;
+    final endDateCtrl = TextEditingController();
+    DateTime? pauseEndDate;
+
+    Notifier.openSheet(
+      Get.context!,
+      title: 'Pause schedule',
+      type: SheetType.info,
+      message: 'Pause this recurring schedule. Leave the end date empty to pause until you resume manually.',
+      body: Column(
+        spacing: 12,
+        children: [
+          CommonTextField(
+            controller: endDateCtrl,
+            label: 'Pause end date (optional)',
+            hint: '-- / -- / ----',
+            isReadOnly: true,
+            onTap: () async {
+              final context = Get.context;
+              if (context == null) return;
+              final d = await showDatePicker(
+                context: context,
+                initialDate: pauseEndDate ?? DateTime.now().add(const Duration(days: 7)),
+                firstDate: DateTime.now(),
+                lastDate: DateTime(2030, 12, 31),
+              );
+              if (d != null) {
+                pauseEndDate = DateTime(d.year, d.month, d.day);
+                endDateCtrl.text = CcsDateUtils.forInput(pauseEndDate!);
+              }
+            },
+            suffixIcon: Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.primary),
+          ),
+          CommonText.regular(
+            'If you set an end date, the schedule pauses until that date and then resumes automatically.',
+            size: 12,
+            color: scheme.onSurfaceVariant,
+          ),
+        ],
+      ).marginSymmetric(vertical: 8),
+      showPrimaryButton: true,
+      showSecondaryButton: true,
+      primaryButtonLabel: 'Pause schedule',
+      secondaryButtonLabel: 'Keep running',
+      onPrimaryPressed: () {
+        final end = pauseEndDate;
+        PauseScheduleRequest? request;
+        if (end != null) {
+          request = PauseScheduleRequest(
+            inactiveStartDate: _formatApiDate(DateTime.now()),
+            inactiveEndDate: _formatApiDate(end),
+          );
+        }
+        _pauseSchedule(scheduleId, request: request);
+      },
+    );
+  }
+
+  Future<void> _pauseSchedule(num scheduleId, {PauseScheduleRequest? request}) async {
+    Loader.show();
+    try {
+      final result = await _clientRepository.pauseScheduledJob(
+        scheduleId: scheduleId.toInt(),
+        request: request,
+      );
+      result.handle(
+        success: (value) {
+          Loader.hide();
+          Notifier.success(value.message ?? 'Schedule paused');
+          fetchJobDetails(isLoaderShown: false);
+        },
+        contextTag: 'pause_schedule',
+      );
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  Future<void> onResumeSchedule() async {
+    final scheduleId = _scheduleId;
+    if (scheduleId == null) {
+      Notifier.info('Schedule not found');
+      return;
+    }
+
+    Loader.show();
+    try {
+      final result = await _clientRepository.resumeScheduledJob(scheduleId: scheduleId.toInt());
+      result.handle(
+        success: (value) {
+          Loader.hide();
+          Notifier.success(value.message ?? 'Schedule resumed');
+          fetchJobDetails(isLoaderShown: false);
+        },
+        contextTag: 'resume_schedule',
       );
     } finally {
       Loader.hide();
