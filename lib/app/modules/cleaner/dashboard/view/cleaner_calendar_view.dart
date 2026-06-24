@@ -2,6 +2,7 @@ import 'package:ccs_app/export.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../../../../model/calendar_event.dart';
+import '../../../../widget/common/month_year_picker.dart';
 import '../cleaner_dashboard_controller.dart';
 
 class CleanerCalendarView extends GetView<CleanerDashboardController> {
@@ -42,7 +43,15 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                 ),
                 onPressed: controller.onCalendarPrev,
               ),
-              Obx(() => CommonText.bold(controller.periodLabel, size: 16, color: scheme.onSurface)),
+              GestureDetector(
+                onTap: () async {
+                  final picked = await showMonthYearPicker(context, controller.focusedDay.value);
+                  if (picked != null) {
+                    controller.onCalendarPageChanged(picked);
+                  }
+                },
+                child: Obx(() => CommonText.bold(controller.periodLabel, size: 16, color: scheme.onSurface)),
+              ),
               IconButton(
                 icon: Icon(
                   IconsaxPlusLinear.arrow_right_3,

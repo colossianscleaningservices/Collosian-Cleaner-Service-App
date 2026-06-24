@@ -2,6 +2,7 @@ import 'package:ccs_app/app/model/calendar_event.dart';
 import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
 import 'package:ccs_app/export.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../../../../widget/common/month_year_picker.dart';
 
 class ClientCalendarView extends GetView<ClientDashboardController> {
   const ClientCalendarView({super.key});
@@ -41,7 +42,15 @@ class ClientCalendarView extends GetView<ClientDashboardController> {
                 ),
                 onPressed: controller.onCalendarPrev,
               ),
-              Obx(() => CommonText.bold(controller.periodLabel, size: 16, color: scheme.onSurface)),
+              GestureDetector(
+                onTap: () async {
+                  final picked = await showMonthYearPicker(context, controller.focusedDay.value);
+                  if (picked != null) {
+                    controller.onCalendarPageChanged(picked);
+                  }
+                },
+                child: Obx(() => CommonText.bold(controller.periodLabel, size: 16, color: scheme.onSurface)),
+              ),
               IconButton(
                 icon: Icon(
                   IconsaxPlusLinear.arrow_right_3,

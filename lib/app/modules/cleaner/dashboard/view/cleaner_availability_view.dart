@@ -1,4 +1,5 @@
 import 'package:ccs_app/export.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import '../../../../model/availability.dart';
 import '../../../../widget/common/wheel_picker_time.dart';
@@ -96,7 +97,7 @@ class CleanerAvailabilityView extends GetView<CleanerDashboardController> {
             ),
             const SizedBox(height: 14),
             AppButton(
-              label: 'Add blocked day',
+              label: 'Add blocked days',
               type: ButtonType.outline,
               icon: IconsaxPlusLinear.calendar_add,
               onPressed: () => _pickBlockedDate(context, controller),
@@ -205,9 +206,82 @@ Future<void> wheelTimePicker(
 }
 
 Future<void> _pickBlockedDate(BuildContext context, CleanerDashboardController ctrl) async {
-  final d = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(2030, 12, 31));
-  if (d == null || !context.mounted) return;
-  ctrl.addBlockedDay(d);
+  DateTime? rangeStart;
+  DateTime? rangeEnd;
+  DateTime focusedDay = DateTime.now();
+
+  final DateTimeRange? range = await showDialog<DateTimeRange>(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          final scheme = context.colorScheme;
+          return AlertDialog(
+            contentPadding: EdgeInsets.zero,
+            backgroundColor: scheme.surface,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(UiConstants.radiusLarge)),
+            content: SizedBox(
+              width: 340,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TableCalendar(
+                    firstDay: DateTime.now(),
+                    lastDay: DateTime(2030, 12, 31),
+                    focusedDay: focusedDay,
+                    rangeStartDay: rangeStart,
+                    rangeEndDay: rangeEnd,
+                    rangeSelectionMode: RangeSelectionMode.toggledOn,
+                    onRangeSelected: (start, end, focused) {
+                      setState(() {
+                        rangeStart = start;
+                        rangeEnd = end;
+                        focusedDay = focused;
+                      });
+                    },
+                    headerStyle: const HeaderStyle(formatButtonVisible: false),
+                    calendarStyle: CalendarStyle(
+                      rangeHighlightColor: scheme.primary.withValues(alpha: 0.2),
+                      rangeStartDecoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
+                      rangeEndDecoration: BoxDecoration(color: scheme.primary, shape: BoxShape.circle),
+                      todayDecoration: BoxDecoration(color: scheme.secondary, shape: BoxShape.circle),
+                    ),
+                  ).paddingAll(12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: CommonText.medium('Cancel', color: scheme.primary),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          if (rangeStart != null) {
+                            Navigator.pop(context, DateTimeRange(start: rangeStart!, end: rangeEnd ?? rangeStart!));
+                          } else {
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: CommonText.medium('OK', color: scheme.primary),
+                      ),
+                    ],
+                  ).paddingOnly(right: 16, bottom: 8),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+
+  if (range == null || !context.mounted) return;
+
+  DateTime current = range.start;
+  while (!current.isAfter(range.end)) {
+    ctrl.addBlockedDay(current);
+    current = current.add(const Duration(days: 1));
+  }
 }
 
 Color _slotRowColor(ColorScheme scheme, int index) {
