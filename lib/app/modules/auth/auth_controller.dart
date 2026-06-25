@@ -40,6 +40,7 @@ class AuthController extends GetxController {
   final signupPasswordCtrl = TextEditingController();
   final signupObscure = true.obs;
   final signupNiNumberCtrl = TextEditingController();
+  final isStudent = false.obs;
 
   // ─── Forgot / reset password ──────────────────────────────────────────────
   final forgotEmailCtrl = TextEditingController();
@@ -487,7 +488,8 @@ class AuthController extends GetxController {
           phoneNumber: signupPhoneCtrl.text.trim().isNotEmpty ? signupPhoneCtrl.text.trim() : null,
           verificationCode: role == UserRole.cleaner ? signupNiNumberCtrl.text.trim() : null,
           answersId: role == UserRole.cleaner ? answersId : null,
-          isVerified: true);
+          isVerified: true,
+          isStudent: isStudent.value);
       result.handle(
         success: (response) async {
           final data = response.data;

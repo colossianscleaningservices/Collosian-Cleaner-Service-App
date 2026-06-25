@@ -150,6 +150,12 @@ class SignupView extends GetView<AuthController> {
               validator: Validator.nin,
               prefixIcon: Icon(IconsaxPlusLinear.card, size: 20, color: scheme.onSurfaceVariant),
             ),
+            const SizedBox(height: UiConstants.gap),
+            AppCheckBox(
+              title: 'Are you Student?',
+              value: controller.isStudent.value,
+              onChange: (v) => controller.isStudent.value = v,
+            ),
            /* const SizedBox(height: UiConstants.gap),
             CommonTextField(
               controller: controller.agencyController,
