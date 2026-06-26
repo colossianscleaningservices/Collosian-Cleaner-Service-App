@@ -154,17 +154,15 @@ class _PhotoThumbnail extends StatelessWidget {
                   doubleTapZoomable: true,
                 );
               },
-              child: FutureBuilder<Uint8List>(
-                future: file.readAsBytes(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return Image.memory(
-                      snapshot.data!,
-                      fit: BoxFit.cover,
-                    );
-                  }
-                  return Container(color: scheme.surfaceContainerHighest, child: const Center(child: CircularProgressIndicator()));
-                },
+              child: Image.file(
+                File(file.path),
+                key: ValueKey(file.path),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: scheme.surfaceContainerHighest,
+                  alignment: Alignment.center,
+                  child: Icon(Icons.broken_image_outlined, color: scheme.onSurfaceVariant),
+                ),
               ),
             ),
           ),

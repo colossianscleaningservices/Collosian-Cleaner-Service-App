@@ -1,49 +1,55 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:ui';
 
 import 'package:ccs_app/app/network/repository/common_repository.dart';
 import 'package:ccs_app/export.dart';
 import 'package:dio/dio.dart' as dio;
-import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
-
 import 'package:permission_handler/permission_handler.dart';
+
 import '../../../network/repository/job_repository.dart';
 import '../../../network/response/get_staff_job_details_response.dart';
 
 enum JobCheckPhotoMode { checkIn, checkOut }
 
-/// Runs on a background isolate. Applies watermark and writes to [filePath].
-void _watermarkPhotoInIsolate((String filePath, Uint8List imgBytes, String watermarkText) args) {
-  final (filePath, imgBytes, watermarkText) = args;
-  const dstX = 20;
-  const dstY = 30;
-  const padding = 12;
-  final decoded = img.decodeImage(imgBytes);
-  if (decoded == null) return;
-  final rectW = (watermarkText.length * 24);
-  final rectH = 44;
-  img.fillRect(
-    decoded,
-    x1: (dstX - padding).clamp(0, decoded.width - 1),
-    y1: (dstY - padding).clamp(0, decoded.height - 1),
-    x2: (dstX + rectW + padding).clamp(0, decoded.width),
-    y2: (dstY + rectH + padding).clamp(0, decoded.height),
-    color: img.ColorRgba8(0, 0, 0, 255),
-  );
-  img.drawString(
-    decoded,
-    watermarkText,
-    font: img.arial48,
-    x: dstX,
-    y: dstY,
-    color: img.ColorRgba8(255, 255, 255, 255),
-  );
-  final out = img.encodeJpg(decoded);
-  File(filePath).writeAsBytesSync(out);
+/// Runs on a background isolate. Applies watermark and writes JPEG to [outputPath].
+bool _watermarkPhotoInIsolate((String outputPath, Uint8List imgBytes, String watermarkText) args) {
+  final (outputPath, imgBytes, watermarkText) = args;
+  try {
+    final decoded = img.decodeImage(imgBytes);
+    if (decoded == null) return false;
+
+    const dstX = 16;
+    const dstY = 16;
+    const padding = 8;
+    final font = decoded.width < 900 ? img.arial24 : img.arial48;
+    final rectW = (watermarkText.length * (decoded.width < 900 ? 12 : 20)).clamp(40, decoded.width);
+    final rectH = decoded.width < 900 ? 28 : 44;
+
+    img.fillRect(
+      decoded,
+      x1: (dstX - padding).clamp(0, decoded.width - 1),
+      y1: (dstY - padding).clamp(0, decoded.height - 1),
+      x2: (dstX + rectW + padding).clamp(0, decoded.width),
+      y2: (dstY + rectH + padding).clamp(0, decoded.height),
+      color: img.ColorRgba8(0, 0, 0, 200),
+    );
+    img.drawString(
+      decoded,
+      watermarkText,
+      font: font,
+      x: dstX,
+      y: dstY,
+      color: img.ColorRgba8(255, 255, 255, 255),
+    );
+
+    final out = img.encodeJpg(decoded, quality: 90);
+    File(outputPath).writeAsBytesSync(out, flush: true);
+    return File(outputPath).existsSync();
+  } catch (_) {
+    return false;
+  }
 }
 
 /// Controller for the check-in / check-out photo screen.
@@ -66,6 +72,8 @@ class JobCheckPhotoController extends GetxController {
 
   final RxList<XFile> photos = <XFile>[].obs;
   final ImagePicker picker = ImagePicker();
+
+  static const int _imageQuality = 85;
 
   String get pageTitle => isCheckIn ? 'Check-in' : 'Check-out';
 
@@ -96,135 +104,101 @@ class JobCheckPhotoController extends GetxController {
     setStartTime(TimeOfDay.now());
   }
 
-  Future<void> addFromCamera([BuildContext? overlayContext]) async {
-    final XFile? file = await picker.pickImage(source: ImageSource.camera);
-    if (file != null) {
-      Loader.show();
-      final ctx = overlayContext != null && overlayContext.mounted ? overlayContext : null;
-      // ignore: use_build_context_synchronously - ctx is re-checked for mounted in addBookmark
-      await addBookmark(file, ctx);
-      Loader.hide();
-      photos.add(file);
+  String _watermarkedOutputPath(String sourcePath) {
+    final separator = sourcePath.lastIndexOf(Platform.pathSeparator);
+    final dir = separator >= 0 ? sourcePath.substring(0, separator) : sourcePath;
+    return '$dir${Platform.pathSeparator}wm_${DateTime.now().millisecondsSinceEpoch}.jpg';
+  }
+
+  /// Converts HEIC/unsupported formats to PNG bytes the [img] package can decode.
+  Future<Uint8List> _normalizeImageBytes(Uint8List bytes) async {
+    try {
+      final codec = await instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      final data = await frame.image.toByteData(format: ImageByteFormat.png);
+      frame.image.dispose();
+      if (data == null) return Uint8List(0);
+      return data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    } catch (_) {
+      return Uint8List(0);
     }
   }
 
-  /// Renders watermark (styled pill with icon + Manrope text) as PNG and overlays on photo.
-  /// Kept for optional future use when Manrope overlay is re-enabled.
-  // ignore: unused_element
-  Future<Uint8List?> _renderManropeWatermarkToPng(
-    BuildContext context, {
-    required String text,
-    required double fontSize,
-    double paddingV = 10,
-    double iconSize = 18,
-    double iconGap = 8,
-  }) async {
-    if (!context.mounted) return null;
-    final scheme = context.colorScheme;
-    final textColor = scheme.onSecondaryContainer;
-    final style = GoogleFonts.manrope(
-      fontSize: fontSize,
-      color: textColor,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0.2,
-    );
-    final textPainter = TextPainter(
-      text: TextSpan(text: text, style: style),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-    final contentW = iconSize + iconGap + textPainter.width + 16;
-    final contentH = textPainter.height.clamp(iconSize, double.infinity);
-    final w = (contentW).ceil();
-    final h = (contentH + paddingV * 2).ceil();
-    final overlay = Overlay.of(context);
-    final key = GlobalKey();
-    late OverlayEntry entry;
-    entry = OverlayEntry(
-      builder: (_) => Positioned(
-        left: -w * 2,
-        top: 0,
-        child: RepaintBoundary(
-          key: key,
-          child: Container(
-            clipBehavior: Clip.hardEdge,
-            width: w.toDouble(),
-            height: h.toDouble(),
-            decoration: BoxDecoration(
-              color: scheme.secondaryContainer,
-              boxShadow: context.effectiveShadows(),
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: paddingV),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.schedule_rounded,
-                    size: iconSize,
-                    color: scheme.secondary,
-                  ),
-                  SizedBox(width: iconGap),
-                  Flexible(
-                    child: CommonText.bold(
-                      text,
-                      isUnderLine: false,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-    overlay.insert(entry);
+  /// Watermarks [file] and returns a new [XFile], or null when processing fails.
+  Future<XFile?> addBookmark(XFile file) async {
+    try {
+      var imgBytes = await file.readAsBytes();
+      if (imgBytes.isEmpty) return null;
 
-    final completer = Completer<void>();
-    WidgetsBinding.instance.addPostFrameCallback((_) => completer.complete());
-    await completer.future;
-    await Future<void>.delayed(const Duration(milliseconds: 50));
+      if (img.decodeImage(imgBytes) == null) {
+        final normalized = await _normalizeImageBytes(imgBytes);
+        if (normalized.isEmpty) {
+          log(runtimeType.toString(), 'Watermark skipped: unable to decode image (${file.path})');
+          return null;
+        }
+        imgBytes = normalized;
+      }
 
-    final boundary = key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
-    if (boundary == null) {
-      entry.remove();
+      final outputPath = _watermarkedOutputPath(file.path);
+      final watermarkText = DateTime.now().toDisplayDate('dd, MMM yyyy, hh:mm a');
+      final ok = await compute(
+        _watermarkPhotoInIsolate,
+        (outputPath, imgBytes, watermarkText),
+      );
+      if (!ok) {
+        log(runtimeType.toString(), 'Watermark failed for ${file.path}');
+        return null;
+      }
+      return XFile(outputPath);
+    } catch (e, stack) {
+      log(runtimeType.toString(), 'Watermark error: $e\n$stack');
       return null;
     }
-    final image = await boundary.toImage(pixelRatio: 2.0);
-    entry.remove();
-
-    final byteData = await image.toByteData(format: ImageByteFormat.png);
-    if (byteData == null) return null;
-    return byteData.buffer.asUint8List(
-      byteData.offsetInBytes,
-      byteData.lengthInBytes,
-    );
   }
 
-  Future<void> addBookmark(XFile file, [BuildContext? context]) async {
-    final imgBytes = await file.readAsBytes();
-    final watermarkText = DateTime.now().toDisplayDate('dd, MMM yyyy, hh:mm a');
-
-    await compute(
-      _watermarkPhotoInIsolate,
-      (file.path, imgBytes, watermarkText),
-    );
-  }
-
-  Future<void> addFromGallery([BuildContext? overlayContext]) async {
-    final files = await picker.pickMultiImage();
-    if (files.isNotEmpty) {
-      final ctx = overlayContext != null && overlayContext.mounted ? overlayContext : null;
-      Loader.show();
-      for (final item in files) {
-        // ignore: use_build_context_synchronously - ctx only used when Manrope path is enabled
-        await addBookmark(item, ctx);
+  Future<void> _processAndAddPhoto(XFile pickedFile) async {
+    Loader.show();
+    try {
+      final watermarked = await addBookmark(pickedFile);
+      if (watermarked != null) {
+        photos.add(watermarked);
+      } else {
+        Notifier.error('Could not apply watermark. Please try again.');
       }
+    } finally {
       Loader.hide();
-      photos.addAll(files);
+    }
+  }
+
+  Future<void> addFromCamera() async {
+    final file = await picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: _imageQuality,
+    );
+    if (file != null) {
+      await _processAndAddPhoto(file);
+    }
+  }
+
+  Future<void> addFromGallery() async {
+    final files = await picker.pickMultiImage(imageQuality: _imageQuality);
+    if (files.isEmpty) return;
+
+    Loader.show();
+    try {
+      var addedAny = false;
+      for (final item in files) {
+        final watermarked = await addBookmark(item);
+        if (watermarked != null) {
+          photos.add(watermarked);
+          addedAny = true;
+        }
+      }
+      if (!addedAny) {
+        Notifier.error('Could not process selected photos. Please try again.');
+      }
+    } finally {
+      Loader.hide();
     }
   }
 
@@ -233,25 +207,23 @@ class JobCheckPhotoController extends GetxController {
   }
 
   void showPhotoSourceSheet(BuildContext context) {
-    showPicker(cameraPicker: () => pickCameraImage(context), isShowGalleryOption: false);
+    showPicker(cameraPicker: () => pickCameraImage(), isShowGalleryOption: false);
   }
 
-  Future<void> pickCameraImage([BuildContext? overlayContext]) async {
+  Future<void> pickCameraImage() async {
     try {
-      bool hasPermission = await requestCameraPermission();
+      final hasPermission = await requestCameraPermission();
+      if (!hasPermission) return;
 
-      if (hasPermission) {
-        final pickedFile = await picker.pickImage(source: ImageSource.camera);
-        if (pickedFile != null) {
-          Loader.show();
-          final ctx = overlayContext != null && overlayContext.mounted ? overlayContext : null;
-          // ignore: use_build_context_synchronously - ctx is re-checked for mounted in addBookmark
-          await addBookmark(pickedFile, ctx);
-          Loader.hide();
-          photos.add(pickedFile);
-        }
-      }
+      final pickedFile = await picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: _imageQuality,
+      );
+      if (pickedFile == null) return;
+
+      await _processAndAddPhoto(pickedFile);
     } catch (e) {
+      Loader.hide();
       Notifier.info('Failed to pick image: $e');
     }
   }
@@ -344,7 +316,7 @@ class JobCheckPhotoController extends GetxController {
 
   void setScheduleValidFrom(DateTime d) {
     scheduleValidFrom.value = DateTime(d.year, d.month, d.day);
-    dateDisplayController.text = d != null ? CcsDateUtils.forInput(d) : '';
+    dateDisplayController.text = CcsDateUtils.forInput(d);
   }
 
   void setStartTime(TimeOfDay? t) {
