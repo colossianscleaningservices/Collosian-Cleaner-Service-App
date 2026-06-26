@@ -32,6 +32,7 @@ class User {
     this.createdAt,
     this.updatedAt,
     this.token,
+    this.isStudent,
   });
 
   User.fromJson(dynamic json) {
@@ -48,6 +49,7 @@ class User {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     token = json['token'];
+    isStudent = json['is_student'];
   }
 
   num? id;
@@ -62,6 +64,7 @@ class User {
   String? createdAt;
   String? updatedAt;
   String? token;
+  bool? isStudent;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -79,6 +82,7 @@ class User {
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
     map['token'] = token;
+    map['is_student'] = isStudent;
     return map;
   }
 }

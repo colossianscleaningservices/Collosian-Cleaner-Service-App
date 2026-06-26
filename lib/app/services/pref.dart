@@ -23,6 +23,7 @@ class Prefs {
   static const String adminsKey = "admins_ids";
   static const String supportMail = "support_mail";
   static const String supportPhone = "support_phone";
+  static const String isStudent = "is_student";
 
   late final GetStorage _box;
 

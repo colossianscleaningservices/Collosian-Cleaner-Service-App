@@ -39,6 +39,8 @@ class StaffDashModel {
     totalEarnings = json['total_earnings'];
     profileCompletion = json['profile_completion'] != null ? ProfileCompletion.fromJson(json['profile_completion']) : null;
     actionNeededCount = json['action_needed_count'];
+    studentWeeklyHours = json['student_weekly_hours'] != null ? StudentWeeklyHours.fromJson(json['student_weekly_hours']) : null;
+    studentWeeklyHoursUsed = json['student_weekly_hours_used'];
     unreadNotifications = json['unread_notifications'];
   }
 
@@ -48,6 +50,8 @@ class StaffDashModel {
   ProfileCompletion? profileCompletion;
   num? actionNeededCount;
   bool? isDocumentAdded;
+  StudentWeeklyHours? studentWeeklyHours;
+  num? studentWeeklyHoursUsed;
   num? unreadNotifications;
 
   Map<String, dynamic> toJson() {
@@ -62,9 +66,50 @@ class StaffDashModel {
     }
     map['action_needed_count'] = actionNeededCount;
     map['is_document_added'] = isDocumentAdded;
+    if (studentWeeklyHours != null) {
+      map['student_weekly_hours'] = studentWeeklyHours?.toJson();
+    }
+    map['student_weekly_hours_used'] = studentWeeklyHoursUsed;
     map['unread_notifications'] = unreadNotifications;
     return map;
   }
+}
+
+class StudentWeeklyHours {
+  StudentWeeklyHours({
+    this.weekStart,
+    this.weekEnd,
+    this.hoursWorked,
+    this.weeklyLimit,
+    this.hoursRemaining,
+    this.limitExceeded,});
+
+  StudentWeeklyHours.fromJson(dynamic json) {
+    weekStart = json['week_start'];
+    weekEnd = json['week_end'];
+    hoursWorked = json['hours_worked'];
+    weeklyLimit = json['weekly_limit'];
+    hoursRemaining = json['hours_remaining'];
+    limitExceeded = json['limit_exceeded'];
+  }
+  String? weekStart;
+  String? weekEnd;
+  num? hoursWorked;
+  num? weeklyLimit;
+  num? hoursRemaining;
+  bool? limitExceeded;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['week_start'] = weekStart;
+    map['week_end'] = weekEnd;
+    map['hours_worked'] = hoursWorked;
+    map['weekly_limit'] = weeklyLimit;
+    map['hours_remaining'] = hoursRemaining;
+    map['limit_exceeded'] = limitExceeded;
+    return map;
+  }
+
 }
 
 class ProfileCompletion {

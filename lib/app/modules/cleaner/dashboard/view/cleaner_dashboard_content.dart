@@ -1,7 +1,7 @@
 import 'package:ccs_app/app/network/response/staff_dashboard_response.dart';
 import 'package:ccs_app/export.dart';
 import 'package:linear_progress_bar/ui/circular_percent_indicator.dart';
-
+import 'package:ccs_app/app/services/pref.dart';
 import '../cleaner_dashboard_controller.dart';
 import 'cleaner_earnings_view.dart';
 
@@ -173,6 +173,41 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                     ],
                   ).paddingAll(16),
                 );
+              }),
+              
+              Obx(() {
+                final isStudent = Prefs().getData(Prefs.isStudent) == 'true';
+                final usedHours = controller.staffDash.value?.studentWeeklyHoursUsed ?? 0;
+                
+                print('HOUR USED : $usedHours');
+
+                if (isStudent && usedHours > 20) {
+                  return AppCard(
+                    color: scheme.errorContainer.withValues(alpha: 0.4),
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Icon(IconsaxPlusLinear.info_circle, size: 24, color: scheme.error),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CommonText.semiBold('Working hours exceeded', size: 16, color: scheme.error),
+                              const SizedBox(height: 4),
+                              CommonText.regular(
+                                'You have exceeded the weekly limit of 20 working hours for students.',
+                                size: 12,
+                                color: scheme.error,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
               }),
 
               AppCard(

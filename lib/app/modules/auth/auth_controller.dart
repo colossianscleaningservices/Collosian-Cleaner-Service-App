@@ -586,6 +586,7 @@ class AuthController extends GetxController {
     if (data.firstName != null && data.firstName!.isNotEmpty) prefs.putData(Prefs.firstName, data.firstName!);
     if (data.lastName != null && data.lastName!.isNotEmpty) prefs.putData(Prefs.lastName, data.lastName!);
     if (data.roles?.first.id != null) prefs.putData(Prefs.roleId, data.roles!.first.id.toString());
+    if (data.isStudent != null) prefs.putData(Prefs.isStudent, data.isStudent.toString());
 
     if (data.imageUrl != null && data.imageUrl?.isNotEmpty == true) {
       prefs.putData(Prefs.image, data.imageUrl ?? "");
