@@ -239,7 +239,7 @@ class JobCheckPhotoController extends GetxController {
       return true;
     }
     if (status.isPermanentlyDenied) {
-      await openAppSettings();
+      Notifier.info('Camera permission is required. Enable it in your device settings.');
     }
     return false;
   }
