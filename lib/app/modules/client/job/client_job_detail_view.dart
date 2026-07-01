@@ -455,6 +455,16 @@ class _StatusScheduleSection extends StatelessWidget {
             children: [
               if (!isPaused)
                 AppButton(
+                  label: 'Edit schedule',
+                  icon: IconsaxPlusLinear.edit_2,
+                  onPressed: c.onEditSchedule,
+                  type: ButtonType.outline,
+                  btnVerticalPadding: 8,
+                  btnCornerRadius: 12,
+                  btnHorizontalPadding: 12,
+                ),
+              if (!isPaused)
+                AppButton(
                   label: 'Pause schedule',
                   icon: IconsaxPlusLinear.pause,
                   onPressed: c.onPauseSchedule,

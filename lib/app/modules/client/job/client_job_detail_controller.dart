@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ccs_app/app/network/repository/client_repository.dart';
+import 'package:ccs_app/app/network/request/UpdateScheduleJobRequest.dart';
 import 'package:ccs_app/app/network/request/pause_schedule_request.dart';
 import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/export.dart';
@@ -201,7 +202,12 @@ class ClientJobDetailController extends GetxController {
 
   /// Navigates to the schedule-job page for a normal (one-off) job.
   void onScheduleJob() {
-    Get.toNamed(Routes.CLIENT_SCHEDULE_JOB, arguments: job.value);
+    Get.toNamed(Routes.CLIENT_SCHEDULE_JOB, arguments: {'job': job.value, 'isEdit': false});
+  }
+
+  /// Navigates to the schedule-job page to edit an existing schedule.
+  void onEditSchedule() {
+    Get.toNamed(Routes.CLIENT_SCHEDULE_JOB, arguments: {'job': job.value, 'isEdit': true});
   }
 
   Future<void> scheduleJob(ScheduleJobRequest request) async {
@@ -231,6 +237,38 @@ class ClientJobDetailController extends GetxController {
           });
         },
         contextTag: 'schedule_job',
+      );
+    } finally {
+      Loader.hide();
+    }
+  }
+
+  Future<void> updateScheduleJob(num scheduleId, UpdateScheduleJobRequest request) async {
+    Loader.show();
+    try {
+      final result = await _clientRepository.updateScheduleJob(
+        scheduleId: scheduleId.toInt(),
+        request: request,
+      );
+      result.handle(
+        success: (_) {
+          Loader.hide();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (Get.context == null) return;
+            fetchJobDetails(isLoaderShown: false);
+            Notifier.openSheet(
+              Get.context as BuildContext,
+              title: 'Success',
+              type: SheetType.success,
+              message: 'Schedule updated successfully.',
+              isDismissable: false,
+              isShowCloseIcon: false,
+              showSecondaryButton: false,
+              onPrimaryPressed: () => Get.back(),
+            );
+          });
+        },
+        contextTag: 'update_schedule',
       );
     } finally {
       Loader.hide();

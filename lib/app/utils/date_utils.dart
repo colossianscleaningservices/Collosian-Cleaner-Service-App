@@ -151,17 +151,66 @@ extension CcsDateTimeX on DateTime {
   static String formatTimeOfDay(TimeOfDay timeOfDay) {
     final hours = timeOfDay.hour;
     final minutes = timeOfDay.minute;
-    final seconds = 0; // TimeOfDay doesn't store seconds, so we default to 0
+    const seconds = 0;
 
-    // Format the time as H:i:s
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  static String convertTime(String time) {
-    final inputFormat = DateFormat("HH:mm:ss");
-    final outputFormat = DateFormat("hh:mm a");
+  /// `HH:mm` for update-schedule and similar APIs (e.g. `09:00`).
+  static String formatTimeOfDayShort(TimeOfDay timeOfDay) {
+    return '${timeOfDay.hour.toString().padLeft(2, '0')}:${timeOfDay.minute.toString().padLeft(2, '0')}';
+  }
 
-    final dateTime = inputFormat.parse(time);
-    return outputFormat.format(dateTime);
+  /// Parses API/job time values (`HH:mm:ss`, `HH:mm`, or ISO datetime) to [TimeOfDay].
+  ///
+  /// ISO values from the schedule API (e.g. `2026-07-01T16:00:00.000000Z`) encode
+  /// wall-clock times in UTC — use UTC hour/minute, not [DateTime.toLocal].
+  static TimeOfDay? parseToTimeOfDay(String? time) {
+    if (time == null || time.trim().isEmpty) return null;
+    final trimmed = time.trim();
+
+    if (trimmed.contains('T')) {
+      final parsed = DateTime.tryParse(trimmed);
+      if (parsed != null) {
+        final wallClock = parsed.toUtc();
+        return TimeOfDay(hour: wallClock.hour, minute: wallClock.minute);
+      }
+    }
+
+    final parts = trimmed.split(':');
+    if (parts.length < 2) return null;
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) return null;
+    return TimeOfDay(hour: hour.clamp(0, 23), minute: minute.clamp(0, 59));
+  }
+
+  /// Normalizes stored/API time values to `HH:mm:ss` for schedule job requests.
+  static String? normalizeApiTime(String? time) {
+    final parsed = parseToTimeOfDay(time);
+    if (parsed == null) return time?.trim().isEmpty == true ? null : time?.trim();
+    return formatTimeOfDay(parsed);
+  }
+
+  /// Normalizes stored/API time values to `HH:mm` for update-schedule requests.
+  static String? normalizeApiTimeShort(String? time) {
+    final parsed = parseToTimeOfDay(time);
+    if (parsed == null) return time?.trim().isEmpty == true ? null : time?.trim();
+    return formatTimeOfDayShort(parsed);
+  }
+
+  static String convertTime(String time) {
+    final parsed = parseToTimeOfDay(time);
+    if (parsed != null) {
+      return DateFormat('hh:mm a').format(DateTime(2000, 1, 1, parsed.hour, parsed.minute));
+    }
+
+    try {
+      final inputFormat = DateFormat('HH:mm:ss');
+      final outputFormat = DateFormat('hh:mm a');
+      return outputFormat.format(inputFormat.parse(time));
+    } catch (_) {
+      return time;
+    }
   }
 }

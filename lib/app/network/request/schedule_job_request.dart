@@ -1,3 +1,5 @@
+import 'package:ccs_app/app/utils/date_utils.dart';
+
 class ScheduleJobRequest {
   ScheduleJobRequest({
     this.frequency,
@@ -36,8 +38,8 @@ class ScheduleJobRequest {
     final map = <String, dynamic>{};
     map['frequency'] = frequency;
     map['start_date'] = startDate;
-    map['start_time'] = startTime;
-    map['end_time'] = endTime;
+    map['start_time'] = CcsDateTimeX.normalizeApiTime(startTime);
+    map['end_time'] = CcsDateTimeX.normalizeApiTime(endTime);
     if (repeatOnDay != null) {
       map['repeat_on_day'] = repeatOnDay;
     }

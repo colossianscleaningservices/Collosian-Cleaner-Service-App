@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/network/request/UpdateScheduleJobRequest.dart';
 import 'package:ccs_app/app/network/request/pause_schedule_request.dart';
 import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/app/network/response/get_client_calender_response.dart';
@@ -187,8 +188,7 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<BaseResponse>> createJob(
-      CreateJobRequest request) async {
+  Future<NetworkResult<BaseResponse>> createJob(CreateJobRequest request) async {
     return post<BaseResponse>(
       endpoint: Endpoint.clientJob,
       fromJson: (json) => BaseResponse.fromJson(json),
@@ -196,8 +196,7 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<BaseResponse>> updateJob(
-      CreateJobRequest request, int? jobId) async {
+  Future<NetworkResult<BaseResponse>> updateJob(CreateJobRequest request, int? jobId) async {
     return put<BaseResponse>(
       endpoint: "${Endpoint.clientJob}/$jobId",
       fromJson: (json) => BaseResponse.fromJson(json),
@@ -205,8 +204,7 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<GetClientJobResponse>> getJob(
-      {int page = 1, bool? upcoming}) async {
+  Future<NetworkResult<GetClientJobResponse>> getJob({int page = 1, bool? upcoming}) async {
     return get<GetClientJobResponse>(
       queryParameters: {'page': page, 'upcoming': upcoming},
       endpoint: Endpoint.clientJob,
@@ -214,8 +212,7 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<GetClientJobDetailsResponse>> getJobDetails(
-      num jobId) async {
+  Future<NetworkResult<GetClientJobDetailsResponse>> getJobDetails(num jobId) async {
     return get<GetClientJobDetailsResponse>(
       endpoint: "${Endpoint.clientJob}/$jobId",
       fromJson: (json) => GetClientJobDetailsResponse.fromJson(json),
@@ -231,12 +228,19 @@ class ClientRepository extends BaseRepository {
 
   /// PUT schedule job with recurrence. [frequency]: daily|weekly|fortnightly|monthly|custom.
   /// Optional: start_date, repeat_on_day, copy_cleaners, cleaner_ids.
-  Future<NetworkResult<BaseResponse>> scheduleJob(
-      {required int jobId, required ScheduleJobRequest request}) async {
+  Future<NetworkResult<BaseResponse>> scheduleJob({required int jobId, required ScheduleJobRequest request}) async {
     return put<BaseResponse>(
       endpoint: Endpoint.clientJobSchedule(jobId),
       fromJson: (json) => BaseResponse.fromJson(json),
-      data: request,
+      data: request.toJson(),
+    );
+  }
+
+  Future<NetworkResult<BaseResponse>> updateScheduleJob({required int scheduleId, required UpdateScheduleJobRequest request}) async {
+    return put<BaseResponse>(
+      endpoint: Endpoint.clientUpdateJobSchedule(scheduleId),
+      fromJson: (json) => BaseResponse.fromJson(json),
+      data: request.toJson(),
     );
   }
 
@@ -303,10 +307,7 @@ class ClientRepository extends BaseRepository {
     required String businessType,
   }) async {
     final payload = <String, dynamic>{'business_type': businessType};
-    return get<PropertyTypeResponse>(
-        endpoint: Endpoint.getPropertyType,
-        fromJson: (json) => PropertyTypeResponse.fromJson(json),
-        queryParameters: payload);
+    return get<PropertyTypeResponse>(endpoint: Endpoint.getPropertyType, fromJson: (json) => PropertyTypeResponse.fromJson(json), queryParameters: payload);
   }
 
   Future<NetworkResult<PropertySubTypeResponse>> getPropertySubTypes({

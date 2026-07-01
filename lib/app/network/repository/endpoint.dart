@@ -70,6 +70,7 @@ class Endpoint {
   static String clientJobCancel(int id) => '${root}client/jobs/$id/cancel';
 
   static String clientJobSchedule(int id) => '${root}client/jobs/$id/schedule';
+  static String clientUpdateJobSchedule(int id) => '${root}client/scheduled-jobs/$id';
 
   static String clientScheduledJobPause(int scheduleId) => '${root}client/scheduled-jobs/$scheduleId/pause';
 

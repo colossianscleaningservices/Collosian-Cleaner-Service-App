@@ -2,9 +2,10 @@ import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
 
+import '../../../widget/common/wheel_picker_time.dart';
 import 'schedule_job_controller.dart';
 
-/// Schedule job page: start date, frequency, repeat day, copy cleaners.
+/// Schedule job page: start date, job times, frequency, repeat day, copy cleaners.
 class ScheduleJobView extends GetView<ScheduleJobController> {
   const ScheduleJobView({super.key});
 
@@ -14,98 +15,127 @@ class ScheduleJobView extends GetView<ScheduleJobController> {
     final c = controller;
     final propertyLabel = c.job.value?.property?.propertyName;
 
-    return AppScaffold(
-      appBar: Header(
-        title: 'Schedule job',
-        headerLogoIcon: false,
-        hasBackIcon: true,
-        titleCentered: false,
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: UiConstants.padding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CommonText.semiBold(
-                'Schedule job on property $propertyLabel',
-                size: 18,
-                color: scheme.onSurface,
-              ).marginOnly(bottom: 16),
-              CommonTextField(
-                controller: c.startDateDisplayController,
-                label: 'Start date *',
-                hint: '-- / -- / ----',
-                isReadOnly: true,
-                onTap: () => c.pickStartDate(context),
-                suffixIcon: Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.primary),
-              ),
-              CommonText.regular(
-                'When should this schedule begin? Must be tomorrow or a future date.',
-                size: 12,
-                color: scheme.onSurfaceVariant,
-              ).marginOnly(bottom: 16, top: 4),
-              if (c.hasRequiredJobTimes) ...[
+    return Obx(() {
+      return AppScaffold(
+        appBar: Header(
+          title: c.pageTitle,
+          headerLogoIcon: false,
+          hasBackIcon: true,
+          titleCentered: false,
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: UiConstants.padding,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CommonText.semiBold(
+                  '${c.isEditMode.value ? 'Edit schedule' : 'Schedule job'} on property $propertyLabel',
+                  size: 18,
+                  color: scheme.onSurface,
+                ).marginOnly(bottom: 16),
                 CommonTextField(
-                  controller: c.jobTimeDisplayController,
-                  label: 'Job time',
+                  controller: c.startDateDisplayController,
+                  label: 'Start date *',
+                  hint: '-- / -- / ----',
                   isReadOnly: true,
-                  suffixIcon: Icon(IconsaxPlusLinear.clock, size: 20, color: scheme.onSurfaceVariant),
+                  onTap: () => c.pickStartDate(context),
+                  suffixIcon: Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.primary),
                 ),
                 CommonText.regular(
-                  'Start and end times are taken from this job automatically.',
+                  c.isEditMode.value
+                      ? 'Schedule start date. Cannot be in the past.'
+                      : 'When should this schedule begin? Must be tomorrow or a future date.',
                   size: 12,
                   color: scheme.onSurfaceVariant,
                 ).marginOnly(bottom: 16, top: 4),
-              ] else ...[
-                AppCard(
-                  color: scheme.errorContainer,
-                  enableShadows: false,
-                  child: CommonText.regular(
-                    'This job must have start and end times before it can be scheduled.',
-                    size: 14,
-                    color: scheme.onErrorContainer,
-                  ).paddingAll(12),
+                CommonTextField(
+                  controller: c.startTimeDisplayController,
+                  label: 'Start time *',
+                  hint: '--:--',
+                  isReadOnly: true,
+                  onTap: () => _wheelTimePicker(context, c, isStart: true),
+                  suffixIcon: Icon(IconsaxPlusLinear.clock, size: 20, color: scheme.primary),
+                ).marginOnly(bottom: 16),
+                CommonTextField(
+                  controller: c.endTimeDisplayController,
+                  label: 'End time *',
+                  hint: '--:--',
+                  isReadOnly: true,
+                  onTap: () => _wheelTimePicker(context, c, isStart: false),
+                  suffixIcon: Icon(IconsaxPlusLinear.clock, size: 20, color: scheme.primary),
                 ),
-              ],
-              CommonDropDownField<String>(
-                label: 'Frequency *',
-                hint: 'Select',
-                items: frequencyOptions,
-                itemLabel: (v) => v,
-                value: c.frequency.value,
-                onChanged: (v) {
-                  if (v != null) c.frequency.value = v;
-                },
-              ).marginOnly(bottom: 16),
-              Obx(() {
-                if (!c.needsRepeatOnDay) return const SizedBox.shrink();
-                final selectedIndex = repeatOnDayValues.indexOf(c.repeatOnDay.value).clamp(0, repeatOnDayValues.length - 1);
-                return CommonDropDownField<String>(
-                  label: 'Repeat on day *',
+                CommonText.regular(
+                  'Set the job start and end times for this schedule.',
+                  size: 12,
+                  color: scheme.onSurfaceVariant,
+                ).marginOnly(bottom: 16, top: 4),
+                CommonDropDownField<String>(
+                  label: 'Frequency *',
                   hint: 'Select',
-                  items: repeatOnDayLabels,
+                  items: frequencyOptions,
                   itemLabel: (v) => v,
-                  value: repeatOnDayLabels[selectedIndex],
+                  value: c.frequency.value,
                   onChanged: (v) {
-                    final index = v != null ? repeatOnDayLabels.indexOf(v) : -1;
-                    if (index >= 0) c.repeatOnDay.value = repeatOnDayValues[index];
+                    if (v != null) c.frequency.value = v;
                   },
-                );
-              }),
-              Obx(() {
-                return AppCheckBox(
+                ).marginOnly(bottom: 16),
+                if (c.needsRepeatOnDay) ...[
+                  Builder(
+                    builder: (_) {
+                      final selectedIndex = repeatOnDayValues.indexOf(c.repeatOnDay.value).clamp(0, repeatOnDayValues.length - 1);
+                      return CommonDropDownField<String>(
+                        label: 'Repeat on day *',
+                        hint: 'Select',
+                        items: repeatOnDayLabels,
+                        itemLabel: (v) => v,
+                        value: repeatOnDayLabels[selectedIndex],
+                        onChanged: (v) {
+                          final index = v != null ? repeatOnDayLabels.indexOf(v) : -1;
+                          if (index >= 0) c.repeatOnDay.value = repeatOnDayValues[index];
+                        },
+                      );
+                    },
+                  ),
+                ],
+                AppCheckBox(
                   title: 'Copy cleaners from parent job',
                   value: c.copyCleanersFromParent.value,
                   onChange: (v) => c.copyCleanersFromParent.value = v,
-                ).marginOnly(top: c.frequency.value == 'Weekly' || c.frequency.value == 'Fortnightly' ? 16 : 0);
-              }),
-              const SizedBox(height: 24),
-            ],
+                ).marginOnly(top: c.needsRepeatOnDay ? 16 : 0),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: SingleActionBottomBar(label: 'Schedule job', onPressed: () => c.submit()),
-    );
+        bottomNavigationBar: SingleActionBottomBar(label: c.submitLabel, onPressed: () => c.submit()),
+      );
+    });
   }
+}
+
+Future<void> _wheelTimePicker(
+  BuildContext context,
+  ScheduleJobController ctrl, {
+  required bool isStart,
+}) async {
+  final initial = isStart ? ctrl.startTime.value : ctrl.endTime.value;
+  return Notifier.openSheet(
+    context,
+    top: true,
+    showPrimaryButton: false,
+    showSecondaryButton: false,
+    showIcon: false,
+    body: WheelPickerTime(
+      onSelected: (selected) {
+        if (isStart) {
+          ctrl.setStartTime(selected);
+        } else {
+          ctrl.setEndTime(selected);
+        }
+      },
+      title: isStart ? 'Select start time' : 'Select end time',
+      initial: initial,
+    ),
+  );
 }
