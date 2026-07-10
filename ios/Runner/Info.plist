@@ -68,5 +68,27 @@
 		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Colossians Cleaning requires access to the photo library to upload profile photos and job-related images.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>Colossians Cleaning requires access to the camera to take profile photos and job-related images.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Colossians Cleaning requires access to the microphone to record videos for job reports.</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Colossians Cleaning requires permission to save captured images to your photo library.</string>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>Colossians Cleaning requires access to your location to provide location-based notifications and services.</string>
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>Colossians Cleaning requires access to your location to provide location-based notifications and services even when in the background.</string>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>sms</string>
+			<string>tel</string>
+			<string>mailto</string>
+			<string>https</string>
+			<string>http</string>
+		</array>
+        <key>ITSAppUsesNonExemptEncryption</key>
+        <false/>
 	</dict>
 </plist>

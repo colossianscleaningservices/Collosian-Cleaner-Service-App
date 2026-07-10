@@ -1,5 +1,4 @@
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
-import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 
@@ -177,7 +176,46 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
           ),
         ),
       ),
-      bottomNavigationBar: SingleActionBottomBar(label: 'Save changes', onPressed: controller.saveProfile),
+      bottomNavigationBar: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        color: Colors.transparent,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                label: 'Save changes',
+                onPressed: controller.saveProfile,
+                type: ButtonType.primary,
+              ),
+            ).marginOnly(bottom: 16),
+
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                label: 'Delete Account',
+                onPressed: () {
+                  Notifier.openSheet(
+                    context,
+                    type: SheetType.error,
+                    message: 'Are you sure you want to delete your account?',
+                    showPrimaryButton: true,
+                    icon: IconsaxPlusLinear.profile_delete,
+                    showSecondaryButton: true,
+                    onPrimaryPressed: () => controller.deleteProfile(),
+                  );
+                },
+                bgColor: context.colorScheme.errorContainer,
+                txtClr: context.colorScheme.error,
+                type: ButtonType.tonal,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

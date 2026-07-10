@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../network/repository/common_repository.dart';
+import '../../../services/onesignal_service.dart';
 import '../../../services/pref.dart';
 import '../../../services/session_service.dart';
 import '../dashboard/client_dashboard_controller.dart';
@@ -227,8 +228,29 @@ class ClientEditProfileController extends GetxController {
     }
   }
 
-  void onDeleteAccount() {
-    Notifier.info('Delete account (coming soon)');
+  Future<void> deleteProfile() async {
+    Loader.show();
+
+    try {
+      final result = await _commonRepository.deleteProfile();
+      result.handle(
+        success: (value) async {
+          OneSignalService.logout();
+          await Prefs().clearAll();
+          Loader.hide();
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Notifier.success(value.message ?? "Account deleted successfully!");
+            Get.offAllNamed(Routes.LOGIN);
+          });
+        },
+        contextTag: 'delete-profile',
+      );
+    } catch (e) {
+      Notifier.info('Failed to delete profile: $e');
+    } finally {
+      Loader.hide();
+    }
   }
 
   void showProfileData({User? profile}) {
