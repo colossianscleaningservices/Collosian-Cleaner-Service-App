@@ -33,7 +33,7 @@ class OneSignalService {
             '\n${event.notification.rawPayload}');
         event.notification.display();
       });
-      await OneSignal.Notifications.requestPermission(true);
+
       _isInitialized = true;
       log(_tag, 'OneSignal initialized successfully');
     } catch (e) {

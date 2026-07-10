@@ -7,6 +7,7 @@ import 'package:ccs_app/app/network/response/property_list_response.dart';
 import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:step_progress/step_progress.dart';
 
@@ -552,6 +553,10 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
 
   @override
   void onReady() {
+    if (!kIsWeb) {
+      OneSignal.Notifications.requestPermission(true);
+    }
+
     getClientDash(showAlert: true);
     getProfile();
     super.onReady();

@@ -8,6 +8,7 @@ import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../model/availability.dart';
@@ -217,6 +218,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   @override
   void onReady() {
     super.onReady();
+    if (!kIsWeb) {
+      OneSignal.Notifications.requestPermission(true);
+    }
     fetchDashboardData(showAlert: true);
     getProfile();
   }
@@ -309,6 +313,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       if (item != null && item.type != 'All Jobs') {
         type = item.type;
       }
+
+
+
+
 
       jobCurrentPage = 1;
       fetchJobs(filter: type);

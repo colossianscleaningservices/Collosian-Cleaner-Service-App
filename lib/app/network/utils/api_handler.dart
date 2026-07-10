@@ -223,6 +223,7 @@ class ApiHandler {
                 : NoInternetConnectionException(
                     errorMessage: exceptionMessages.noInternetConnection,
                   ),
+
             // TODO: Handle this case.
             DioExceptionType.transformTimeout => throw UnimplementedError(),
           };
