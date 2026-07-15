@@ -45,7 +45,8 @@ sealed class NetworkException implements Exception {
       }
       if (error.type == DioExceptionType.connectionTimeout ||
           error.type == DioExceptionType.sendTimeout ||
-          error.type == DioExceptionType.receiveTimeout) {
+          error.type == DioExceptionType.receiveTimeout ||
+          error.type == DioExceptionType.transformTimeout) {
         return RequestTimeoutException(
           errorMessage: 'Sorry, the request has timed out.',
           apiErrorMessage: _extractMessage(data),

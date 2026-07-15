@@ -223,7 +223,9 @@ class ApiHandler {
                 : NoInternetConnectionException(
                     errorMessage: exceptionMessages.noInternetConnection,
                   ),
-
+            DioExceptionType.transformTimeout => SendTimeoutException(
+                errorMessage: exceptionMessages.sendTimeout,
+              ),
           };
           return networkException;
         }
