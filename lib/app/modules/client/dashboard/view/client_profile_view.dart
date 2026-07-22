@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../../services/session_service.dart';
@@ -25,19 +26,30 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                         width: 56,
                         decoration: BoxDecoration(color: scheme.primaryContainer, borderRadius: BorderRadius.circular(UiConstants.radiusDefault)),
                         child: Obx(() {
+                          final placeholder = Icon(IconsaxPlusLinear.user, color: scheme.primary, size: 28);
                           return (controller.userDisplayImage.isNotEmpty)
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
                                   child: Image.network(
                                     controller.userDisplayImage.value,
                                     fit: BoxFit.cover,
+                                    width: 56,
+                                    height: 56,
                                     frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
                                       if (wasSynchronouslyLoaded) return child;
                                       return frame == null ? const Center(child: CircularProgressIndicator()) : child;
                                     },
+                                    errorBuilder: (_, __, ___) {
+                                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        if (controller.userDisplayImage.value.isEmpty) return;
+                                        controller.userDisplayImage.value = '';
+                                        Prefs.instance.putData(Prefs.image, '');
+                                      });
+                                      return placeholder;
+                                    },
                                   ),
                                 )
-                              : Icon(IconsaxPlusLinear.user, color: scheme.primary, size: 28);
+                              : placeholder;
                         }),
                       ),
                       const SizedBox(width: 16),

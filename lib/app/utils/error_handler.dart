@@ -16,7 +16,6 @@ void setupErrorHandling() {
       details.stack,
     );
     FlutterError.presentError(details);
-    _showErrorOverlay(details.exception);
     if (kReleaseMode) {
       _reportToCrashReporting(details.exception, details.stack);
     }
@@ -24,7 +23,6 @@ void setupErrorHandling() {
 
   PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
     SecureLogger.logError('PLATFORM_ERROR', error, stack);
-    _showErrorOverlay(error);
     if (kReleaseMode) {
       _reportToCrashReporting(error, stack);
     }

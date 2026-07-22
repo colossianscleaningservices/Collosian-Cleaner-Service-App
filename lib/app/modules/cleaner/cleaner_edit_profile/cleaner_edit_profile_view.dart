@@ -41,6 +41,17 @@ class CleanerEditProfileView extends GetView<CleanerEditProfileController> {
                                     },
                                     controller.imageUrl.value,
                                     fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) {
+                                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                                        if (controller.imageUrl.value.isEmpty) return;
+                                        controller.imageUrl.value = '';
+                                      });
+                                      return SizedBox(
+                                        width: 120,
+                                        height: 120,
+                                        child: Icon(IconsaxPlusLinear.user, size: 48, color: context.colorScheme.primary),
+                                      );
+                                    },
                                   )
                                 : SizedBox(width: 120, height: 120, child: Icon(IconsaxPlusLinear.user, size: 48, color: context.colorScheme.primary)),
                       );
