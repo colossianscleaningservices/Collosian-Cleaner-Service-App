@@ -82,95 +82,97 @@ class Notifier {
       top: top,
       bottom: false,
       child: AppCard(
-        child: Column(
-          spacing: 16,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                Assets.imagesAppLogo.image(
-                  width: 120,
-                ),
-                Spacer(),
-                if (isShowCloseIcon)
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(icon: const Icon(Icons.close), onPressed: closeSheet, style: filledIconButtonStyle(context)),
-                  ),
-              ],
-            ),
-
-            if (showIcon)
-              AppCard(
-                enableShadows: false,
-                color: bg,
-                radius: 100,
-                child: iconWidget ??
-                    Icon(
-                      icon ?? IconsaxPlusLinear.check,
-                      size: 56,
-                      color: fg,
-                    ).marginAll(16),
-              ).marginOnly(top: 16),
-
-            if (body == null)
-              Column(
-                spacing: 8,
+        child: SingleChildScrollView(
+          child: Column(
+            spacing: 16,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
                 children: [
-                  CommonText.bold(
-                    title,
-                    size: 24,
-                    color: scheme.primary,
-                    fontWeight: FontWeight.w900,
-                    textAlign: TextAlign.center,
+                  Assets.imagesAppLogo.image(
+                    width: 120,
                   ),
-                  if (message != null) CommonText.regular(message, textAlign: msgAlign, size: 18, color: scheme.onSurface.withValues(alpha: 0.7)),
-                ],
-              ).marginSymmetric(vertical: 16),
-
-            if (body != null) body,
-
-            /// Buttons
-            if (showPrimaryButton || showSecondaryButton)
-              Column(
-                spacing: 16,
-                children: [
-                  if (showPrimaryButton)
-                    SizedBox(
-                      width: double.infinity,
-                      child: AppButton(
-                        type: ButtonType.primary,
-                        label: primaryButtonLabel,
-                        txtClr: bg,
-                        bgColor: fg,
-                        onPressed: onPrimaryPressed != null
-                            ? () {
-                                if (isSheetAutoClose) closeSheet();
-                                onPrimaryPressed.call();
-                              }
-                            : () => closeSheet(),
-                      ),
-                    ),
-                  if (showSecondaryButton)
-                    SizedBox(
-                      width: double.infinity,
-                      child: AppButton(
-                        type: ButtonType.tonal,
-                        txtClr: fg,
-                        bgColor: bg,
-                        label: secondaryButtonLabel,
-                        onPressed: onSecondaryPressed != null
-                            ? () {
-                                closeSheet();
-                                onSecondaryPressed.call();
-                              }
-                            : () => closeSheet(),
-                      ),
+                  Spacer(),
+                  if (isShowCloseIcon)
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: IconButton(icon: const Icon(Icons.close), onPressed: closeSheet, style: filledIconButtonStyle(context)),
                     ),
                 ],
               ),
-          ],
-        ).paddingOnly(left: 24, right: 18, bottom: 18, top: 12),
+
+              if (showIcon)
+                AppCard(
+                  enableShadows: false,
+                  color: bg,
+                  radius: 100,
+                  child: iconWidget ??
+                      Icon(
+                        icon ?? IconsaxPlusLinear.check,
+                        size: 56,
+                        color: fg,
+                      ).marginAll(16),
+                ).marginOnly(top: 16),
+          
+              if (body == null)
+                Column(
+                  spacing: 8,
+                  children: [
+                    CommonText.bold(
+                      title,
+                      size: 24,
+                      color: scheme.primary,
+                      fontWeight: FontWeight.w900,
+                      textAlign: TextAlign.center,
+                    ),
+                    if (message != null) CommonText.regular(message, textAlign: msgAlign, size: 18, color: scheme.onSurface.withValues(alpha: 0.7)),
+                  ],
+                ).marginSymmetric(vertical: 16),
+          
+              if (body != null) body,
+          
+              /// Buttons
+              if (showPrimaryButton || showSecondaryButton)
+                Column(
+                  spacing: 16,
+                  children: [
+                    if (showPrimaryButton)
+                      SizedBox(
+                        width: double.infinity,
+                        child: AppButton(
+                          type: ButtonType.primary,
+                          label: primaryButtonLabel,
+                          txtClr: bg,
+                          bgColor: fg,
+                          onPressed: onPrimaryPressed != null
+                              ? () {
+                                  if (isSheetAutoClose) closeSheet();
+                                  onPrimaryPressed.call();
+                                }
+                              : () => closeSheet(),
+                        ),
+                      ),
+                    if (showSecondaryButton)
+                      SizedBox(
+                        width: double.infinity,
+                        child: AppButton(
+                          type: ButtonType.tonal,
+                          txtClr: fg,
+                          bgColor: bg,
+                          label: secondaryButtonLabel,
+                          onPressed: onSecondaryPressed != null
+                              ? () {
+                                  closeSheet();
+                                  onSecondaryPressed.call();
+                                }
+                              : () => closeSheet(),
+                        ),
+                      ),
+                  ],
+                ),
+            ],
+          ).paddingOnly(left: 24, right: 18, bottom: 18, top: 12),
+        ),
       ).marginSymmetric(horizontal: 18, vertical: 24),
     );
 

@@ -166,6 +166,7 @@ class AuthController extends GetxController {
 
   void popUp() {
     Notifier.openSheet(
+      top: true,
       Get.context as BuildContext,
       showPrimaryButton: true,
       showSecondaryButton: false,
