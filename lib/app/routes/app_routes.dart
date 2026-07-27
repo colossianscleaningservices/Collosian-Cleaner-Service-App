@@ -29,6 +29,7 @@ abstract class Routes {
   static const CLEANER_JOB_DETAIL = _Paths.CLEANER_JOB_DETAIL;
   static const CLEANER_JOB_CHECKIN = _Paths.CLEANER_JOB_CHECKIN;
   static const CLEANER_JOB_CHECKOUT = _Paths.CLEANER_JOB_CHECKOUT;
+  static const CLEANER_ALL_JOBS = _Paths.CLEANER_ALL_JOBS;
   static const PROPERTY = _Paths.PROPERTY;
   static const ADD_PROPERTY = _Paths.ADD_PROPERTY;
   static const CLEANER_EDIT_PROFILE = _Paths.CLEANER_EDIT_PROFILE;
@@ -82,6 +83,7 @@ abstract class _Paths {
   static const CLEANER_JOB_DETAIL = '/cleaner/job/';
   static const CLEANER_JOB_CHECKIN = '/cleaner/job/check-in';
   static const CLEANER_JOB_CHECKOUT = '/cleaner/job/check-out';
+  static const CLEANER_ALL_JOBS = '/cleaner/all-jobs';
   static const CLEANER_EDIT_PROFILE = '/cleaner-edit-profile';
   static const TRAINING_AND_RESOURCES = '/training-and-resources';
   static const CLEANER_REFERENCES = '/cleaner/cleaner-references';

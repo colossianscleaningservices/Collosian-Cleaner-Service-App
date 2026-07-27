@@ -14,45 +14,48 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
         children: [
           CommonText.bold('Job Status', size: 18, color: scheme.onSurface).marginOnly(bottom: 10, left: 18, right: 18),
           _FilterChips(controller: controller, scheme: scheme).marginOnly(left: 18, right: 18),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CommonText.bold('Jobs', size: 24, color: scheme.onSurface),
-                    const SizedBox(height: 4),
-                    Obx(() {
-                      return CommonText.regular(
-                        controller.jobs.isEmpty ? 'No assignments yet' : '${controller.jobs.length} ${controller.jobs.length == 1 ? 'job' : 'jobs'} total',
-                        size: 14,
-                        color: scheme.onSurfaceVariant,
-                      );
-                    }),
-                  ],
-                ),
-              ),
-              if (controller.jobs.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: scheme.primaryContainer.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+          Obx(() {
+            controller.jobs.value;
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(IconsaxPlusLinear.calendar_1, size: 18, color: scheme.primary),
-                      const SizedBox(width: 6),
+                      CommonText.bold('Jobs', size: 24, color: scheme.onSurface),
+                      const SizedBox(height: 4),
                       Obx(() {
-                        return CommonText.semiBold('${controller.jobs.length}', size: 14, color: scheme.primary);
+                        return CommonText.regular(
+                          controller.jobs.isEmpty ? 'No assignments yet' : '${controller.jobs.length} ${controller.jobs.length == 1 ? 'job' : 'jobs'} total',
+                          size: 14,
+                          color: scheme.onSurfaceVariant,
+                        );
                       }),
                     ],
                   ),
                 ),
-            ],
-          ).marginOnly(left: 18, right: 18, top: 18, bottom: 16),
+                if (controller.jobs.isNotEmpty)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: scheme.primaryContainer.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(IconsaxPlusLinear.calendar_1, size: 18, color: scheme.primary),
+                        const SizedBox(width: 6),
+                        Obx(() {
+                          return CommonText.semiBold('${controller.jobs.length}', size: 14, color: scheme.primary);
+                        }),
+                      ],
+                    ),
+                  ),
+              ],
+            ).marginOnly(left: 18, right: 18, top: 18, bottom: 16);
+          }),
           Expanded(
             child: Obx(() {
               final list = controller.jobs.value;
@@ -62,7 +65,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                   title: 'No jobs assigned',
                   subtitle: 'Update your availability to get more assignments.',
                   actionLabel: 'Edit availability',
-                  onAction: () => controller.setTab(3),
+                  onAction: () => controller.setTab(2),
                 );
               }
 

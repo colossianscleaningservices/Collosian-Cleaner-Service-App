@@ -121,10 +121,20 @@ class CleanerRepository extends BaseRepository {
     String? dateTo,
     String? status,
     String? propertyName,
+    String? type,
+    int page = 1,
   }) async {
     return get<GetClientCalenderResponse>(
       endpoint: Endpoint.cleanerCalender,
-      queryParameters: {'date': date, 'date_from': dateFrom, 'date_to': dateTo, 'status': status, 'property_name': propertyName},
+      queryParameters: {
+        'date': date,
+        'date_from': dateFrom,
+        'date_to': dateTo,
+        'status': status,
+        'property_name': propertyName,
+        'type': type,
+        'page': page,
+      },
       fromJson: (json) => GetClientCalenderResponse.fromJson(json),
     );
   }

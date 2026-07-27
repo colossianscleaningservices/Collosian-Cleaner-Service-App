@@ -89,6 +89,7 @@ class ClientCalendarView extends GetView<ClientDashboardController> {
                       )),
                 ),
                 SingleChildScrollView(
+                  controller: controller.calendarListScrollController,
                   child: Obx(() => _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap)),
                 ),
               ],
@@ -264,31 +265,42 @@ class _ListContentView extends StatelessWidget {
         if (list.isEmpty)
           CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2)).marginSymmetric(horizontal: 6).marginOnly(bottom: 8)
         else
-          AppGrid(
-            physics: NeverScrollableScrollPhysics(),
-            maxExtent: 134,
-            axisSpacing: 8,
-            phoneCount: 1,
-            tabletCount: 2,
-            landscapeCount: 3,
-            child: List.generate(
-              list.length,
-              (i) => JobCard(
-                title: list[i].$2.title,
-                dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
-                status: list[i].$2.status ?? "",
-                propertyName: list[i].$2.propertyName,
-                address: list[i].$2.address,
-                onTap: () {
-                  final event = list[i].$2;
-                  if (event.jobId != null) {
-                    ctrl.openCalendarJobDetail(event.jobId!);
-                  } else {
-                    Notifier.info('Job details (coming soon)');
-                  }
-                },
-              ).marginOnly(left: 6, right: 6, bottom: i == (list.length - 1) ? 8 : 0),
-            ),
+          Column(
+            children: [
+              AppGrid(
+                physics: NeverScrollableScrollPhysics(),
+                maxExtent: 134,
+                axisSpacing: 8,
+                phoneCount: 1,
+                tabletCount: 2,
+                landscapeCount: 3,
+                child: List.generate(
+                  list.length,
+                  (i) => JobCard(
+                    title: list[i].$2.title,
+                    dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
+                    status: list[i].$2.status ?? "",
+                    propertyName: list[i].$2.propertyName,
+                    address: list[i].$2.address,
+                    onTap: () {
+                      final event = list[i].$2;
+                      if (event.jobId != null) {
+                        ctrl.openCalendarJobDetail(event.jobId!);
+                      } else {
+                        Notifier.info('Job details (coming soon)');
+                      }
+                    },
+                  ).marginOnly(left: 6, right: 6, bottom: i == (list.length - 1) ? 8 : 0),
+                ),
+              ),
+              Obx(() {
+                if (!ctrl.isCalendarMoreLoading.value) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(child: CircularProgressIndicator(color: scheme.primary)),
+                );
+              }),
+            ],
           ),
       ],
     ).marginOnly(bottom: 8);

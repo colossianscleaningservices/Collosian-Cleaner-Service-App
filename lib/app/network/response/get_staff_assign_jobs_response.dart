@@ -1,21 +1,19 @@
 import 'get_client_job_response.dart';
 import 'jobs.dart';
 
-class GetClientCalenderResponse {
-  GetClientCalenderResponse({
-    this.message,
-    this.version,
-    this.code,
-    this.data,
-  });
+class GetStaffAssignJobsResponse {
+  GetStaffAssignJobsResponse({
+      this.message, 
+      this.version, 
+      this.code, 
+      this.data,});
 
-  GetClientCalenderResponse.fromJson(dynamic json) {
+  GetStaffAssignJobsResponse.fromJson(dynamic json) {
     message = json['message'];
     version = json['version'];
     code = json['code'];
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
-
   String? message;
   String? version;
   num? code;
@@ -31,6 +29,7 @@ class GetClientCalenderResponse {
     }
     return map;
   }
+
 }
 
 class Data {

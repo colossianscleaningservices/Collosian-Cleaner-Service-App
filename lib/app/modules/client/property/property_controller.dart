@@ -263,6 +263,7 @@ class PropertyController extends GetxController {
       result.handle(
         success: (value) async {
           Notifier.success(value.message ?? "Property created Successfully!");
+          propertyCurrentPage = 1;
           await _loadProperties();
           resetForm();
           Get.back();

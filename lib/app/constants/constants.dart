@@ -9,7 +9,6 @@ class Constants {
   static const cleanerBottomBarItems = [
     NavigationDestination(icon: Icon(IconsaxPlusLinear.home), selectedIcon: Icon(IconsaxPlusBold.home), label: 'Dashboard'),
     NavigationDestination(icon: Icon(IconsaxPlusLinear.calendar), selectedIcon: Icon(IconsaxPlusBold.calendar), label: 'Calendar'),
-    NavigationDestination(icon: Icon(IconsaxPlusLinear.briefcase), selectedIcon: Icon(IconsaxPlusBold.briefcase), label: 'Jobs'),
     NavigationDestination(icon: Icon(IconsaxPlusLinear.clock), selectedIcon: Icon(IconsaxPlusBold.clock_1), label: 'Availability'),
     NavigationDestination(icon: Icon(IconsaxPlusLinear.user), selectedIcon: Icon(IconsaxPlusBold.user), label: 'Profile'),
   ];

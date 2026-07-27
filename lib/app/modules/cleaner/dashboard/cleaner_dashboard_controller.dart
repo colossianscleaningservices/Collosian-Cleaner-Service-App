@@ -24,7 +24,6 @@ import '../../../services/session_service.dart';
 import 'view/cleaner_availability_view.dart';
 import 'view/cleaner_calendar_view.dart';
 import 'view/cleaner_dashboard_content.dart';
-import 'view/cleaner_jobs_view.dart';
 import 'view/cleaner_profile_view.dart';
 
 class CleanerDashboardController extends GetxController with GetSingleTickerProviderStateMixin {
@@ -58,13 +57,35 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   /// Calendar events from getClientCalender() API, keyed by date (date-only).
   final calendarEventsMap = Rx<Map<DateTime, List<CalendarEvent>>>({});
 
+  /// Available jobs calendar events.
+  final availableEventsMap = Rx<Map<DateTime, List<CalendarEvent>>>({});
+
+  /// Whether the calendar is showing Assigned or Available jobs.
+  final calendarJobMode = CalendarJobMode.assigned.obs;
+
+  var assignedCalendarPage = 1;
+  var assignedCalendarTotalPages = 1;
+  var availableCalendarPage = 1;
+  var availableCalendarTotalPages = 1;
+  RxBool isCalendarMoreLoading = false.obs;
+  ScrollController calendarListScrollController = ScrollController();
+
+  /// Active events map for the current [calendarJobMode].
+  Map<DateTime, List<CalendarEvent>> get activeEventsMap =>
+      calendarJobMode.value == CalendarJobMode.assigned ? calendarEventsMap.value : availableEventsMap.value;
+
+  void toggleCalendarJobMode(CalendarJobMode mode) {
+    if (calendarJobMode.value == mode) return;
+    calendarJobMode.value = mode;
+    getCleanerCalender(forDate: focusedDay.value, forWeek: this.mode.value == CalendarViewMode.week);
+  }
+
   /// Specific dates when the cleaner is not available (date-only).
   final blockedDays = <DateTime>[].obs;
 
   List<Widget> get pages => const [
         CleanerDashboardContent(),
         CleanerCalendarView(),
-        CleanerJobsView(),
         CleanerAvailabilityView(),
         CleanerProfileView(),
       ];
@@ -169,6 +190,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       }
     });
 
+    calendarListScrollController.addListener(_onCalendarListScroll);
+
     scrollController.addListener(() {
       if (_isScrollBottom) {
         if (currentPage <= totalPage && !_isLoading) {
@@ -186,6 +209,39 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     final maxScroll = jobScrollController.position.maxScrollExtent;
     final currentScroll = jobScrollController.offset;
     return currentScroll >= (maxScroll * 0.9);
+  }
+
+  bool get _isCalendarListScrollBottom {
+    if (!calendarListScrollController.hasClients) return false;
+    final maxScroll = calendarListScrollController.position.maxScrollExtent;
+    final currentScroll = calendarListScrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
+  }
+
+  int get _activeCalendarPage =>
+      calendarJobMode.value == CalendarJobMode.available ? availableCalendarPage : assignedCalendarPage;
+
+  int get _activeCalendarTotalPages =>
+      calendarJobMode.value == CalendarJobMode.available ? availableCalendarTotalPages : assignedCalendarTotalPages;
+
+  void _resetActiveCalendarPage() {
+    if (calendarJobMode.value == CalendarJobMode.available) {
+      availableCalendarPage = 1;
+    } else {
+      assignedCalendarPage = 1;
+    }
+  }
+
+  void _onCalendarListScroll() {
+    if (tabIndex.value != 1 || tabController.index != 2) return;
+    if (!_isCalendarListScrollBottom || isCalendarMoreLoading.value) return;
+    if (_activeCalendarPage > _activeCalendarTotalPages) return;
+    isCalendarMoreLoading.value = true;
+    getCleanerCalender(
+      forDate: focusedDay.value,
+      forWeek: mode.value == CalendarViewMode.week,
+      loadMore: true,
+    );
   }
 
   /// Call device registration API so latest app/device data is saved when dashboard opens.
@@ -212,6 +268,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   void onClose() {
     tabController.removeListener(_syncModeFromTab);
     tabController.dispose();
+    calendarListScrollController.dispose();
     super.onClose();
   }
 
@@ -305,28 +362,25 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   Future<void> setTab(int index) async {
     tabIndex.value = index.clamp(0, pages.length - 1);
 
-    if (index == 2) {
-      var item = filter.firstWhereOrNull((item) => item.isSelected);
-
-      String type = '';
-
-      if (item != null && item.type != 'All Jobs') {
-        type = item.type;
-      }
-
-
-
-
-
-      jobCurrentPage = 1;
-      fetchJobs(filter: type);
-    } else if (tabIndex.value == 1) {
+    if (tabIndex.value == 1) {
       await getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
       if (propertyNameOptions.isEmpty) await geCleanerProperties();
-    } else if (tabIndex.value == 3 && weeklySchedule.isEmpty) {
+    } else if (tabIndex.value == 2 && weeklySchedule.isEmpty) {
       weeklySchedule.assignAll(List.generate(7, DayAvailability.getDefault));
       getCleanerAvailability();
     }
+  }
+
+  /// Opens the full jobs list screen (no longer a bottom-nav tab).
+  Future<void> openAllJobs() async {
+    var item = filter.firstWhereOrNull((item) => item.isSelected);
+    String type = '';
+    if (item != null && item.type != 'All Jobs') {
+      type = item.type;
+    }
+    Get.toNamed(Routes.CLEANER_ALL_JOBS);
+    jobCurrentPage = 1;
+    await fetchJobs(filter: type);
   }
 
   // --- Availability (weekly: Mon–Sun, toggle + slots; + blocked dates) ---
@@ -542,72 +596,118 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     }
   }
 
-  /// Fetches calendar jobs. [singleDay] = that day only; [forWeek] = that week (Mon–Sun); else that month.
-  Future<void> getCleanerCalender({DateTime? forDate, bool singleDay = false, bool forWeek = false}) async {
-    Loader.show();
+  /// Fetches calendar jobs for the active mode (assigned or available).
+  /// [singleDay] = that day only; [forWeek] = that week (Mon–Sun); else that month.
+  /// [loadMore] appends the next page (list view scroll).
+  Future<void> getCleanerCalender({
+    DateTime? forDate,
+    bool singleDay = false,
+    bool forWeek = false,
+    bool loadMore = false,
+  }) async {
+    if (!loadMore) {
+      _resetActiveCalendarPage();
+      Loader.show();
+    }
     try {
       String? dateFrom;
       String? dateTo;
       String? date;
-      if (forDate != null) {
-        if (singleDay) {
-          final d = DateTime(forDate.year, forDate.month, forDate.day);
-          date = _formatDateForApi(d);
-        } else if (forWeek) {
-          final weekStart = forDate.subtract(Duration(days: forDate.weekday - 1));
-          final weekEnd = weekStart.add(const Duration(days: 6));
-          dateFrom = _formatDateForApi(DateTime(weekStart.year, weekStart.month, weekStart.day));
-          dateTo = _formatDateForApi(DateTime(weekEnd.year, weekEnd.month, weekEnd.day));
-        } else {
-          final start = DateTime(forDate.year, forDate.month, 1);
-          final end = DateTime(forDate.year, forDate.month + 1, 0);
-          dateFrom = _formatDateForApi(start);
-          dateTo = _formatDateForApi(end);
-        }
+      final targetDate = forDate ?? focusedDay.value;
+      if (singleDay) {
+        final d = DateTime(targetDate.year, targetDate.month, targetDate.day);
+        date = _formatDateForApi(d);
+      } else if (forWeek) {
+        final weekStart = targetDate.subtract(Duration(days: targetDate.weekday - 1));
+        final weekEnd = weekStart.add(const Duration(days: 6));
+        dateFrom = _formatDateForApi(DateTime(weekStart.year, weekStart.month, weekStart.day));
+        dateTo = _formatDateForApi(DateTime(weekEnd.year, weekEnd.month, weekEnd.day));
+      } else {
+        final start = DateTime(targetDate.year, targetDate.month, 1);
+        final end = DateTime(targetDate.year, targetDate.month + 1, 0);
+        dateFrom = _formatDateForApi(start);
+        dateTo = _formatDateForApi(end);
       }
+
+      final status = selectedStatus.value == "All" ? null : selectedStatus.value;
+      final propertyName = propertyController.text.isEmpty ? null : propertyController.text;
+      final isAvailable = calendarJobMode.value == CalendarJobMode.available;
+      final page = _activeCalendarPage;
+      final type = isAvailable ? 'unassigned' : 'assigned';
+
       final result = await _cleanerRepository.getCleanerCalender(
         dateFrom: dateFrom,
         dateTo: dateTo,
         date: date,
-        status: selectedStatus.value == "All" ? null : selectedStatus.value,
-        propertyName: propertyController.text.isEmpty ? null : propertyController.text,
+        status: status,
+        propertyName: propertyName,
+        type: type,
+        page: page,
       );
       result.handle(
         success: (value) {
-          final list = value.data?.jobs;
-          if (list == null || list.isEmpty) {
-            calendarEventsMap.value = {};
-            return;
-          }
-          final map = <DateTime, List<CalendarEvent>>{};
-          for (final item in list) {
-            final dateKey = _parseCalendarDate(item.date);
-            String? timeRange;
-            if (item.startTime != null && item.endTime != null) {
-              timeRange = '${CcsDateTimeX.convertTime(item.startTime ?? '')} – ${CcsDateTimeX.convertTime(item.endTime ?? '')}';
+          final newMap = _mapJobsToEvents(value.data?.jobs ?? <Jobs>[], isAvailable: isAvailable);
+          if (isAvailable) {
+            availableEventsMap.value = loadMore ? _mergeEventMaps(availableEventsMap.value, newMap) : newMap;
+            availableCalendarTotalPages = (value.data?.pagination?.totalPages ?? 1).toInt();
+            if (availableCalendarPage <= availableCalendarTotalPages) {
+              availableCalendarPage++;
             }
-            if (dateKey == null) continue;
-            final event = CalendarEvent(
-                title: item.cleaningType?.name ?? "",
-                timeRange: timeRange,
-                status: item.status ?? 'Pending',
-                jobId: item.id,
-                propertyName: item.property?.propertyName ?? "",
-                address: item.property?.address ?? "",
-                subtitle: item.property?.additionalDetails ?? "",
-                cleanerInfo: item.cleaners?.map((cl) => cl.name ?? "").toList().join(', '),
-                cleanerJobStatus: item.cleanerJobStatus);
-            map.putIfAbsent(dateKey, () => []).add(event);
+          } else {
+            calendarEventsMap.value = loadMore ? _mergeEventMaps(calendarEventsMap.value, newMap) : newMap;
+            assignedCalendarTotalPages = (value.data?.pagination?.totalPages ?? 1).toInt();
+            if (assignedCalendarPage <= assignedCalendarTotalPages) {
+              assignedCalendarPage++;
+            }
           }
-          calendarEventsMap.value = map;
         },
-        contextTag: 'get-cleaner-calender',
+        contextTag: isAvailable ? 'get-available-jobs' : 'get-assigned-jobs',
       );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'get-cleaner-calender');
     } finally {
-      Loader.hide();
+      if (!loadMore) Loader.hide();
+      isCalendarMoreLoading.value = false;
     }
+  }
+
+  Map<DateTime, List<CalendarEvent>> _mergeEventMaps(
+    Map<DateTime, List<CalendarEvent>> existing,
+    Map<DateTime, List<CalendarEvent>> incoming,
+  ) {
+    final merged = Map<DateTime, List<CalendarEvent>>.from(existing);
+    for (final entry in incoming.entries) {
+      merged.putIfAbsent(entry.key, () => []).addAll(entry.value);
+    }
+    return merged;
+  }
+
+  Map<DateTime, List<CalendarEvent>> _mapJobsToEvents(List<Jobs> list, {bool isAvailable = false}) {
+    final map = <DateTime, List<CalendarEvent>>{};
+    for (final item in list) {
+      final dateKey = _parseCalendarDate(item.date);
+      if (dateKey == null) continue;
+      String? timeRange;
+      if (item.startTime != null && item.endTime != null) {
+        timeRange = '${CcsDateTimeX.convertTime(item.startTime ?? '')} – ${CcsDateTimeX.convertTime(item.endTime ?? '')}';
+      }
+      final title = item.cleaningType?.name;
+      final resolvedTitle = (title != null && title.isNotEmpty && num.tryParse(title) == null) ? title : (item.jobType ?? 'Job');
+      map.putIfAbsent(dateKey, () => []).add(
+            CalendarEvent(
+              title: resolvedTitle,
+              timeRange: timeRange,
+              status: isAvailable ? 'Available' : (item.status ?? 'Pending'),
+              jobId: item.id,
+              propertyName: item.property?.propertyName ?? '',
+              address: item.property?.address ?? '',
+              subtitle: item.property?.additionalDetails ?? '',
+              cleanerInfo: item.cleaners?.map((cl) => cl.name ?? '').where((n) => n.isNotEmpty).join(', '),
+              cleanerJobStatus: isAvailable ? 'Available' : item.cleanerJobStatus,
+            ),
+          );
+    }
+    return map;
   }
 
   /// Parses API date string to date-only [DateTime] for calendar key.

@@ -12,6 +12,7 @@ import 'app/services/network_monitor_service.dart';
 import 'app/services/onesignal_service.dart';
 import 'app/services/pref.dart';
 import 'app/services/session_service.dart';
+import 'app/utils/orientation_policy.dart';
 import 'export.dart';
 import 'firebase_options.dart';
 
@@ -36,6 +37,10 @@ Future<void> main() async {
     } catch (e) {
       SecureLogger.log('MAIN', 'OneSignal initialization failed: $e');
     }
+  }
+
+  if (!kIsWeb) {
+    await OrientationPolicy.applyFromView();
   }
 
   getTimeZone().then((onValue) {

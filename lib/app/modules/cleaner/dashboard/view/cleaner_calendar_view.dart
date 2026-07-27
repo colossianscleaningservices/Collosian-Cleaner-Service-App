@@ -16,6 +16,53 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Assigned / Available toggle ───────────────────────────────────
+
+          Row(
+            children: [
+              Expanded(child: Obx(() {
+                final current = controller.calendarJobMode.value;
+                return AppCard(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _ModeChip(
+                          label: 'Assigned',
+                          icon: IconsaxPlusLinear.calendar_tick,
+                          selected: current == CalendarJobMode.assigned,
+                          scheme: scheme,
+                          onTap: () => controller.toggleCalendarJobMode(CalendarJobMode.assigned),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _ModeChip(
+                          label: 'Available',
+                          icon: IconsaxPlusLinear.briefcase,
+                          selected: current == CalendarJobMode.available,
+                          scheme: scheme,
+                          onTap: () => controller.toggleCalendarJobMode(CalendarJobMode.available),
+                        ),
+                      ),
+                    ],
+                  ).paddingAll(8),
+                ).marginOnly(left: 24);
+              })),
+              AppCard(
+                onTap: controller.openAllJobs,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(IconsaxPlusLinear.briefcase, size: 16, color: scheme.primary),
+                    const SizedBox(width: 6),
+                    CommonText.semiBold('View all jobs', size: 13, color: scheme.primary),
+                  ],
+                ).paddingSymmetric(horizontal: 12, vertical: 16),
+              ).marginOnly(left: 12, right: 24),
+            ],
+          ),
+
+          const SizedBox(height: 12),
           AppCard(
             child: TabBar(
               unselectedLabelStyle: context.textTheme.bodyLarge,
@@ -37,26 +84,18 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: Icon(
-                  IconsaxPlusLinear.arrow_left_1,
-                  color: scheme.secondary,
-                ),
+                icon: Icon(IconsaxPlusLinear.arrow_left_1, color: scheme.secondary),
                 onPressed: controller.onCalendarPrev,
               ),
               GestureDetector(
                 onTap: () async {
                   final picked = await showMonthYearPicker(context, controller.focusedDay.value);
-                  if (picked != null) {
-                    controller.onCalendarPageChanged(picked);
-                  }
+                  if (picked != null) controller.onCalendarPageChanged(picked);
                 },
                 child: Obx(() => CommonText.bold(controller.periodLabel, size: 16, color: scheme.onSurface)),
               ),
               IconButton(
-                icon: Icon(
-                  IconsaxPlusLinear.arrow_right_3,
-                  color: scheme.secondary,
-                ),
+                icon: Icon(IconsaxPlusLinear.arrow_right_3, color: scheme.secondary),
                 onPressed: controller.onCalendarNext,
               ),
             ],
@@ -71,7 +110,8 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                         mode: CalendarViewMode.week,
                         focusedDay: controller.focusedDay.value,
                         selectedDay: controller.selectedDay.value,
-                        eventsMap: controller.eventsMap,
+                        eventsMap: controller.activeEventsMap,
+                        isAvailableMode: controller.calendarJobMode.value == CalendarJobMode.available,
                         onDaySelected: controller.onCalendarDaySelected,
                         onPageChanged: controller.onCalendarPageChanged,
                         ctrl: controller,
@@ -83,22 +123,79 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                         mode: CalendarViewMode.month,
                         focusedDay: controller.focusedDay.value,
                         selectedDay: controller.selectedDay.value,
-                        eventsMap: controller.eventsMap,
+                        eventsMap: controller.activeEventsMap,
+                        isAvailableMode: controller.calendarJobMode.value == CalendarJobMode.available,
                         onDaySelected: controller.onCalendarDaySelected,
                         onPageChanged: controller.onCalendarPageChanged,
                         ctrl: controller,
                       )),
                 ),
                 SingleChildScrollView(
-                  child: Obx(() {
-                    return _ListContentView(scheme: scheme, ctrl: controller, eventsMap: controller.eventsMap).marginSymmetric(horizontal: 8).marginOnly(bottom: 16);
-                  }),
+                  controller: controller.calendarListScrollController,
+                  child: Obx(() => _ListContentView(
+                        scheme: scheme,
+                        ctrl: controller,
+                        eventsMap: controller.activeEventsMap,
+                        isAvailableMode: controller.calendarJobMode.value == CalendarJobMode.available,
+                      ).marginSymmetric(horizontal: 8).marginOnly(bottom: 16)),
                 ),
               ],
             ),
           ),
         ],
       ).paddingOnly(top: 16),
+    );
+  }
+}
+
+// ─── Segmented mode chip ──────────────────────────────────────────────────────
+
+class _ModeChip extends StatelessWidget {
+  const _ModeChip({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.scheme,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final ColorScheme scheme;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = selected ? scheme.primary : scheme.surfaceContainerHighest.withValues(alpha: 0.5);
+    final fg = selected ? scheme.onPrimary : scheme.onSurfaceVariant;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 16, color: fg),
+            const SizedBox(width: 6),
+            Flexible(
+              child: CommonText.semiBold(
+                label,
+                size: 13,
+                color: fg,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -110,6 +207,7 @@ class _CalendarSection extends StatelessWidget {
     required this.focusedDay,
     required this.selectedDay,
     this.eventsMap,
+    this.isAvailableMode = false,
     required this.onDaySelected,
     required this.onPageChanged,
     required this.ctrl,
@@ -120,12 +218,14 @@ class _CalendarSection extends StatelessWidget {
   final DateTime focusedDay;
   final DateTime? selectedDay;
   final Map<DateTime, List<CalendarEvent>>? eventsMap;
+  final bool isAvailableMode;
   final dynamic onDaySelected;
   final dynamic onPageChanged;
   final CleanerDashboardController ctrl;
 
   @override
   Widget build(BuildContext context) {
+    final sectionTitle = isAvailableMode ? 'Open jobs' : 'Upcoming';
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,14 +273,15 @@ class _CalendarSection extends StatelessWidget {
           ).marginSymmetric(vertical: 16),
         ).marginOnly(top: 16, left: 4, right: 4).marginSymmetric(horizontal: 24),
         SizedBox(height: UiConstants.gap),
-        CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface).marginSymmetric(horizontal: 24),
+        CommonText.semiBold(sectionTitle, size: 16, color: scheme.onSurface).marginSymmetric(horizontal: 24),
         const SizedBox(height: 8),
         _UpcomingEvents(
           scheme: scheme,
           eventsMap: eventsMap,
           selectedDay: selectedDay,
           focusedDay: focusedDay,
-          onMyJobsPressed: () => ctrl.setTab(2),
+          isAvailableMode: isAvailableMode,
+          onMyJobsPressed: () => ctrl.openAllJobs(),
           onJobTap: (event) => ctrl.openDetail(event.jobId),
         ).marginSymmetric(horizontal: 24).marginOnly(bottom: 16),
       ],
@@ -195,6 +296,7 @@ class _UpcomingEvents extends StatelessWidget {
     this.eventsMap,
     this.selectedDay,
     required this.focusedDay,
+    this.isAvailableMode = false,
     required this.onMyJobsPressed,
     required this.onJobTap,
   });
@@ -203,6 +305,7 @@ class _UpcomingEvents extends StatelessWidget {
   final Map<DateTime, List<CalendarEvent>>? eventsMap;
   final DateTime? selectedDay;
   final DateTime focusedDay;
+  final bool isAvailableMode;
   final VoidCallback onMyJobsPressed;
   final void Function(CalendarEvent) onJobTap;
 
@@ -211,9 +314,15 @@ class _UpcomingEvents extends StatelessWidget {
     final day = selectedDay ?? focusedDay;
     final dateKey = DateTime(day.year, day.month, day.day);
     final events = eventsMap?[dateKey] ?? [];
+    final dateLabel = CcsDateUtils.shortDate(day);
 
     if (events.isEmpty) {
-      return CalendarEmptyCard(scheme: scheme, onMyJobsPressed: onMyJobsPressed);
+      return CalendarEmptyCard(
+        scheme: scheme,
+        onMyJobsPressed: onMyJobsPressed,
+        title: isAvailableMode ? 'No available jobs on $dateLabel.' : 'No jobs on $dateLabel.',
+        subtitle: isAvailableMode ? 'Open jobs you can apply for will appear here.' : 'Your assigned jobs will appear here.',
+      );
     }
 
     return AppGrid(
@@ -246,11 +355,17 @@ class _UpcomingEvents extends StatelessWidget {
 }
 
 class _ListContentView extends StatelessWidget {
-  const _ListContentView({required this.scheme, required this.ctrl, this.eventsMap});
+  const _ListContentView({
+    required this.scheme,
+    required this.ctrl,
+    this.eventsMap,
+    this.isAvailableMode = false,
+  });
 
   final ColorScheme scheme;
   final CleanerDashboardController ctrl;
   final Map<DateTime, List<CalendarEvent>>? eventsMap;
+  final bool isAvailableMode;
 
   @override
   Widget build(BuildContext context) {
@@ -268,38 +383,54 @@ class _ListContentView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        CommonText.semiBold('Upcoming', size: 16, color: scheme.onSurface),
+        CommonText.semiBold(isAvailableMode ? 'Open jobs' : 'Upcoming', size: 16, color: scheme.onSurface),
         const SizedBox(height: 8),
         if (list.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 0),
-            child: CalendarEmptyCard(scheme: scheme, onMyJobsPressed: () => ctrl.setTab(2)),
+            child: CalendarEmptyCard(
+              scheme: scheme,
+              onMyJobsPressed: () => ctrl.openAllJobs(),
+              title: isAvailableMode ? 'No available jobs this period.' : 'No jobs this period.',
+              subtitle: isAvailableMode ? 'Open jobs you can apply for will appear here.' : 'Your assigned jobs will appear here.',
+            ),
           )
         else
-          AppGrid(
-            maxExtent: 140,
-            axisSpacing: 8,
-            phoneCount: 1,
-            tabletCount: 2,
-            landscapeCount: 3,
-            physics: NeverScrollableScrollPhysics(),
-            child: List.generate(
-              list.length,
-              (i) {
-                var status = list[i].$2.cleanerJobStatus ?? (list[i].$2.status ?? "N/A");
-                if (list[i].$2.status == Constants.jobFinished) {
-                  status = list[i].$2.status ?? status;
-                }
-                return JobCard(
-                  title: list[i].$2.title ?? "N/A",
-                  dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
-                  status: status,
-                  propertyName: list[i].$2.propertyName,
-                  address: list[i].$2.address,
-                  onTap: () => ctrl.openDetail(list[i].$2.jobId),
+          Column(
+            children: [
+              AppGrid(
+                maxExtent: 140,
+                axisSpacing: 8,
+                phoneCount: 1,
+                tabletCount: 2,
+                landscapeCount: 3,
+                physics: NeverScrollableScrollPhysics(),
+                child: List.generate(
+                  list.length,
+                  (i) {
+                    var status = list[i].$2.cleanerJobStatus ?? (list[i].$2.status ?? "N/A");
+                    if (list[i].$2.status == Constants.jobFinished) {
+                      status = list[i].$2.status ?? status;
+                    }
+                    return JobCard(
+                      title: list[i].$2.title,
+                      dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',
+                      status: status,
+                      propertyName: list[i].$2.propertyName,
+                      address: list[i].$2.address,
+                      onTap: () => ctrl.openDetail(list[i].$2.jobId),
+                    );
+                  },
+                ),
+              ),
+              Obx(() {
+                if (!ctrl.isCalendarMoreLoading.value) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Center(child: CircularProgressIndicator(color: scheme.primary)),
                 );
-              },
-            ),
+              }),
+            ],
           ),
       ],
     ).marginSymmetric(horizontal: 14);

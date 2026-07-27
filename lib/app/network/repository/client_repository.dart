@@ -323,10 +323,16 @@ class ClientRepository extends BaseRepository {
     String? date,
     String? dateFrom,
     String? dateTo,
+    int page = 1,
   }) async {
     return get<GetClientCalenderResponse>(
       endpoint: Endpoint.clientCalender,
-      queryParameters: {'date': date, 'date_from': dateFrom, 'date_to': dateTo},
+      queryParameters: {
+        'date': date,
+        'date_from': dateFrom,
+        'date_to': dateTo,
+        'page': page,
+      },
       fromJson: (json) => GetClientCalenderResponse.fromJson(json),
     );
   }

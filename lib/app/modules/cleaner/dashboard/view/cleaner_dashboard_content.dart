@@ -69,7 +69,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                           if (hasJobs)
                             AppCard(
                               color: scheme.primaryContainer.withValues(alpha: 0.2),
-                              onTap: () => controller.setTab(2),
+                              onTap: () => controller.openAllJobs(),
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -160,7 +160,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                                   label: 'Edit availability',
                                   type: ButtonType.tonal,
                                   icon: IconsaxPlusLinear.clock,
-                                  onPressed: () => controller.setTab(3),
+                                  onPressed: () => controller.setTab(2),
                                   btnVerticalPadding: 12,
                                   btnHorizontalPadding: 16,
                                   textSize: 14,
@@ -376,7 +376,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                       icon: IconsaxPlusLinear.clock,
                       label: 'Availability',
                       subtitle: 'Set your schedule',
-                      onTap: () => controller.setTab(3),
+                      onTap: () => controller.setTab(2),
                       scheme: scheme,
                     ),
                   ),
@@ -386,7 +386,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                           icon: IconsaxPlusLinear.user,
                           label: controller.isProfileComplete.value ? 'Profile' : 'Complete',
                           subtitle: controller.isProfileComplete.value ? 'View profile' : 'Finish setup',
-                          onTap: () => controller.setTab(4),
+                          onTap: () => controller.setTab(3),
                       scheme: scheme,
                         )),
                   ),

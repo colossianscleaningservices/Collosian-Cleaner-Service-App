@@ -80,6 +80,11 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   /// Calendar events from getClientCalender() API, keyed by date (date-only).
   final calendarEventsMap = Rx<Map<DateTime, List<CalendarEvent>>>({});
 
+  var calendarPage = 1;
+  var calendarTotalPages = 1;
+  RxBool isCalendarMoreLoading = false.obs;
+  ScrollController calendarListScrollController = ScrollController();
+
   /// Properties for dashboard home listing (fetched via listProperties).
   final RxList<PropertyModel> dashboardProperties = <PropertyModel>[].obs;
   final Rxn<ClientDashModel> clientDash = Rxn<ClientDashModel>();
@@ -116,6 +121,8 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
         }
       }
     });
+
+    calendarListScrollController.addListener(_onCalendarListScroll);
   }
 
   bool get _isScrollBottom {
@@ -123,6 +130,25 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
     final maxScroll = jobScrollController.position.maxScrollExtent;
     final currentScroll = jobScrollController.offset;
     return currentScroll >= (maxScroll * 0.9);
+  }
+
+  bool get _isCalendarListScrollBottom {
+    if (!calendarListScrollController.hasClients) return false;
+    final maxScroll = calendarListScrollController.position.maxScrollExtent;
+    final currentScroll = calendarListScrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
+  }
+
+  void _onCalendarListScroll() {
+    if (tabIndex.value != 1 || tabController.index != 2) return;
+    if (!_isCalendarListScrollBottom || isCalendarMoreLoading.value) return;
+    if (calendarPage > calendarTotalPages) return;
+    isCalendarMoreLoading.value = true;
+    getClientCalender(
+      forDate: focusedDay.value,
+      forWeek: mode.value == CalendarViewMode.week,
+      loadMore: true,
+    );
   }
 
   /// Call device registration API so latest app/device data is saved when dashboard opens.
@@ -149,6 +175,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   void onClose() {
     tabController.removeListener(_syncModeFromTab);
     tabController.dispose();
+    calendarListScrollController.dispose();
     super.onClose();
   }
 
@@ -286,37 +313,46 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
   }
 
   /// Fetches calendar jobs. [singleDay] = that day only; [forWeek] = that week (Mon–Sun); else that month.
-  Future<void> getClientCalender({DateTime? forDate, bool singleDay = false, bool forWeek = false}) async {
-    Loader.show();
+  /// [loadMore] appends the next page (list view scroll).
+  Future<void> getClientCalender({
+    DateTime? forDate,
+    bool singleDay = false,
+    bool forWeek = false,
+    bool loadMore = false,
+  }) async {
+    if (!loadMore) {
+      calendarPage = 1;
+      Loader.show();
+    }
     try {
       String? dateFrom;
       String? dateTo;
       String? date;
-      if (forDate != null) {
-        if (singleDay) {
-          final d = DateTime(forDate.year, forDate.month, forDate.day);
-          date = _formatDateForApi(d);
-        } else if (forWeek) {
-          final weekStart = forDate.subtract(Duration(days: forDate.weekday - 1));
-          final weekEnd = weekStart.add(const Duration(days: 6));
-          dateFrom = _formatDateForApi(DateTime(weekStart.year, weekStart.month, weekStart.day));
-          dateTo = _formatDateForApi(DateTime(weekEnd.year, weekEnd.month, weekEnd.day));
-        } else {
-          final start = DateTime(forDate.year, forDate.month, 1);
-          final end = DateTime(forDate.year, forDate.month + 1, 0);
-          dateFrom = _formatDateForApi(start);
-          dateTo = _formatDateForApi(end);
-        }
+      final targetDate = forDate ?? focusedDay.value;
+      if (singleDay) {
+        final d = DateTime(targetDate.year, targetDate.month, targetDate.day);
+        date = _formatDateForApi(d);
+      } else if (forWeek) {
+        final weekStart = targetDate.subtract(Duration(days: targetDate.weekday - 1));
+        final weekEnd = weekStart.add(const Duration(days: 6));
+        dateFrom = _formatDateForApi(DateTime(weekStart.year, weekStart.month, weekStart.day));
+        dateTo = _formatDateForApi(DateTime(weekEnd.year, weekEnd.month, weekEnd.day));
+      } else {
+        final start = DateTime(targetDate.year, targetDate.month, 1);
+        final end = DateTime(targetDate.year, targetDate.month + 1, 0);
+        dateFrom = _formatDateForApi(start);
+        dateTo = _formatDateForApi(end);
       }
-      final result = await _clientRepository.getClientCalender(dateFrom: dateFrom, dateTo: dateTo, date: date);
+      final result = await _clientRepository.getClientCalender(
+        dateFrom: dateFrom,
+        dateTo: dateTo,
+        date: date,
+        page: calendarPage,
+      );
       result.handle(
         success: (value) {
-          final list = value.data?.jobs;
-          if (list == null || list.isEmpty) {
-            calendarEventsMap.value = {};
-            return;
-          }
-          final map = <DateTime, List<CalendarEvent>>{};
+          final list = value.data?.jobs ?? <Jobs>[];
+          final newMap = <DateTime, List<CalendarEvent>>{};
           for (final item in list) {
             final dateKey = _parseCalendarDate(item.date);
             String? timeRange;
@@ -334,17 +370,33 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
               subtitle: item.property?.additionalDetails ?? "",
               cleanerInfo: item.cleaners?.map((cl) => cl.name ?? "").toList().join(', '),
             );
-            map.putIfAbsent(dateKey, () => []).add(event);
+            newMap.putIfAbsent(dateKey, () => []).add(event);
           }
-          calendarEventsMap.value = map;
+          calendarEventsMap.value = loadMore ? _mergeEventMaps(calendarEventsMap.value, newMap) : newMap;
+          // calendarTotalPages = (value.data?.pagination?.totalPages ?? 1).toInt();
+          if (calendarPage <= calendarTotalPages) {
+            calendarPage++;
+          }
         },
         contextTag: 'get-client-calender',
       );
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'get-client-calender');
     } finally {
-      Loader.hide();
+      if (!loadMore) Loader.hide();
+      isCalendarMoreLoading.value = false;
     }
+  }
+
+  Map<DateTime, List<CalendarEvent>> _mergeEventMaps(
+    Map<DateTime, List<CalendarEvent>> existing,
+    Map<DateTime, List<CalendarEvent>> incoming,
+  ) {
+    final merged = Map<DateTime, List<CalendarEvent>>.from(existing);
+    for (final entry in incoming.entries) {
+      merged.putIfAbsent(entry.key, () => []).addAll(entry.value);
+    }
+    return merged;
   }
 
   /// Parses API date string to date-only [DateTime] for calendar key.

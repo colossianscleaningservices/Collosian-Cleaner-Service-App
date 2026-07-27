@@ -1,6 +1,9 @@
 /// View mode for the cleaner calendar (week / month / list).
 enum CalendarViewMode { week, month, list }
 
+/// Top-level mode: shows assigned jobs vs jobs available to apply for.
+enum CalendarJobMode { assigned, available }
+
 /// Bounds for [TableCalendar] and period navigation.
 final kCalendarFirstDay = DateTime(2020, 1, 1);
 final kCalendarLastDay = DateTime(2030, 12, 31);
