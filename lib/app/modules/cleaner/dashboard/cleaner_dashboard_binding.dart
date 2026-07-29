@@ -5,6 +5,9 @@ import 'cleaner_dashboard_controller.dart';
 class CleanerDashboardBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<CleanerDashboardController>(() => CleanerDashboardController());
+    Get.lazyPut<CleanerDashboardController>(
+      () => CleanerDashboardController(),
+      fenix: true,
+    );
   }
 }

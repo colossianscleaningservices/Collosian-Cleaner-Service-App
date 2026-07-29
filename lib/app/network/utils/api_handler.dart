@@ -29,19 +29,13 @@ class ApiHandler {
   Future<NetworkResult<T>> handleNetworkResult<T>({
     required Response<dynamic> response,
     required JsonMapper<T> fromJson,
-    bool shouldHandleUnauthorizedRequest = true,
   }) async {
     try {
       const correctCodes = [200, 201];
       final statusCode = response.statusCode ?? -1;
 
       if (statusCode == HttpStatus.badRequest || !correctCodes.contains(statusCode)) {
-        return NetworkResult.error(
-          _handleResponse(
-            response: response,
-            shouldHandleUnauthorizedRequest: shouldHandleUnauthorizedRequest,
-          ),
-        );
+        return NetworkResult.error(_handleResponse(response: response));
       }
 
       if (isResponseBlank(response.data)) {
@@ -82,21 +76,10 @@ class ApiHandler {
     }
   }
 
-  NetworkResult<T> handleDioException<T>({
-    dynamic error,
-    bool shouldHandleUnauthorizedRequest = true,
-  }) =>
-      NetworkResult.error(
-        _getDioException(
-          error: error,
-          shouldHandleUnauthorizedRequest: shouldHandleUnauthorizedRequest,
-        ),
-      );
+  NetworkResult<T> handleDioException<T>({dynamic error}) =>
+      NetworkResult.error(_getDioException(error: error));
 
-  NetworkException _handleResponse<T>({
-    Response<T>? response,
-    bool shouldHandleUnauthorizedRequest = true,
-  }) {
+  NetworkException _handleResponse<T>({Response<T>? response}) {
     final dynamic errorJson = response?.data;
     String? errMsg;
     DefaultApiError? error;
@@ -120,13 +103,22 @@ class ApiHandler {
           shouldShowApiError: shouldShowApiErrors,
         );
       case 401:
-      case 403:
         return UnauthorizedRequestException(
           apiErrorMessage: errMsg,
           errBody: error,
           errorMessage: exceptionMessages.unauthorizedRequest,
           shouldShowApiError: shouldShowApiErrors,
           title: 'Session expired',
+          statusCode: statusCode,
+        );
+      case 403:
+        return ForbiddenException(
+          apiErrorMessage: errMsg,
+          errBody: error,
+          errorMessage: exceptionMessages.forbiddenRequest,
+          shouldShowApiError: shouldShowApiErrors,
+          title: 'Access denied',
+          statusCode: statusCode,
         );
       case 404:
         return NotFoundException(
@@ -177,10 +169,7 @@ class ApiHandler {
     }
   }
 
-  NetworkException _getDioException({
-    dynamic error,
-    bool shouldHandleUnauthorizedRequest = true,
-  }) {
+  NetworkException _getDioException({dynamic error}) {
     if (error is Exception) {
       try {
         if (error is DioException) {
@@ -206,10 +195,7 @@ class ApiHandler {
             DioExceptionType.receiveTimeout => SendTimeoutException(
                 errorMessage: exceptionMessages.sendTimeout,
               ),
-            DioExceptionType.badResponse => _handleResponse(
-                response: error.response,
-                shouldHandleUnauthorizedRequest: shouldHandleUnauthorizedRequest,
-              ),
+            DioExceptionType.badResponse => _handleResponse(response: error.response),
             DioExceptionType.sendTimeout => SendTimeoutException(
                 errorMessage: exceptionMessages.sendTimeout,
               ),

@@ -38,6 +38,26 @@ class CreateJobController extends GetxController {
   final provideDryer = false.obs;
   final notesLength = 0.obs;
 
+  static const List<String> hooverOptions = ['No', 'Yes', 'I will get one'];
+  static const List<String> staffPreferenceOptions = ['Male', 'Female', 'No Preference'];
+  static const List<String> accessOptions = ['Client Will Open', 'Reception/Concierge', 'Key', 'Other'];
+
+  /// Match API string to a known option (case-insensitive); else [fallback].
+  static String pickOption(String? raw, List<String> options, String fallback) {
+    if (raw == null || raw.trim().isEmpty) return fallback;
+    final match = options.firstWhereOrNull((o) => o.toLowerCase() == raw.trim().toLowerCase());
+    return match ?? fallback;
+  }
+
+  void applyPropertyDefaults(PropertyModel? property) {
+    staffPreference.value = pickOption(property?.staffPreference, staffPreferenceOptions, 'Male');
+    accessToProperty.value = pickOption(property?.accessToProperty, accessOptions, 'Client Will Open');
+    hoover.value = pickOption(property?.hoover, hooverOptions, 'No');
+    provideCleaningProducts.value = property?.provideCleaningProducts ?? false;
+    provideWashingMachine.value = property?.provideWashingMachine ?? false;
+    provideDryer.value = property?.provideDryer ?? false;
+  }
+
   static const maxNotesLength = 100;
 
   final properties = <PropertyModel>[].obs;
@@ -91,9 +111,9 @@ class CreateJobController extends GetxController {
     invoicePaymentSource.value = jobDetails?.jobType?.capitalizeFirst ?? '';
     cleanersNeededController.text = "${jobDetails?.numberOfCleaners.toString()}";
     cleanersNeeded.value = jobDetails?.numberOfCleaners?.toInt() ?? 1;
-    staffPreference.value = jobDetails?.staffPreference ?? 'Male';
-    accessToProperty.value = jobDetails?.accessToProperty ?? 'Client Will Open';
-    hoover.value = jobDetails?.hoover ?? 'No';
+    staffPreference.value = pickOption(jobDetails?.staffPreference, staffPreferenceOptions, 'Male');
+    accessToProperty.value = pickOption(jobDetails?.accessToProperty, accessOptions, 'Client Will Open');
+    hoover.value = pickOption(jobDetails?.hoover, hooverOptions, 'No');
     provideCleaningProducts.value = jobDetails?.provideCleaningProducts ?? false;
     provideWashingMachine.value = jobDetails?.provideWashingMachine ?? false;
     provideDryer.value = jobDetails?.provideDryer ?? false;

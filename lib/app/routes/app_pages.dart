@@ -142,6 +142,7 @@ class AppPages {
     GetPage(
       name: _Paths.CLEANER_ALL_JOBS,
       page: () => const CleanerAllJobsView(),
+      binding: CleanerDashboardBinding(),
     ),
     GetPage(
       name: _Paths.CLEANER_JOB_DETAIL,

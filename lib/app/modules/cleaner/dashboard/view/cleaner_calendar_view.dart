@@ -37,7 +37,7 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: _ModeChip(
-                          label: 'Available',
+                          label: 'Unassigned',
                           icon: IconsaxPlusLinear.briefcase,
                           selected: current == CalendarJobMode.available,
                           scheme: scheme,
@@ -50,15 +50,19 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
               })),
               AppCard(
                 onTap: controller.openAllJobs,
+                color: Colors.transparent,
+                enableShadows: false,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(IconsaxPlusLinear.briefcase, size: 16, color: scheme.primary),
-                    const SizedBox(width: 6),
-                    CommonText.semiBold('View all jobs', size: 13, color: scheme.primary),
+                    CommonText.semiBold('View all', size: 13, color: scheme.primary),
+                    Icon(
+                      IconsaxPlusLinear.arrow_right_3,
+                      color: context.colorScheme.secondary,size: 18,
+                    )
                   ],
                 ).paddingSymmetric(horizontal: 12, vertical: 16),
-              ).marginOnly(left: 12, right: 24),
+              ).marginOnly(left: 12, right: 8),
             ],
           ),
 
@@ -104,31 +108,43 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
             child: TabBarView(
               controller: controller.tabController,
               children: [
-                SingleChildScrollView(
-                  child: Obx(() => _CalendarSection(
-                        scheme: scheme,
-                        mode: CalendarViewMode.week,
-                        focusedDay: controller.focusedDay.value,
-                        selectedDay: controller.selectedDay.value,
-                        eventsMap: controller.activeEventsMap,
-                        isAvailableMode: controller.calendarJobMode.value == CalendarJobMode.available,
-                        onDaySelected: controller.onCalendarDaySelected,
-                        onPageChanged: controller.onCalendarPageChanged,
-                        ctrl: controller,
-                      )),
+                NotificationListener<ScrollNotification>(
+                  onNotification: (n) {
+                    controller.onCalendarContentScrolled(n.metrics);
+                    return false;
+                  },
+                  child: SingleChildScrollView(
+                    child: Obx(() => _CalendarSection(
+                          scheme: scheme,
+                          mode: CalendarViewMode.week,
+                          focusedDay: controller.focusedDay.value,
+                          selectedDay: controller.selectedDay.value,
+                          eventsMap: controller.activeEventsMap,
+                          isAvailableMode: controller.calendarJobMode.value == CalendarJobMode.available,
+                          onDaySelected: controller.onCalendarDaySelected,
+                          onPageChanged: controller.onCalendarPageChanged,
+                          ctrl: controller,
+                        )),
+                  ),
                 ),
-                SingleChildScrollView(
-                  child: Obx(() => _CalendarSection(
-                        scheme: scheme,
-                        mode: CalendarViewMode.month,
-                        focusedDay: controller.focusedDay.value,
-                        selectedDay: controller.selectedDay.value,
-                        eventsMap: controller.activeEventsMap,
-                        isAvailableMode: controller.calendarJobMode.value == CalendarJobMode.available,
-                        onDaySelected: controller.onCalendarDaySelected,
-                        onPageChanged: controller.onCalendarPageChanged,
-                        ctrl: controller,
-                      )),
+                NotificationListener<ScrollNotification>(
+                  onNotification: (n) {
+                    controller.onCalendarContentScrolled(n.metrics);
+                    return false;
+                  },
+                  child: SingleChildScrollView(
+                    child: Obx(() => _CalendarSection(
+                          scheme: scheme,
+                          mode: CalendarViewMode.month,
+                          focusedDay: controller.focusedDay.value,
+                          selectedDay: controller.selectedDay.value,
+                          eventsMap: controller.activeEventsMap,
+                          isAvailableMode: controller.calendarJobMode.value == CalendarJobMode.available,
+                          onDaySelected: controller.onCalendarDaySelected,
+                          onPageChanged: controller.onCalendarPageChanged,
+                          ctrl: controller,
+                        )),
+                  ),
                 ),
                 SingleChildScrollView(
                   controller: controller.calendarListScrollController,
@@ -182,8 +198,6 @@ class _ModeChip extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: fg),
-            const SizedBox(width: 6),
             Flexible(
               child: CommonText.semiBold(
                 label,
@@ -283,7 +297,15 @@ class _CalendarSection extends StatelessWidget {
           isAvailableMode: isAvailableMode,
           onMyJobsPressed: () => ctrl.openAllJobs(),
           onJobTap: (event) => ctrl.openDetail(event.jobId),
-        ).marginSymmetric(horizontal: 24).marginOnly(bottom: 16),
+        ).marginSymmetric(horizontal: 24).marginOnly(bottom: 8),
+        Obx(() {
+          if (!ctrl.isCalendarMoreLoading.value) return const SizedBox.shrink();
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Center(child: CircularProgressIndicator(color: scheme.primary)),
+          );
+        }),
+        const SizedBox(height: 8),
       ],
     );
   }
@@ -412,6 +434,7 @@ class _ListContentView extends StatelessWidget {
                     if (list[i].$2.status == Constants.jobFinished) {
                       status = list[i].$2.status ?? status;
                     }
+
                     return JobCard(
                       title: list[i].$2.title,
                       dateTime: '${CcsDateUtils.shortDateNoYear(list[i].$1)} · ${list[i].$2.timeRange}',

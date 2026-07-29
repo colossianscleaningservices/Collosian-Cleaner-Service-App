@@ -44,6 +44,9 @@ class Notifier {
       void Function()? onSecondaryPressed,
       bool top = false,
       bool isSheetAutoClose = true,
+      /// When true with [body], sheet fills available height (lists / PDF).
+      /// When false (default), sheet wraps content height (time pickers, filters).
+      bool expandBody = false,
       TextAlign msgAlign = TextAlign.center}) {
     final scheme = context.colorScheme;
 
@@ -52,24 +55,24 @@ class Notifier {
 
     switch (type) {
       case SheetType.success:
-        bg = Colors.green.shade100; // Background color for success
-        fg = Colors.green.shade400; // Foreground color (text) for success
+        bg = Colors.green.shade100;
+        fg = Colors.green.shade400;
         break;
       case SheetType.error:
-        bg = scheme.errorContainer; // Background color for info
-        fg = scheme.error; // Foreground color (text) for info
+        bg = scheme.errorContainer;
+        fg = scheme.error;
         break;
       case SheetType.info:
-        bg = scheme.primaryContainer; // Background color for info
-        fg = scheme.primary; // Foreground color (text) for info
+        bg = scheme.primaryContainer;
+        fg = scheme.primary;
         break;
       case SheetType.warning:
-        bg = Colors.yellow.shade100.withValues(alpha: 0.6); // Background color for warning
-        fg = Colors.yellow.shade800; // Foreground color (text) for warning
+        bg = Colors.yellow.shade100.withValues(alpha: 0.6);
+        fg = Colors.yellow.shade800;
         break;
       case null:
-        bg = scheme.primaryContainer; // Background color for info
-        fg = scheme.primary; // Foreground color (text) for info
+        bg = scheme.primaryContainer;
+        fg = scheme.primary;
     }
 
     void closeSheet() {
@@ -78,106 +81,179 @@ class Notifier {
       }
     }
 
-    var content = SafeArea(
+    Widget buildHeader() {
+      return Row(
+        children: [
+          Assets.imagesAppLogo.image(width: 120),
+          const Spacer(),
+          if (isShowCloseIcon)
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: closeSheet,
+                style: filledIconButtonStyle(context),
+              ),
+            ),
+        ],
+      );
+    }
+
+    Widget? buildIcon() {
+      if (!showIcon) return null;
+      return AppCard(
+        enableShadows: false,
+        color: bg,
+        radius: 100,
+        child: iconWidget ??
+            Icon(
+              icon ?? IconsaxPlusLinear.check,
+              size: 56,
+              color: fg,
+            ).marginAll(16),
+      ).marginOnly(top: 16);
+    }
+
+    Widget? buildButtons() {
+      if (!showPrimaryButton && !showSecondaryButton) return null;
+      return Column(
+        spacing: 16,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (showPrimaryButton)
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                type: ButtonType.primary,
+                label: primaryButtonLabel,
+                txtClr: bg,
+                bgColor: fg,
+                onPressed: onPrimaryPressed != null
+                    ? () {
+                        if (isSheetAutoClose) closeSheet();
+                        onPrimaryPressed.call();
+                      }
+                    : closeSheet,
+              ),
+            ),
+          if (showSecondaryButton)
+            SizedBox(
+              width: double.infinity,
+              child: AppButton(
+                type: ButtonType.tonal,
+                txtClr: fg,
+                bgColor: bg,
+                label: secondaryButtonLabel,
+                onPressed: onSecondaryPressed != null
+                    ? () {
+                        closeSheet();
+                        onSecondaryPressed.call();
+                      }
+                    : closeSheet,
+              ),
+            ),
+        ],
+      );
+    }
+
+    // Alerts / content body: shrink-wrap (+ scroll if tall).
+    // expandBody: fill height so inner ListView/PDF get a real viewport (keyboard-safe).
+    final content = SafeArea(
       top: top,
       bottom: false,
-      child: AppCard(
-        child: SingleChildScrollView(
-          child: Column(
-            spacing: 16,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final available = constraints.maxHeight.isFinite
+              ? constraints.maxHeight
+              : MediaQuery.sizeOf(context).height;
+          // Outer vertical margin 24*2.
+          final maxHeight = (available - 48).clamp(120.0, available);
+
+          final header = buildHeader();
+          final iconWidgetBuilt = buildIcon();
+          final buttons = buildButtons();
+          final useExpand = body != null && expandBody;
+
+          final Widget sheetChild;
+          if (useExpand) {
+            sheetChild = Padding(
+              padding: const EdgeInsets.only(left: 24, right: 18, bottom: 18, top: 12),
+              child: Column(
                 children: [
-                  Assets.imagesAppLogo.image(
-                    width: 120,
-                  ),
-                  Spacer(),
-                  if (isShowCloseIcon)
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: IconButton(icon: const Icon(Icons.close), onPressed: closeSheet, style: filledIconButtonStyle(context)),
-                    ),
+                  header,
+                  if (iconWidgetBuilt != null) ...[
+                    const SizedBox(height: 16),
+                    iconWidgetBuilt,
+                  ],
+                  const SizedBox(height: 16),
+                  Expanded(child: body),
+                  if (buttons != null) ...[
+                    const SizedBox(height: 16),
+                    buttons,
+                  ],
                 ],
               ),
-
-              if (showIcon)
-                AppCard(
-                  enableShadows: false,
-                  color: bg,
-                  radius: 100,
-                  child: iconWidget ??
-                      Icon(
-                        icon ?? IconsaxPlusLinear.check,
-                        size: 56,
-                        color: fg,
-                      ).marginAll(16),
-                ).marginOnly(top: 16),
-          
-              if (body == null)
-                Column(
-                  spacing: 8,
-                  children: [
-                    CommonText.bold(
-                      title,
-                      size: 24,
-                      color: scheme.primary,
-                      fontWeight: FontWeight.w900,
-                      textAlign: TextAlign.center,
-                    ),
-                    if (message != null) CommonText.regular(message, textAlign: msgAlign, size: 18, color: scheme.onSurface.withValues(alpha: 0.7)),
-                  ],
-                ).marginSymmetric(vertical: 16),
-          
-              if (body != null) body,
-          
-              /// Buttons
-              if (showPrimaryButton || showSecondaryButton)
-                Column(
+            );
+          } else {
+            sheetChild = SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 24, right: 18, bottom: 18, top: 12),
+                child: Column(
                   spacing: 16,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (showPrimaryButton)
-                      SizedBox(
-                        width: double.infinity,
-                        child: AppButton(
-                          type: ButtonType.primary,
-                          label: primaryButtonLabel,
-                          txtClr: bg,
-                          bgColor: fg,
-                          onPressed: onPrimaryPressed != null
-                              ? () {
-                                  if (isSheetAutoClose) closeSheet();
-                                  onPrimaryPressed.call();
-                                }
-                              : () => closeSheet(),
-                        ),
-                      ),
-                    if (showSecondaryButton)
-                      SizedBox(
-                        width: double.infinity,
-                        child: AppButton(
-                          type: ButtonType.tonal,
-                          txtClr: fg,
-                          bgColor: bg,
-                          label: secondaryButtonLabel,
-                          onPressed: onSecondaryPressed != null
-                              ? () {
-                                  closeSheet();
-                                  onSecondaryPressed.call();
-                                }
-                              : () => closeSheet(),
-                        ),
-                      ),
+                    header,
+                    if (iconWidgetBuilt != null) iconWidgetBuilt,
+                    if (body == null)
+                      Column(
+                        spacing: 8,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CommonText.bold(
+                            title,
+                            size: 24,
+                            color: scheme.primary,
+                            fontWeight: FontWeight.w900,
+                            textAlign: TextAlign.center,
+                          ),
+                          if (message != null)
+                            CommonText.regular(
+                              message,
+                              textAlign: msgAlign,
+                              size: 18,
+                              color: scheme.onSurface.withValues(alpha: 0.7),
+                            ),
+                        ],
+                      ).marginSymmetric(vertical: 16),
+                    if (body != null) body,
+                    if (buttons != null) buttons,
                   ],
                 ),
-            ],
-          ).paddingOnly(left: 24, right: 18, bottom: 18, top: 12),
-        ),
-      ).marginSymmetric(horizontal: 18, vertical: 24),
+              ),
+            );
+          }
+
+          return AppCard(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: maxHeight,
+                minHeight: useExpand ? maxHeight : 0,
+              ),
+              child: sheetChild,
+            ),
+          ).marginSymmetric(horizontal: 18, vertical: 24);
+        },
+      ),
     );
 
-    Get.bottomSheet(content,
-        isDismissible: isDismissable, enterBottomSheetDuration: Duration(milliseconds: 250), isScrollControlled: true, ignoreSafeArea: false);
+    Get.bottomSheet(
+      content,
+      isDismissible: isDismissable,
+      persistent: false,
+      enterBottomSheetDuration: const Duration(milliseconds: 250),
+      isScrollControlled: true,
+      ignoreSafeArea: false,
+    );
   }
 
   static void _show({required String title, required String message, required ToastificationType type}) {

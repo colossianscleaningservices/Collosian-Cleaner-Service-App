@@ -41,6 +41,15 @@ sealed class NetworkException implements Exception {
           errorMessage: 'Sorry, the request is unauthorized.',
           title: 'Session expired',
           apiErrorMessage: _extractMessage(data),
+          statusCode: statusCode,
+        );
+      }
+      if (statusCode == 403) {
+        return ForbiddenException(
+          errorMessage: "Sorry, you don't have permission for this action.",
+          title: 'Access denied',
+          apiErrorMessage: _extractMessage(data),
+          statusCode: statusCode,
         );
       }
       if (error.type == DioExceptionType.connectionTimeout ||
@@ -143,6 +152,17 @@ class UnauthorizedRequestException extends ApiException {
     super.title,
     super.statusCode,
   }) : super(requiresLogout: true);
+}
+
+class ForbiddenException extends ApiException {
+  const ForbiddenException({
+    required super.errorMessage,
+    super.apiErrorMessage,
+    super.errBody,
+    super.shouldShowApiError,
+    super.title,
+    super.statusCode,
+  });
 }
 
 class NotFoundException extends ApiException {

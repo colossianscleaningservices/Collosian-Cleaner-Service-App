@@ -178,8 +178,6 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
               Obx(() {
                 final isStudent = Prefs().getData(Prefs.isStudent) == 'true';
                 final usedHours = controller.staffDash.value?.studentWeeklyHoursUsed ?? 0;
-                
-                print('HOUR USED : $usedHours');
 
                 if (isStudent && usedHours > 20) {
                   return AppCard(

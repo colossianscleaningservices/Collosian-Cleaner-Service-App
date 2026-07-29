@@ -98,6 +98,20 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                   ),
                 ),
 
+                if (_hasRates(staff)) ...[
+                  const SizedBox(height: 20),
+                  JobDetailSection(
+                    semanticLabel: 'Rates',
+                    emoji: '💷',
+                    title: 'Hourly rates',
+                    scheme: scheme,
+                    child: AppCard(
+                      child: _RatesBlock(staff: staff!, scheme: scheme)
+                          .paddingAll(UiConstants.defaultPadding),
+                    ),
+                  ),
+                ],
+
                 if (_hasLocation(staff)) ...[
                   const SizedBox(height: 20),
                   JobDetailSection(
@@ -210,6 +224,19 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
     return _locationAddressText(staff) != null;
   }
 
+  bool _hasRates(Staff? staff) {
+    if (staff == null) return false;
+    return staff.hourlyRate != null ||
+        staff.residentialHourlyRate != null ||
+        staff.commercialHourlyRate != null;
+  }
+
+  static String formatRate(num? rate) {
+    if (rate == null) return '—';
+    final value = rate is int ? rate.toDouble() : rate.toDouble();
+    return '£${value.toStringAsFixed(2)}/hr';
+  }
+
   bool _hasCleaningServices(Staff? staff) {
     if (staff == null) return false;
     final hasData = staff.cleaningServicesData != null && staff.cleaningServicesData!.isNotEmpty;
@@ -309,6 +336,38 @@ class _LabeledPair extends StatelessWidget {
   }
 }
 
+class _RatesBlock extends StatelessWidget {
+  const _RatesBlock({required this.staff, required this.scheme});
+
+  final Staff staff;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final rows = <Widget>[];
+    void addPair(String label, num? rate) {
+      if (rate == null) return;
+      if (rows.isNotEmpty) {
+        rows.add(Divider(height: 20, color: scheme.outline.withValues(alpha: 0.12)));
+      }
+      rows.add(
+        _LabeledPair(
+          label: label,
+          value: StaffDetailsView.formatRate(rate),
+          scheme: scheme,
+        ),
+      );
+    }
+
+    addPair('Hourly rate', staff.hourlyRate);
+    addPair('Residential', staff.residentialHourlyRate);
+    addPair('Commercial', staff.commercialHourlyRate);
+
+    if (rows.isEmpty) return const SizedBox.shrink();
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows);
+  }
+}
+
 class _CleaningServicesChips extends StatelessWidget {
   const _CleaningServicesChips({required this.staff, required this.scheme});
 
@@ -387,6 +446,17 @@ class _ProfileCard extends StatelessWidget {
           label: 'Active',
           backgroundColor: scheme.surfaceContainerHighest,
           foregroundColor: scheme.onSurfaceVariant,
+          leftPadding: 10,
+        ),
+      );
+    }
+    if (staff?.hourlyRate != null) {
+      if (badges.isNotEmpty) badges.add(const SizedBox(width: 8));
+      badges.add(
+        InfoChip(
+          label: StaffDetailsView.formatRate(staff!.hourlyRate),
+          backgroundColor: scheme.secondaryContainer,
+          foregroundColor: scheme.onSecondaryContainer,
           leftPadding: 10,
         ),
       );

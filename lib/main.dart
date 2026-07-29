@@ -43,14 +43,14 @@ Future<void> main() async {
     await OrientationPolicy.applyFromView();
   }
 
-  getTimeZone().then((onValue) {
-    Get
-      ..put(NetworkMonitorService(), permanent: true)
-      ..put(ApiHandler(), tag: 'handler', permanent: true)
-      ..put(DioClient().getClient(), tag: 'dio_client', permanent: true)
-      ..put(SessionService(), permanent: true)
-      ..put(ApiErrorHandler(), permanent: true);
-  });
+  await getTimeZone();
+
+  Get
+    ..put(NetworkMonitorService(), permanent: true)
+    ..put(ApiHandler(), tag: 'handler', permanent: true)
+    ..put(DioClient().getClient(), tag: 'dio_client', permanent: true)
+    ..put(SessionService(), permanent: true)
+    ..put(ApiErrorHandler(), permanent: true);
 
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
   SystemUIConfig.setSystemBehaviour(savedThemeMode);

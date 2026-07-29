@@ -34,5 +34,7 @@ class ExceptionMessage {
 
   String get unauthorizedRequest => 'Sorry, the request is unauthorized.';
 
+  String get forbiddenRequest => "Sorry, you don't have permission for this action.";
+
   String get unexpectedError => 'Something went wrong. Please try again.';
 }

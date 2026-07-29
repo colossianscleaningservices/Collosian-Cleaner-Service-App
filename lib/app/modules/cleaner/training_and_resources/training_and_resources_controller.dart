@@ -194,12 +194,11 @@ class TrainingAndResourcesController extends GetxController {
         showPrimaryButton: false,
         showSecondaryButton: false,
         top: true,
-        body: Expanded(
-          child: SfPdfViewer.network(
-            url ?? '',
-            key: pdfViewerKey,
-            password: "1234",
-          ),
+        expandBody: true,
+        body: SfPdfViewer.network(
+          url,
+          key: pdfViewerKey,
+          password: "1234",
         ));
   }
 }

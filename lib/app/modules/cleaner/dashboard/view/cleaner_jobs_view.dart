@@ -12,8 +12,24 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CommonText.bold('Job Status', size: 18, color: scheme.onSurface).marginOnly(bottom: 10, left: 18, right: 18),
-          _FilterChips(controller: controller, scheme: scheme).marginOnly(left: 18, right: 18),
+          Obx(
+            () => CommonDropDownField<String>(
+              label: 'Job Status',
+              hint: 'Select status',
+              items: controller.filter.map((e) => e.type).toList(),
+              itemLabel: (v) => v,
+              value: controller.filter.firstWhereOrNull((e) => e.isSelected)?.type ?? 'All Jobs',
+              onChanged: (selected) {
+                if (selected == null) return;
+                for (final element in controller.filter) {
+                  element.isSelected = element.type == selected;
+                }
+                controller.jobCurrentPage = 1;
+                controller.fetchJobs(filter: selected != 'All Jobs' ? selected : '');
+                controller.filter.refresh();
+              },
+            ),
+          ).marginOnly(left: 18, right: 18),
           Obx(() {
             controller.jobs.value;
             return Row(
@@ -177,58 +193,6 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
   }
 
   static bool _isSameDay(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;
-}
-
-class _FilterChips extends StatelessWidget {
-  const _FilterChips({required this.controller, required this.scheme});
-
-  final CleanerDashboardController controller;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Obx(
-      () => Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: controller.filter.map((category) {
-          final isSelected = category.isSelected;
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                for (var element in controller.filter) {
-                  element.isSelected = false;
-                }
-                category.isSelected = true;
-                controller.jobCurrentPage = 1;
-                controller.fetchJobs(filter: (category.type != 'All Jobs') ? category.type : '');
-                controller.filter.refresh();
-              },
-              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                decoration: BoxDecoration(
-                  color: isSelected ? scheme.primaryContainer.withValues(alpha: 0.5) : scheme.onPrimary,
-                  borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                  boxShadow: context.effectiveShadows(),
-                  border: Border.all(
-                    color: isSelected ? scheme.primary.withValues(alpha: 0.4) : scheme.outline.withValues(alpha: 0.15),
-                    width: isSelected ? 1.5 : 1,
-                  ),
-                ),
-                child: CommonText.medium(
-                  category.type,
-                  size: 14,
-                  color: isSelected ? scheme.primary : scheme.onSurface,
-                ).paddingSymmetric(horizontal: 14, vertical: 10),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
 }
 
 class _SectionLabel extends StatelessWidget {

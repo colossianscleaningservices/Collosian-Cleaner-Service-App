@@ -96,7 +96,7 @@ class JobCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           CommonText.semiBold(
-                            title.isEmpty ? 'N/A' :title,
+                            title.isEmpty ? 'N/A' : title,
                             size: 16,
                             color: scheme.onSurface,
                             maxLines: 1,
@@ -108,11 +108,13 @@ class JobCard extends StatelessWidget {
                             CommonText.regular(
                               propertyName!,
                               size: 14,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                               fontWeight: FontWeight.w500,
                               color: scheme.onSurface,
                             ).marginOnly(bottom: 2),
                         ],
-                      ),
+                      ).marginOnly(right: 12),
                     ),
                     _JobCardStatusChip(label: status, scheme: scheme),
                   ],

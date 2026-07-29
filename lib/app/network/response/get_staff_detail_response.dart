@@ -86,7 +86,10 @@ class Staff {
       this.nextOfKinRelationship, 
       this.nextOfKinContact, 
       this.preferredStartDate, 
-      this.localAreas, 
+      this.hourlyRate,
+      this.residentialHourlyRate,
+      this.commercialHourlyRate,
+      this.localAreas,
       this.bankName, 
       this.accountHolderName, 
       this.preferred,
@@ -139,6 +142,9 @@ class Staff {
     preferred = json['preferred'];
     accountNumber = json['account_number'];
     sortCode = json['sort_code'];
+    hourlyRate = json['hourly_rate'];
+    residentialHourlyRate = json['residential_hourly_rate'];
+    commercialHourlyRate = json['commercial_hourly_rate'];
     if (json['cleaning_services_data'] != null) {
       cleaningServicesData = [];
       json['cleaning_services_data'].forEach((v) {
@@ -203,6 +209,9 @@ class Staff {
   List<CleaningServicesData>? cleaningServicesData;
   List<AvailableSlots>? availableSlots;
   List<dynamic>? hourBlocks;
+  num? hourlyRate;
+  num? residentialHourlyRate;
+  num? commercialHourlyRate;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -248,6 +257,9 @@ class Staff {
     map['account_holder_name'] = accountHolderName;
     map['account_number'] = accountNumber;
     map['sort_code'] = sortCode;
+    map['hourly_rate'] = hourlyRate;
+    map['residential_hourly_rate'] = residentialHourlyRate;
+    map['commercial_hourly_rate'] = commercialHourlyRate;
     if (cleaningServicesData != null) {
       map['cleaning_services_data'] = cleaningServicesData?.map((v) => v.toJson()).toList();
     }

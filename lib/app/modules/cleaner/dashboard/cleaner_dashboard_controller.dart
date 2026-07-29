@@ -67,6 +67,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   var assignedCalendarTotalPages = 1;
   var availableCalendarPage = 1;
   var availableCalendarTotalPages = 1;
+  final isSingleDayCalendarMode = false.obs;
+  bool assignedSingleDayHasMore = true;
+  bool availableSingleDayHasMore = true;
   RxBool isCalendarMoreLoading = false.obs;
   ScrollController calendarListScrollController = ScrollController();
 
@@ -235,11 +238,39 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   void _onCalendarListScroll() {
     if (tabIndex.value != 1 || tabController.index != 2) return;
     if (!_isCalendarListScrollBottom || isCalendarMoreLoading.value) return;
-    if (_activeCalendarPage > _activeCalendarTotalPages) return;
+    if (isSingleDayCalendarMode.value) {
+      final canLoadMore = calendarJobMode.value == CalendarJobMode.available ? availableSingleDayHasMore : assignedSingleDayHasMore;
+      if (!canLoadMore) return;
+    } else {
+      if (_activeCalendarPage > _activeCalendarTotalPages) return;
+    }
     isCalendarMoreLoading.value = true;
+    final selected = selectedDay.value ?? focusedDay.value;
     getCleanerCalender(
-      forDate: focusedDay.value,
-      forWeek: mode.value == CalendarViewMode.week,
+      forDate: selected,
+      singleDay: isSingleDayCalendarMode.value,
+      forWeek: !isSingleDayCalendarMode.value && mode.value == CalendarViewMode.week,
+      loadMore: true,
+    );
+  }
+
+  /// Week/Month tab scroll pagination trigger (below calendar section).
+  void onCalendarContentScrolled(ScrollMetrics metrics) {
+    if (tabIndex.value != 1 || tabController.index == 2) return;
+    if (metrics.extentAfter > 120) return;
+    if (isCalendarMoreLoading.value) return;
+    if (isSingleDayCalendarMode.value) {
+      final canLoadMore = calendarJobMode.value == CalendarJobMode.available ? availableSingleDayHasMore : assignedSingleDayHasMore;
+      if (!canLoadMore) return;
+    } else {
+      if (_activeCalendarPage > _activeCalendarTotalPages) return;
+    }
+    isCalendarMoreLoading.value = true;
+    final selected = selectedDay.value ?? focusedDay.value;
+    getCleanerCalender(
+      forDate: selected,
+      singleDay: isSingleDayCalendarMode.value,
+      forWeek: !isSingleDayCalendarMode.value && mode.value == CalendarViewMode.week,
       loadMore: true,
     );
   }
@@ -330,12 +361,15 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     selectedDay.value = selected;
     focusedDay.value = focused;
     final day = selected ?? focused;
-    if (mode.value == CalendarViewMode.month || mode.value == CalendarViewMode.week) return;
+    isSingleDayCalendarMode.value = true;
+    // Day tap should always fetch that exact date (`date` query param),
+    // regardless of active calendar tab.
     getCleanerCalender(forDate: day, singleDay: true);
   }
 
   void onCalendarPageChanged(DateTime focused) {
     focusedDay.value = focused;
+    isSingleDayCalendarMode.value = false;
     getCleanerCalender(forDate: focused, forWeek: mode.value == CalendarViewMode.week);
   }
 
@@ -346,6 +380,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       focusedDay.value = DateTime(focusedDay.value.year, focusedDay.value.month - 1, focusedDay.value.day);
     }
     if (focusedDay.value.isBefore(kCalendarFirstDay)) focusedDay.value = kCalendarFirstDay;
+    isSingleDayCalendarMode.value = false;
     getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
   }
 
@@ -356,6 +391,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       focusedDay.value = DateTime(focusedDay.value.year, focusedDay.value.month + 1, focusedDay.value.day);
     }
     if (focusedDay.value.isAfter(kCalendarLastDay)) focusedDay.value = kCalendarLastDay;
+    isSingleDayCalendarMode.value = false;
     getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
   }
 
@@ -363,6 +399,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     tabIndex.value = index.clamp(0, pages.length - 1);
 
     if (tabIndex.value == 1) {
+      isSingleDayCalendarMode.value = false;
       await getCleanerCalender(forDate: focusedDay.value, forWeek: mode.value == CalendarViewMode.week);
       if (propertyNameOptions.isEmpty) await geCleanerProperties();
     } else if (tabIndex.value == 2 && weeklySchedule.isEmpty) {
@@ -605,18 +642,32 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     bool forWeek = false,
     bool loadMore = false,
   }) async {
+    final targetDate = forDate ?? focusedDay.value;
+    final singleDayKey = singleDay
+        ? DateTime(targetDate.year, targetDate.month, targetDate.day)
+        : null;
+
+    if (!singleDay) {
+      isSingleDayCalendarMode.value = false;
+    }
+
     if (!loadMore) {
       _resetActiveCalendarPage();
-      Loader.show();
+      if (singleDay) {
+        if (calendarJobMode.value == CalendarJobMode.available) {
+          availableSingleDayHasMore = true;
+        } else {
+          assignedSingleDayHasMore = true;
+        }
+      }
+      if (!singleDay) Loader.show();
     }
     try {
       String? dateFrom;
       String? dateTo;
       String? date;
-      final targetDate = forDate ?? focusedDay.value;
       if (singleDay) {
-        final d = DateTime(targetDate.year, targetDate.month, targetDate.day);
-        date = _formatDateForApi(d);
+        date = _formatDateForApi(singleDayKey!);
       } else if (forWeek) {
         final weekStart = targetDate.subtract(Duration(days: targetDate.weekday - 1));
         final weekEnd = weekStart.add(const Duration(days: 6));
@@ -632,7 +683,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       final status = selectedStatus.value == "All" ? null : selectedStatus.value;
       final propertyName = propertyController.text.isEmpty ? null : propertyController.text;
       final isAvailable = calendarJobMode.value == CalendarJobMode.available;
-      final page = _activeCalendarPage;
+      final page = singleDay
+          ? (loadMore ? _activeCalendarPage : 1)
+          : _activeCalendarPage;
       final type = isAvailable ? 'unassigned' : 'assigned';
 
       final result = await _cleanerRepository.getCleanerCalender(
@@ -643,10 +696,37 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
         propertyName: propertyName,
         type: type,
         page: page,
+        perPage: singleDay ? 15 : null,
       );
       result.handle(
         success: (value) {
-          final newMap = _mapJobsToEvents(value.data?.jobs ?? <Jobs>[], isAvailable: isAvailable);
+          final newMap = _mapJobsToEvents(value.data?.jobs ?? <Jobs>[]);
+          if (singleDay && singleDayKey != null) {
+            const singleDayPerPage = 15;
+            _mergeSingleDayEvents(
+              isAvailable: isAvailable,
+              dayKey: singleDayKey,
+              dayEvents: newMap[singleDayKey] ?? [],
+              append: loadMore,
+            );
+            final fetchedCount = (value.data?.jobs ?? const <Jobs>[]).length;
+            final hasMoreByCount = fetchedCount >= singleDayPerPage;
+            final total = (value.data?.pagination?.totalPages ?? 1).toInt();
+            if (isAvailable) {
+              availableSingleDayHasMore = hasMoreByCount;
+              availableCalendarTotalPages = total;
+              if (availableSingleDayHasMore || availableCalendarPage <= availableCalendarTotalPages) {
+                availableCalendarPage++;
+              }
+            } else {
+              assignedSingleDayHasMore = hasMoreByCount;
+              assignedCalendarTotalPages = total;
+              if (assignedSingleDayHasMore || assignedCalendarPage <= assignedCalendarTotalPages) {
+                assignedCalendarPage++;
+              }
+            }
+            return;
+          }
           if (isAvailable) {
             availableEventsMap.value = loadMore ? _mergeEventMaps(availableEventsMap.value, newMap) : newMap;
             availableCalendarTotalPages = (value.data?.pagination?.totalPages ?? 1).toInt();
@@ -666,8 +746,28 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'get-cleaner-calender');
     } finally {
-      if (!loadMore) Loader.hide();
+      if (!loadMore && !singleDay) Loader.hide();
       isCalendarMoreLoading.value = false;
+    }
+  }
+
+  /// Day tap fetch: update only that date in map — keep dots on other days.
+  void _mergeSingleDayEvents({
+    required bool isAvailable,
+    required DateTime dayKey,
+    required List<CalendarEvent> dayEvents,
+    bool append = false,
+  }) {
+    final merged = Map<DateTime, List<CalendarEvent>>.from(
+      isAvailable ? availableEventsMap.value : calendarEventsMap.value,
+    );
+    merged[dayKey] = append
+        ? [...(merged[dayKey] ?? const <CalendarEvent>[]), ...dayEvents]
+        : dayEvents;
+    if (isAvailable) {
+      availableEventsMap.value = merged;
+    } else {
+      calendarEventsMap.value = merged;
     }
   }
 
@@ -682,7 +782,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     return merged;
   }
 
-  Map<DateTime, List<CalendarEvent>> _mapJobsToEvents(List<Jobs> list, {bool isAvailable = false}) {
+  Map<DateTime, List<CalendarEvent>> _mapJobsToEvents(List<Jobs> list) {
     final map = <DateTime, List<CalendarEvent>>{};
     for (final item in list) {
       final dateKey = _parseCalendarDate(item.date);
@@ -697,13 +797,13 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
             CalendarEvent(
               title: resolvedTitle,
               timeRange: timeRange,
-              status: isAvailable ? 'Available' : (item.status ?? 'Pending'),
+              status: item.status ?? item.cleanerJobStatus ?? 'Pending',
               jobId: item.id,
               propertyName: item.property?.propertyName ?? '',
               address: item.property?.address ?? '',
               subtitle: item.property?.additionalDetails ?? '',
               cleanerInfo: item.cleaners?.map((cl) => cl.name ?? '').where((n) => n.isNotEmpty).join(', '),
-              cleanerJobStatus: isAvailable ? 'Available' : item.cleanerJobStatus,
+              cleanerJobStatus: item.cleanerJobStatus ?? item.status,
             ),
           );
     }

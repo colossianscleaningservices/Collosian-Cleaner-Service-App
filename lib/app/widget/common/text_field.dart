@@ -201,6 +201,10 @@ class CommonDropDownField<T> extends StatelessWidget {
     final labelStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultTextColor, fontWeight: FontWeight.w600);
     final hintStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14, color: defaultHintColor, fontWeight: FontWeight.w400);
 
+    // DropdownButtonFormField2 asserts value is null or exactly one item matches.
+    // API / property fill can send strings not in [items] — coerce to null (show hint).
+    final T? effectiveValue = value != null && items.where((e) => e == value).length == 1 ? value : null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -209,7 +213,7 @@ class CommonDropDownField<T> extends StatelessWidget {
           isExpanded: true,
           validator: validator,
           onChanged: onChanged,
-          value: value,
+          value: effectiveValue,
           hint: Text(hint, style: hintStyle, overflow: TextOverflow.ellipsis),
           decoration: buildCommonDecoration(
             borderColor: borderColor,

@@ -61,12 +61,11 @@ class SupportDocumentController extends GetxController {
         showIcon: false,
         showPrimaryButton: false,
         showSecondaryButton: false,
-        body: Expanded(
-          child: SfPdfViewer.network(
-            item.documentUrl ?? '',
-            key: pdfViewerKey,
-            password: "1234",
-          ),
+        expandBody: true,
+        body: SfPdfViewer.network(
+          item.documentUrl ?? '',
+          key: pdfViewerKey,
+          password: "1234",
         ),
       );
     } else {

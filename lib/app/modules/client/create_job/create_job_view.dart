@@ -4,6 +4,7 @@ import 'package:ccs_app/app/widget/common/wheel_picker_time.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
 import 'package:ccs_app/export.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 import 'create_job_controller.dart';
 
@@ -63,12 +64,7 @@ class CreateJobView extends GetView<CreateJobController> {
                                     controller.selectedProperty.value = v;
                                     var property = controller.properties
                                         .firstWhereOrNull((item) => item.propertyName?.toLowerCase() == controller.selectedProperty.value?.toLowerCase());
-                                    controller.staffPreference.value = property?.staffPreference ?? 'Male';
-                                    controller.accessToProperty.value = property?.accessToProperty ?? 'Client Will Open';
-                                    controller.hoover.value = property?.hoover ?? 'No';
-                                    controller.provideCleaningProducts.value = property?.provideCleaningProducts ?? false;
-                                    controller.provideWashingMachine.value = property?.provideWashingMachine ?? false;
-                                    controller.provideDryer.value = property?.provideDryer ?? false;
+                                    controller.applyPropertyDefaults(property);
                                   },
                                   validator: (v) => controller.validateProperty(v),
                                 ),
@@ -153,59 +149,76 @@ class CreateJobView extends GetView<CreateJobController> {
                               showPrimaryButton: false,
                               showSecondaryButton: false,
                               showIcon: false,
-                              body: Expanded(
-                                child: Column(
-                                  children: [
-                                    _SearchSection(controller: controller, scheme: scheme).marginOnly(bottom: 8),
-                                    Obx(() {
-                                      return controller.isLoadingCleaningType.value
-                                          ? Center(child: CircularProgressIndicator())
-                                          : controller.cleaningTypeList.isEmpty
-                                              ? Flexible(
-                                                  child: Center(
-                                                    child: NoDataView(
-                                                      title: 'No Cleaning Type Found',
-                                                    ),
-                                                  ),
-                                                )
-                                              : Flexible(
-                                                  child: ListView.builder(
-                                                    shrinkWrap: true,
-                                                    itemCount: controller.cleaningTypeList.length,
-                                                    itemBuilder: (context, index) {
-                                                      final item = controller.cleaningTypeList[index];
-                                                      return AppCard(
-                                                        color: item.isSelect ? scheme.secondaryContainer : scheme.onPrimary,
-                                                        borderWidth: item.isSelect ? 1.5 : 0,
-                                                        borderColor: item.isSelect ? scheme.secondary : Colors.transparent,
-                                                        onTap: () {
-                                                          controller.cleaningTypeCtrl.text = item.name ?? "";
-                                                          for (var cl in controller.cleaningTypeList) {
-                                                            cl.isSelect = false;
-                                                          }
-                                                          for (var cl in controller.mainCleaningTypeList) {
-                                                            cl.isSelect = false;
-                                                          }
-                                                          controller.mainCleaningTypeList.firstWhereOrNull((element) => element.name == item.name)?.isSelect =
-                                                              true;
-                                                          item.isSelect = true;
-                                                          controller.cleaningTypeList.refresh();
-                                                          Get.back();
-                                                        },
-                                                        child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            CommonText.semiBold(item.name ?? "").marginOnly(bottom: 4),
-                                                            CommonText.regular(item.description ?? ""),
-                                                          ],
-                                                        ).paddingAll(16),
-                                                      ).marginAll(8);
+                              expandBody: true,
+                              body: Column(
+                                children: [
+                                  _SearchSection(controller: controller, scheme: scheme).marginOnly(bottom: 8),
+                                  Expanded(
+                                    child: Obx(() {
+                                      if (controller.isLoadingCleaningType.value) {
+                                        return const Center(child: CircularProgressIndicator());
+                                      }
+                                      if (controller.cleaningTypeList.isEmpty) {
+                                        return const Center(
+                                          child: NoDataView(
+                                            title: 'No Cleaning Type Found',
+                                          ),
+                                        );
+                                      }
+                                      return ListView.builder(
+                                        itemCount: controller.cleaningTypeList.length,
+                                        itemBuilder: (context, index) {
+                                          final item = controller.cleaningTypeList[index];
+                                          return AppCard(
+                                            color: item.isSelect ? scheme.secondaryContainer : scheme.onPrimary,
+                                            borderWidth: item.isSelect ? 1.5 : 0,
+                                            borderColor: item.isSelect ? scheme.secondary : Colors.transparent,
+                                            onTap: () {
+                                              controller.cleaningTypeCtrl.text = item.name ?? "";
+                                              for (var cl in controller.cleaningTypeList) {
+                                                cl.isSelect = false;
+                                              }
+                                              for (var cl in controller.mainCleaningTypeList) {
+                                                cl.isSelect = false;
+                                              }
+                                              controller.mainCleaningTypeList.firstWhereOrNull((element) => element.name == item.name)?.isSelect =
+                                                  true;
+                                              item.isSelect = true;
+                                              controller.cleaningTypeList.refresh();
+                                              Get.back();
+                                            },
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                CommonText.semiBold(item.name ?? "").marginOnly(bottom: 4),
+                                                if ((item.description ?? '').trim().isNotEmpty)
+                                                  Html(
+                                                    data: item.description!,
+                                                    style: {
+                                                      'body': Style(
+                                                        fontSize: FontSize(14),
+                                                        color: scheme.onSurface.withValues(alpha: 0.7),
+                                                        margin: Margins.zero,
+                                                        padding: HtmlPaddings.zero,
+                                                        fontWeight: FontWeight.w400,
+                                                      ),
+                                                      'p': Style(
+                                                        margin: Margins.only(bottom: 4),
+                                                        padding: HtmlPaddings.zero,
+                                                      ),
+                                                      'ul': Style(margin: Margins.only(left: 8, bottom: 4)),
+                                                      'ol': Style(margin: Margins.only(left: 8, bottom: 4)),
+                                                      'li': Style(margin: Margins.only(bottom: 2)),
                                                     },
                                                   ),
-                                                );
+                                              ],
+                                            ).paddingAll(16),
+                                          ).marginAll(8);
+                                        },
+                                      );
                                     }),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             );
                           },
@@ -223,7 +236,7 @@ class CreateJobView extends GetView<CreateJobController> {
                         CommonDropDownField<String>(
                           label: 'Staff Preference',
                           hint: 'Select',
-                          items: const ['Male', 'Female', 'No Preference'],
+                          items: CreateJobController.staffPreferenceOptions,
                           itemLabel: (v) => v,
                           value: controller.staffPreference.value,
                           onChanged: (v) => controller.staffPreference.value = v ?? 'Male',
@@ -231,7 +244,7 @@ class CreateJobView extends GetView<CreateJobController> {
                         CommonDropDownField<String>(
                           label: 'Access to Property',
                           hint: 'Select',
-                          items: const ['Client Will Open', 'Reception/Concierge', 'Key', 'Other'],
+                          items: CreateJobController.accessOptions,
                           itemLabel: (v) => v,
                           value: controller.accessToProperty.value,
                           onChanged: (v) => controller.accessToProperty.value = v ?? 'Client Will Open',
@@ -239,7 +252,7 @@ class CreateJobView extends GetView<CreateJobController> {
                         CommonDropDownField<String>(
                           label: 'Do you have a hoover?',
                           hint: 'Select',
-                          items: const ['No', 'Yes', 'I will get one'],
+                          items: CreateJobController.hooverOptions,
                           itemLabel: (v) => v,
                           value: controller.hoover.value,
                           onChanged: (v) => controller.hoover.value = v ?? 'No',

@@ -123,6 +123,7 @@ class CleanerRepository extends BaseRepository {
     String? propertyName,
     String? type,
     int page = 1,
+    int? perPage,
   }) async {
     return get<GetClientCalenderResponse>(
       endpoint: Endpoint.cleanerCalender,
@@ -134,6 +135,7 @@ class CleanerRepository extends BaseRepository {
         'property_name': propertyName,
         'type': type,
         'page': page,
+        if (perPage != null) 'per_page': perPage,
       },
       fromJson: (json) => GetClientCalenderResponse.fromJson(json),
     );
