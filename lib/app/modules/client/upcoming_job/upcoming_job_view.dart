@@ -10,7 +10,7 @@ class UpcomingJobView extends GetView<UpcomingJobController> {
   Widget build(BuildContext context) {
     return AppScaffold(
       appBar: Header(
-        title: 'Upcoming Jobs',
+        title: controller.isToday ? 'Today Jobs' : 'Upcoming Jobs',
       ),
       body: SwipeRefresh(
         onRefresh: () async {
@@ -42,7 +42,6 @@ class UpcomingJobView extends GetView<UpcomingJobController> {
                             tabletCount: 2,
                             landscapeCount: 3,
                             child: controller.jobs.map((job) {
-
                               final approvedCleaners = job.jobCleaners?.where((cleaner) => (cleaner.status?.toLowerCase() != 'rejected')).toList();
                               String? timeRange;
                               if (job.startTime != null && job.endTime != null) {
@@ -55,17 +54,17 @@ class UpcomingJobView extends GetView<UpcomingJobController> {
                                 subtitle: (job.cleaners == null || job.cleaners?.isEmpty == true)
                                     ? ' - '
                                     : job.cleaners
-                                    ?.map((item) {
-                                  var isCleanerAssign = false;
+                                            ?.map((item) {
+                                              var isCleanerAssign = false;
 
-                                  isCleanerAssign = job.jobCleaners
-                                      ?.firstWhereOrNull((cl) => (cl.userId == item.id && (cl.status?.toLowerCase() != 'rejected'))) !=
-                                      null;
-                                  return isCleanerAssign ? item.name ?? " - " : "";
-                                })
-                                    .toList()
-                                    .join(', ') ??
-                                    ' - ',
+                                              isCleanerAssign = job.jobCleaners
+                                                      ?.firstWhereOrNull((cl) => (cl.userId == item.id && (cl.status?.toLowerCase() != 'rejected'))) !=
+                                                  null;
+                                              return isCleanerAssign ? item.name ?? " - " : "";
+                                            })
+                                            .toList()
+                                            .join(', ') ??
+                                        ' - ',
                                 propertyName: job.property?.propertyName ?? "N/A",
                                 address: job.property?.address ?? "N/A",
                                 recurrence: job.scheduler?.frequency?.capitalizeFirst ?? "N/A",

@@ -57,7 +57,7 @@ class Jobs {
     userId = json['user_id'];
     pricingChartId = json['pricing_chart_id'];
     isDeleted = json['is_deleted'];
-    cleaningType = _parseCleaningType(json);
+    cleaningType = json['cleaning_type'] != null ? CleaningType.fromJson(json['cleaning_type']) : null;
     additionalDetails = json['additional_details'];
     hoover = json['hoover'];
     isAccepted = json['is_accepted'];
@@ -132,23 +132,6 @@ class Jobs {
   String? updatedAt;
   List<JobCleaners>? jobCleaners;
   Scheduler? scheduler;
-
-  /// Staff calendar may send `cleaning_type` as map/string/id and/or `cleaning_type_detail`.
-  static CleaningType? _parseCleaningType(dynamic json) {
-    final detail = json['cleaning_type_detail'];
-    if (detail is Map) {
-      return CleaningType.fromJson(detail);
-    }
-    final raw = json['cleaning_type'];
-    if (raw == null) return null;
-    if (raw is Map) return CleaningType.fromJson(raw);
-    if (raw is String && raw.trim().isNotEmpty) {
-      final asNum = num.tryParse(raw);
-      return CleaningType(id: asNum, name: asNum != null ? raw : raw);
-    }
-    if (raw is num) return CleaningType(id: raw, name: '$raw');
-    return null;
-  }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

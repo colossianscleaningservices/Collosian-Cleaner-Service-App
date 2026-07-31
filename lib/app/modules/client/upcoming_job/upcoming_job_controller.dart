@@ -11,8 +11,18 @@ class UpcomingJobController extends GetxController {
   ScrollController jobScrollController = ScrollController();
   final ClientRepository _clientRepository = ClientRepository();
 
+  var isToday = false;
+
+  final DateTime currentData = DateTime.now();
+
   @override
   void onInit() {
+    if (Get.arguments != null) {
+      if (Get.arguments['is_today'] != null) {
+        isToday = Get.arguments['is_today'];
+      }
+    }
+
     jobScrollController.addListener(() {
       if (_isScrollBottom) {
         if (jobCurrentPage <= jobTotalPage && !isJobMoreLoading.value) {
@@ -40,7 +50,12 @@ class UpcomingJobController extends GetxController {
   Future<void> fetchJobs({bool isLoaderShown = true}) async {
     if (!isJobMoreLoading.value && isLoaderShown) Loader.show();
     try {
-      final result = await _clientRepository.getJob(page: jobCurrentPage, upcoming: true);
+      final result = await _clientRepository.getJob(
+        page: jobCurrentPage,
+        upcoming: isToday ? false : true,
+        dateFrom: isToday ? currentData.toDisplayDate('yyyy-MM-dd') : null,
+        dateTo: isToday ? currentData.toDisplayDate('yyyy-MM-dd') : null,
+      );
       result.handle(
         success: (response) {
           WidgetsBinding.instance.addPostFrameCallback((_) {

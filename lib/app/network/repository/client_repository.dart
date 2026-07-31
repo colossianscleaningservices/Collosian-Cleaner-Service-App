@@ -204,9 +204,9 @@ class ClientRepository extends BaseRepository {
     );
   }
 
-  Future<NetworkResult<GetClientJobResponse>> getJob({int page = 1, bool? upcoming}) async {
+  Future<NetworkResult<GetClientJobResponse>> getJob({int page = 1, bool? upcoming, String? dateFrom, String? dateTo}) async {
     return get<GetClientJobResponse>(
-      queryParameters: {'page': page, 'upcoming': upcoming},
+      queryParameters: {'page': page, 'upcoming': upcoming, 'date_from': dateFrom, 'date_to': dateTo},
       endpoint: Endpoint.clientJob,
       fromJson: (json) => GetClientJobResponse.fromJson(json),
     );

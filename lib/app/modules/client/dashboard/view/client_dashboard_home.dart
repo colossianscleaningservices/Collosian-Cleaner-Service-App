@@ -94,7 +94,7 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                               const Spacer(),
                               AppCard(
                                 color: scheme.primaryContainer.withValues(alpha: 0.2),
-                                onTap: () => controller.setTab(2),
+                                onTap: () => /*controller.setTab(2)*/ Get.toNamed(Routes.UPCOMING_JOB, arguments: {'is_today': true}),
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -176,7 +176,7 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                       trailing: _ViewAllChip(
                         label: 'View all',
                         scheme: scheme,
-                        onTap: () => Get.toNamed(Routes.UPCOMING_JOB),
+                        onTap: () => Get.toNamed(Routes.UPCOMING_JOB, arguments: {'is_today': false}),
                       ),
                       child: (upcoming != null && upcoming.isNotEmpty == true)
                           ? AppGrid(
@@ -212,31 +212,6 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                     );
                   }),
                 }
-
-                /*CommonText.semiBold('Quick Actions', size: 16, color: scheme.onSurface),
-            Row(
-              children: [
-                Expanded(
-                  child: QuickActionChip(
-                    icon: IconsaxPlusLinear.additem,
-                    label: 'Create Job',
-                    subtitle: 'Add a new Job',
-                    onTap: () => controller.setTab(3),
-                    scheme: scheme,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: QuickActionChip(
-                    icon: IconsaxPlusLinear.home_hashtag,
-                    label: 'Property',
-                    subtitle: 'Add a new property',
-                    onTap: () => controller.setTab(4),
-                    scheme: scheme,
-                  ),
-                ),
-              ],
-            ),*/
               ],
             );
           }),

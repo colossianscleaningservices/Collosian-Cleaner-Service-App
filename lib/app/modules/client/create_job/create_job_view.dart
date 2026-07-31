@@ -142,6 +142,7 @@ class CreateJobView extends GetView<CreateJobController> {
                           isReadOnly: true,
                           hint: 'Select Cleaning Type',
                           keyboardType: TextInputType.text,
+                          suffixIcon: Icon(Icons.keyboard_arrow_down_outlined),
                           onTap: () {
                             Notifier.openSheet(
                               context,
