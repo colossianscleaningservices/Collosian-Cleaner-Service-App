@@ -134,6 +134,7 @@ class _CalendarSection extends StatelessWidget {
             lastDay: kCalendarLastDay,
             focusedDay: focusedDay,
             currentDay: DateTime.now(),
+            availableGestures: AvailableGestures.horizontalSwipe,
             selectedDayPredicate: (d) => selectedDay != null && isSameDay(d, selectedDay!),
             calendarFormat: mode == CalendarViewMode.week ? CalendarFormat.week : CalendarFormat.month,
             eventLoader: (day) => eventsMap?[DateTime(day.year, day.month, day.day)] ?? [],

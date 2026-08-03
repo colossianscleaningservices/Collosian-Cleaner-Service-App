@@ -13,14 +13,14 @@ class NotificationController extends GetxController {
   ScrollController scrollController = ScrollController();
   var totalPage = 1;
   var currentPage = 1;
-  bool _isLoading = false;
+  RxBool isLoadMore = false.obs;
 
   @override
   void onInit() {
     scrollController.addListener(() {
       if (_isScrollBottom) {
-        if (currentPage <= totalPage && !_isLoading) {
-          getNotifications();
+        if (currentPage <= totalPage && !isLoadMore.value) {
+          getNotifications(isLoadMore: true);
         }
       }
     });
@@ -41,10 +41,14 @@ class NotificationController extends GetxController {
     return currentScroll >= (maxScroll * 0.9);
   }
 
-  Future<void> getNotifications() async {
-    if (_isLoading) return;
-    _isLoading = true;
-    Loader.show();
+  Future<void> getNotifications({bool isLoadMore = false}) async {
+    if (isLoadMore) {
+      if (this.isLoadMore.value) return;
+      this.isLoadMore.value = true;
+    } else {
+      Loader.show();
+    }
+
     try {
       final result = await _commonRepository.getNotifications(page: currentPage);
       result.handle(
@@ -64,8 +68,11 @@ class NotificationController extends GetxController {
     } catch (e) {
       Notifier.error('Failed to fetch notifications');
     } finally {
-      Loader.hide();
-      _isLoading = false;
+      if (isLoadMore) {
+        this.isLoadMore.value = false;
+      } else {
+        Loader.hide();
+      }
     }
   }
 

@@ -25,7 +25,7 @@ class ChatMessage {
   final String senderId;
   final String senderName;
   final String senderRole;
-  final String? imageUrl;
+  String? imageUrl;
   final String? replyToId;
   final String? replyToPreview;
   final bool isRead;

@@ -7,7 +7,6 @@ class CleanerCard extends StatelessWidget {
   const CleanerCard({
     super.key,
     required this.cleaner,
-    required this.onShare,
     required this.onReview,
     required this.onTap,
     required this.scheme,
@@ -16,7 +15,7 @@ class CleanerCard extends StatelessWidget {
   });
 
   final ClientJobCleaner cleaner;
-  final VoidCallback onShare, onReview, onTap;
+  final VoidCallback onReview, onTap;
   final ColorScheme scheme;
   final bool isReview;
 
@@ -76,15 +75,6 @@ class CleanerCard extends StatelessWidget {
                             ),
                             child: CommonText.regular('View', size: 14, color: scheme.primary),
                           ),
-                         /* TextButton(
-                            onPressed: onShare,
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: CommonText.regular('Share', size: 14, color: scheme.primary),
-                          ),*/
                         ],
                     ],
                   ),

@@ -8,16 +8,24 @@ import 'package:flutter/foundation.dart' as foundation;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+import '../../../services/env_service.dart';
 import 'chat_controller.dart';
 
 String _formatMessageTime(DateTime t) {
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final msgDay = DateTime(t.year, t.month, t.day);
-  final hh = t.hour.toString().padLeft(2, '0');
+
+  final hour = t.hour % 12 == 0 ? 12 : t.hour % 12;
+  final hh = hour.toString().padLeft(2, '0');
   final mm = t.minute.toString().padLeft(2, '0');
-  if (msgDay == today) return '$hh:$mm';
-  return '${t.day}/${t.month} $hh:$mm';
+  final amPm = t.hour >= 12 ? 'PM' : 'AM';
+
+  if (msgDay == today) {
+    return '$hh:$mm:$amPm';
+  }
+
+  return '${t.day.toString().padLeft(2, '0')}/${t.month.toString().padLeft(2, '0')} $hh:$mm:$amPm';
 }
 
 String _formatDateLabel(DateTime date) {
@@ -93,6 +101,13 @@ class ChatView extends GetView<ChatController> {
                     if (msg.type == ChatConstants.messageTypeDate) {
                       return _DateRow(date: msg.timestamp, scheme: scheme);
                     }
+
+                    if (msg.imageUrl != null) {
+                      if (msg.imageUrl?.contains('https:') == false) {
+                        msg.imageUrl = "${EnvService.apiBaseUrl}${msg.imageUrl}";
+                      }
+                    }
+
                     return _MessageBubble(
                       message: msg,
                       scheme: scheme,
@@ -206,12 +221,20 @@ class ChatView extends GetView<ChatController> {
               onTap: () => Navigator.of(ctx).pop(),
               child: _ChatImage(source: imageUrl, fit: BoxFit.contain),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: UiConstants.gap),
-              child: AppButton(
-                label: 'Close',
-                type: ButtonType.tonal,
-                onPressed: () => Navigator.of(ctx).pop(),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: AppCard(
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                },
+                radius: 8,
+                color: context.colorScheme.error,
+                child: Icon(
+                  Icons.close,
+                  size: 18,
+                  color: context.colorScheme.onError,
+                ).marginAll(4),
               ),
             ),
           ],
@@ -495,7 +518,7 @@ class _ChatImage extends StatelessWidget {
 
   Widget _errorPlaceholder(BuildContext context) {
     return Container(
-      width: width,
+      width: width ?? 120,
       height: height ?? 120,
       color: context.colorScheme.surfaceContainerHighest,
       child: Icon(IconsaxPlusLinear.gallery, size: UiConstants.defaultIconSize, color: context.colorScheme.onSurfaceVariant),

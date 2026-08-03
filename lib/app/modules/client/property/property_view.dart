@@ -115,7 +115,7 @@ class _PropertyCard extends StatelessWidget {
                   "${property.address}${property.address != null ? ', ' : ''}${property.city}",
                   size: 13,
                   color: scheme.onSurfaceVariant,
-                  maxLines: 2,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (property.propertyType != null) ...[

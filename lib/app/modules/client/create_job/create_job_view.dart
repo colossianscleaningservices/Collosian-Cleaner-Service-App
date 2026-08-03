@@ -40,12 +40,6 @@ class CreateJobView extends GetView<CreateJobController> {
                       spacing: 14,
                       children: [
                         CommonText.semiBold('Property & scheduling', size: 16, color: scheme.onSurface),
-                        /*     CommonTextField(
-                          controller: controller.jobTitleController,
-                          label: 'Job Title',
-                          hint: 'Enter Job Title',
-                          keyboardType: TextInputType.text,
-                        ),*/
                         Obx(() => controller.isLoading.value
                             ? Center(child: CircularProgressIndicator())
                             : GestureDetector(
@@ -347,22 +341,6 @@ Future<void> _pickDate(BuildContext context, CreateJobController ctrl) async {
   );
   if (d != null && context.mounted) ctrl.setJobStartDate(d);
 }
-
-/*Future<void> _pickTime(BuildContext context, CreateJobController ctrl, {required bool isStart}) async {
-  final initial = isStart ? ctrl.startTime.value : ctrl.endTime.value;
-  final t = await showTimePicker(
-    context: context,
-    initialTime: initial ?? const TimeOfDay(hour: 9, minute: 0),
-  );
-
-  if (t != null && context.mounted) {
-    if (isStart) {
-      ctrl.setStartTime(t);
-    } else {
-      ctrl.setEndTime(t);
-    }
-  }
-}*/
 
 Future<void> wheelTimePicker(
   BuildContext context,

@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -20,34 +21,36 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
 
           Row(
             children: [
-              Expanded(child: Obx(() {
-                final current = controller.calendarJobMode.value;
-                return AppCard(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _ModeChip(
-                          label: 'Assigned',
-                          icon: IconsaxPlusLinear.calendar_tick,
-                          selected: current == CalendarJobMode.assigned,
-                          scheme: scheme,
-                          onTap: () => controller.toggleCalendarJobMode(CalendarJobMode.assigned),
+              Expanded(
+                child: Obx(() {
+                  final current = controller.calendarJobMode.value;
+                  return AppCard(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _ModeChip(
+                            label: 'Assigned',
+                            icon: IconsaxPlusLinear.calendar_tick,
+                            selected: current == CalendarJobMode.assigned,
+                            scheme: scheme,
+                            onTap: () => controller.toggleCalendarJobMode(CalendarJobMode.assigned),
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _ModeChip(
-                          label: 'Unassigned',
-                          icon: IconsaxPlusLinear.briefcase,
-                          selected: current == CalendarJobMode.available,
-                          scheme: scheme,
-                          onTap: () => controller.toggleCalendarJobMode(CalendarJobMode.available),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _ModeChip(
+                            label: 'Unassigned',
+                            icon: IconsaxPlusLinear.briefcase,
+                            selected: current == CalendarJobMode.available,
+                            scheme: scheme,
+                            onTap: () => controller.toggleCalendarJobMode(CalendarJobMode.available),
+                          ),
                         ),
-                      ),
-                    ],
-                  ).paddingAll(8),
-                ).marginOnly(left: 24);
-              })),
+                      ],
+                    ).paddingAll(8),
+                  ).marginOnly(left: 24);
+                }),
+              ),
               AppCard(
                 onTap: controller.openAllJobs,
                 color: Colors.transparent,
@@ -58,7 +61,8 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                     CommonText.semiBold('View all', size: 13, color: scheme.primary),
                     Icon(
                       IconsaxPlusLinear.arrow_right_3,
-                      color: context.colorScheme.secondary,size: 18,
+                      color: context.colorScheme.secondary,
+                      size: 18,
                     )
                   ],
                 ).paddingSymmetric(horizontal: 12, vertical: 16),
@@ -249,6 +253,7 @@ class _CalendarSection extends StatelessWidget {
             firstDay: kCalendarFirstDay,
             lastDay: kCalendarLastDay,
             focusedDay: focusedDay,
+            availableGestures: AvailableGestures.horizontalSwipe,
             currentDay: DateTime.now(),
             selectedDayPredicate: (d) => selectedDay != null && isSameDay(d, selectedDay!),
             calendarFormat: mode == CalendarViewMode.week ? CalendarFormat.week : CalendarFormat.month,
@@ -300,10 +305,7 @@ class _CalendarSection extends StatelessWidget {
         ).marginSymmetric(horizontal: 24).marginOnly(bottom: 8),
         Obx(() {
           if (!ctrl.isCalendarMoreLoading.value) return const SizedBox.shrink();
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Center(child: CircularProgressIndicator(color: scheme.primary)),
-          );
+          return PageLoader().marginOnly(bottom: 8);
         }),
         const SizedBox(height: 8),
       ],
@@ -448,10 +450,7 @@ class _ListContentView extends StatelessWidget {
               ),
               Obx(() {
                 if (!ctrl.isCalendarMoreLoading.value) return const SizedBox.shrink();
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Center(child: CircularProgressIndicator(color: scheme.primary)),
-                );
+                return PageLoader().marginOnly(bottom: 8);
               }),
             ],
           ),

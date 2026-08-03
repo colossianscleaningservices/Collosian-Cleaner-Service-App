@@ -58,8 +58,6 @@ class ChatController extends GetxController {
 
     _checkConnectivity();
 
-    // addAndUpdateUser(true);
-
     final prefsId = Prefs().userId;
     final prefsName = Prefs().userFullName;
     _effectiveUserId = prefsId.isNotEmpty ? prefsId : 'user_${DateTime.now().millisecondsSinceEpoch}';

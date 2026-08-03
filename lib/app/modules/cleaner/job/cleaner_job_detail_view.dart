@@ -230,7 +230,6 @@ Widget _cleanerBody({
                     label: 'Cleaner ${cardCleaner.name}',
                     child: CleanerCard(
                       cleaner: cardCleaner,
-                      onShare: () => c.onShareCleanerProfile(cardCleaner),
                       scheme: scheme,
                       onReview: () => {},
                       onTap: () => {},

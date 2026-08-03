@@ -83,6 +83,7 @@ class NotificationView extends GetView<NotificationController> {
                           ),
                         ),
                       ),
+                      Obx(() => controller.isLoadMore.value ? PageLoader().marginOnly(bottom: 8) : SizedBox.shrink()),
                       Row(
                         children: [
                           if (controller.notifications.isNotEmpty)

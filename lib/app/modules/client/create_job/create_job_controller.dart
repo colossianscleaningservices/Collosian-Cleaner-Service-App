@@ -214,7 +214,6 @@ class CreateJobController extends GetxController {
         if (startDateTime.isAfter(minAllowedTime)) {
           // Valid (after 24 hours)
           final req = CreateJobRequest(
-            // jobTitle: jobTitleController.text.isEmpty ? null : jobTitleController.text,
             propertyId: properties.firstWhereOrNull((item) => item.propertyName?.toLowerCase() == selectedProperty.value?.toLowerCase())?.id,
             date: jobStartDate.value?.toDisplayDate('yyyy-MM-dd'),
             startTime:

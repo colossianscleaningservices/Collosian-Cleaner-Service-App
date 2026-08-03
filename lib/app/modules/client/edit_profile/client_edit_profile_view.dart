@@ -72,7 +72,19 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
                                 width: 120,
                                 frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
                                   if (wasSynchronouslyLoaded) return child;
-                                  return frame == null ? const Center(child: CircularProgressIndicator()) : child;
+                                  return frame == null
+                                      ? SizedBox(
+                                          width: 120,
+                                          height: 120,
+                                          child: const Center(
+                                            child: SizedBox(
+                                              width: 40,
+                                              height: 40,
+                                              child: CircularProgressIndicator(),
+                                            ),
+                                          ),
+                                        )
+                                      : child;
                                 },
                                 controller.imageUrl.value,
                                 fit: BoxFit.cover,
@@ -194,7 +206,6 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
             SizedBox(
               width: double.infinity,
               child: AppButton(
@@ -203,7 +214,6 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
                 type: ButtonType.primary,
               ),
             ).marginOnly(bottom: 16),
-
             SizedBox(
               width: double.infinity,
               child: AppButton(

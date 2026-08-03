@@ -3,7 +3,6 @@ import 'package:ccs_app/app/network/repository/cleaner_repository.dart';
 import 'package:ccs_app/export.dart';
 
 import '../../../model/chat_message.dart';
-import '../../../model/client_job.dart';
 import '../../../network/response/get_staff_job_details_response.dart';
 import '../../../network/response/jobs.dart';
 import '../../../services/pref.dart';
@@ -69,8 +68,6 @@ class CleanerJobDetailController extends GetxController {
         return onStartJob;
       case 2:
         return onStopJob;
-      case 3:
-        return onReview;
       default:
         return null;
     }
@@ -273,15 +270,6 @@ class CleanerJobDetailController extends GetxController {
     } finally {
       Loader.hide();
     }
-  }
-
-  void onShareCleanerProfile(ClientJobCleaner c) {
-    Notifier.info('Share ${c.name} (coming soon)');
-  }
-
-  /// Navigate to review/feedback screen (completed jobs).
-  void onReview() {
-    Notifier.info('Review (coming soon)');
   }
 
   Future<void> fetchJobDetails({bool isLoaderShown = false}) async {

@@ -112,7 +112,7 @@ class ScheduleJobController extends GetxController {
     final scheduler = details?.scheduler;
     scheduleId = scheduler?.id ?? details?.scheduleId;
 
-    log(runtimeType.toString(), 'scheduler ${scheduler?.toJson()} \n scheduleId ${scheduleId}');
+    log(runtimeType.toString(), 'scheduler ${scheduler?.toJson()} \n scheduleId $scheduleId');
 
     if (isEditMode.value) {
       _prefillFromExistingSchedule(details, scheduler);

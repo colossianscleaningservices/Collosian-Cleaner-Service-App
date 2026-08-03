@@ -22,7 +22,7 @@ class BaseResponse {
 class DataResponse extends BaseResponse {
   DataResponse({super.version, super.code, super.message, super.errorType, this.data});
 
-  DataResponse.fromJson(dynamic json) : data = json['data'], super.fromJson(json);
+  DataResponse.fromJson(super.json) : data = json['data'], super.fromJson();
 
   dynamic data;
 

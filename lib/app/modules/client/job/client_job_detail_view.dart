@@ -234,7 +234,6 @@ Widget _bodyForState({
                     child: CleanerCard(
                       cleaner: item,
                       isReview: cleaner?.isReviewed == true ? false : true,
-                      onShare: () => c.onShareCleanerProfile(item),
                       scheme: scheme,
                       onReview: () => c.onReviewCleanerProfile(item),
                       onTap: () => Get.toNamed(Routes.STAFF_DETAILS, arguments: {'id': item.id.toInt(), 'type': 'staffDetail'}),

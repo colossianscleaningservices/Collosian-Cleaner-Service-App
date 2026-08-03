@@ -390,10 +390,6 @@ class ClientJobDetailController extends GetxController {
     }
   }
 
-  void onShareCleanerProfile(ClientJobCleaner c) {
-    Notifier.info('Share ${c.name} (coming soon)');
-  }
-
   void onReviewCleanerProfile(ClientJobCleaner c) {
     clearAddReview();
     jobCleaner.value = c;
