@@ -141,6 +141,13 @@ class AssessmentView extends GetView<AuthController> {
                               ),
                             ],
                           ).marginOnly(left: UiConstants.gap, right: UiConstants.gap, top: UiConstants.gap),
+                          if (item.scenario != null) ...[
+                            CommonText.medium(
+                              item.scenario ?? "",
+                              size: 12,
+                              isItalic: true,
+                            ).marginOnly(left: UiConstants.margin32 + 24, right: UiConstants.gap)
+                          ],
                           item.answerType == 'multiple'
                               ? CommonText.semiBold(
                                   '(You can choose 1 or more options)',

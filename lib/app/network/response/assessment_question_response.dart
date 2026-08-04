@@ -70,7 +70,9 @@ class Questions {
     this.category,
     this.questionText,
     this.answerType,
-    this.options,});
+    this.scenario,
+    this.options,
+  });
 
   Questions.fromJson(dynamic json) {
     id = json['id'];
@@ -78,6 +80,7 @@ class Questions {
     category = json['category'] != null ? Category.fromJson(json['category']) : null;
     questionText = json['question_text'];
     answerType = json['answer_type'];
+    scenario = json['scenario_text'];
     if (json['options'] != null) {
       options = [];
       json['options'].forEach((v) {
@@ -85,11 +88,13 @@ class Questions {
       });
     }
   }
+
   num? id;
   num? categoryId;
   Category? category;
   String? questionText;
   String? answerType;
+  String? scenario;
   List<Options>? options;
 
   Map<String, dynamic> toJson() {
@@ -100,26 +105,28 @@ class Questions {
       map['category'] = category?.toJson();
     }
     map['question_text'] = questionText;
+    map['scenario_text'] = scenario;
     map['answer_type'] = answerType;
     if (options != null) {
       map['options'] = options?.map((v) => v.toJson()).toList();
     }
     return map;
   }
-
 }
 
 class Category {
   Category({
     this.id,
     this.name,
-    this.slug,});
+    this.slug,
+  });
 
   Category.fromJson(dynamic json) {
     id = json['id'];
     name = json['name'];
     slug = json['slug'];
   }
+
   num? id;
   String? name;
   String? slug;
@@ -131,15 +138,10 @@ class Category {
     map['slug'] = slug;
     return map;
   }
-
 }
 
 class Options {
-  Options({
-    this.text,
-    this.label,
-    this.id
-  });
+  Options({this.text, this.label, this.id});
 
   Options.fromJson(dynamic json) {
     text = json['text'];
