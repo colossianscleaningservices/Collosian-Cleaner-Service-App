@@ -761,9 +761,15 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     final merged = Map<DateTime, List<CalendarEvent>>.from(
       isAvailable ? availableEventsMap.value : calendarEventsMap.value,
     );
-    merged[dayKey] = append
-        ? [...(merged[dayKey] ?? const <CalendarEvent>[]), ...dayEvents]
-        : dayEvents;
+
+    if (append) {
+      final allSeenIds = merged.values.expand((l) => l).map((e) => e.jobId).whereType<num>().toSet();
+      final filteredNew = dayEvents.where((e) => e.jobId == null || !allSeenIds.contains(e.jobId)).toList();
+      merged[dayKey] = [...(merged[dayKey] ?? []), ...filteredNew];
+    } else {
+      merged[dayKey] = dayEvents;
+    }
+
     if (isAvailable) {
       availableEventsMap.value = merged;
     } else {
@@ -776,17 +782,30 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     Map<DateTime, List<CalendarEvent>> incoming,
   ) {
     final merged = Map<DateTime, List<CalendarEvent>>.from(existing);
+    final allSeenIds = existing.values.expand((l) => l).map((e) => e.jobId).whereType<num>().toSet();
+
     for (final entry in incoming.entries) {
-      merged.putIfAbsent(entry.key, () => []).addAll(entry.value);
+      final filteredNew = entry.value.where((e) => e.jobId == null || !allSeenIds.contains(e.jobId)).toList();
+
+      if (filteredNew.isNotEmpty) {
+        merged.putIfAbsent(entry.key, () => []).addAll(filteredNew);
+        for (final e in filteredNew) {
+          if (e.jobId != null) allSeenIds.add(e.jobId!);
+        }
+      }
     }
     return merged;
   }
 
   Map<DateTime, List<CalendarEvent>> _mapJobsToEvents(List<Jobs> list) {
     final map = <DateTime, List<CalendarEvent>>{};
+    final seenIds = <num>{};
     for (final item in list) {
       final dateKey = _parseCalendarDate(item.date);
       if (dateKey == null) continue;
+      if (item.id != null && seenIds.contains(item.id)) continue;
+      if (item.id != null) seenIds.add(item.id!);
+
       String? timeRange;
       if (item.startTime != null && item.endTime != null) {
         timeRange = '${CcsDateTimeX.convertTime(item.startTime ?? '')} – ${CcsDateTimeX.convertTime(item.endTime ?? '')}';

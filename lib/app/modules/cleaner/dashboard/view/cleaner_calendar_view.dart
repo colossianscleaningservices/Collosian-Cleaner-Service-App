@@ -393,9 +393,14 @@ class _ListContentView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final list = <(DateTime, CalendarEvent)>[];
+    final seen = <num>{};
     if (eventsMap != null) {
       for (final e in eventsMap!.entries) {
         for (final ev in e.value) {
+          if (ev.jobId != null) {
+            if (seen.contains(ev.jobId)) continue;
+            seen.add(ev.jobId!);
+          }
           list.add((e.key, ev));
         }
       }

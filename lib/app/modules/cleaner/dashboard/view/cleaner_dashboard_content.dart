@@ -93,6 +93,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                                 children: [
                                   AppCard(
                                     color: scheme.primaryContainer.withValues(alpha: 0.2),
+                                    onTap: null,
                                     child: CommonText.medium('Next', size: 11, color: scheme.onPrimary).paddingSymmetric(horizontal: 12, vertical: 6),
                                   ),
                                   const Spacer(),
@@ -128,6 +129,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                               ],
                             ],
                           ).paddingSymmetric(horizontal: 16, vertical: 14),
+                          onTap: () => controller.openDetail(nextJob.id),
                         ),
                       ] else ...[
                         AppCard(
