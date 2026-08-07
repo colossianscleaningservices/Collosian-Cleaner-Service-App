@@ -126,11 +126,7 @@ Widget _cleanerBody({
     if (streetCity.isNotEmpty) streetCity,
     if (postcode != null && postcode.isNotEmpty) postcode,
   ].join(', ');
-  final typeLine = [p?.propertyType, p?.subType]
-      .whereType<String>()
-      .map((s) => s.trim())
-      .where((s) => s.isNotEmpty)
-      .join(' · ');
+  final typeLine = [p?.propertyType, p?.subType].whereType<String>().map((s) => s.trim()).where((s) => s.isNotEmpty).join(' · ');
   final canChat = j.user?.id != null;
 
   return SingleChildScrollView(
@@ -306,8 +302,7 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
 
     String? timeRange;
     if (j.startTime != null && j.endTime != null) {
-      timeRange =
-          '${CcsDateTimeX.convertTime(j.startTime ?? '')} – ${CcsDateTimeX.convertTime(j.endTime ?? '')}';
+      timeRange = '${CcsDateTimeX.convertTime(j.startTime ?? '')} – ${CcsDateTimeX.convertTime(j.endTime ?? '')}';
     }
     String? endsFormatted;
     if (j.jobEndDate != null && j.jobEndDate.toString().trim().isNotEmpty) {
@@ -402,7 +397,7 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
             ),
           LabelValueRow(
             label: 'Check-In/Check-Out Time',
-            value: checkInTimeRange ??'',
+            value: checkInTimeRange ?? '',
             scheme: scheme,
           ),
           const SizedBox(height: 8),
@@ -443,9 +438,7 @@ bool _staffHasScheduleDate(StaffJobDetails j) {
 }
 
 String _staffScheduleDateText(StaffJobDetails j) {
-  final raw = (j.jobStartDate != null && j.jobStartDate.toString().trim().isNotEmpty)
-      ? j.jobStartDate.toString()
-      : (j.date ?? '');
+  final raw = (j.jobStartDate != null && j.jobStartDate.toString().trim().isNotEmpty) ? j.jobStartDate.toString() : (j.date ?? '');
   try {
     return CcsDateUtils.fullDate(DateTime.parse(raw));
   } catch (_) {

@@ -52,9 +52,9 @@ class CleanerJobDetailController extends GetxController {
   String get bottomBarLabel {
     switch (bottomBarState) {
       case 1:
-        return 'Start';
+        return 'Check IN';
       case 2:
-        return 'Stop';
+        return 'Check OUT';
       case 3:
         return 'Review';
       default:

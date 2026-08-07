@@ -25,7 +25,7 @@ class BottomActionBar extends StatelessWidget {
     );
 
     if (showSafeArea) {
-      return SafeArea(top: false, bottom: false, child: content);
+      return SafeArea(top: false, bottom: false, child: content.marginOnly(bottom: context.bottomPadding));
     }
 
     return content;
@@ -52,9 +52,11 @@ class SingleActionBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BottomActionBar(
         backgroundColor: backgroundColor,
-        children: [Expanded(child: SizedBox(width: double.infinity, child: AppButton(
-            isLoading: isLoading,
-            label: label, onPressed: onPressed, type: buttonType)))],
+        children: [
+          Expanded(
+            child: SizedBox(width: double.infinity, child: AppButton(isLoading: isLoading, label: label, onPressed: onPressed, type: buttonType)),
+          ),
+        ],
       );
 }
 

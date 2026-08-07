@@ -82,6 +82,7 @@ class JobCheckPhotoController extends GetxController {
   String get submitLabel => isCheckIn ? 'Start job' : 'Stop job';
 
   String get timeLabel => isCheckIn ? 'Start Time' : 'Stop Time';
+
   String get dateLabel => isCheckIn ? 'Job Start Date' : 'Job End Date';
 
   @override
@@ -301,8 +302,11 @@ class JobCheckPhotoController extends GetxController {
 
           result.handle(
             success: (value) {
-              Notifier.success(value.message ?? (isCheckIn ? 'Job started' : 'Job completed'));
-              Get.back(result: true);
+              Loader.hide();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Notifier.success(value.message ?? (isCheckIn ? 'Job started' : 'Job completed'));
+                Get.back(result: true);
+              });
             },
             contextTag: 'job_check_photo',
           );
