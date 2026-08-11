@@ -48,6 +48,8 @@ class ClientRepository extends BaseRepository {
     String? accessProperty,
     String? customPropertyType,
     bool? animalProperty,
+    String? animalType,
+    String? animalDetails,
   }) async {
     final payload = <String, dynamic>{
       'property_name': name,
@@ -74,6 +76,8 @@ class ClientRepository extends BaseRepository {
     payload['animal_property'] = animalProperty;
     payload['custom_property_type'] = customPropertyType;
     payload['provide_dishwasher'] = provideDishwasher;
+    payload['animal_type'] = animalType;
+    payload['animal_details'] = animalDetails;
     return post<BaseResponse>(
       endpoint: Endpoint.clientProperties,
       fromJson: (json) => BaseResponse.fromJson(json),
@@ -133,6 +137,8 @@ class ClientRepository extends BaseRepository {
     bool? animalProperty,
     bool? provideDishwasher,
     String? customPropertyType,
+    String? animalType,
+    String? animalDetails,
   }) async {
     final payload = <String, dynamic>{
       'property_name': name,
@@ -159,6 +165,8 @@ class ClientRepository extends BaseRepository {
     payload['animal_property'] = animalProperty;
     payload['custom_property_type'] = customPropertyType;
     payload['provide_dishwasher'] = provideDishwasher;
+    payload['animal_type'] = animalType;
+    payload['animal_details'] = animalDetails;
     return put<BaseResponse>(
       endpoint: Endpoint.clientProperty(id),
       fromJson: (json) => BaseResponse.fromJson(json),

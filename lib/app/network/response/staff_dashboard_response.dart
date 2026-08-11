@@ -42,6 +42,7 @@ class StaffDashModel {
     studentWeeklyHours = json['student_weekly_hours'] != null ? StudentWeeklyHours.fromJson(json['student_weekly_hours']) : null;
     studentWeeklyHoursUsed = json['student_weekly_hours_used'];
     unreadNotifications = json['unread_notifications'];
+    isDocumentAdded = json['is_document_added'];
   }
 
   num? totalSchedules;

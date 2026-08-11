@@ -121,6 +121,8 @@ class PropertyModel {
       this.conservatory, 
       this.diningRoom, 
       this.createdAt, 
+      this.animalType,
+      this.animalDetails,
       this.updatedAt,});
 
   PropertyModel.fromJson(dynamic json) {
@@ -152,6 +154,8 @@ class PropertyModel {
     diningRoom = json['dining_room'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    animalType = json['animal_type'];
+    animalDetails = json['animal_details'];
   }
   num? id;
   num? userId;
@@ -163,6 +167,8 @@ class PropertyModel {
   String? propertyType;
   dynamic subType;
   String? animalProperty;
+  String? animalType;
+  String? animalDetails;
   String? hoover;
   bool? provideCleaningProducts;
   bool? provideWashingMachine;
@@ -212,6 +218,8 @@ class PropertyModel {
     map['dining_room'] = diningRoom;
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
+    map['animal_type'] = animalType;
+    map['animal_details'] = animalDetails;
     return map;
   }
 

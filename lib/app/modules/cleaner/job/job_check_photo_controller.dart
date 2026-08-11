@@ -303,10 +303,8 @@ class JobCheckPhotoController extends GetxController {
           result.handle(
             success: (value) {
               Loader.hide();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Notifier.success(value.message ?? (isCheckIn ? 'Job started' : 'Job completed'));
-                Get.back(result: true);
-              });
+              Notifier.success(value.message ?? (isCheckIn ? 'Job started' : 'Job completed'));
+              Get.back(result: true);
             },
             contextTag: 'job_check_photo',
           );

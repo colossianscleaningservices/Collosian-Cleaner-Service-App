@@ -199,6 +199,24 @@ class AddPropertyView extends GetView<PropertyController> {
                           value: controller.animals.value,
                           onChanged: (v) => v != null ? controller.animals.value = v : null,
                         ),
+                        if (controller.animals.value.toLowerCase() == 'yes') ...[
+                          CommonDropDownField<String>(
+                            label: 'Animal type',
+                            hint: 'Select',
+                            items: PropertyController.animalsTypeOptions,
+                            itemLabel: (v) => v,
+                            value: controller.animalType.value,
+                            onChanged: (v) => v != null ? controller.animalType.value = v : null,
+                          ),
+                          if (controller.animalType.value.toLowerCase() == 'others') ...[
+                            CommonTextField(
+                              controller: controller.animalTypeCtrl,
+                              label: 'What animals do you have?',
+                              hint: 'Describe Animals',
+                              validator: (v) => controller.validateRequired(v, 'Describe Animals'),
+                            )
+                          ]
+                        ]
                       ],
                     ).paddingAll(16),
                   ).marginSymmetric(horizontal: 16, vertical: 8),

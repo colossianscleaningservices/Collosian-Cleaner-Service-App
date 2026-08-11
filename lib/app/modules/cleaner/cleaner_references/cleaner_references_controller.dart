@@ -42,7 +42,28 @@ class CleanerReferencesController extends GetxController {
     firstNameCtrl.text = ref.firstName ?? '';
     lastNameCtrl.text = ref.lastName ?? '';
     emailCtrl.text = ref.email ?? '';
-    phoneCtrl.text = ref.phoneNumber ?? '';
+
+    var phoneNumber = ref.phoneNumber ?? '';
+
+    if (phoneNumber.isNotEmpty && phoneNumber.contains('-')) {
+      if (phoneNumber.contains('-')) {
+        phoneNumber = phoneNumber.replaceAll('-', '');
+      }
+
+      if (phoneNumber.contains('(')) {
+        phoneNumber = phoneNumber.replaceAll('(', '');
+      }
+
+      if (phoneNumber.contains(')')) {
+        phoneNumber = phoneNumber.replaceAll(')', '');
+      }
+
+      if (phoneNumber.contains(' ')) {
+        phoneNumber = phoneNumber.replaceAll(' ', '');
+      }
+    }
+
+    phoneCtrl.text = phoneNumber;
     companyNameCtrl.text = ref.companyName ?? '';
     relationship.value = ref.relationship;
     refresh();
@@ -108,7 +129,13 @@ class CleanerReferencesController extends GetxController {
         Loader.hide();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (Get.context == null) return;
-          Notifier.openSheet(Get.context as BuildContext, type: SheetType.success, title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+          Notifier.openSheet(Get.context as BuildContext,
+              type: SheetType.success,
+              title: "Success",
+              message: "${value.message}",
+              isDismissable: false,
+              isShowCloseIcon: false,
+              showSecondaryButton: false, onPrimaryPressed: () {
             clearForm();
             getCleanerReference();
             Get.back(result: true);
@@ -133,7 +160,13 @@ class CleanerReferencesController extends GetxController {
         Loader.hide();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (Get.context == null) return;
-          Notifier.openSheet(Get.context as BuildContext, type: SheetType.success, title: "Success", message: "${value.message}", isDismissable: false, isShowCloseIcon: false, showSecondaryButton: false, onPrimaryPressed: () {
+          Notifier.openSheet(Get.context as BuildContext,
+              type: SheetType.success,
+              title: "Success",
+              message: "${value.message}",
+              isDismissable: false,
+              isShowCloseIcon: false,
+              showSecondaryButton: false, onPrimaryPressed: () {
             clearForm();
             Get.back(result: true);
             getCleanerReference();
@@ -197,7 +230,5 @@ class CleanerReferencesController extends GetxController {
     } finally {
       Loader.hide();
     }
-
   }
-
 }
