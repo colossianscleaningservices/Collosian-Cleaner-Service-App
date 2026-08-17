@@ -20,14 +20,7 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
       final loading = controller.isFetching.value;
       final err = controller.fetchError.value;
 
-      // 'Accepted','Rejected'
-      var cleanerStatus = j?.cleanerJobStatus;
-      var cleaner = ((j?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)));
-
-      var status = cleanerStatus ?? (j?.status ?? "N/A");
-      if (j?.status == Constants.jobFinished) {
-        status = j?.status ?? status;
-      }
+      final cleaner = j?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId);
       return AppScaffold(
         appBar: Header(
           title: j?.cleaningType?.name ?? (loading ? '' : 'Job details'),
@@ -52,7 +45,6 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
                     j: j,
                     loading: loading,
                     err: err,
-                    cleanerStatus: status,
                     cleaner: cleaner,
                   ),
                 ),
@@ -81,7 +73,6 @@ Widget _cleanerBody({
   required StaffJobDetails? j,
   required bool loading,
   required String? err,
-  required String? cleanerStatus,
   required JobCleaners? cleaner,
 }) {
   final c = controller;
@@ -162,7 +153,6 @@ Widget _cleanerBody({
               controller: c,
               j: j,
               scheme: scheme,
-              cleanerStatus: cleanerStatus,
               cleaner: cleaner,
             ).paddingAll(UiConstants.defaultPadding),
           ),
@@ -284,22 +274,29 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
     required this.controller,
     required this.j,
     required this.scheme,
-    required this.cleanerStatus,
     required this.cleaner,
   });
 
   final CleanerJobDetailController controller;
   final StaffJobDetails j;
   final ColorScheme scheme;
-  final String? cleanerStatus;
   final JobCleaners? cleaner;
 
   @override
   Widget build(BuildContext context) {
     final ctrl = controller;
-    final statusLabel = cleanerStatus ?? j.status ?? 'N/A';
-    final hasDate = _staffHasScheduleDate(j);
+    final statusLabel = JobStatusX.displayLabelForCleaner(
+      jobStatus: j.status,
+      cleanerJobStatus: j.cleanerJobStatus,
+    );
 
+    final statusForColor = JobStatusX.isJobFinished(j.status)
+        ? (j.status ?? 'Finished')
+        : JobStatusX.isCleanerCompleted(j.cleanerJobStatus)
+            ? (j.cleanerJobStatus ?? 'Completed')
+            : (j.status ?? statusLabel);
+    final jobClosed = JobStatusX.isCancelled(j.status) || JobStatusX.isJobFinished(j.status);
+    final hasDate = _staffHasScheduleDate(j);
     String? timeRange;
     if (j.startTime != null && j.endTime != null) {
       timeRange = '${CcsDateTimeX.convertTime(j.startTime ?? '')} – ${CcsDateTimeX.convertTime(j.endTime ?? '')}';
@@ -328,14 +325,15 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
           children: [
             InfoChip(
               label: statusLabel,
-              backgroundColor: getBgColor(statusLabel, scheme),
-              foregroundColor: getFgColor(statusLabel, scheme),
+              backgroundColor: getBgColor(statusForColor, scheme),
+              foregroundColor: getFgColor(statusForColor, scheme),
             ),
-            InfoChip(
-              label: hasDate ? 'Scheduled' : 'Not scheduled',
-              backgroundColor: hasDate ? scheme.primaryContainer : scheme.surfaceContainerHighest,
-              foregroundColor: hasDate ? scheme.primary : scheme.onSurfaceVariant,
-            ),
+            if (!jobClosed)
+              InfoChip(
+                label: hasDate ? 'Scheduled' : 'Not scheduled',
+                backgroundColor: hasDate ? scheme.primaryContainer : scheme.surfaceContainerHighest,
+                foregroundColor: hasDate ? scheme.primary : scheme.onSurfaceVariant,
+              ),
             if (j.scheduler?.frequency != null && j.scheduler!.frequency!.trim().isNotEmpty)
               InfoChip(
                 label: j.scheduler!.frequency!.capitalizeFirst ?? '',
@@ -348,9 +346,7 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
           const SizedBox(height: 10),
           CommonText.regular(scheduleSummary, size: 14, color: scheme.onSurface),
         ],
-        if ((j.status == 'Pending' || j.status?.toLowerCase() == 'pending') &&
-            cleanerStatus?.toLowerCase() != 'accepted' &&
-            cleanerStatus?.toLowerCase() != 'rejected') ...[
+        if (ctrl.canAcceptOrDecline) ...[
           const SizedBox(height: 16),
           Row(
             children: [
@@ -381,7 +377,7 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
             ],
           ),
         ],
-        if (cleanerStatus?.toLowerCase() == 'completed' || cleanerStatus?.toLowerCase() == Constants.jobFinished.toLowerCase()) ...[
+        if (ctrl.isCleanerWorkComplete) ...[
           const SizedBox(height: 12),
           if (cleaner?.checkInDate != null)
             LabelValueRow(

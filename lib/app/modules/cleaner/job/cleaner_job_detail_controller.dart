@@ -16,32 +16,33 @@ class CleanerJobDetailController extends GetxController {
   final isFetching = false.obs;
   final fetchError = RxnString();
 
-  /// True when cleaner can tap "Start job" (e.g. Scheduled, Accepted).
-  /// //Approved
-  bool get canStartJob {
-    final s = job.value?.status?.toLowerCase();
-    var cleanerJobStatus = job.value?.cleanerJobStatus;
-    return s == 'scheduled' ||
-        s == 'accepted' ||
-        s == 'approved' && cleanerJobStatus?.toLowerCase() != 'in process' && cleanerJobStatus?.toLowerCase() != 'completed';
+  String? get _jobStatus => job.value?.status;
+
+  String? get _cleanerJobStatus => job.value?.cleanerJobStatus;
+
+  bool get _jobClosed => JobStatusX.isCancelled(_jobStatus) || JobStatusX.isJobFinished(_jobStatus);
+
+  /// Invitation sent; cleaner has not responded.
+  bool get canAcceptOrDecline {
+    return !_jobClosed && (JobStatusX.isPending(_cleanerJobStatus) || _cleanerJobStatus == null);
   }
 
-  /// True when cleaner can tap "Stop job" (job in progress).
-  bool get canStopJob {
-    /*final s = job.value?.status?.toLowerCase();*/
-    /*return s == 'in progress' || s == 'in_progress';*/
-    var s = job.value?.cleanerJobStatus?.toLowerCase();
-    return s == 'in process' || s == 'in_process';
-  }
+  /// Admin has assigned this cleaner; Check IN is available.
+  bool get canStartJob => !_jobClosed && JobStatusX.isApproved(_cleanerJobStatus);
+
+  /// Cleaner has checked in; Check OUT is available.
+  bool get canStopJob => !JobStatusX.isCancelled(_jobStatus) && JobStatusX.isInProcess(_cleanerJobStatus);
+
+  /// Cleaner has checked out.
+  bool get isCleanerWorkComplete => JobStatusX.isCleanerCompleted(_cleanerJobStatus);
 
   /// True when job is completed and cleaner can tap "Review".
   bool get canShowReview {
-    /*final s = job.value?.status?.toLowerCase();*/
-    var s = ((job.value?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status))?.toLowerCase();
-    return s == 'completed';
+    var s = ((job.value?.jobCleaners?.firstWhereOrNull((item) => item.userId.toString() == Prefs().userId)?.status));
+    return JobStatusX.isCleanerCompleted(s);
   }
 
-  /// Bottom bar state: 1 = Start, 2 = Stop, 3 = Review. 0 = hide bar (e.g. Pending).
+  /// Bottom bar state: 1 = Check IN, 2 = Check OUT, 3 = Review. 0 = hide bar.
   int get bottomBarState {
     if (canStartJob) return 1;
     if (canStopJob) return 2;

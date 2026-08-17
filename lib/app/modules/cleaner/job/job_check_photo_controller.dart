@@ -257,20 +257,19 @@ class JobCheckPhotoController extends GetxController {
     }
 
     Loader.show();
+    var shouldPop = false;
+    String? successMessage;
     try {
-      List<dio.MultipartFile> files = [];
+      final files = <dio.MultipartFile>[];
       for (var photo in photos) {
-        var value = await dio.MultipartFile.fromFile(photo.path, filename: "image_${DateTime.now()}.jpg").then((value) {
-          return value;
-        });
-        files.add(value);
+        files.add(await dio.MultipartFile.fromFile(photo.path, filename: "image_${DateTime.now()}.jpg"));
       }
 
       final data = <String, dynamic>{};
       data["files[]"] = files;
       data["mediaable_type"] = 'App\\Models\\Job';
       data["mediaable_id"] = '1';
-      data["media_type"] = 'check_in';
+      data["media_type"] = isCheckIn ? 'check_in' : 'check_out';
 
       log(runtimeType.toString(), 'Media Upload Data => $data');
       for (var item in files) {
@@ -278,42 +277,48 @@ class JobCheckPhotoController extends GetxController {
       }
 
       final mediaUploadResult = await _commonRepository.mediaUpload(data);
+      final imageUrlList = <String>[];
+      var uploadOk = false;
       mediaUploadResult.handle(
-        success: (value) async {
-          List<String> imageUrlList = [];
-
-          value.data?.fileUrl?.forEach((item) {
-            imageUrlList.add(item);
-          });
-
-          final result = isCheckIn
-              ? await _jobRepository.checkIn(
-                  jobId: job?.id?.toInt() ?? 0,
-                  checkInDate: scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "",
-                  checkInTime: startTime.value != null ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : "",
-                  photos: imageUrlList,
-                )
-              : await _jobRepository.checkOut(
-                  jobId: job?.id?.toInt() ?? 0,
-                  checkOutDate: scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "",
-                  checkOutTime: startTime.value != null ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : "",
-                  photos: imageUrlList,
-                );
-
-          result.handle(
-            success: (value) {
-              Loader.hide();
-              Notifier.success(value.message ?? (isCheckIn ? 'Job started' : 'Job completed'));
-              Get.back(result: true);
-            },
-            contextTag: 'job_check_photo',
-          );
+        success: (value) {
+          uploadOk = true;
+          value.data?.fileUrl?.forEach(imageUrlList.add);
         },
         contextTag: 'media_upload',
+      );
+      if (!uploadOk) return;
+
+      final result = isCheckIn
+          ? await _jobRepository.checkIn(
+              jobId: job?.id?.toInt() ?? 0,
+              checkInDate: scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "",
+              checkInTime: startTime.value != null ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : "",
+              photos: imageUrlList,
+            )
+          : await _jobRepository.checkOut(
+              jobId: job?.id?.toInt() ?? 0,
+              checkOutDate: scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "",
+              checkOutTime: startTime.value != null ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : "",
+              photos: imageUrlList,
+            );
+
+      result.handle(
+        success: (value) {
+          shouldPop = true;
+          successMessage = value.message ?? (isCheckIn ? 'Job started' : 'Job completed');
+        },
+        contextTag: 'job_check_photo',
       );
     } finally {
       Loader.hide();
     }
+
+    if (!shouldPop) return;
+    Notifier.success(successMessage ?? (isCheckIn ? 'Job started' : 'Job completed'));
+    // Wait until Loader.hide() closes the dialog; otherwise Get.back() pops the loader, not this page.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.back(result: true);
+    });
   }
 
   void setScheduleValidFrom(DateTime d) {

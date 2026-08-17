@@ -94,8 +94,6 @@ void openUrl(String uri) async {
 Future<void> getTimeZone() async {
   String timeZone = '';
 
-  // await getIpAddress();
-
   await FlutterTimezone.getLocalTimezone().then(
     (onValue) {
       timeZone = onValue.identifier;
@@ -130,7 +128,7 @@ class AlwaysDisabledFocusNode extends FocusNode {
 Color getBgColor(String label, ColorScheme scheme){
   final lower = label.toLowerCase();
   Color bg;
-  if (lower.contains('cancel')) {
+  if (lower.contains('cancel') || lower.contains('reject') || lower.contains('declin')) {
     bg = scheme.errorContainer.withValues(alpha: 0.6);
   } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) {
     bg = scheme.tertiaryContainer.withValues(alpha: 0.6);
@@ -146,7 +144,7 @@ Color getBgColor(String label, ColorScheme scheme){
 Color getFgColor(String label, ColorScheme scheme){
   final lower = label.toLowerCase();
   Color fg;
-  if (lower.contains('cancel')) {
+  if (lower.contains('cancel') || lower.contains('reject') || lower.contains('declin')) {
     fg = scheme.error;
   } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) {
     fg = scheme.onTertiaryContainer;
@@ -157,5 +155,57 @@ Color getFgColor(String label, ColorScheme scheme){
   }
 
   return fg;
+}
+
+/// Job `status` is for listing/UI. `cleaner_job_status` is for actions/workflow.
+class JobStatusX {
+  JobStatusX._();
+
+  static String normalize(String? status) =>
+      (status ?? '').trim().toLowerCase().replaceAll('_', ' ');
+
+  /// Combined job status for chips. Job-level Approved is shown as Assigned.
+  static String displayLabel(String? status) {
+    final n = normalize(status);
+    if (n.isEmpty) return 'N/A';
+    if (n == 'approved') return 'Approved';
+    if (n == 'canceled' || n == 'cancelled') return 'Cancelled';
+    if (n == 'in process') return 'In Process';
+    return n.split(' ').where((w) => w.isNotEmpty).map((w) => '${w[0].toUpperCase()}${w.substring(1)}').join(' ');
+  }
+
+  /// Cleaner detail chip: Finished (job) wins over Completed (cleaner).
+  static String displayLabelForCleaner({
+    required String? jobStatus,
+    required String? cleanerJobStatus,
+  }) {
+    print(cleanerJobStatus);
+    if (isJobFinished(jobStatus)) return 'Finished';
+    if (isCleanerCompleted(cleanerJobStatus)) return 'Completed';
+    if (isCleanerInProcess(cleanerJobStatus)) return 'In Process';
+    return displayLabel(jobStatus);
+  }
+
+  static bool isPending(String? status) => normalize(status) == 'pending';
+
+  static bool isApproved(String? status) => normalize(status) == 'approved';
+
+  static bool isInProcess(String? status) => normalize(status) == 'in process';
+
+  static bool isJobFinished(String? status) => normalize(status) == 'finished';
+
+  static bool isCancelled(String? status) {
+    final n = normalize(status);
+    return n == 'cancelled' || n == 'canceled';
+  }
+
+  static bool isCleanerCompleted(String? status) {
+    final n = normalize(status);
+    return n == 'completed' || n == 'finished';
+  }
+  static bool isCleanerInProcess(String? status) {
+    final n = normalize(status);
+    return n == 'in process' || n == 'In Process';
+  }
 }
 
