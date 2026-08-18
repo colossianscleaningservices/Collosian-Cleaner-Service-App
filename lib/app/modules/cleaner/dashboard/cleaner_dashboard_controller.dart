@@ -180,6 +180,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     filter.add(CommonModel(type: "All Jobs", isSelected: true));
     filter.add(CommonModel(type: "Pending"));
     filter.add(CommonModel(type: "Approved"));
+    filter.add(CommonModel(type: "Finished"));
 
     userDisplayName.value = Get.find<SessionService>().userDisplayName;
     userDisplayImage.value = Get.find<SessionService>().userDisplayImage;
@@ -1034,6 +1035,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
         },
       );
     } finally {
+      _isLoading = false;
       Loader.hide();
     }
   }

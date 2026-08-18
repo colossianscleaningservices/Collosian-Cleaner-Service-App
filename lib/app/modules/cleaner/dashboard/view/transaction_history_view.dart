@@ -40,7 +40,7 @@ class TransactionHistoryView extends GetView<CleanerDashboardController> {
                               onTap: null,
                               child: Column(
                                 children: [
-                                  _HistoryRow(date: date, desc: item.job?.cleaningService ?? "", amount: "£${item.totalPayout}", scheme: scheme),
+                                  _HistoryRow(date: date, desc: item.job?.cleaningService ?? "N/A", amount: "£${item.totalPayout}", scheme: scheme),
                                 ],
                               ).paddingSymmetric(horizontal: 16, vertical: 4),
                             ).marginSymmetric(vertical: 4);

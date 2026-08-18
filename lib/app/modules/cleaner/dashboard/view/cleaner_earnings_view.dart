@@ -111,7 +111,7 @@ class CleanerEarningsView extends GetView<CleanerDashboardController> {
 
                                   return Column(
                                     children: [
-                                      _HistoryRow(date: date, desc: item?.job?.cleaningService ?? "", amount: "£${item?.totalPayout}", scheme: scheme),
+                                      _HistoryRow(date: date, desc: item?.job?.cleaningService ?? "N/A", amount: "£${item?.totalPayout}", scheme: scheme),
                                       Divider(height: 1, color: scheme.outline.withValues(alpha: 0.12)),
                                     ],
                                   );

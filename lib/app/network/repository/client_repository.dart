@@ -1,4 +1,4 @@
-import 'package:ccs_app/app/network/request/UpdateScheduleJobRequest.dart';
+import 'package:ccs_app/app/network/request/update_schedule_job_request.dart';
 import 'package:ccs_app/app/network/request/pause_schedule_request.dart';
 import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/app/network/response/get_client_calender_response.dart';

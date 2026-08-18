@@ -31,7 +31,6 @@ class AddReferenceView extends GetView<CleanerReferencesController> {
                   label: 'Phone Number',
                   hint: 'Enter your phone number',
                   keyboardType: TextInputType.phone,
-                  // maxLength: 10,
                 ).marginOnly(bottom: 18),
                 CommonTextField(controller: controller.companyNameCtrl, label: 'Company Name', hint: 'Enter your company name').marginOnly(bottom: 18),
                 CommonDropDownField(

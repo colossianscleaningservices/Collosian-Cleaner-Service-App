@@ -1,6 +1,6 @@
 import 'package:ccs_app/export.dart';
 
-import '../../../network/request/UpdateScheduleJobRequest.dart';
+import '../../../network/request/update_schedule_job_request.dart';
 import '../../../network/request/schedule_job_request.dart';
 import '../../../network/response/get_client_job_details_response.dart';
 import '../../../network/response/jobs.dart';
@@ -141,7 +141,7 @@ class ScheduleJobController extends GetxController {
   }
 
   void _prefillFromExistingSchedule(ClientJobDetails? details, Scheduler? scheduler) {
-    final dateRaw = details?.jobStartDate ?? scheduler?.nextJobDate ?? details?.date;
+    final dateRaw = scheduler?.startDate ?? details?.jobStartDate ?? scheduler?.nextJobDate ?? details?.date;
     if (dateRaw != null && dateRaw.trim().isNotEmpty) {
       try {
         final parsed = DateTime.parse(dateRaw);
@@ -156,10 +156,10 @@ class ScheduleJobController extends GetxController {
     frequency.value = _frequencyLabelFromApi(scheduler?.frequency);
     repeatOnDay.value = _repeatOnDayFromScheduler(scheduler) ?? 'monday';
 
-
-
     startTime.value = CcsDateTimeX.parseToTimeOfDay(scheduler?.startTime ?? details?.startTime) ?? const TimeOfDay(hour: 9, minute: 0);
     endTime.value = CcsDateTimeX.parseToTimeOfDay(scheduler?.endTime ?? details?.endTime) ?? const TimeOfDay(hour: 12, minute: 0);
+
+    copyCleanersFromParent.value = scheduler?.copyCleaners ?? false;
   }
 
   @override
@@ -263,8 +263,7 @@ class ScheduleJobController extends GetxController {
     }
   }
 
-  static String _formatApiDate(DateTime date) =>
-      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  static String _formatApiDate(DateTime date) => '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   static String _formatTimeWithAmPm(TimeOfDay time) {
     final period = time.hour >= 12 ? 'PM' : 'AM';

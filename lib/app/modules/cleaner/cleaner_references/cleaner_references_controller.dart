@@ -137,8 +137,8 @@ class CleanerReferencesController extends GetxController {
               isShowCloseIcon: false,
               showSecondaryButton: false, onPrimaryPressed: () {
             clearForm();
-            getCleanerReference();
             Get.back(result: true);
+            getCleanerReference();
           });
         });
       },

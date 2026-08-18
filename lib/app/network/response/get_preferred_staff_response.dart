@@ -136,7 +136,7 @@ class WorkShifts {
     startTime = json['start_time'];
     endTime = json['end_time'];
   }
-  String? day;
+  num? day;
   String? startTime;
   String? endTime;
 

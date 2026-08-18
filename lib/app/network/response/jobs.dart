@@ -785,39 +785,46 @@ class Scheduler {
     this.nextJobDate,
     this.occurrence,
     this.repeatEvery,
+    this.startDate,
     this.repeatOn,
     this.startTime,
     this.endTime,
     this.active,
+    this.copyCleaners,
   });
 
   Scheduler.fromJson(dynamic json) {
     id = json['id'];
     frequency = json['frequency'];
     nextJobDate = json['next_job_date'];
+    startDate = json['start_date'];
     occurrence = json['occurrence'];
     repeatEvery = json['repeat_every'];
     repeatOn = json['repeat_on'] != null ? RepeatOn.fromJson(json['repeat_on']) : null;
     startTime = json['start_time'];
     endTime = json['end_time'];
     active = json['active'];
+    copyCleaners = json['copy_cleaners'];
   }
 
   num? id;
   String? frequency;
   String? nextJobDate;
+  String? startDate;
   dynamic occurrence;
   String? repeatEvery;
   RepeatOn? repeatOn;
   String? startTime;
   String? endTime;
   bool? active;
+  bool? copyCleaners;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = id;
     map['frequency'] = frequency;
     map['next_job_date'] = nextJobDate;
+    map['start_date'] = startDate;
     map['occurrence'] = occurrence;
     map['repeat_every'] = repeatEvery;
     if (repeatOn != null) {
@@ -826,6 +833,7 @@ class Scheduler {
     map['start_time'] = startTime;
     map['end_time'] = endTime;
     map['active'] = active;
+    map['copy_cleaners'] = copyCleaners;
     return map;
   }
 }

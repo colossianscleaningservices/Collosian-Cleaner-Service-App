@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:ccs_app/app/network/repository/client_repository.dart';
-import 'package:ccs_app/app/network/request/UpdateScheduleJobRequest.dart';
+import 'package:ccs_app/app/network/request/update_schedule_job_request.dart';
 import 'package:ccs_app/app/network/request/pause_schedule_request.dart';
 import 'package:ccs_app/app/network/request/schedule_job_request.dart';
 import 'package:ccs_app/export.dart';

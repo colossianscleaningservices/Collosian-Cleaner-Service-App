@@ -213,7 +213,7 @@ Future<void> _pickDate(BuildContext context, JobCheckPhotoController ctrl) async
     context: context,
     initialDate: ctrl.scheduleValidFrom.value?.isBefore(DateTime.now()) == true ? DateTime.now() : ctrl.scheduleValidFrom.value ?? DateTime.now(),
     firstDate: DateTime.now(),
-    lastDate: DateTime(2030, 12, 31),
+    lastDate: DateTime(DateTime.now().year + 5, 12, 31),
   );
   if (d != null && context.mounted) ctrl.setScheduleValidFrom(d);
 }

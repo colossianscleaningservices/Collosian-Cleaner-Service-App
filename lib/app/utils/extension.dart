@@ -179,7 +179,6 @@ class JobStatusX {
     required String? jobStatus,
     required String? cleanerJobStatus,
   }) {
-    print(cleanerJobStatus);
     if (isJobFinished(jobStatus)) return 'Finished';
     if (isCleanerCompleted(cleanerJobStatus)) return 'Completed';
     if (isCleanerInProcess(cleanerJobStatus)) return 'In Process';
