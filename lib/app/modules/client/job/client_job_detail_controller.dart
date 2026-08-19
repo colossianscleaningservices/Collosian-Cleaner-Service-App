@@ -4,9 +4,10 @@ import 'package:ccs_app/app/network/repository/client_repository.dart';
 import 'package:ccs_app/app/network/request/update_schedule_job_request.dart';
 import 'package:ccs_app/app/network/request/pause_schedule_request.dart';
 import 'package:ccs_app/app/network/request/schedule_job_request.dart';
+import 'package:ccs_app/app/utils/download_utils.dart';
 import 'package:ccs_app/export.dart';
 import 'package:dio/dio.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../model/client_job.dart';
 import '../../../network/response/get_client_job_details_response.dart';
@@ -174,7 +175,6 @@ class ClientJobDetailController extends GetxController {
     );
   }
 
-
   Future<void> _cancelJob(num jobId, String msg) async {
     Loader.show();
     try {
@@ -279,8 +279,7 @@ class ClientJobDetailController extends GetxController {
 
   bool get isSchedulePaused => job.value?.scheduler?.active == false;
 
-  String _formatApiDate(DateTime date) =>
-      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  String _formatApiDate(DateTime date) => '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   void onPauseSchedule() {
     final scheduleId = _scheduleId;
@@ -397,19 +396,13 @@ class ClientJobDetailController extends GetxController {
     Get.toNamed(Routes.ADD_REVIEW, arguments: job.value);
   }
 
-  Future<void> onViewFile(String url) async {
-    final GlobalKey<SfPdfViewerState> pdfViewerKey = GlobalKey();
-    Notifier.openSheet(Get.context as BuildContext,
-        showIcon: false,
-        showPrimaryButton: false,
-        showSecondaryButton: false,
-        top: true,
-        expandBody: true,
-        body: SfPdfViewer.network(
-          url,
-          key: pdfViewerKey,
-          password: "1234",
-        ));
+  void onViewFile(String url) {
+    final invoice = job.value?.invoice;
+    Get.toNamed(Routes.CLIENT_INVOICE, arguments: {
+      'pdfUrl': url,
+      'invoiceNumber': invoice?.invoiceNumber,
+      'status': invoice?.status,
+    });
   }
 
   void openFilter(BuildContext context) {
@@ -498,30 +491,39 @@ class ClientJobDetailController extends GetxController {
     );
   }
 
-  Future<void> downloadFile(String url) async {
+  Future<void> downloadFile(String url, String? invoiceNumber) async {
+    if (url.isEmpty) {
+      Notifier.info('File URL is missing');
+      return;
+    }
+
+    Loader.show();
+    File? tempFile;
     try {
-      Loader.show();
-      final dio = Dio();
+      final number = invoiceNumber?.trim();
+      final fileName = (number != null && number.isNotEmpty)
+          ? (number.toLowerCase().endsWith('.pdf') ? number : '$number.pdf')
+          : 'invoice_${DateTime.now().millisecondsSinceEpoch}.pdf';
 
-      Directory dir = Directory('/storage/emulated/0/Download');
-      // Extract filename from URL (fallback if needed)
-      String fileName = url.split('/').last;
-      if (!fileName.contains('.')) {
-        fileName = "file_${DateTime.now().millisecondsSinceEpoch}.pdf";
-      }
+      final tempPath = '${(await getTemporaryDirectory()).path}/$fileName';
+      await Dio().download(url, tempPath);
+      tempFile = File(tempPath);
 
-      final filePath = "${dir.path}/$fileName";
-
-      await dio.download(
-        url,
-        filePath,
+      await DownloadUtils.saveToDownloads(source: tempFile, fileName: fileName);
+      Notifier.success(
+        Platform.isIOS
+            ? 'Open Files → On My iPhone → Colossians Cleaning to view $fileName.'
+            : 'Open Files or your Downloads folder to view $fileName.',
+        title: 'Invoice downloaded',
       );
-
-      Loader.hide();
-
-      Notifier.success('Your file has been downloaded successfully.');
     } catch (e) {
-      log(runtimeType.toString(), "Download error: $e");
+      log(runtimeType.toString(), 'Download error: $e');
+      Notifier.error('Unable to download invoice');
+    } finally {
+      try {
+        await tempFile?.delete();
+      } catch (_) {}
+      Loader.hide();
     }
   }
 
@@ -641,7 +643,7 @@ class ClientJobDetailController extends GetxController {
     }
   }
 
-  void clearAddReview(){
+  void clearAddReview() {
     arrive.value = null;
     uniform.value = null;
     completedJob.value = null;
@@ -649,5 +651,4 @@ class ClientJobDetailController extends GetxController {
     rating.value = 0;
     messageController.clear();
   }
-
 }

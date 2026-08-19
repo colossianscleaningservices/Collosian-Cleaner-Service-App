@@ -137,6 +137,9 @@ Widget _cleanerBody({
               typeLine: typeLine.isEmpty ? null : typeLine,
               addressText: addressText.isEmpty ? null : addressText,
               metaLine: _cleanerPropertyMetaLine(j),
+              cleaningTypeLine: (j.cleaningType?.name != null && j.cleaningType!.name!.trim().isNotEmpty)
+                  ? 'Cleaning type: ${j.cleaningType!.name!.trim()}'
+                  : null,
               paymentLine: (j.jobType != null && j.jobType!.trim().isNotEmpty) ? 'Payment: ${j.jobType!.capitalizeFirst}' : null,
               scheme: scheme,
             ).paddingAll(UiConstants.defaultPadding),

@@ -149,6 +149,7 @@ class JobPropertyBlock extends StatelessWidget {
     this.typeLine,
     this.addressText,
     this.metaLine,
+    this.cleaningTypeLine,
     this.paymentLine,
     required this.scheme,
   });
@@ -160,6 +161,7 @@ class JobPropertyBlock extends StatelessWidget {
   /// Full address in one string (street, city, postcode as you prefer).
   final String? addressText;
   final String? metaLine;
+  final String? cleaningTypeLine;
   final String? paymentLine;
   final ColorScheme scheme;
 
@@ -266,6 +268,10 @@ class JobPropertyBlock extends StatelessWidget {
         if (metaLine != null && metaLine!.trim().isNotEmpty) ...[
           const SizedBox(height: 8),
           CommonText.regular(metaLine!, size: 13, color: scheme.onSurfaceVariant),
+        ],
+        if (cleaningTypeLine != null && cleaningTypeLine!.trim().isNotEmpty) ...[
+          const SizedBox(height: 6),
+          CommonText.regular(cleaningTypeLine!, size: 13, color: scheme.primary,fontWeight: FontWeight.bold,),
         ],
         if (paymentLine != null && paymentLine!.trim().isNotEmpty) ...[
           const SizedBox(height: 6),

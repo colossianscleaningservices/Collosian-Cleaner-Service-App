@@ -1,6 +1,7 @@
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/export.dart';
 import 'package:chewie/chewie.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../network/response/training_resource_response.dart';
 import 'training_and_resources_controller.dart';
@@ -268,10 +269,12 @@ class _VideoPlaceholder extends StatefulWidget {
   const _VideoPlaceholder({
     required this.chewieController,
     required this.scheme,
+    this.onPlay,
   });
 
   final ChewieController? chewieController;
   final ColorScheme scheme;
+  final VoidCallback? onPlay;
 
   static const double _minHeight = 160;
 
@@ -321,6 +324,49 @@ class _VideoPlaceholder extends StatefulWidget {
 }
 
 class _VideoPlaceholderState extends State<_VideoPlaceholder> {
+  VideoPlayerController? _videoCtrl;
+  VoidCallback? _playListener;
+
+  @override
+  void initState() {
+    super.initState();
+    _attachPlayListener();
+  }
+
+  @override
+  void didUpdateWidget(covariant _VideoPlaceholder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.chewieController != widget.chewieController) {
+      _detachPlayListener();
+      _attachPlayListener();
+    }
+  }
+
+  @override
+  void dispose() {
+    _detachPlayListener();
+    super.dispose();
+  }
+
+  void _attachPlayListener() {
+    _videoCtrl = widget.chewieController?.videoPlayerController;
+    if (_videoCtrl == null) return;
+    _playListener = () {
+      if (_videoCtrl?.value.isPlaying == true) {
+        widget.onPlay?.call();
+      }
+    };
+    _videoCtrl!.addListener(_playListener!);
+  }
+
+  void _detachPlayListener() {
+    if (_videoCtrl != null && _playListener != null) {
+      _videoCtrl!.removeListener(_playListener!);
+    }
+    _videoCtrl = null;
+    _playListener = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = widget.scheme;
@@ -393,11 +439,7 @@ class _TrainingCard extends StatelessWidget {
     final isSeen = item.isSeen ?? false;
 
     return AppCard(
-      onTap: () {
-        if (isSeen == false && item.id != null) {
-          ctrl.seenTrainingResources(item.id!.toInt(), ctrl.trainingList.indexOf(item));
-        }
-      },
+      onTap: () => ctrl.markTrainingSeen(item),
       radius: UiConstants.radiusLarge,
       enableShadows: true,
       shadowOpacity: 0.06,
@@ -416,6 +458,7 @@ class _TrainingCard extends StatelessWidget {
                 ? _VideoPlaceholder(
                     chewieController: item.chewieController,
                     scheme: scheme,
+                    onPlay: () => ctrl.markTrainingSeen(item),
                   )
                 : item.fileCategory?.toLowerCase() == 'image'
                     ? Container(
@@ -449,6 +492,7 @@ class _TrainingCard extends StatelessWidget {
                       )
                     : InkWell(
                         onTap: () {
+                          ctrl.markTrainingSeen(item);
                           if (item.fileUrl != null) {
                             ctrl.onViewFile(item.fileUrl!);
                           }
@@ -513,7 +557,7 @@ class _TrainingCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: CommonText.semiBold(
-                        'Training resource',
+                        item.title?.trim().isNotEmpty == true ? item.title!.trim() : 'Untitled',
                         size: 15,
                         color: scheme.onSurface,
                       ),
@@ -533,6 +577,16 @@ class _TrainingCard extends StatelessWidget {
                       ),
                   ],
                 ),
+                if (item.description?.trim().isNotEmpty == true) ...[
+                  const SizedBox(height: 6),
+                  CommonText.regular(
+                    item.description!.trim(),
+                    size: 13,
+                    color: scheme.onSurfaceVariant,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ],
             ),
           ),
@@ -543,12 +597,11 @@ class _TrainingCard extends StatelessWidget {
 
   Widget _loadingPlaceholder(BuildContext context) {
     return Container(
-      height:  120,
+      height: 120,
       color: context.colorScheme.surfaceContainerHighest,
       child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: context.colorScheme.primary)),
     );
   }
-
 
   IconData _iconForMediaType(String type) {
     switch (type.toLowerCase()) {

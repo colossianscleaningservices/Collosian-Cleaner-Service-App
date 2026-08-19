@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -21,12 +22,14 @@ class PermissionUtils {
   }
 
   static Future<bool> requestStorage() async {
-    if (kIsWeb) return true;
-    // On Android 13+, storage permission is generally replaced by media permissions.
-    if (Platform.isAndroid) {
-      final status = await Permission.storage.request();
-      return status.isGranted;
-    }
+    if (kIsWeb || !Platform.isAndroid) return true;
+
+    final sdkInt = (await DeviceInfoPlugin().androidInfo).version.sdkInt;
+    // WRITE_EXTERNAL_STORAGE is declared with maxSdkVersion 28. Android 10+
+    // uses MediaStore for Downloads, so requesting storage logs
+    // "No permissions found in manifest for: []15".
+    if (sdkInt >= 29) return true;
+
     final status = await Permission.storage.request();
     return status.isGranted;
   }
@@ -37,4 +40,3 @@ class PermissionUtils {
     return status.isGranted;
   }
 }
-

@@ -19,6 +19,7 @@ abstract class Routes {
   // Client module
   static const CLIENT_DASHBOARD = _Paths.CLIENT_DASHBOARD;
   static const CLIENT_JOB_DETAIL = _Paths.CLIENT_JOB_DETAIL;
+  static const CLIENT_INVOICE = _Paths.CLIENT_INVOICE;
   static const CLIENT_SCHEDULE_JOB = _Paths.CLIENT_SCHEDULE_JOB;
   static const CLIENT_CREATE_JOB = _Paths.CLIENT_CREATE_JOB;
   static const CLIENT_EDIT_PROFILE = _Paths.CLIENT_EDIT_PROFILE;
@@ -70,6 +71,7 @@ abstract class _Paths {
   // Client module
   static const CLIENT_DASHBOARD = '/client';
   static const CLIENT_JOB_DETAIL = '/client/job/';
+  static const CLIENT_INVOICE = '/client/invoice';
   static const CLIENT_SCHEDULE_JOB = '/client/job/schedule';
   static const CLIENT_CREATE_JOB = '/client/job/create';
   static const CLIENT_EDIT_PROFILE = '/client/edit-profile';

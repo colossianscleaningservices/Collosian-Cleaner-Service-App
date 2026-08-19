@@ -66,17 +66,20 @@ class LatestPayouts {
       this.id, 
       this.totalPayout, 
       this.paidOn, 
+      this.status,
       this.job,});
 
   LatestPayouts.fromJson(dynamic json) {
     id = json['id'];
     totalPayout = json['total_payout'];
     paidOn = json['paid_on'];
+    status = json['status'];
     job = json['job'] != null ? Job.fromJson(json['job']) : null;
   }
   num? id;
   num? totalPayout;
   String? paidOn;
+  String? status;
   Job? job;
 
   Map<String, dynamic> toJson() {
@@ -84,6 +87,7 @@ class LatestPayouts {
     map['id'] = id;
     map['total_payout'] = totalPayout;
     map['paid_on'] = paidOn;
+    map['status'] = status;
     if (job != null) {
       map['job'] = job?.toJson();
     }

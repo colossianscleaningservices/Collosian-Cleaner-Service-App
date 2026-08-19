@@ -71,7 +71,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
   bool assignedSingleDayHasMore = true;
   bool availableSingleDayHasMore = true;
   RxBool isCalendarMoreLoading = false.obs;
+  bool _calendarFetchInFlight = false;
   ScrollController calendarListScrollController = ScrollController();
+  static const _singleDayPerPage = 10;
 
   /// Active events map for the current [calendarJobMode].
   Map<DateTime, List<CalendarEvent>> get activeEventsMap =>
@@ -178,9 +180,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
     filter.clear();
     filter.add(CommonModel(type: "All Jobs", isSelected: true));
-    filter.add(CommonModel(type: "Pending"));
-    filter.add(CommonModel(type: "Approved"));
     filter.add(CommonModel(type: "Finished"));
+    filter.add(CommonModel(type: "Approved"));
+    filter.add(CommonModel(type: "Pending"));
 
     userDisplayName.value = Get.find<SessionService>().userDisplayName;
     userDisplayImage.value = Get.find<SessionService>().userDisplayImage;
@@ -236,15 +238,15 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     }
   }
 
-  void _onCalendarListScroll() {
-    if (tabIndex.value != 1 || tabController.index != 2) return;
-    if (!_isCalendarListScrollBottom || isCalendarMoreLoading.value) return;
+  bool get _canLoadMoreCalendar {
     if (isSingleDayCalendarMode.value) {
-      final canLoadMore = calendarJobMode.value == CalendarJobMode.available ? availableSingleDayHasMore : assignedSingleDayHasMore;
-      if (!canLoadMore) return;
-    } else {
-      if (_activeCalendarPage > _activeCalendarTotalPages) return;
+      return calendarJobMode.value == CalendarJobMode.available ? availableSingleDayHasMore : assignedSingleDayHasMore;
     }
+    return _activeCalendarPage <= _activeCalendarTotalPages;
+  }
+
+  void _requestCalendarLoadMore() {
+    if (!_canLoadMoreCalendar || isCalendarMoreLoading.value || _calendarFetchInFlight) return;
     isCalendarMoreLoading.value = true;
     final selected = selectedDay.value ?? focusedDay.value;
     getCleanerCalender(
@@ -255,25 +257,19 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     );
   }
 
+  void _onCalendarListScroll() {
+    if (tabIndex.value != 1 || tabController.index != 2) return;
+    if (!_isCalendarListScrollBottom) return;
+    _requestCalendarLoadMore();
+  }
+
   /// Week/Month tab scroll pagination trigger (below calendar section).
-  void onCalendarContentScrolled(ScrollMetrics metrics) {
+  void onCalendarContentScrolled(ScrollNotification notification) {
     if (tabIndex.value != 1 || tabController.index == 2) return;
-    if (metrics.extentAfter > 120) return;
-    if (isCalendarMoreLoading.value) return;
-    if (isSingleDayCalendarMode.value) {
-      final canLoadMore = calendarJobMode.value == CalendarJobMode.available ? availableSingleDayHasMore : assignedSingleDayHasMore;
-      if (!canLoadMore) return;
-    } else {
-      if (_activeCalendarPage > _activeCalendarTotalPages) return;
-    }
-    isCalendarMoreLoading.value = true;
-    final selected = selectedDay.value ?? focusedDay.value;
-    getCleanerCalender(
-      forDate: selected,
-      singleDay: isSingleDayCalendarMode.value,
-      forWeek: !isSingleDayCalendarMode.value && mode.value == CalendarViewMode.week,
-      loadMore: true,
-    );
+    if (notification.depth != 0) return;
+    if (notification is! ScrollUpdateNotification && notification is! ScrollEndNotification) return;
+    if (notification.metrics.extentAfter > 120) return;
+    _requestCalendarLoadMore();
   }
 
   /// Call device registration API so latest app/device data is saved when dashboard opens.
@@ -643,6 +639,12 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     bool forWeek = false,
     bool loadMore = false,
   }) async {
+    if (loadMore && _calendarFetchInFlight) {
+      isCalendarMoreLoading.value = false;
+      return;
+    }
+    _calendarFetchInFlight = true;
+
     final targetDate = forDate ?? focusedDay.value;
     final singleDayKey = singleDay
         ? DateTime(targetDate.year, targetDate.month, targetDate.day)
@@ -663,6 +665,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       }
       if (!singleDay) Loader.show();
     }
+
     try {
       String? dateFrom;
       String? dateTo;
@@ -697,34 +700,35 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
         propertyName: propertyName,
         type: type,
         page: page,
-        perPage: singleDay ? 15 : null,
+        perPage: singleDay ? _singleDayPerPage : null,
       );
       result.handle(
         success: (value) {
           final newMap = _mapJobsToEvents(value.data?.jobs ?? <Jobs>[]);
           if (singleDay && singleDayKey != null) {
-            const singleDayPerPage = 15;
             _mergeSingleDayEvents(
               isAvailable: isAvailable,
               dayKey: singleDayKey,
               dayEvents: newMap[singleDayKey] ?? [],
               append: loadMore,
             );
-            final fetchedCount = (value.data?.jobs ?? const <Jobs>[]).length;
-            final hasMoreByCount = fetchedCount >= singleDayPerPage;
-            final total = (value.data?.pagination?.totalPages ?? 1).toInt();
+            final pagination = value.data?.pagination;
+            final hasMore = _hasMoreSingleDayPages(
+              fetchedCount: (value.data?.jobs ?? const <Jobs>[]).length,
+              requestedPage: page,
+              currentPage: pagination?.currentPage,
+              totalPages: pagination?.totalPages,
+              totalItems: value.data?.total ?? pagination?.total,
+            );
+            final total = (value.data?.pagination?.totalPages ?? (hasMore ? page + 1 : page)).toInt();
             if (isAvailable) {
-              availableSingleDayHasMore = hasMoreByCount;
+              availableSingleDayHasMore = hasMore;
               availableCalendarTotalPages = total;
-              if (availableSingleDayHasMore || availableCalendarPage <= availableCalendarTotalPages) {
-                availableCalendarPage++;
-              }
+              if (hasMore) availableCalendarPage++;
             } else {
-              assignedSingleDayHasMore = hasMoreByCount;
+              assignedSingleDayHasMore = hasMore;
               assignedCalendarTotalPages = total;
-              if (assignedSingleDayHasMore || assignedCalendarPage <= assignedCalendarTotalPages) {
-                assignedCalendarPage++;
-              }
+              if (hasMore) assignedCalendarPage++;
             }
             return;
           }
@@ -747,9 +751,33 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     } catch (e) {
       await Notifier.apiError(e, contextTag: 'get-cleaner-calender');
     } finally {
+      _calendarFetchInFlight = false;
       if (!loadMore && !singleDay) Loader.hide();
       isCalendarMoreLoading.value = false;
     }
+  }
+
+  /// True only when this day's response still has another page.
+  /// Stops on a short/empty page, or when loaded count already covers `total`.
+  bool _hasMoreSingleDayPages({
+    required int fetchedCount,
+    required int requestedPage,
+    num? currentPage,
+    num? totalPages,
+    num? totalItems,
+  }) {
+    if (fetchedCount <= 0 || fetchedCount < _singleDayPerPage) return false;
+
+    final current = (currentPage ?? requestedPage).toInt();
+    final items = totalItems?.toInt();
+    if (items != null) {
+      return (current - 1) * _singleDayPerPage + fetchedCount < items;
+    }
+
+    final pages = totalPages?.toInt();
+    if (pages != null) return current < pages;
+
+    return false;
   }
 
   /// Day tap fetch: update only that date in map — keep dots on other days.

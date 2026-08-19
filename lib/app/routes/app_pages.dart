@@ -41,6 +41,8 @@ import '../modules/client/edit_profile/client_edit_profile_view.dart';
 import '../modules/client/job/add_review.dart';
 import '../modules/client/job/client_job_detail_binding.dart';
 import '../modules/client/job/client_job_detail_view.dart';
+import '../modules/client/job/invoice_binding.dart';
+import '../modules/client/job/invoice_view.dart';
 import '../modules/client/preferred_staff/preferred_staff_binding.dart';
 import '../modules/client/preferred_staff/preferred_staff_view.dart';
 import '../modules/client/preferred_staff/staff_details_view.dart';
@@ -113,6 +115,11 @@ class AppPages {
         name: _Paths.CLIENT_CREATE_JOB,
         page: () => const CreateJobView(),
         binding: CreateJobBinding()),
+    GetPage(
+      name: _Paths.CLIENT_INVOICE,
+      page: () => const InvoiceView(),
+      binding: InvoiceBinding(),
+    ),
     GetPage(
       name: _Paths.CLIENT_JOB_DETAIL,
       page: () => const ClientJobDetailView(),

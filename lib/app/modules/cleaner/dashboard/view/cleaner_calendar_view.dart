@@ -113,7 +113,7 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
               children: [
                 NotificationListener<ScrollNotification>(
                   onNotification: (n) {
-                    controller.onCalendarContentScrolled(n.metrics);
+                    controller.onCalendarContentScrolled(n);
                     return false;
                   },
                   child: SingleChildScrollView(
@@ -132,7 +132,7 @@ class CleanerCalendarView extends GetView<CleanerDashboardController> {
                 ),
                 NotificationListener<ScrollNotification>(
                   onNotification: (n) {
-                    controller.onCalendarContentScrolled(n.metrics);
+                    controller.onCalendarContentScrolled(n);
                     return false;
                   },
                   child: SingleChildScrollView(

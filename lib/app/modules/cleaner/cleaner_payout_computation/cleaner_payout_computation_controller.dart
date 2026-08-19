@@ -1,5 +1,4 @@
 import 'package:ccs_app/app/network/response/get_payout_computation_response.dart';
-import 'package:ccs_app/app/utils/alerts.dart';
 import 'package:ccs_app/app/utils/date_utils.dart';
 import 'package:get/get.dart';
 
@@ -60,13 +59,8 @@ class CleanerPayoutComputationController extends GetxController {
           totalPayout.value = data?.totalPayout?.toString() ??'0.0';
           residentialRate.value = data?.residentialRate;
           commercialRate.value = data?.commercialRate;
-
           entries.assignAll(data?.workEntries as Iterable<WorkEntries>);
-
           entries.refresh();
-
-          log('tag', 'RESPONSE : $response');
-
         },
       );
     } finally {

@@ -130,7 +130,7 @@ Color getBgColor(String label, ColorScheme scheme){
   Color bg;
   if (lower.contains('cancel') || lower.contains('reject') || lower.contains('declin')) {
     bg = scheme.errorContainer.withValues(alpha: 0.6);
-  } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) {
+  } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished') || lower.contains('paid')) {
     bg = scheme.tertiaryContainer.withValues(alpha: 0.6);
   } else if (lower.contains('pending')) {
     bg = scheme.secondaryContainer.withValues(alpha: 0.75);
@@ -146,7 +146,7 @@ Color getFgColor(String label, ColorScheme scheme){
   Color fg;
   if (lower.contains('cancel') || lower.contains('reject') || lower.contains('declin')) {
     fg = scheme.error;
-  } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished')) {
+  } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished') || lower.contains('paid')) {
     fg = scheme.onTertiaryContainer;
   } else if (lower.contains('pending')) {
     fg = scheme.onSecondaryContainer;

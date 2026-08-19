@@ -333,13 +333,13 @@ class PropertyController extends GetxController {
       final subId = item?.id;
 
       if (item?.hasSubtypes == true) {
-        numberOfBedroomsCtrl.text = "${property.bedrooms}";
-        numberOfBathroomsCtrl.text = "${property.bathrooms}";
-        numberOfGuestToiletCtrl.text = "${property.separateGuestToilet}";
-        livingRoomCtrl.text = "${property.livingRooms}";
-        officeCtrl.text = "${property.office}";
-        conservatoryCtrl.text = "${property.conservatory}";
-        diningRoomCtrl.text = "${property.diningRoom}";
+        numberOfBedroomsCtrl.text = "${property.bedrooms ?? '0'}";
+        numberOfBathroomsCtrl.text = "${property.bathrooms ?? '0'}";
+        numberOfGuestToiletCtrl.text = "${property.separateGuestToilet ?? '0'}";
+        livingRoomCtrl.text = "${property.livingRooms ?? '0'}";
+        officeCtrl.text = "${property.office ?? '0'}";
+        conservatoryCtrl.text = "${property.conservatory ?? '0'}";
+        diningRoomCtrl.text = "${property.diningRoom ?? '0'}";
 
         if (subId != null) {
           await getPropertySubType(subId.toInt(), showLoader: false);

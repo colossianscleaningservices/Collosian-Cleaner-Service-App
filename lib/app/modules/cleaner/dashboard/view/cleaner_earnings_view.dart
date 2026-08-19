@@ -86,6 +86,7 @@ class CleanerEarningsView extends GetView<CleanerDashboardController> {
                         color: scheme.secondary,
                         onTap: () {
                           Get.to(() => const TransactionHistoryView());
+                          controller.currentPage = 1;
                           controller.getTransactionHistory();
                         },
                       ),
@@ -111,7 +112,13 @@ class CleanerEarningsView extends GetView<CleanerDashboardController> {
 
                                   return Column(
                                     children: [
-                                      _HistoryRow(date: date, desc: item?.job?.cleaningService ?? "N/A", amount: "£${item?.totalPayout}", scheme: scheme),
+                                      _HistoryRow(
+                                        date: date,
+                                        desc: item?.job?.cleaningService ?? "N/A",
+                                        amount: "£${item?.totalPayout}",
+                                        status: item?.status,
+                                        scheme: scheme,
+                                      ),
                                       Divider(height: 1, color: scheme.outline.withValues(alpha: 0.12)),
                                     ],
                                   );
@@ -171,15 +178,20 @@ class _HistoryRow extends StatelessWidget {
     required this.desc,
     required this.amount,
     required this.scheme,
+    this.status,
   });
 
   final String date;
   final String desc;
   final String amount;
   final ColorScheme scheme;
+  final String? status;
 
   @override
   Widget build(BuildContext context) {
+    final statusLabel = status?.trim();
+    final hasStatus = statusLabel != null && statusLabel.isNotEmpty;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
       child: Row(
@@ -191,18 +203,40 @@ class _HistoryRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CommonText.medium(desc, size: 14, color: scheme.onSurface),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(IconsaxPlusLinear.calendar_1, size: 12, color: scheme.onSurfaceVariant),
-                    const SizedBox(width: 6),
-                    CommonText.regular(date, size: 12, color: scheme.onSurfaceVariant),
-                  ],
-                ),
+                if (date.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Icon(IconsaxPlusLinear.calendar_1, size: 12, color: scheme.onSurfaceVariant),
+                      const SizedBox(width: 6),
+                      CommonText.regular(date, size: 12, color: scheme.onSurfaceVariant),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
-          CommonText.semiBold(amount, size: 15, color: scheme.primary),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              CommonText.semiBold(amount, size: 15, color: scheme.primary),
+              if (hasStatus) ...[
+                const SizedBox(height: 6),
+                Container(
+                  decoration: BoxDecoration(
+                    color: getBgColor(statusLabel, scheme),
+                    borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
+                  ),
+                  child: CommonText.semiBold(
+                    statusLabel.capitalizeFirst ?? statusLabel,
+                    size: 11,
+                    color: getFgColor(statusLabel, scheme),
+                  ).paddingSymmetric(horizontal: 8, vertical: 4),
+                ),
+              ],
+            ],
+          ),
         ],
       ),
     );

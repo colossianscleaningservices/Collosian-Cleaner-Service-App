@@ -1,7 +1,7 @@
 import 'package:ccs_app/app/model/client_job.dart';
 import 'package:ccs_app/export.dart';
 
-/// Job detail cleaner row: avatar, name, status, and action buttons.
+/// Job detail cleaner row: avatar, name, status chip, check-in/out, and actions.
 /// Used in both client and cleaner job detail views.
 class CleanerCard extends StatelessWidget {
   const CleanerCard({
@@ -12,6 +12,8 @@ class CleanerCard extends StatelessWidget {
     required this.scheme,
     this.isReview = false,
     this.showActions = true,
+    this.checkInText,
+    this.checkOutText,
   });
 
   final ClientJobCleaner cleaner;
@@ -19,8 +21,10 @@ class CleanerCard extends StatelessWidget {
   final ColorScheme scheme;
   final bool isReview;
 
-  /// When false, hides Share / Review / View (e.g. cleaner-facing job detail).
+  /// When false, hides Review / chevron (e.g. cleaner-facing job detail).
   final bool showActions;
+  final String? checkInText;
+  final String? checkOutText;
 
   bool get _isCompleted {
     final s = cleaner.status.toLowerCase();
@@ -29,61 +33,195 @@ class CleanerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final statusLabel = cleaner.status.capitalizeFirst ?? cleaner.status;
+    final hasCheckIn = checkInText != null && checkInText!.trim().isNotEmpty;
+    final hasCheckOut = checkOutText != null && checkOutText!.trim().isNotEmpty;
+    final hasAttendance = hasCheckIn || hasCheckOut;
+
     return AppCard(
       onTap: onTap,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AppAvatar(
-            imageUrl: cleaner.avatarUrl,
-            name: cleaner.name,
-            radius: 8,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AppAvatar(
+                radius: 8,
+                imageUrl: cleaner.avatarUrl,
+                name: cleaner.name,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CommonText.semiBold(
+                      cleaner.name,
+                      size: 16,
+                      color: scheme.onSurface,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    _StatusChip(label: statusLabel, scheme: scheme),
+                  ],
+                ),
+              ),
+              if (showActions)
+                Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CommonText.semiBold(cleaner.name, size: 15, color: scheme.onSurface),
-                const SizedBox(height: 4),
-                CommonText.regular('Status: ${cleaner.status}', size: 13, color: scheme.onSurfaceVariant),
-                if (showActions) ...[
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    alignment: WrapAlignment.end,
-                    children: [
-                      if (_isCompleted)
-                        if (isReview)
-                          TextButton(
-                            onPressed: onReview,
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: CommonText.regular('Review', size: 14, color: scheme.primary),
-                          )
-                        else ...[
-                          TextButton(
-                            onPressed: onTap,
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                            child: CommonText.regular('View', size: 14, color: scheme.primary),
-                          ),
-                        ],
-                    ],
+          if (hasAttendance) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
+                borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _AttendanceCell(
+                      icon: IconsaxPlusLinear.login,
+                      label: 'Check-in',
+                      value: hasCheckIn ? checkInText! : '—',
+                      scheme: scheme,
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 36,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    color: scheme.outline.withValues(alpha: 0.16),
+                  ),
+                  Expanded(
+                    child: _AttendanceCell(
+                      icon: IconsaxPlusLinear.logout,
+                      label: 'Check-out',
+                      value: hasCheckOut ? checkOutText! : '—',
+                      scheme: scheme,
+                    ),
                   ),
                 ],
-              ],
+              ),
             ),
-          ),
+          ],
+          if (showActions && _isCompleted && isReview) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: _ActionPill(
+                label: 'Review',
+                icon: IconsaxPlusLinear.star,
+                scheme: scheme,
+                onPressed: onReview,
+              ),
+            ),
+          ],
         ],
       ).paddingAll(UiConstants.defaultPadding),
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({required this.label, required this.scheme});
+
+  final String label;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: getBgColor(label, scheme),
+        borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
+      ),
+      child: CommonText.semiBold(
+        label,
+        size: 11,
+        color: getFgColor(label, scheme),
+      ).paddingSymmetric(horizontal: 10, vertical: 4),
+    );
+  }
+}
+
+class _AttendanceCell extends StatelessWidget {
+  const _AttendanceCell({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.scheme,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: scheme.primary),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CommonText.regular(label, size: 11, color: scheme.onSurfaceVariant),
+              const SizedBox(height: 2),
+              CommonText.medium(
+                value,
+                size: 12,
+                color: scheme.onSurface,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionPill extends StatelessWidget {
+  const _ActionPill({
+    required this.label,
+    required this.icon,
+    required this.scheme,
+    required this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final ColorScheme scheme;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: scheme.primaryContainer.withValues(alpha: 0.7),
+      borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 16, color: scheme.primary),
+              const SizedBox(width: 6),
+              CommonText.semiBold(label, size: 13, color: scheme.primary),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

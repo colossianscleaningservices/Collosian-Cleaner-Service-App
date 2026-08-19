@@ -160,6 +160,9 @@ Widget _bodyForState({
               typeLine: typeLine.isEmpty ? null : typeLine,
               addressText: addressText.isEmpty ? null : addressText,
               metaLine: _propertyMetaLine(j),
+              cleaningTypeLine: (j.cleaningType?.name != null && j.cleaningType!.name!.trim().isNotEmpty)
+                  ? 'Cleaning type: ${j.cleaningType!.name!.trim()}'
+                  : null,
               paymentLine: (j.jobType != null && j.jobType!.trim().isNotEmpty) ? 'Payment: ${j.jobType!.capitalizeFirst}' : null,
               scheme: scheme,
             ).paddingAll(UiConstants.defaultPadding),
@@ -235,6 +238,8 @@ Widget _bodyForState({
                       cleaner: item,
                       isReview: cleaner?.isReviewed == true ? false : true,
                       scheme: scheme,
+                      checkInText: _staffCheckDisplay(cleaner?.checkInDate, cleaner?.checkInTime),
+                      checkOutText: _staffCheckDisplay(cleaner?.checkOutDate, cleaner?.checkOutTime),
                       onReview: () => c.onReviewCleanerProfile(item),
                       onTap: () => Get.toNamed(Routes.STAFF_DETAILS, arguments: {'id': item.id.toInt(), 'type': 'staffDetail'}),
                     ),
@@ -269,9 +274,7 @@ Widget _bodyForState({
                     ),
                   ),
                   InkWell(
-                      onTap: () {
-                        c.downloadFile(j.invoice?.pdfUrl ?? '');
-                      },
+                      onTap: () => c.downloadFile(j.invoice?.pdfUrl ?? '', j.invoice?.invoiceNumber),
                       child: Icon(IconsaxPlusLinear.arrow_down_2, size: 28, color: context.colorScheme.primary)),
                 ],
               ).paddingAll(UiConstants.defaultPadding),
@@ -346,6 +349,27 @@ String _propertyMetaLine(ClientJobDetails j) {
   final n = j.numberOfCleaners ?? 0;
   parts.add(n == 1 ? '1 cleaner' : '$n cleaners');
   return parts.join(' • ');
+}
+
+String? _staffCheckDisplay(dynamic date, String? time) {
+  String? datePart;
+  final rawDate = date?.toString().trim();
+  if (rawDate != null && rawDate.isNotEmpty) {
+    try {
+      datePart = CcsDateUtils.fullDate(DateTime.parse(rawDate));
+    } catch (_) {
+      datePart = rawDate;
+    }
+  }
+
+  String? timePart;
+  final rawTime = time?.trim();
+  if (rawTime != null && rawTime.isNotEmpty) {
+    timePart = CcsDateTimeX.convertTime(rawTime);
+  }
+
+  if (datePart != null && timePart != null) return '$datePart · $timePart';
+  return datePart ?? timePart;
 }
 
 class _StatusScheduleSection extends StatelessWidget {

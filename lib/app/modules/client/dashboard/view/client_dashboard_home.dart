@@ -107,60 +107,70 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                               ),
                             ],
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                AppCard(
-                                  color: scheme.primaryContainer.withValues(alpha: 0.2),
-                                  padding: const EdgeInsets.all(12),
-                                  child: Icon(IconsaxPlusLinear.calendar, size: 24, color: scheme.onPrimary),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(top: 2),
-                                    child: todayJob != null
-                                        ? Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              CommonText.semiBold(todayJob.cleaningType?.name ?? " - ", size: 16, color: scheme.onPrimary),
-                                              if (todayJob.startTime?.isNullOrEmpty == false && todayJob.endTime?.isNullOrEmpty == false) ...[
-                                                const SizedBox(height: 6),
-                                                Row(
-                                                  children: [
-                                                    Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onPrimary.withValues(alpha: 0.6)),
-                                                    const SizedBox(width: 6),
-                                                    CommonText.regular(
-                                                      CcsDateUtils.parseTimeRange(todayJob.startTime ?? "", todayJob.endTime ?? ""),
-                                                      size: 12,
-                                                      color: scheme.onPrimary.withValues(alpha: 0.6),
+                          GestureDetector(
+                            onTap: () {
+                              if (todayJob != null) controller.openDetail(todayJob);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  AppCard(
+                                    color: scheme.primaryContainer.withValues(alpha: 0.2),
+                                    padding: const EdgeInsets.all(12),
+                                    onTap: () {
+                                      if (todayJob != null) controller.openDetail(todayJob);
+                                    },
+                                    child: Icon(IconsaxPlusLinear.calendar, size: 24, color: scheme.onPrimary),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Container(
+                                        child: todayJob != null
+                                            ? Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  CommonText.semiBold(todayJob.cleaningType?.name ?? " - ", size: 16, color: scheme.onPrimary),
+                                                  if (todayJob.startTime?.isNullOrEmpty == false && todayJob.endTime?.isNullOrEmpty == false) ...[
+                                                    const SizedBox(height: 6),
+                                                    Row(
+                                                      children: [
+                                                        Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onPrimary.withValues(alpha: 0.6)),
+                                                        const SizedBox(width: 6),
+                                                        CommonText.regular(
+                                                          CcsDateUtils.parseTimeRange(todayJob.startTime ?? "", todayJob.endTime ?? ""),
+                                                          size: 12,
+                                                          color: scheme.onPrimary.withValues(alpha: 0.6),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
-                                                ),
-                                              ],
-                                            ],
-                                          )
-                                        : Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              CommonText.semiBold(
-                                                'No jobs found for today.',
-                                                size: 16,
-                                                color: scheme.onPrimary,
+                                                ],
+                                              )
+                                            : Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  CommonText.semiBold(
+                                                    'No jobs found for today.',
+                                                    size: 16,
+                                                    color: scheme.onPrimary,
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  CommonText.regular(
+                                                    'Your next booking will appear here.',
+                                                    size: 12,
+                                                    color: scheme.onPrimary.withValues(alpha: 0.75),
+                                                  ),
+                                                ],
                                               ),
-                                              const SizedBox(height: 4),
-                                              CommonText.regular(
-                                                'Your next booking will appear here.',
-                                                size: 12,
-                                                color: scheme.onPrimary.withValues(alpha: 0.75),
-                                              ),
-                                            ],
-                                          ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ],

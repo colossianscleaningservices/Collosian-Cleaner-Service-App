@@ -22,6 +22,7 @@ class TrainingAndResourcesController extends GetxController {
   var currentPage = 1;
   RxBool isMoreLoading = false.obs;
   var prevSearch = '';
+  final _markingSeenIds = <num>{};
 
   @override
   void onInit() {
@@ -121,10 +122,17 @@ class TrainingAndResourcesController extends GetxController {
 
           value.data?.resources?.trainings?.forEach((item) async {
             if (trainingList.firstWhereOrNull((tr) => tr.id == item.id) == null) {
-              if (item.contentType?.toLowerCase() == 'video') {
+              final isVideo = item.fileCategory?.toLowerCase() == 'video' ||
+                  item.contentType?.toLowerCase() == 'video';
+              if (isVideo) {
                 final videoUrl = item.fileUrl;
                 if (videoUrl != null && videoUrl.isNotEmpty) {
                   final ctrl = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
+                  ctrl.addListener(() {
+                    if (ctrl.value.isPlaying) {
+                      markTrainingSeen(item);
+                    }
+                  });
                   final chewieCtrl = ChewieController(
                     videoPlayerController: ctrl,
                     autoInitialize: true,
@@ -167,6 +175,19 @@ class TrainingAndResourcesController extends GetxController {
     } finally {
       if (!isMoreLoading.value && !isFromSearch) Loader.hide();
       isMoreLoading.value = false;
+    }
+  }
+
+  Future<void> markTrainingSeen(Trainings item) async {
+    final id = item.id;
+    if (id == null || item.isSeen == true || _markingSeenIds.contains(id)) return;
+    final index = trainingList.indexWhere((t) => t.id == id);
+    if (index < 0) return;
+    _markingSeenIds.add(id);
+    try {
+      await seenTrainingResources(id.toInt(), index);
+    } finally {
+      _markingSeenIds.remove(id);
     }
   }
 
