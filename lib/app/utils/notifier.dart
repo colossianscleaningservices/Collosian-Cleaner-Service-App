@@ -90,7 +90,7 @@ class Notifier {
             Align(
               alignment: Alignment.topRight,
               child: IconButton(
-                icon: const Icon(Icons.close),
+                icon: const Icon(IconsaxPlusLinear.close_circle),
                 onPressed: closeSheet,
                 style: filledIconButtonStyle(context),
               ),

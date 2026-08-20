@@ -153,9 +153,9 @@ class _NotificationCard extends StatelessWidget {
       case Constants.cleanerAssigned:
         return IconsaxPlusLinear.task_square;
       case Constants.cleanerCheckIn:
-        return Icons.more_time;
+        return IconsaxPlusLinear.clock;
       case Constants.cleanerCheckOut:
-        return Icons.done;
+        return IconsaxPlusLinear.tick_circle;
       default:
         return IconsaxPlusLinear.message_text;
     }
@@ -217,7 +217,7 @@ class _NotificationCard extends StatelessWidget {
               onPressed: (_) => {ctrl.deleteNotifications(notification.id?.toInt(), index)},
               backgroundColor: Colors.transparent,
               foregroundColor: context.colorScheme.error,
-              icon: Icons.delete,
+              icon: IconsaxPlusLinear.trash,
               label: 'Delete',
             ),
           ],

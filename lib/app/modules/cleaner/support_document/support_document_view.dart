@@ -16,7 +16,7 @@ class SupportDocumentView extends GetView<SupportDocumentController> {
       body: Obx(() {
         if (controller.documents.isEmpty) {
           return NoDataView(
-            icon: Icons.description_outlined,
+            icon: IconsaxPlusLinear.document_text_1,
             title: 'No documents yet',
             subtitle: 'Add your passport, visa, or other supporting documents so they appear here.',
             actionLabel: 'Add Document',
@@ -50,7 +50,7 @@ class SupportDocumentView extends GetView<SupportDocumentController> {
       }),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navigateToAddDocument(context),
-        icon: const Icon(Icons.add),
+        icon: const Icon(IconsaxPlusLinear.add),
         label: CommonText.regular(
           'Add Document',
           color: context.colorScheme.onPrimary,
@@ -113,7 +113,7 @@ class _DocumentTile extends StatelessWidget {
               onPressed: (_) => onDelete(),
               backgroundColor: Colors.transparent,
               foregroundColor: scheme.error,
-              icon: Icons.delete,
+              icon: IconsaxPlusLinear.trash,
               label: 'Delete',
             ),
           ],
@@ -166,7 +166,7 @@ class _DocumentTile extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.edit_outlined, size: 16, color: scheme.primary),
+                        Icon(IconsaxPlusLinear.edit_2, size: 16, color: scheme.primary),
                         const SizedBox(width: 4),
                         CommonText.medium('Edit', color: scheme.primary, size: 13),
                       ],

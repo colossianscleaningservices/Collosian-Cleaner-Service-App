@@ -51,8 +51,10 @@ class AddPropertyView extends GetView<PropertyController> {
                 children: [
                   AppCard(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 16,
                       children: [
+                        CommonText.semiBold('Property details', size: 16, color: scheme.onSurface).marginOnly(bottom: 4),
                         CommonTextField(
                           controller: controller.propertyNameCtrl,
                           label: 'Property Name',
@@ -149,8 +151,10 @@ class AddPropertyView extends GetView<PropertyController> {
                   ).marginSymmetric(horizontal: 16, vertical: 8),
                   AppCard(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 16,
                       children: [
+                        CommonText.semiBold('Preferences & equipment', size: 16, color: scheme.onSurface).marginOnly(bottom: 4),
                         CommonDropDownField<String>(
                           label: 'Do you have a hoover?',
                           hint: 'Select',

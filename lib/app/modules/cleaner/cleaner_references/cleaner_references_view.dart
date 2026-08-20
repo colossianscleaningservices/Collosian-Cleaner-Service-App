@@ -72,8 +72,8 @@ class CleanerReferencesView extends GetView<CleanerReferencesController> {
           controller.clearForm();
           Get.toNamed(Routes.ADD_REFERENCES);
         },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Add Reference'),
+        icon: const Icon(IconsaxPlusLinear.add),
+        label: CommonText.regular('Add Reference', color: scheme.onPrimary),
         backgroundColor: scheme.primary,
         foregroundColor: scheme.onPrimary,
       ),
@@ -124,7 +124,7 @@ class _ReferenceTile extends StatelessWidget {
               onPressed: (_) => onDelete(),
               backgroundColor: Colors.transparent,
               foregroundColor: scheme.error,
-              icon: Icons.delete,
+              icon: IconsaxPlusLinear.trash,
               label: 'Delete',
             ),
           ],
@@ -160,18 +160,15 @@ class _ReferenceTile extends StatelessWidget {
                           color: scheme.onSurface,
                         ),
                         if (reference.relationship != null && reference.relationship!.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: scheme.secondaryContainer.withValues(alpha: 0.7),
-                              borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
-                            ),
-                            child: CommonText.medium(
-                              reference.relationship!,
-                              size: 12,
-                              color: scheme.onSecondaryContainer,
-                            ),
+                          const SizedBox(height: 6),
+                          Row(
+                            children: [
+                              InfoChip(
+                                label: reference.relationship!,
+                                backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.35),
+                                foregroundColor: scheme.secondary,
+                              ),
+                            ],
                           ),
                         ],
                       ],
@@ -189,7 +186,7 @@ class _ReferenceTile extends StatelessWidget {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.edit_outlined, size: 16, color: scheme.primary),
+                        Icon(IconsaxPlusLinear.edit_2, size: 16, color: scheme.primary),
                         const SizedBox(width: 4),
                         CommonText.medium('Edit', color: scheme.primary, size: 13),
                       ],

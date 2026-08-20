@@ -55,7 +55,7 @@ class AddDocumentView extends GetView<SupportDocumentController> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Transform.rotate(angle: 74.8, child: const Icon(Icons.attach_file, color: Colors.black54)).marginOnly(right: 8),
+                      Transform.rotate(angle: 74.8, child: const Icon(IconsaxPlusLinear.paperclip, color: Colors.black54)).marginOnly(right: 8),
                       CommonText.semiBold("Attach file *", size: 14, color: scheme.onSurface),
                     ],
                   ).marginSymmetric(vertical: 8).marginSymmetric(horizontal: 4),
@@ -107,7 +107,7 @@ class AddDocumentView extends GetView<SupportDocumentController> {
                                       },
                                       highlightColor: Colors.red.withValues(alpha: 0.1),
                                       icon: const Icon(
-                                        Icons.clear,
+                                        IconsaxPlusLinear.close_circle,
                                         color: Colors.red,
                                         size: 20,
                                       ),
@@ -186,17 +186,17 @@ class _DateField extends StatelessWidget {
                       children: [
                         if (value != null && onClear != null)
                           IconButton(
-                            icon: const Icon(Icons.close, size: 18),
+                            icon: const Icon(IconsaxPlusLinear.close_circle, size: 18),
                             onPressed: onClear,
                             constraints: const BoxConstraints(),
                             padding: const EdgeInsets.all(4),
                           ),
-                        Icon(Icons.calendar_today, size: 20, color: scheme.primary).marginOnly(right: 16),
+                        Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.primary).marginOnly(right: 16),
                       ],
                     ),
                   ),
                   isEmpty: value == null,
-                  child: Text(value != null ? CcsDateUtils.forInput(value!) : '', style: TextStyle(fontSize: 14, color: scheme.onSurface)),
+                  child: CommonText.regular(value != null ? CcsDateUtils.forInput(value!) : '', size: 14, color: scheme.onSurface),
                 ),
               ),
             ),

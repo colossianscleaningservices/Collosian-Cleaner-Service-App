@@ -75,12 +75,12 @@ class CreateJobView extends GetView<CreateJobController> {
                             children: [
                               if (controller.jobStartDate.value != null)
                                 IconButton(
-                                  icon: const Icon(Icons.close, size: 18),
+                                  icon: const Icon(IconsaxPlusLinear.close_circle, size: 18),
                                   onPressed: () => controller.setJobStartDate(null),
                                   constraints: const BoxConstraints(),
                                   padding: const EdgeInsets.all(4),
                                 ),
-                              Icon(Icons.calendar_today, size: 20, color: scheme.primary).marginOnly(right: 12),
+                              Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.primary).marginOnly(right: 12),
                             ],
                           ),
                         ),
@@ -93,7 +93,7 @@ class CreateJobView extends GetView<CreateJobController> {
                                 hint: '--:--',
                                 isReadOnly: true,
                                 onTap: () => wheelTimePicker(context, controller, isStart: true),
-                                suffixIcon: Icon(Icons.access_time, size: 20, color: scheme.primary),
+                                suffixIcon: Icon(IconsaxPlusLinear.clock, size: 20, color: scheme.primary),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -104,7 +104,7 @@ class CreateJobView extends GetView<CreateJobController> {
                                 hint: '--:--',
                                 isReadOnly: true,
                                 onTap: () => wheelTimePicker(context, controller, isStart: false),
-                                suffixIcon: Icon(Icons.access_time, size: 20, color: scheme.primary),
+                                suffixIcon: Icon(IconsaxPlusLinear.clock, size: 20, color: scheme.primary),
                               ),
                             ),
                           ],
@@ -136,7 +136,7 @@ class CreateJobView extends GetView<CreateJobController> {
                           isReadOnly: true,
                           hint: 'Select Cleaning Type',
                           keyboardType: TextInputType.text,
-                          suffixIcon: Icon(Icons.keyboard_arrow_down_outlined),
+                          suffixIcon: Icon(IconsaxPlusLinear.arrow_down),
                           onTap: () {
                             Notifier.openSheet(
                               context,
@@ -270,14 +270,23 @@ class CreateJobView extends GetView<CreateJobController> {
                       ],
                     ).paddingSymmetric(horizontal: 18, vertical: 16),
                   ),
-                  CommonTextField(
-                    controller: controller.notesController,
-                    label: 'Additional Instructions / Notes',
-                    hint: '',
-                    maxLines: 6,
-                    minLines: 4,
-                    maxLength: CreateJobController.maxNotesLength,
-                    validator: controller.validateNotes,
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 14,
+                      children: [
+                        CommonText.semiBold('Additional instructions', size: 16, color: scheme.onSurface),
+                        CommonTextField(
+                          controller: controller.notesController,
+                          label: 'Notes',
+                          hint: 'Enter any special instructions for the cleaners...',
+                          maxLines: 6,
+                          minLines: 4,
+                          maxLength: CreateJobController.maxNotesLength,
+                          validator: controller.validateNotes,
+                        ),
+                      ],
+                    ).paddingSymmetric(horizontal: 18, vertical: 16),
                   ),
                 ],
               ).paddingSymmetric(horizontal: 16, vertical: 8),
@@ -310,14 +319,14 @@ class _SearchSection extends StatelessWidget {
         focus: controller.searchFocus,
         onChanged: (value) => controller.searchTerm.value = value,
         prefixIcon: Icon(
-          Icons.search_rounded,
+          IconsaxPlusLinear.search_normal_1,
           size: 22,
           color: scheme.onSurfaceVariant,
         ),
         suffixIcon: controller.searchTerm.isNotEmpty
             ? IconButton(
                 icon: Icon(
-                  Icons.clear_rounded,
+                  IconsaxPlusLinear.close_circle,
                   size: 20,
                   color: scheme.primary,
                 ),

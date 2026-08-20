@@ -36,7 +36,7 @@ class WheelPickerTime extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.schedule_rounded, size: 18, color: scheme.primary),
+                    Icon(IconsaxPlusLinear.clock, size: 18, color: scheme.primary),
                     const SizedBox(width: 8),
                     CommonText.medium(
                       selected.format(context),

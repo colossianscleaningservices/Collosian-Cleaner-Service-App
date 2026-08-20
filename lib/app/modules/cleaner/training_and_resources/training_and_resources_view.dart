@@ -170,14 +170,14 @@ class _SearchSection extends StatelessWidget {
         focus: controller.searchFocus,
         onChanged: (value) => controller.searchTerm.value = value,
         prefixIcon: Icon(
-          Icons.search_rounded,
+          IconsaxPlusLinear.search_normal_1,
           size: 22,
           color: scheme.onSurfaceVariant,
         ),
         suffixIcon: controller.searchTerm.isNotEmpty
             ? IconButton(
                 icon: Icon(
-                  Icons.clear_rounded,
+                  IconsaxPlusLinear.close_circle,
                   size: 20,
                   color: scheme.primary,
                 ),

@@ -134,7 +134,7 @@ class SignupView extends GetView<AuthController> {
               suffixIcon: IconButton(
                 onPressed: () => controller.signupObscure.value = !controller.signupObscure.value,
                 icon: Icon(
-                  controller.signupObscure.value ? Icons.visibility_off : Icons.visibility,
+                  controller.signupObscure.value ? IconsaxPlusLinear.eye_slash : IconsaxPlusLinear.eye,
                   size: 20,
                   color: scheme.onSurfaceVariant,
                 ),

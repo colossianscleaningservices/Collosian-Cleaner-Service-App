@@ -58,7 +58,7 @@ class LoginView extends GetView<AuthController> {
                                 suffixIcon: IconButton(
                                   onPressed: () => controller.loginObscure.value = !controller.loginObscure.value,
                                   icon: Icon(
-                                    controller.loginObscure.value ? Icons.visibility_off : Icons.visibility,
+                                    controller.loginObscure.value ? IconsaxPlusLinear.eye_slash : IconsaxPlusLinear.eye,
                                     size: 20,
                                     color: scheme.onSurfaceVariant,
                                   ),
