@@ -17,7 +17,6 @@ class Constants {
     NavigationDestination(icon: Icon(IconsaxPlusLinear.home), selectedIcon: Icon(IconsaxPlusBold.home), label: 'Dashboard'),
     NavigationDestination(icon: Icon(IconsaxPlusLinear.calendar), selectedIcon: Icon(IconsaxPlusBold.calendar), label: 'Calendar'),
     NavigationDestination(icon: Icon(IconsaxPlusLinear.briefcase), selectedIcon: Icon(IconsaxPlusBold.briefcase), label: 'Jobs'),
-    // NavigationDestination(icon: Icon(IconsaxPlusLinear.notification), selectedIcon: Icon(IconsaxPlusBold.notification), label: 'Alerts'),
     NavigationDestination(icon: Icon(IconsaxPlusLinear.user), selectedIcon: Icon(IconsaxPlusBold.user), label: 'Profile'),
   ];
 
@@ -28,6 +27,8 @@ class Constants {
   static const cleanerCheckIn = 'cleaner_check_in';
   static const jobReview = 'job_review';
   static const extensionRequestApproved = 'extension_request_approved';
+  static const sharedShiftJob = 'shared_shift_job';
+  static const invoiceIssue = 'invoice_issued';
 
   static const jobFinished = 'Finished';
   static const jobCompleted = 'Completed';

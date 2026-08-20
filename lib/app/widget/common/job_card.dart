@@ -142,7 +142,7 @@ class JobCard extends StatelessWidget {
                       scheme: scheme,
                       padding: 0,
                     ),
-                    if (recurrence != null && recurrence!.isNotEmpty)
+                    if (recurrence != null && recurrence?.isNotEmpty == true && recurrence != 'N/A')
                       _MetaChip(
                         label: recurrence!,
                         scheme: scheme,
@@ -153,6 +153,7 @@ class JobCard extends StatelessWidget {
                         icon: IconsaxPlusLinear.profile_2user,
                         label: cleanerInfo!,
                         scheme: scheme,
+                        padding: (recurrence != null && recurrence?.isNotEmpty == true && recurrence != 'N/A') ? 8 : 0,
                       ),
                   ],
                 ),

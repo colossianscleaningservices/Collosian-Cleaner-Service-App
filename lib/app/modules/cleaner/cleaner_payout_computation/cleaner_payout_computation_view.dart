@@ -291,12 +291,12 @@ class _WorkEntriesTable extends StatelessWidget {
             return DataRow(
               cells: [
                 DataCell(CommonText.regular(entry.clientName?.toString() ?? '', size: 12)),
-                DataCell(CommonText.regular(entry.workedHours?.toString() ?? '0', size: 12)),
+                DataCell(CommonText.regular("${(entry.workedHours ?? 0).toString()} hrs", size: 12)),
                 DataCell(CommonText.regular("${controller.residentialRate}", size: 12)),
                 DataCell(CommonText.regular("${controller.commercialRate}", size: 12)),
-                DataCell(CommonText.semiBold(entry.totalPayout?.toString() ?? '0', size: 12, color: scheme.primary)),
-                DataCell(CommonText.regular(entry.residentialEarnings?.toString() ?? 'N/A', size: 12)),
-                DataCell(CommonText.regular(entry.commercialEarnings?.toString() ?? 'N/A', size: 12)),
+                DataCell(CommonText.semiBold("£${(entry.totalPayout ?? 0).toString()}", size: 12, color: scheme.primary)),
+                DataCell(CommonText.regular("£${(entry.residentialEarnings??0).toString()}", size: 12)),
+                DataCell(CommonText.regular("£${(entry.commercialEarnings??0).toString()}", size: 12)),
                 DataCell(_StatusChip(label: entry.status?.toString().capitalizeFirst ?? '', scheme: scheme)),
                 DataCell(CommonText.regular(
                     entry.paidOn != null ? formatDate(entry.paidOn ?? "", inputFormat: 'yyyy-MM-dd', outputFormat: 'dd/MM/yyyy') : 'N/A',

@@ -8,10 +8,30 @@ import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class InvoiceController extends GetxController {
   final pdfViewerKey = GlobalKey<SfPdfViewerState>();
+  final pdfController = PdfViewerController();
+
+  static const _defaultZoom = 1.0;
 
   String pdfUrl = '';
   String invoiceNumber = 'Invoice';
   String? status;
+
+  bool get isPdfZoomed => pdfController.zoomLevel > _defaultZoom;
+
+  /// Zooms the PDF back out if it is zoomed in; otherwise leaves the screen.
+  void onBack() {
+    if (isPdfZoomed) {
+      pdfController.zoomLevel = _defaultZoom;
+      return;
+    }
+    Get.back();
+  }
+
+  @override
+  void onClose() {
+    pdfController.dispose();
+    super.onClose();
+  }
 
   @override
   void onInit() {

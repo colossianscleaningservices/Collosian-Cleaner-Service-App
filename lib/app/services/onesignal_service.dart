@@ -86,29 +86,50 @@ class OneSignalService {
   }) {
     try {
       final jobId = data?['related_id'];
+      final roleIdStr = Prefs().getData(Prefs.roleId);
+      final roleId = int.tryParse(roleIdStr);
+
       // CCS-specific: e.g. job updates, general alerts. Extend as backend adds types.
-      if ((type == Constants.jobCreated || type == Constants.jobRequestAccepted || type == Constants.cleanerAssigned) && data != null) {
+      if ((type == Constants.sharedShiftJob || type == Constants.invoiceIssue) && data != null) {
         if (jobId != null) {
           final id = jobId is int ? jobId : (jobId is String ? int.tryParse(jobId) : null);
           if (id != null) {
-            final roleIdStr = Prefs().getData(Prefs.roleId);
-            final roleId = int.tryParse(roleIdStr);
             if (RoleConstants.isCleaner(roleId)) {
               log(_tag, 'Navigating to cleaner job detail: $id');
               Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
               return;
+            } else {
+              log(_tag, 'Navigating to cleaner job detail: $id');
+              Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
             }
           }
         }
-      }else if(type == 'chat'){
+      } else if ((type == Constants.jobCreated || type == Constants.jobRequestAccepted || type == Constants.cleanerAssigned) && data != null) {
+        if (jobId != null) {
+          final id = jobId is int ? jobId : (jobId is String ? int.tryParse(jobId) : null);
+          if (id != null) {
+            if (RoleConstants.isCleaner(roleId)) {
+              log(_tag, 'Navigating to cleaner job detail: $id');
+              Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
+              return;
+            }else{
+              Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
+              return;
+            }
+          }
+        }
+      } else if (type == 'chat') {
         Get.toNamed(Routes.JOB_CHAT, arguments: {
           'type': ChatConstants.typeNotification,
           'jobId': jobId,
         });
-      }else{
+      } else if (type == Constants.jobReview) {
+        if (RoleConstants.isCleaner(roleId)) {
+          Get.toNamed(Routes.CLEANER_REVIEW);
+        }
+      } else {
         _navigateToDefaultScreen();
       }
-
     } catch (e) {
       log(_tag, 'Error routing notification: $e');
       _navigateToDefaultScreen();

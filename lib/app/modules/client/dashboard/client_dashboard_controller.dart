@@ -38,7 +38,6 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
 
   List<Widget> get pages => const [
         ClientDashboardContent(), ClientCalendarView(), ClientJobsView(),
-        // ClientNotificationsView(),
         ClientProfileView()
       ];
 

@@ -176,7 +176,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                   ).paddingAll(16),
                 );
               }),
-              
+
               Obx(() {
                 final isStudent = Prefs().getData(Prefs.isStudent) == 'true';
                 final usedHours = controller.staffDash.value?.studentWeeklyHoursUsed ?? 0;
@@ -248,58 +248,7 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                   ],
                 ).paddingAll(18),
               ),
-
-              // Enhanced action needed card
-              /*Obx(() {
-                final count = controller.actionNeededCount.value;
-                if (count <= 0) return const SizedBox.shrink();
-                return AppCard(
-                  radius: UiConstants.radiusLarge,
-                  enableShadows: true,
-                  shadowOpacity: 0.06,
-                  onTap: () => Get.to(
-                    () => Scaffold(
-                      appBar: AppBar(title: const Text('Action needed')),
-                      body: const CleanerNotificationsView(),
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      AppCard(
-                        enableShadows: false,
-                        color: scheme.errorContainer.withValues(alpha: 0.4),
-                        padding: const EdgeInsets.all(12),
-                        child: Icon(IconsaxPlusLinear.notification, size: 24, color: scheme.error),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CommonText.semiBold('Action needed', size: 16, color: scheme.onSurface),
-                            const SizedBox(height: 4),
-                            CommonText.regular(
-                              '$count ${count == 1 ? 'item requires' : 'items require'} your attention',
-                              size: 12,
-                              color: scheme.onSurfaceVariant,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: scheme.surfaceContainerHighest.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-                        ),
-                        child: Icon(IconsaxPlusLinear.arrow_right_2, size: 20, color: scheme.primary),
-                      ),
-                    ],
-                  ),
-                );
-              }),*/
-
+              
               // Enhanced profile completion card
               Obx(() {
                 final completion = controller.staffDash.value?.profileCompletion?.percentage ?? 0;
@@ -342,7 +291,6 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                               label: 'Complete profile',
                               type: ButtonType.tonal,
                               icon: IconsaxPlusLinear.arrow_right_2,
-                              // onPressed: () => controller.setTab(4),
                               onPressed: () => Get.toNamed(Routes.CLEANER_EDIT_PROFILE),
                               btnVerticalPadding: 12,
                               btnHorizontalPadding: 14,
@@ -355,43 +303,6 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                   ),
                 );
               }),
-
-              // Enhanced quick actions section
-              /*Row(
-                children: [
-                  CommonText.semiBold('Quick actions', size: 16, color: scheme.onSurface),
-                  const Spacer(),
-                  if (hasJobs)
-                    CommonText.regular(
-                      '$jobCount ${jobCount == 1 ? 'job' : 'jobs'}',
-                      size: 12,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: QuickActionChip(
-                      icon: IconsaxPlusLinear.clock,
-                      label: 'Availability',
-                      subtitle: 'Set your schedule',
-                      onTap: () => controller.setTab(2),
-                      scheme: scheme,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Obx(() => QuickActionChip(
-                          icon: IconsaxPlusLinear.user,
-                          label: controller.isProfileComplete.value ? 'Profile' : 'Complete',
-                          subtitle: controller.isProfileComplete.value ? 'View profile' : 'Finish setup',
-                          onTap: () => controller.setTab(3),
-                      scheme: scheme,
-                        )),
-                  ),
-                ],
-              ),*/
             ],
           ),
         ),
@@ -400,8 +311,8 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
   }
 }
 
-/// Enhanced greeting section with better visual hierarchy
-class _GreetingSection extends StatelessWidget {
+/// Greeting with the cleaner's name, today's date, and assigned job count.
+class _GreetingSection extends GetView<CleanerDashboardController> {
   const _GreetingSection({required this.scheme});
 
   final ColorScheme scheme;
@@ -415,45 +326,24 @@ class _GreetingSection extends StatelessWidget {
             ? 'Good afternoon'
             : 'Good evening';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CommonText.bold('$greeting!', size: 24, color: scheme.onSurface),
-                  const SizedBox(height: 4),
-                  CommonText.regular(
-                    CcsDateUtils.longDate(DateTime.now()),
-                    size: 14,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ],
-              ),
-            ),
-            /*Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    scheme.primaryContainer.withValues(alpha: 0.4),
-                    scheme.primaryContainer.withValues(alpha: 0.2),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-              ),
-              child: Icon(
-                IconsaxPlusLinear.calendar_1,
-                size: 20,
-                color: scheme.primary,
-              ),
-            ),*/
-          ],
-        ),
-      ],
-    );
+    return Obx(() {
+      final name = controller.userDisplayName.value.trim();
+      final title = name.isEmpty ? '$greeting!' : '$greeting, $name!';
+      final jobCount = controller.staffDash.value?.assignedJobCount?.toInt() ?? 0;
+      final jobLabel = jobCount == 1 ? '1 job assigned' : '$jobCount jobs assigned';
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CommonText.bold(title, size: 24, color: scheme.onSurface, maxLines: 2,overflow: TextOverflow.ellipsis,),
+          const SizedBox(height: 8),
+          CommonText.regular(
+            '${CcsDateUtils.longDate(DateTime.now())} · $jobLabel',
+            size: 14,
+            color: scheme.onSurfaceVariant,
+          ),
+        ],
+      );
+    });
   }
 }

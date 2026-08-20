@@ -61,6 +61,8 @@ class NotificationView extends GetView<NotificationController> {
                                       notification.flag == Constants.cleanerAssigned ||
                                       notification.flag == Constants.cleanerCheckOut ||
                                       notification.flag == Constants.cleanerCheckIn ||
+                                      notification.flag == Constants.invoiceIssue ||
+                                      notification.flag == Constants.sharedShiftJob ||
                                       notification.flag == Constants.extensionRequestApproved) {
                                     if (notification.relatedId == null) {
                                       Notifier.error('Invalid job');

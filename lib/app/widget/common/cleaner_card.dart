@@ -34,8 +34,8 @@ class CleanerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusLabel = cleaner.status.capitalizeFirst ?? cleaner.status;
-    final hasCheckIn = checkInText != null && checkInText!.trim().isNotEmpty;
-    final hasCheckOut = checkOutText != null && checkOutText!.trim().isNotEmpty;
+    final hasCheckIn = checkInText != null && (checkInText?.trim().isNotEmpty == true);
+    final hasCheckOut = checkOutText != null && (checkOutText?.trim().isNotEmpty == true);
     final hasAttendance = hasCheckIn || hasCheckOut;
 
     return AppCard(
@@ -68,11 +68,10 @@ class CleanerCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (showActions)
-                Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
+              if (showActions) Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
             ],
           ),
-          if (hasAttendance) ...[
+          /*if (hasAttendance) ...[
             const SizedBox(height: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -107,7 +106,7 @@ class CleanerCard extends StatelessWidget {
                 ],
               ),
             ),
-          ],
+          ],*/
           if (showActions && _isCompleted && isReview) ...[
             const SizedBox(height: 12),
             Align(
