@@ -40,12 +40,13 @@ class PreferredStaffView extends GetView<PreferredStaffController> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  CommonText.semiBold(preferredStaff.name ?? '', size: 15, color: context.colorScheme.onSurface),
-                                  const SizedBox(height: 2),
-                                  CommonText.regular(preferredStaff.email ?? '', size: 15, color: context.colorScheme.onSurface),
+                                  CommonText.semiBold(preferredStaff.name ?? '', size: 16, color: context.colorScheme.onSurface),
+                                  const SizedBox(height: 4),
+                                  CommonText.regular(preferredStaff.email ?? '', size: 13, color: context.colorScheme.onSurfaceVariant),
                                 ],
                               ),
                             ),
+                            Icon(IconsaxPlusLinear.arrow_right_3, size: 20, color: context.colorScheme.onSurfaceVariant),
                           ],
                         ).paddingAll(UiConstants.defaultPadding),
                       );

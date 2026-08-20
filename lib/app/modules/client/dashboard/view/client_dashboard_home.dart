@@ -13,12 +13,12 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    return SwipeRefresh(
-      onRefresh: () async {
-        await controller.getClientDash();
-        await controller.getProfile();
-      },
-      child: SafeArea(
+    return SafeArea(
+      child: SwipeRefresh(
+        onRefresh: () async {
+          await controller.getClientDash();
+          await controller.getProfile();
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: UiConstants.padding,
@@ -395,6 +395,7 @@ class _DashboardPropertyTile extends StatelessWidget {
       child: AppCard(
         onTap: onTap,
         enableShadows: false,
+        color: scheme.surfaceContainerLow,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -442,7 +443,7 @@ class _DashboardPropertyTile extends StatelessWidget {
             const SizedBox(width: 8),
             Icon(IconsaxPlusLinear.arrow_right_3, size: 20, color: scheme.primary),
           ],
-        ).paddingSymmetric(vertical: 12, horizontal: 8),
+        ).paddingSymmetric(vertical: 12, horizontal: 16),
       ),
     );
   }

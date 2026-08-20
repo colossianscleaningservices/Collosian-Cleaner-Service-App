@@ -35,7 +35,7 @@ class NoDataView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(UiConstants.radiusXLarge),
               ),
               child: Icon(
-                icon ?? Icons.inbox_outlined,
+                icon ?? IconsaxPlusLinear.folder_open,
                 size: 48,
                 color: scheme.primary,
               ),

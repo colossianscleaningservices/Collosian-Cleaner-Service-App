@@ -62,8 +62,9 @@ extension CcsContextX on BuildContext {
     Color? shadowColor,
     Offset? offset,
     double? blurRadius,
-  }) =>
-      [
+  }) {
+    if (shadowColor != null || offset != null || blurRadius != null) {
+      return [
         BoxShadow(
           color: theme.brightness == Brightness.dark ? Colors.grey.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.03),
           offset: offset ?? const Offset(-2, -2),
@@ -75,6 +76,20 @@ extension CcsContextX on BuildContext {
           blurRadius: blurRadius ?? 8,
         ),
       ];
+    }
+    return [
+      BoxShadow(
+        color: colorScheme.shadow.withValues(alpha: isModeDark ? 0.22 : 0.06),
+        blurRadius: 16,
+        offset: const Offset(0, 8),
+      ),
+      BoxShadow(
+        color: colorScheme.shadow.withValues(alpha: isModeDark ? 0.08 : 0.02),
+        blurRadius: 4,
+        offset: const Offset(0, 2),
+      ),
+    ];
+  }
 }
 
 bool isResponseBlank(dynamic value) {
@@ -129,13 +144,13 @@ Color getBgColor(String label, ColorScheme scheme){
   final lower = label.toLowerCase();
   Color bg;
   if (lower.contains('cancel') || lower.contains('reject') || lower.contains('declin')) {
-    bg = scheme.errorContainer.withValues(alpha: 0.6);
+    bg = scheme.errorContainer.withValues(alpha: 0.35);
   } else if (lower.contains('complete') || lower.contains('done') || lower.contains('finished') || lower.contains('paid')) {
-    bg = scheme.tertiaryContainer.withValues(alpha: 0.6);
+    bg = scheme.tertiaryContainer.withValues(alpha: 0.35);
   } else if (lower.contains('pending')) {
-    bg = scheme.secondaryContainer.withValues(alpha: 0.75);
+    bg = scheme.secondaryContainer.withValues(alpha: 0.40);
   } else {
-    bg = scheme.primaryContainer.withValues(alpha: 0.5);
+    bg = scheme.primaryContainer.withValues(alpha: 0.25);
   }
 
   return bg;

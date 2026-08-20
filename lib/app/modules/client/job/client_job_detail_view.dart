@@ -35,7 +35,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                   PopupMenuButton<_JobMenuAction>(
                     tooltip: 'More options',
                     color: context.colorScheme.onPrimary,
-                    icon: Icon(Icons.more_vert, size: 24, color: scheme.onSurface),
+                    icon: Icon(IconsaxPlusLinear.more, size: 24, color: scheme.onSurface),
                     onSelected: (action) {
                       switch (action) {
                         case _JobMenuAction.edit:
@@ -53,7 +53,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                           children: [
                             Icon(IconsaxPlusLinear.edit_2, size: 18, color: scheme.onSurfaceVariant),
                             const SizedBox(width: 8),
-                            const Text('Edit job'),
+                            CommonText.regular('Edit job', size: 14, color: scheme.onSurface),
                           ],
                         ),
                       ),
@@ -63,7 +63,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                           children: [
                             Icon(IconsaxPlusLinear.trash, size: 18, color: scheme.error),
                             const SizedBox(width: 8),
-                            const Text('Delete job'),
+                            CommonText.regular('Delete job', size: 14, color: scheme.onSurface),
                           ],
                         ),
                       ),

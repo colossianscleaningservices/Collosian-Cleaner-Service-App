@@ -45,12 +45,12 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
                             children: [
                               if (controller.scheduleValidFrom.value != null)
                                 IconButton(
-                                  icon: const Icon(Icons.close, size: 18),
+                                  icon: const Icon(IconsaxPlusLinear.close_circle, size: 18),
                                   onPressed: () => controller.scheduleValidFrom(null),
                                   constraints: const BoxConstraints(),
                                   padding: const EdgeInsets.all(4),
                                 ),
-                              Icon(Icons.calendar_today, size: 20, color: scheme.primary).marginOnly(right: 12),
+                              Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.primary).marginOnly(right: 12),
                             ],
                           ),
                         );
@@ -61,7 +61,7 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
                           hint: '--:--',
                           isReadOnly: true,
                           onTap: () => wheelTimePicker(context, controller),
-                          suffixIcon: Icon(Icons.access_time, size: 20, color: scheme.primary),
+                          suffixIcon: Icon(IconsaxPlusLinear.clock, size: 20, color: scheme.primary),
                         ).marginOnly(bottom: 16),
                       Obx(() {
                         if (controller.photos.isEmpty) {
@@ -161,7 +161,7 @@ class _PhotoThumbnail extends StatelessWidget {
                 errorBuilder: (_, __, ___) => Container(
                   color: scheme.surfaceContainerHighest,
                   alignment: Alignment.center,
-                  child: Icon(Icons.broken_image_outlined, color: scheme.onSurfaceVariant),
+                  child: Icon(IconsaxPlusLinear.image, color: scheme.onSurfaceVariant),
                 ),
               ),
             ),
@@ -174,7 +174,7 @@ class _PhotoThumbnail extends StatelessWidget {
               child: CircleAvatar(
                 radius: 14,
                 backgroundColor: scheme.error,
-                child: Icon(Icons.close, size: 18, color: scheme.onError),
+                child: Icon(IconsaxPlusLinear.close_circle, size: 18, color: scheme.onError),
               ),
             ),
           ),

@@ -416,7 +416,7 @@ class _DayCard extends StatelessWidget {
                           child: InkWell(
                             onTap: () => onRemoveSlot(i),
                             customBorder: const CircleBorder(),
-                            child: SizedBox(width: 36, height: 36, child: Center(child: Icon(Icons.remove, size: 20, color: scheme.onError))),
+                            child: SizedBox(width: 36, height: 36, child: Center(child: Icon(IconsaxPlusLinear.minus, size: 20, color: scheme.onError))),
                           ),
                         ),
                       ),

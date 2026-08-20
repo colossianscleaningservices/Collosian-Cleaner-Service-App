@@ -27,19 +27,19 @@ InputDecoration buildCommonDecoration({
     suffixIcon: suffixIcon,
     focusedBorder: OutlineInputBorder(
       borderRadius: borderRadius,
-      borderSide: BorderSide(color: focusedOutlineColor, width: 2),
+      borderSide: BorderSide(color: focusedOutlineColor, width: 1.5),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: borderRadius,
-      borderSide: BorderSide(color: normalOutlineColor, width: 2),
+      borderSide: BorderSide(color: normalOutlineColor, width: 1.0),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: borderRadius,
-      borderSide: BorderSide(color: scheme.error, width: 2),
+      borderSide: BorderSide(color: scheme.error, width: 1.0),
     ),
     focusedErrorBorder: OutlineInputBorder(
       borderRadius: borderRadius,
-      borderSide: BorderSide(color: scheme.error, width: 2),
+      borderSide: BorderSide(color: scheme.error, width: 1.5),
     ),
     contentPadding: contentPadding ?? const EdgeInsets.all(12),
     filled: true,

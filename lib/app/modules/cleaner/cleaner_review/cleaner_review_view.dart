@@ -114,7 +114,7 @@ class _StarRating extends StatelessWidget {
         return Padding(
           padding: EdgeInsets.only(right: i < 4 ? 4 : 0),
           child: Icon(
-            filled ? Icons.star_rounded : Icons.star_border_rounded,
+            filled ? IconsaxPlusBold.star : IconsaxPlusLinear.star,
             size: size,
             color: scheme.primary,
           ),

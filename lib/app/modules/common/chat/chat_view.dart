@@ -231,7 +231,7 @@ class ChatView extends GetView<ChatController> {
                 radius: 8,
                 color: context.colorScheme.error,
                 child: Icon(
-                  Icons.close,
+                  IconsaxPlusLinear.close_circle,
                   size: 18,
                   color: context.colorScheme.onError,
                 ).marginAll(4),
@@ -375,7 +375,7 @@ class _MessageBubble extends StatelessWidget {
                         CommonText.light(_formatMessageTime(message.timestamp), size: 11, color: fg.withValues(alpha: 0.7)),
                         if (isOutgoing && message.isRead) ...[
                           const SizedBox(width: 4),
-                          Icon(Icons.check_circle, size: 14, color: fg.withValues(alpha: 0.7)),
+                          Icon(IconsaxPlusLinear.tick_circle, size: 14, color: fg.withValues(alpha: 0.7)),
                         ],
                       ],
                     ),
@@ -388,10 +388,24 @@ class _MessageBubble extends StatelessWidget {
                   top: 0,
                   bottom: 0,
                   child: Center(
-                    child: Icon(
-                      isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
-                      size: 22,
-                      color: isSelected ? scheme.primary : scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                    child: Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isSelected ? scheme.primary : Colors.transparent,
+                        border: Border.all(
+                          color: isSelected ? scheme.primary : scheme.onSurfaceVariant.withValues(alpha: 0.6),
+                          width: 2,
+                        ),
+                      ),
+                      child: isSelected
+                          ? Icon(
+                              IconsaxPlusLinear.tick_circle,
+                              size: 14,
+                              color: scheme.onPrimary,
+                            )
+                          : null,
                     ),
                   ),
                 ),
@@ -455,7 +469,7 @@ class _MessageBubble extends StatelessWidget {
           children: [
             CommonText.medium('Reply', size: 14, color: scheme.primary),
             const SizedBox(width: 6),
-            Icon(Icons.reply_rounded, size: 20, color: scheme.primary),
+            Icon(IconsaxPlusLinear.undo, size: 20, color: scheme.primary),
           ],
         ),
       );
@@ -566,7 +580,7 @@ class _ChatComposer extends StatelessWidget {
                       ],
                     ),
                   ),
-                  IconButton(onPressed: controller.clearReplyTo, icon: Icon(Icons.cancel, size: 22, color: scheme.onSurfaceVariant)),
+                  IconButton(onPressed: controller.clearReplyTo, icon: Icon(IconsaxPlusLinear.close_circle, size: 22, color: scheme.onSurfaceVariant)),
                 ],
               ).paddingOnly(left: 16, right: 0, top: 8, bottom: 8),
             );
@@ -596,7 +610,7 @@ class _ChatComposer extends StatelessWidget {
                               child: Container(
                                 padding: const EdgeInsets.all(2),
                                 decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                                child: const Icon(Icons.close, size: 16, color: Colors.white),
+                                child: const Icon(IconsaxPlusLinear.close_circle, size: 16, color: Colors.white),
                               ),
                             ),
                           ),
@@ -621,7 +635,7 @@ class _ChatComposer extends StatelessWidget {
                   onPressed: controller.toggleEmojiPicker,
                   style: filledIconButtonStyle(context),
                   icon: Icon(
-                    controller.isEmojiPickerVisible.value ? Icons.keyboard_rounded : Icons.emoji_emotions_outlined,
+                    controller.isEmojiPickerVisible.value ? IconsaxPlusLinear.keyboard_open : IconsaxPlusLinear.emoji_happy,
                     size: 22,
                     color: scheme.secondary,
                   ),
@@ -665,7 +679,7 @@ class _ChatComposer extends StatelessWidget {
                     }
                   },
                   style: filledIconButtonStyle(context),
-                  icon: Icon(Icons.send_rounded, size: 22, color: controller.canSend.value ? scheme.primary : scheme.onSurfaceVariant.withValues(alpha: 0.5)),
+                  icon: Icon(IconsaxPlusLinear.send_1, size: 22, color: controller.canSend.value ? scheme.primary : scheme.onSurfaceVariant.withValues(alpha: 0.5)),
                 ),
               ),
             ],
@@ -713,7 +727,7 @@ class _ChatAppBar extends StatelessWidget implements PreferredSizeWidget {
         return AppBar(
           toolbarHeight: 68,
           backgroundColor: scheme.surface,
-          leading: IconButton(icon: const Icon(Icons.close), onPressed: controller.exitSelectionMode, color: scheme.primary),
+          leading: IconButton(icon: const Icon(IconsaxPlusLinear.close_circle), onPressed: controller.exitSelectionMode, color: scheme.primary),
           title: CommonText.semiBold(count == 1 ? '1 selected' : '$count selected', size: 18, color: scheme.onSurface),
           centerTitle: false,
           actions: [

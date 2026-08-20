@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
 
 Future<DateTime?> showMonthYearPicker(BuildContext context, DateTime initialDate) async {
@@ -16,12 +16,12 @@ Future<DateTime?> showMonthYearPicker(BuildContext context, DateTime initialDate
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, size: 16),
+                  icon: const Icon(IconsaxPlusLinear.arrow_left_1, size: 20),
                   onPressed: () => setState(() => selectedYear--),
                 ),
-                Text(selectedYear.toString(), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                CommonText.bold(selectedYear.toString(), size: 18, color: scheme.onSurface),
                 IconButton(
-                  icon: const Icon(Icons.arrow_forward_ios, size: 16),
+                  icon: const Icon(IconsaxPlusLinear.arrow_right_3, size: 20),
                   onPressed: () => setState(() => selectedYear++),
                 ),
               ],
@@ -49,12 +49,11 @@ Future<DateTime?> showMonthYearPicker(BuildContext context, DateTime initialDate
                         borderRadius: BorderRadius.circular(8),
                       ),
                       alignment: Alignment.center,
-                      child: Text(
+                      child: CommonText.medium(
                         monthStr,
-                        style: TextStyle(
-                          color: isSelected ? scheme.onPrimary : scheme.onSurface,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
+                        size: 14,
+                        color: isSelected ? scheme.onPrimary : scheme.onSurface,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                   );

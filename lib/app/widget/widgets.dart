@@ -443,11 +443,14 @@ class AppCheckBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = context.colorScheme;
     return AppCard(
       radius: UiConstants.radiusDefault,
-      borderColor: context.colorScheme.outline.withValues(alpha: 0.3),
+      borderColor: value ? scheme.primary.withValues(alpha: 0.3) : scheme.outline.withValues(alpha: 0.15),
+      color: value ? scheme.primaryContainer.withValues(alpha: 0.12) : scheme.surfaceContainerLow,
       enableShadows: false,
-      borderWidth: 2,
+      borderWidth: 1.0,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       child: CheckboxListTile(
         title: CommonText.regular(
           title,
@@ -455,9 +458,9 @@ class AppCheckBox extends StatelessWidget {
           color: context.colorScheme.onSurface,
         ),
         value: value,
-        // minLeadingWidth: 16,
         dense: true,
-        // minVerticalPadding: 0,
+        activeColor: scheme.primary,
+        checkColor: scheme.onPrimary,
         contentPadding: EdgeInsets.zero,
         onChanged: (v) => onChange(v ?? false),
         controlAffinity: ListTileControlAffinity.leading,

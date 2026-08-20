@@ -41,15 +41,15 @@ class SupportDocumentController extends GetxController {
   IconData iconForDocumentType(String type) {
     switch (type.toLowerCase()) {
       case 'passport':
-        return Icons.badge_outlined;
+        return IconsaxPlusLinear.personalcard;
       case 'visa':
-        return Icons.card_travel_outlined;
+        return IconsaxPlusLinear.ticket;
       case 'driver license':
-        return Icons.directions_car_outlined;
+        return IconsaxPlusLinear.car;
       case 'address proof':
-        return Icons.home_outlined;
+        return IconsaxPlusLinear.home_2;
       default:
-        return Icons.description_outlined;
+        return IconsaxPlusLinear.document_text_1;
     }
   }
 

@@ -119,17 +119,16 @@ class _PropertyCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (property.propertyType != null) ...[
-                  const SizedBox(height: 4),
-                  AppCard(
-                    enableShadows: false,
-                    color: scheme.outlineVariant,
-                    child: CommonText.medium(
-                      ("${property.businessType!} ${Constants.bullet} ${property.propertyType!}$subType").toUpperCase(),
-                      size: 12,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      color: scheme.onSurfaceVariant.withValues(alpha: 0.8),
-                    ).paddingSymmetric(horizontal: 10, vertical: 4),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      InfoChip(
+                        label: ("${property.businessType!} ${Constants.bullet} ${property.propertyType!}$subType").toUpperCase(),
+                        backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.35),
+                        foregroundColor: scheme.secondary,
+                        leftPadding: 10,
+                      ),
+                    ],
                   ),
                 ],
               ],
