@@ -202,6 +202,10 @@ class ApiHandler {
             DioExceptionType.badCertificate => SecureConnectionException(
                 errorMessage: exceptionMessages.secureConnectionFailed,
               ),
+            DioExceptionType.transformTimeout => RequestTimeoutException(
+                errorMessage: exceptionMessages.requestTimeout,
+                shouldShowApiError: shouldShowApiErrors,
+              ),
             DioExceptionType.connectionError => error.error is HandshakeException
                 ? SecureConnectionException(
                     errorMessage: exceptionMessages.secureConnectionFailed,
