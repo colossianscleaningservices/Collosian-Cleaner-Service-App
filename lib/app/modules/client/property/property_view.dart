@@ -40,7 +40,7 @@ class PropertyView extends GetView<PropertyController> {
                 children: [
                   AppGrid(
                     physics: NeverScrollableScrollPhysics(),
-                    maxExtent: 112,
+                    maxExtent: 114,
                     axisSpacing: 8,
                     phoneCount: 1,
                     tabletCount: 2,
@@ -122,11 +122,13 @@ class _PropertyCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      InfoChip(
-                        label: ("${property.businessType!} ${Constants.bullet} ${property.propertyType!}$subType").toUpperCase(),
-                        backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.35),
-                        foregroundColor: scheme.secondary,
-                        leftPadding: 10,
+                      Flexible(
+                        child: InfoChip(
+                          label: ("${property.businessType!} ${Constants.bullet} ${property.propertyType!}$subType").toUpperCase(),
+                          backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.35),
+                          foregroundColor: scheme.secondary,
+                          leftPadding: 10,
+                        ),
                       ),
                     ],
                   ),

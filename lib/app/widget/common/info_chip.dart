@@ -24,7 +24,13 @@ class InfoChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
         border: Border.all(color: foregroundColor.withValues(alpha: 0.18)),
       ),
-      child: CommonText.medium(label, size: 13, color: foregroundColor),
+      child: CommonText.medium(
+        label,
+        size: 13,
+        color: foregroundColor,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 }
