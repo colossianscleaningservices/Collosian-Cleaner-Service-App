@@ -30,7 +30,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
           headerLogoIcon: false,
           hasBackIcon: true,
           titleCentered: false,
-          actions: j != null && j.cleaners?.isEmpty == true
+          actions: j != null && j.isEdit == true
               ? [
                   PopupMenuButton<_JobMenuAction>(
                     tooltip: 'More options',
@@ -160,9 +160,8 @@ Widget _bodyForState({
               typeLine: typeLine.isEmpty ? null : typeLine,
               addressText: addressText.isEmpty ? null : addressText,
               metaLine: _propertyMetaLine(j),
-              cleaningTypeLine: (j.cleaningType?.name != null && j.cleaningType!.name!.trim().isNotEmpty)
-                  ? 'Cleaning type: ${j.cleaningType!.name!.trim()}'
-                  : null,
+              cleaningTypeLine:
+                  (j.cleaningType?.name != null && j.cleaningType!.name!.trim().isNotEmpty) ? 'Cleaning type: ${j.cleaningType!.name!.trim()}' : null,
               paymentLine: (j.jobType != null && j.jobType!.trim().isNotEmpty) ? 'Payment: ${j.jobType!.capitalizeFirst}' : null,
               scheme: scheme,
             ).paddingAll(UiConstants.defaultPadding),

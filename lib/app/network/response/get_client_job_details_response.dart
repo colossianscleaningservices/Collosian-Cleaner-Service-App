@@ -72,6 +72,7 @@ class ClientJobDetails {
     this.cleaners,
     this.createdAt,
     this.updatedAt,
+    this.isEdit,
     this.scheduler,
   });
 
@@ -102,6 +103,7 @@ class ClientJobDetails {
     provideDryer = json['provide_dryer'];
     additionalData = json['additional_data'];
     notified = json['notified'];
+    isEdit = json['is_edit'];
     scheduleId = json['schedule_id'];
     jobSchedule = json['job_schedule'];
     jobStartDate = json['job_start_date'];
@@ -156,6 +158,7 @@ class ClientJobDetails {
   dynamic notified;
   dynamic scheduleId;
   bool? jobSchedule;
+  bool? isEdit;
   String? jobStartDate;
   String? jobEndDate;
   String? jobType;
@@ -185,6 +188,7 @@ class ClientJobDetails {
     map['before'] = before;
     map['after'] = after;
     map['status'] = status;
+    map['is_edit'] = isEdit;
     map['is_requested'] = isRequested;
     map['property_id'] = propertyId;
     map['user_id'] = userId;

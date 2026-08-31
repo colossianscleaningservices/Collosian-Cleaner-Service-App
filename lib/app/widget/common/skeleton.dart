@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../constants/ui_constants.dart';
-import '../../utils/extension.dart';
 
 /// A wrapper widget that applies a shimmering overlay to its children.
 /// Used to build high-performance skeleton loading screens.
