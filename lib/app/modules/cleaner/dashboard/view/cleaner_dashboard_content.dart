@@ -113,14 +113,14 @@ class CleanerDashboardContent extends GetView<CleanerDashboardController> {
                               ),
                               const SizedBox(height: 12),
                               CommonText.semiBold(nextJob.cleaningType?.name ?? " - ", size: 16, color: scheme.onPrimary),
-                              if (nextJob.startTime?.isNullOrEmpty == false && nextJob.endTime?.isNullOrEmpty == false) ...[
+                              if (nextJob.startTime?.isNullOrEmpty == false) ...[
                                 const SizedBox(height: 6),
                                 Row(
                                   children: [
                                     Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onPrimary.withValues(alpha: 0.6)),
                                     const SizedBox(width: 6),
                                     CommonText.regular(
-                                      CcsDateUtils.parseTimeRange(nextJob.startTime ?? "", nextJob.endTime ?? ""),
+                                      CcsDateUtils.parseTimeRange(nextJob.startTime ?? "", nextJob.endTime),
                                       size: 12,
                                       color: scheme.onPrimary.withValues(alpha: 0.6),
                                     ),

@@ -449,7 +449,6 @@ class AppCheckBox extends StatelessWidget {
       color: value ? scheme.primaryContainer.withValues(alpha: 0.12) : scheme.surfaceContainerLow,
       enableShadows: false,
       borderWidth: 1.0,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       child: CheckboxListTile(
         title: CommonText.regular(
           title,

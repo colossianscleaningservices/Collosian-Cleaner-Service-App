@@ -58,13 +58,11 @@ class ClientJobsView extends GetView<ClientDashboardController> {
                             landscapeCount: 3,
                             child: controller.jobs.map((job) {
                               final approvedCleaners = job.jobCleaners?.where((cleaner) => (cleaner.status?.toLowerCase() != 'rejected')).toList();
-                              String? timeRange;
-                              if (job.startTime != null && job.endTime != null) {
-                                timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
-                              }
+                              final timeRange = CcsDateUtils.formatJobTimeRange(job.startTime, job.endTime);
+                              final dateLabel = CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""));
                               return JobCard(
                                 title: job.cleaningType?.name ?? "N/A",
-                                dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
+                                dateTime: timeRange == null ? dateLabel : '$dateLabel · $timeRange',
                                 status: job.status ?? "N/A",
                                 subtitle: (job.cleaners == null || job.cleaners?.isEmpty == true)
                                     ? ' - '

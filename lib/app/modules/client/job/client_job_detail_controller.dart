@@ -87,7 +87,37 @@ class ClientJobDetailController extends GetxController {
     }
   }
 
+  bool get _canEditJob => job.value?.canEdit ?? job.value?.isEdit ?? false;
+
+  bool get _canCancelJob => job.value?.canCancel ?? true;
+
+  void _showBlockedActionSheet({
+    required String title,
+    String? reason,
+    required String fallback,
+  }) {
+    final context = Get.context;
+    if (context == null) return;
+    final trimmed = reason?.trim();
+    Notifier.openSheet(
+      context,
+      type: SheetType.info,
+      title: title,
+      message: (trimmed != null && trimmed.isNotEmpty) ? trimmed : fallback,
+      showSecondaryButton: false,
+      primaryButtonLabel: 'Okay',
+    );
+  }
+
   void onEdit() {
+    if (!_canEditJob) {
+      _showBlockedActionSheet(
+        title: 'Editing unavailable',
+        reason: job.value?.editBlockedReason,
+        fallback: 'This job cannot be edited right now. Please contact support.',
+      );
+      return;
+    }
     Get.toNamed(Routes.CLIENT_CREATE_JOB, arguments: job.value)?.then((value) {
       if (value != null) {
         fetchJobDetails();
@@ -139,6 +169,14 @@ class ClientJobDetailController extends GetxController {
   }
 
   void onCancelJob() {
+    if (!_canCancelJob) {
+      _showBlockedActionSheet(
+        title: 'Cancellation unavailable',
+        reason: job.value?.cancelBlockedReason,
+        fallback: 'This job cannot be cancelled right now. Please contact support.',
+      );
+      return;
+    }
     final jobId = job.value?.id;
     if (jobId == null) {
       Notifier.info('Invalid job');

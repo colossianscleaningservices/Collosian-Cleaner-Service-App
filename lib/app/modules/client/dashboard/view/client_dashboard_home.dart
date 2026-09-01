@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
 import 'package:ccs_app/app/network/response/property_list_response.dart';
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:step_progress/step_progress.dart';
@@ -134,14 +135,14 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   CommonText.semiBold(todayJob.cleaningType?.name ?? " - ", size: 16, color: scheme.onPrimary),
-                                                  if (todayJob.startTime?.isNullOrEmpty == false && todayJob.endTime?.isNullOrEmpty == false) ...[
+                                                  if (todayJob.startTime?.isNullOrEmpty == false) ...[
                                                     const SizedBox(height: 6),
                                                     Row(
                                                       children: [
                                                         Icon(IconsaxPlusLinear.clock, size: 14, color: scheme.onPrimary.withValues(alpha: 0.6)),
                                                         const SizedBox(width: 6),
                                                         CommonText.regular(
-                                                          CcsDateUtils.parseTimeRange(todayJob.startTime ?? "", todayJob.endTime ?? ""),
+                                                          CcsDateUtils.parseTimeRange(todayJob.startTime ?? "", todayJob.endTime),
                                                           size: 12,
                                                           color: scheme.onPrimary.withValues(alpha: 0.6),
                                                         ),
@@ -197,14 +198,12 @@ class ClientDashboardContent extends GetView<ClientDashboardController> {
                               tabletCount: 2,
                               landscapeCount: 3,
                               child: upcoming.map((job) {
-                                String? timeRange;
-                                if (job.startTime != null && job.endTime != null) {
-                                  timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
-                                }
+                                final timeRange = CcsDateUtils.formatJobTimeRange(job.startTime, job.endTime);
+                                final dateLabel = CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""));
                                 return JobCard(
                                   padding: 4,
                                   title: job.cleaningType?.name ?? "N/A",
-                                  dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
+                                  dateTime: timeRange == null ? dateLabel : '$dateLabel · $timeRange',
                                   status: job.status ?? "N/A",
                                   propertyName: job.property?.propertyName ?? "N/A",
                                   address: job.property?.address ?? "N/A",

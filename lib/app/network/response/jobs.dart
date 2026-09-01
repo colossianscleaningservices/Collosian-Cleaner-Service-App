@@ -786,6 +786,7 @@ class Scheduler {
     this.occurrence,
     this.repeatEvery,
     this.startDate,
+    this.endDate,
     this.repeatOn,
     this.startTime,
     this.endTime,
@@ -798,6 +799,7 @@ class Scheduler {
     frequency = json['frequency'];
     nextJobDate = json['next_job_date'];
     startDate = json['start_date'];
+    endDate = json['end_date'];
     occurrence = json['occurrence'];
     repeatEvery = json['repeat_every'];
     repeatOn = json['repeat_on'] != null ? RepeatOn.fromJson(json['repeat_on']) : null;
@@ -811,6 +813,7 @@ class Scheduler {
   String? frequency;
   String? nextJobDate;
   String? startDate;
+  String? endDate;
   dynamic occurrence;
   String? repeatEvery;
   RepeatOn? repeatOn;
@@ -825,6 +828,7 @@ class Scheduler {
     map['frequency'] = frequency;
     map['next_job_date'] = nextJobDate;
     map['start_date'] = startDate;
+    map['end_date'] = endDate;
     map['occurrence'] = occurrence;
     map['repeat_every'] = repeatEvery;
     if (repeatOn != null) {

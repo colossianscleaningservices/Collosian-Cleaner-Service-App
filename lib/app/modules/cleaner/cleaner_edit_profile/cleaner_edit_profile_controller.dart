@@ -440,6 +440,11 @@ class CleanerEditProfileController extends GetxController {
 
           profile = value.data?.user;
           showProfileData();
+          if (Get.isRegistered<CleanerDashboardController>()) {
+            final dash = Get.find<CleanerDashboardController>();
+            dash.issuedItems.assignAll(value.data?.user?.issuedItems ?? []);
+            dash.issuedItemsOutstandingCount.value = value.data?.user?.issuedItemsOutstandingCount?.toInt() ?? 0;
+          }
         },
         contextTag: 'get-profile',
       );

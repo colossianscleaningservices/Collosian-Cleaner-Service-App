@@ -30,7 +30,7 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
           headerLogoIcon: false,
           hasBackIcon: true,
           titleCentered: false,
-          actions: j != null && j.isEdit == true
+          actions: j != null && _shouldShowJobMenu(j)
               ? [
                   PopupMenuButton<_JobMenuAction>(
                     tooltip: 'More options',
@@ -46,28 +46,30 @@ class ClientJobDetailView extends GetView<ClientJobDetailController> {
                           break;
                       }
                     },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: _JobMenuAction.edit,
-                        child: Row(
-                          children: [
-                            Icon(IconsaxPlusLinear.edit_2, size: 18, color: scheme.onSurfaceVariant),
-                            const SizedBox(width: 8),
-                            CommonText.regular('Edit job', size: 14, color: scheme.onSurface),
-                          ],
+                    itemBuilder: (context) {
+                      return [
+                        PopupMenuItem(
+                          value: _JobMenuAction.edit,
+                          child: Row(
+                            children: [
+                              Icon(IconsaxPlusLinear.edit_2, size: 18, color: scheme.onSurfaceVariant),
+                              const SizedBox(width: 8),
+                              CommonText.regular('Edit job', size: 14, color: scheme.onSurface),
+                            ],
+                          ),
                         ),
-                      ),
-                      PopupMenuItem(
-                        value: _JobMenuAction.delete,
-                        child: Row(
-                          children: [
-                            Icon(IconsaxPlusLinear.trash, size: 18, color: scheme.error),
-                            const SizedBox(width: 8),
-                            CommonText.regular('Delete job', size: 14, color: scheme.onSurface),
-                          ],
+                        PopupMenuItem(
+                          value: _JobMenuAction.delete,
+                          child: Row(
+                            children: [
+                              Icon(IconsaxPlusLinear.trash, size: 18, color: scheme.error),
+                              const SizedBox(width: 8),
+                              CommonText.regular('Delete job', size: 14, color: scheme.onSurface),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ];
+                    },
                   ),
                 ]
               : [],
@@ -178,6 +180,18 @@ Widget _bodyForState({
           ),
         ),
         const SizedBox(height: 20),
+        if (j.hasEndOfTenancyDetails) ...[
+          JobDetailSection(
+            semanticLabel: 'End of Tenancy',
+            emoji: '🔑',
+            title: 'End of Tenancy',
+            scheme: scheme,
+            child: AppCard(
+              child: _EndOfTenancyDetailBlock(j: j, scheme: scheme).paddingAll(UiConstants.defaultPadding),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
         JobDetailSection(
           semanticLabel: 'Preferences and equipment',
           emoji: '🧰',
@@ -384,10 +398,7 @@ class _StatusScheduleSection extends StatelessWidget {
     final isPaused = j.scheduler?.active == false;
     final statusLabel = j.status?.capitalizeFirst ?? 'N/A';
 
-    String? timeRange;
-    if (j.startTime != null && j.endTime != null) {
-      timeRange = '${CcsDateTimeX.convertTime(j.startTime ?? '')} – ${CcsDateTimeX.convertTime(j.endTime ?? '')}';
-    }
+    String? timeRange = CcsDateUtils.formatJobTimeRange(j.startTime, j.endTime);
     String? endsFormatted;
     if (j.jobEndDate != null && j.jobEndDate!.trim().isNotEmpty) {
       try {
@@ -443,7 +454,9 @@ class _StatusScheduleSection extends StatelessWidget {
           CommonText.regular('Job time extension requested', size: 14, color: scheme.onSurface.withValues(alpha: 0.5)),
         ],
         const SizedBox(height: 12),
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
             if (j.jobSchedule == false && j.status != 'Cancelled' && j.status != 'Finished') ...[
               AppButton(
@@ -453,15 +466,27 @@ class _StatusScheduleSection extends StatelessWidget {
                 btnVerticalPadding: 8,
                 btnCornerRadius: 12,
                 btnHorizontalPadding: 12,
-              ).marginOnly(right: 8),
+              ),
             ],
-            if (j.isRequested == false && j.status != 'Finished' && j.status != 'Pending') ...[
+            if (j.isRequested == false && j.status != 'Finished') ...[
               AppButton(
                 label: 'Extend Time',
                 icon: IconsaxPlusLinear.clock_1,
                 onPressed: () {
                   c.openFilter(context);
                 },
+                btnVerticalPadding: 8,
+                btnCornerRadius: 12,
+                btnHorizontalPadding: 12,
+              ),
+            ],
+            if (j.jobSchedule == false && j.status != 'Cancelled' && j.status != 'Finished') ...[
+              AppButton(
+                label: 'Cancel job',
+                onPressed: () => c.onCancelJob(),
+                type: ButtonType.outline,
+                txtClr: scheme.error,
+                borderClr: scheme.error,
                 btnVerticalPadding: 8,
                 btnCornerRadius: 12,
                 btnHorizontalPadding: 12,
@@ -518,6 +543,104 @@ class _StatusScheduleSection extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+bool _shouldShowJobMenu(ClientJobDetails j) {
+  final status = j.status?.toLowerCase();
+  if (status == 'finished') return false;
+  return true;
+}
+
+class _EndOfTenancyDetailBlock extends StatelessWidget {
+  const _EndOfTenancyDetailBlock({required this.j, required this.scheme});
+
+  final ClientJobDetails j;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final listed = j.addOns ?? [];
+    final custom = j.customAddOns ?? [];
+    final bandName = j.endOfTenancyBand?.displayLabel.trim();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (bandName != null && bandName.isNotEmpty)
+          LabelValueRow(
+            label: 'Property size',
+            value: bandName,
+            scheme: scheme,
+          ),
+        if (listed.isNotEmpty) ...[
+          CommonText.semiBold('Optional extras', size: 14, color: scheme.onSurface).paddingOnly(top: 4, bottom: 8),
+          ...listed.map(
+            (addon) => _EotExtraTile(
+              title: addon.displayName,
+              note: addon.note ?? addon.description,
+              quantity: addon.quantity,
+              scheme: scheme,
+            ),
+          ),
+        ],
+        if (custom.isNotEmpty) ...[
+          CommonText.semiBold('Custom extras', size: 14, color: scheme.onSurface).paddingOnly(top: listed.isNotEmpty ? 8 : 4, bottom: 8),
+          ...custom.map(
+            (addon) => _EotExtraTile(
+              title: (addon.label ?? '').trim().isEmpty ? 'Extra' : addon.label!.trim(),
+              note: addon.note,
+              quantity: addon.quantity,
+              scheme: scheme,
+            ),
+          ),
+        ],
+        if (listed.isEmpty && custom.isEmpty) ...[
+          CommonText.regular(
+            'No extras added for this job.',
+            size: 13,
+            color: scheme.onSurfaceVariant,
+          ).paddingOnly(bottom: 8),
+        ],
+      ],
+    );
+  }
+}
+
+class _EotExtraTile extends StatelessWidget {
+  const _EotExtraTile({
+    required this.title,
+    required this.scheme,
+    this.note,
+    this.quantity,
+  });
+
+  final String title;
+  final String? note;
+  final num? quantity;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final qty = quantity?.toInt();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CommonText.medium(title, size: 14, color: scheme.onSurface),
+          if (note != null && note!.trim().isNotEmpty) ...[
+            const SizedBox(height: 2),
+            CommonText.regular(note!.trim(), size: 13, color: scheme.onSurfaceVariant),
+          ],
+          if (qty != null && qty > 0) ...[
+            const SizedBox(height: 2),
+            CommonText.regular('Qty $qty', size: 12, color: scheme.onSurfaceVariant),
+          ],
+        ],
+      ),
     );
   }
 }

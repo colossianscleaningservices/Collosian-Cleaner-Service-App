@@ -1,5 +1,6 @@
 import 'package:ccs_app/app/modules/client/preferred_staff/preferred_staff_controller.dart';
 import 'package:ccs_app/app/network/response/get_staff_detail_response.dart';
+import 'package:ccs_app/app/network/response/profile_response.dart';
 import 'package:ccs_app/app/widget/job/job_detail_shared.dart';
 import 'package:ccs_app/app/widget/layout/app_scaffold.dart';
 import 'package:ccs_app/app/widget/layout/bottom_action_bar.dart';
@@ -143,6 +144,17 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                   ),
                 ],
 
+                if (_hasIssuedItems(staff)) ...[
+                  const SizedBox(height: 20),
+                  JobDetailSection(
+                    semanticLabel: 'Issued items',
+                    emoji: '👕',
+                    title: 'Issued items',
+                    scheme: scheme,
+                    child: _IssuedItemsBlock(staff: staff!, scheme: scheme),
+                  ),
+                ],
+
                 if (staff?.availableSlots != null && staff!.availableSlots!.isNotEmpty) ...[
                   const SizedBox(height: 20),
                   JobDetailSection(
@@ -266,6 +278,11 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
     return (staff.nextOfKinName?.trim().isNotEmpty ?? false) ||
         (staff.nextOfKinRelationship?.trim().isNotEmpty ?? false) ||
         (staff.nextOfKinContact?.trim().isNotEmpty ?? false);
+  }
+
+  bool _hasIssuedItems(Staff? staff) {
+    if (staff == null) return false;
+    return staff.issuedItems != null && staff.issuedItems!.isNotEmpty;
   }
 
   List<Widget> _buildWorkShifts(List<AvailableSlots> shifts, ColorScheme scheme) {
@@ -639,4 +656,149 @@ class _NextOfKinBlock extends StatelessWidget {
     if (rows.isEmpty) return const SizedBox.shrink();
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows);
   }
+}
+
+class _IssuedItemsBlock extends StatelessWidget {
+  const _IssuedItemsBlock({required this.staff, required this.scheme});
+
+  final Staff staff;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final items = staff.issuedItems ?? [];
+    final outstanding = staff.issuedItemsOutstandingCount?.toInt() ?? 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (outstanding > 0) ...[
+          Align(
+            alignment: Alignment.centerLeft,
+            child: InfoChip(
+              label: outstanding == 1 ? '1 to return' : '$outstanding to return',
+              backgroundColor: scheme.secondaryContainer,
+              foregroundColor: scheme.secondary,
+            ),
+          ),
+          const SizedBox(height: 10),
+        ],
+        ...items.asMap().entries.map((entry) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: entry.key == items.length - 1 ? 0 : 10),
+            child: _IssuedItemCard(item: entry.value, scheme: scheme),
+          );
+        }),
+      ],
+    );
+  }
+}
+
+class _IssuedItemCard extends StatelessWidget {
+  const _IssuedItemCard({required this.item, required this.scheme});
+
+  final IssuedItem item;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = item.statusLabel?.trim();
+    final qty = item.quantity?.toInt();
+    final issuedBy = item.issuedByName?.trim();
+    final issuedAt = item.issuedAt?.trim();
+    final notes = item.notes?.trim();
+    final returnedAt = item.returnedAt?.trim();
+    final returnedTo = item.returnedToName?.trim();
+    final condition = item.conditionOnReturn?.trim();
+
+    final meta = <String>[
+      if (qty != null && qty > 0) 'Qty $qty',
+      if (issuedAt != null && issuedAt.isNotEmpty) 'Issued $issuedAt',
+      if (issuedBy != null && issuedBy.isNotEmpty) 'by $issuedBy',
+    ].join(' · ');
+
+    final statusColors = _issuedStatusColors(item, scheme);
+
+    return AppCard(
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: scheme.secondary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
+            ),
+            child: Icon(_issuedItemIcon(item.itemType), size: 22, color: scheme.secondary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: CommonText.semiBold(
+                        item.itemLabel?.trim().isNotEmpty == true ? item.itemLabel!.trim() : 'Issued item',
+                        size: 15,
+                        color: scheme.onSurface,
+                      ),
+                    ),
+                    if (status != null && status.isNotEmpty) ...[
+                      const SizedBox(width: 8),
+                      InfoChip(
+                        label: status,
+                        backgroundColor: statusColors.$1,
+                        foregroundColor: statusColors.$2,
+                      ),
+                    ],
+                  ],
+                ),
+                if (meta.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  CommonText.regular(meta, size: 12, color: scheme.onSurfaceVariant),
+                ],
+                if (notes != null && notes.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  CommonText.regular(notes, size: 12, color: scheme.onSurfaceVariant),
+                ],
+                if (item.isReturned == true) ...[
+                  if (returnedAt != null && returnedAt.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    CommonText.regular('Returned $returnedAt', size: 12, color: scheme.onSurfaceVariant),
+                  ],
+                  if (returnedTo != null && returnedTo.isNotEmpty)
+                    CommonText.regular('Returned to $returnedTo', size: 12, color: scheme.onSurfaceVariant),
+                  if (condition != null && condition.isNotEmpty)
+                    CommonText.regular('Condition: $condition', size: 12, color: scheme.onSurfaceVariant),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+IconData _issuedItemIcon(String? itemType) {
+  final type = itemType?.toLowerCase() ?? '';
+  if (type.contains('key')) return IconsaxPlusLinear.key;
+  if (type.contains('uniform')) return IconsaxPlusLinear.tag;
+  return IconsaxPlusLinear.box_1;
+}
+
+(Color, Color) _issuedStatusColors(IssuedItem item, ColorScheme scheme) {
+  final label = item.statusLabel?.toLowerCase() ?? '';
+  if (item.isReturned == true || label.contains('returned')) {
+    return (scheme.tertiaryContainer, scheme.tertiary);
+  }
+  if (item.isReturnable == false || label.contains('not returnable')) {
+    return (scheme.surfaceContainerHighest, scheme.onSurfaceVariant);
+  }
+  return (scheme.secondaryContainer, scheme.secondary);
 }

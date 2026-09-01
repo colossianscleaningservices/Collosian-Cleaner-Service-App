@@ -1,3 +1,5 @@
+import 'package:ccs_app/app/network/response/profile_response.dart';
+
 class GetStaffDetailResponse {
   GetStaffDetailResponse({
       this.message, 
@@ -97,7 +99,9 @@ class Staff {
       this.sortCode, 
       this.cleaningServicesData, 
       this.availableSlots, 
-      this.hourBlocks,});
+      this.hourBlocks,
+      this.issuedItems,
+      this.issuedItemsOutstandingCount,});
 
   Staff.fromJson(dynamic json) {
     id = json['id'];
@@ -163,6 +167,13 @@ class Staff {
         hourBlocks?.add(String);
       });
     }
+    issuedItemsOutstandingCount = json['issued_items_outstanding_count'];
+    if (json['issued_items'] != null) {
+      issuedItems = [];
+      json['issued_items'].forEach((v) {
+        issuedItems?.add(IssuedItem.fromJson(v));
+      });
+    }
   }
   num? id;
   String? firstName;
@@ -209,6 +220,8 @@ class Staff {
   List<CleaningServicesData>? cleaningServicesData;
   List<AvailableSlots>? availableSlots;
   List<dynamic>? hourBlocks;
+  List<IssuedItem>? issuedItems;
+  num? issuedItemsOutstandingCount;
   num? hourlyRate;
   num? residentialHourlyRate;
   num? commercialHourlyRate;
@@ -268,6 +281,10 @@ class Staff {
     }
     if (hourBlocks != null) {
       map['hour_blocks'] = hourBlocks?.map((v) => v.toJson()).toList();
+    }
+    map['issued_items_outstanding_count'] = issuedItemsOutstandingCount;
+    if (issuedItems != null) {
+      map['issued_items'] = issuedItems?.map((v) => v.toJson()).toList();
     }
     return map;
   }

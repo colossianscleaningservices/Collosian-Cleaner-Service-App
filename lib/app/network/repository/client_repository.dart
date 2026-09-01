@@ -12,6 +12,7 @@ import 'package:ccs_app/app/network/response/property_sub_type_response.dart';
 import '../../core/base/base_repository.dart';
 import '../request/create_job_request.dart';
 import '../response/base_response.dart';
+import '../response/end_of_tenancy_bands_response.dart';
 import '../response/property_list_response.dart';
 import '../response/property_type_response.dart';
 import '../utils/network_result.dart';
@@ -193,6 +194,14 @@ class ClientRepository extends BaseRepository {
       endpoint: Endpoint.clientJobCancel(jobId),
       fromJson: (json) => BaseResponse.fromJson(json),
       data: reason != null ? <String, dynamic>{'reason': reason} : null,
+    );
+  }
+
+  Future<NetworkResult<EndOfTenancyBandsResponse>> getEndOfTenancyBands({required num propertyId}) async {
+    return get<EndOfTenancyBandsResponse>(
+      endpoint: Endpoint.clientEndOfTenancyBands,
+      queryParameters: {'property_id': propertyId},
+      fromJson: (json) => EndOfTenancyBandsResponse.fromJson(json),
     );
   }
 

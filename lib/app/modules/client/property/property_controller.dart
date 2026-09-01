@@ -171,6 +171,7 @@ class PropertyController extends GetxController {
       result.handle(
         success: (value) {
           final data = value.data?.propertySubtypes;
+          propertySubTypeOptions.clear();
           if (data != null) propertySubTypeOptions.addAll(data);
           propertySubTypeOptions.refresh();
         },

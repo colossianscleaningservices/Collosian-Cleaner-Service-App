@@ -300,10 +300,7 @@ class _CleanerStatusScheduleBody extends StatelessWidget {
             : (j.status ?? statusLabel);
     final jobClosed = JobStatusX.isCancelled(j.status) || JobStatusX.isJobFinished(j.status);
     final hasDate = _staffHasScheduleDate(j);
-    String? timeRange;
-    if (j.startTime != null && j.endTime != null) {
-      timeRange = '${CcsDateTimeX.convertTime(j.startTime ?? '')} – ${CcsDateTimeX.convertTime(j.endTime ?? '')}';
-    }
+    String? timeRange = CcsDateUtils.formatJobTimeRange(j.startTime, j.endTime);
     String? endsFormatted;
     if (j.jobEndDate != null && j.jobEndDate.toString().trim().isNotEmpty) {
       endsFormatted = _staffParseEndDate(j.jobEndDate);

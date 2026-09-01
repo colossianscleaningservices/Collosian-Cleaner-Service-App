@@ -78,6 +78,7 @@ class Endpoint {
 
   static String clientJobReview(int id) => '${root}client/jobs/$id/review';
   static const String clientJob = '${root}client/jobs';
+  static const String clientEndOfTenancyBands = '${root}client/end-of-tenancy/bands';
 
   static String extensionRequest(int id) => '${root}client/jobs/$id/extension-request';
 

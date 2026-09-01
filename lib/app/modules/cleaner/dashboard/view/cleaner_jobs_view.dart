@@ -43,7 +43,7 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                       const SizedBox(height: 4),
                       Obx(() {
                         return CommonText.regular(
-                          controller.jobs.isEmpty ? 'No assignments yet' : '${controller.jobs.length} ${controller.jobs.length == 1 ? 'job' : 'jobs'} total',
+                          controller.jobs.isEmpty ? 'No assignments yet' : '${controller.totalJobs.value} ${controller.totalJobs.value == 1 ? 'job' : 'jobs'} total',
                           size: 14,
                           color: scheme.onSurfaceVariant,
                         );
@@ -106,17 +106,14 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                     child: upcoming.map(
                       (job) {
                         var status = job.cleanerJobStatus ?? (job.status ?? "N/A");
-                        String? timeRange;
-                        if (job.startTime != null && job.endTime != null) {
-                          timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
-                        }
+                        String? timeRange = CcsDateUtils.formatJobTimeRange(job.startTime, job.endTime);
                         if (job.status == Constants.jobFinished) {
                           status = job.status ?? status;
                         }
 
                         return JobCard(
                           title: job.cleaningType?.name ?? "N/A",
-                          dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
+                          dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))}${timeRange == null ? '' : ' · $timeRange'}',
                           status: status,
                           subtitle: (job.jobCleaners == null || job.jobCleaners?.isEmpty == true)
                               ? ' - '
@@ -150,17 +147,14 @@ class CleanerJobsView extends GetView<CleanerDashboardController> {
                       (job) {
                         var status = job.cleanerJobStatus ?? (job.status ?? "N/A");
 
-                        String? timeRange;
-                        if (job.startTime != null && job.endTime != null) {
-                          timeRange = '${CcsDateTimeX.convertTime(job.startTime ?? '')} – ${CcsDateTimeX.convertTime(job.endTime ?? '')}';
-                        }
+                        String? timeRange = CcsDateUtils.formatJobTimeRange(job.startTime, job.endTime);
 
                         if (job.status == Constants.jobFinished) {
                           status = job.status ?? status;
                         }
                         return JobCard(
                           title: job.cleaningType?.name ?? "N/A",
-                          dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))} · $timeRange',
+                          dateTime: '${CcsDateUtils.shortDateNoYear(DateTime.parse(job.date ?? ""))}${timeRange == null ? '' : ' · $timeRange'}',
                           status: status,
                           subtitle: job.jobCleaners?.map((item) => "${item.user?.firstName} ${item.user?.lastName}").toList().join(', ') ?? "N/A",
                           propertyName: job.property?.propertyName ?? "N/A",

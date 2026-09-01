@@ -7,9 +7,22 @@ import '../../../network/repository/client_repository.dart';
 import '../../../network/repository/common_repository.dart';
 import '../../../network/request/create_job_request.dart';
 import '../../../network/response/cleaning_type_response.dart';
+import '../../../network/response/end_of_tenancy_bands_response.dart';
 import '../../../network/response/get_client_job_details_response.dart';
 import '../../../network/response/property_list_response.dart';
 import '../dashboard/client_dashboard_controller.dart';
+
+class EotCustomExtraEntry {
+  EotCustomExtraEntry();
+
+  final TextEditingController labelController = TextEditingController();
+  final TextEditingController noteController = TextEditingController();
+
+  void dispose() {
+    labelController.dispose();
+    noteController.dispose();
+  }
+}
 
 class CreateJobController extends GetxController {
   final ClientRepository _clientRepository = ClientRepository();
@@ -17,7 +30,6 @@ class CreateJobController extends GetxController {
   final formKey = GlobalKey<FormState>();
   final notesController = TextEditingController();
 
-  // final jobTitleController = TextEditingController();
   final dateDisplayController = TextEditingController();
   final startTimeDisplayController = TextEditingController();
   final endTimeDisplayController = TextEditingController();
@@ -38,6 +50,14 @@ class CreateJobController extends GetxController {
   final provideDryer = false.obs;
   final notesLength = 0.obs;
 
+  final isEndOfTenancy = false.obs;
+  final eotBands = <EndOfTenancyBand>[].obs;
+  final selectedBand = Rxn<EndOfTenancyBand>();
+  final isLoadingEotBands = false.obs;
+  final selectedAddOnIds = <num>[].obs;
+  final customExtras = <EotCustomExtraEntry>[].obs;
+  final wasBandMatchedFromProperty = false.obs;
+
   static const List<String> hooverOptions = ['No', 'Yes', 'I will get one'];
   static const List<String> staffPreferenceOptions = ['Male', 'Female', 'No Preference'];
   static const List<String> accessOptions = ['Client Will Open', 'Reception/Concierge', 'Key', 'Other'];
@@ -48,6 +68,8 @@ class CreateJobController extends GetxController {
     final match = options.firstWhereOrNull((o) => o.toLowerCase() == raw.trim().toLowerCase());
     return match ?? fallback;
   }
+
+  PropertyModel? get selectedPropertyModel => properties.firstWhereOrNull((item) => item.propertyName?.toLowerCase() == selectedProperty.value?.toLowerCase());
 
   void applyPropertyDefaults(PropertyModel? property) {
     staffPreference.value = pickOption(property?.staffPreference, staffPreferenceOptions, 'Male');
@@ -71,6 +93,7 @@ class CreateJobController extends GetxController {
   var searchController = TextEditingController();
   var searchTerm = ''.obs;
   var prevSearch = '';
+  var _eotBandsRequestId = 0;
 
   @override
   void onInit() {
@@ -128,6 +151,8 @@ class CreateJobController extends GetxController {
     startTimeDisplayController.dispose();
     endTimeDisplayController.dispose();
     cleanersNeededController.dispose();
+    cleaningTypeCtrl.dispose();
+    _disposeCustomExtras();
     super.onClose();
   }
 
@@ -143,6 +168,18 @@ class CreateJobController extends GetxController {
 
   String? validateNotes(String? v) {
     if (v != null && v.length > maxNotesLength) return 'Max $maxNotesLength characters';
+    return null;
+  }
+
+  String? validateEotBand(EndOfTenancyBand? v) {
+    if (!isEndOfTenancy.value) return null;
+    if (v == null) return 'Select a property size';
+    return null;
+  }
+
+  String? validateEndTime(String? v) {
+    if (isEndOfTenancy.value) return null;
+    if (endTime.value == null || v == null || v.trim().isEmpty) return 'End Time is required';
     return null;
   }
 
@@ -184,6 +221,145 @@ class CreateJobController extends GetxController {
     }
   }
 
+  void onPropertySelected(String? v) {
+    selectedProperty.value = v;
+    applyPropertyDefaults(selectedPropertyModel);
+    if (isEndOfTenancy.value) {
+      loadEotBands();
+    }
+  }
+
+  void selectCleaningType(CleaningTypeModel item) {
+    cleaningTypeCtrl.text = item.name ?? '';
+    for (var cl in cleaningTypeList) {
+      cl.isSelect = false;
+    }
+    for (var cl in mainCleaningTypeList) {
+      cl.isSelect = false;
+    }
+    mainCleaningTypeList.firstWhereOrNull((element) => element.name == item.name)?.isSelect = true;
+    item.isSelect = true;
+    cleaningTypeList.refresh();
+
+    final wasEot = isEndOfTenancy.value;
+    isEndOfTenancy.value = item.isEndOfTenancyType;
+    if (isEndOfTenancy.value) {
+      loadEotBands(restoreFromJob: isEdit && wasEot == false);
+    } else if (wasEot) {
+      clearEotState();
+    }
+  }
+
+  Future<void> loadEotBands({bool restoreFromJob = false}) async {
+    final propertyId = selectedPropertyModel?.id;
+    if (propertyId == null) {
+      eotBands.clear();
+      selectedBand.value = null;
+      selectedAddOnIds.clear();
+      wasBandMatchedFromProperty.value = false;
+      return;
+    }
+
+    final requestId = ++_eotBandsRequestId;
+    isLoadingEotBands.value = true;
+    try {
+      final result = await _clientRepository.getEndOfTenancyBands(propertyId: propertyId);
+      if (requestId != _eotBandsRequestId) return;
+      result.handle(
+        success: (response) {
+          eotBands.assignAll(response.data?.bands ?? []);
+          final suggestedId = response.data?.suggestedBandId;
+          EndOfTenancyBand? match;
+          if (restoreFromJob && jobDetails?.endOfTenancyRuleId != null) {
+            match = eotBands.firstWhereOrNull((b) => b.id == jobDetails?.endOfTenancyRuleId);
+          }
+          match ??= eotBands.firstWhereOrNull((b) => b.id == suggestedId);
+          wasBandMatchedFromProperty.value = suggestedId != null && match?.id == suggestedId;
+          selectBand(match, applyStaffCount: !restoreFromJob);
+          if (restoreFromJob) _restoreEotExtras();
+        },
+        contextTag: 'eot-bands',
+      );
+    } finally {
+      if (requestId == _eotBandsRequestId) {
+        isLoadingEotBands.value = false;
+      }
+    }
+  }
+
+  void selectBand(EndOfTenancyBand? band, {bool applyStaffCount = true}) {
+    selectedBand.value = band;
+    selectedAddOnIds.clear();
+    if (applyStaffCount) applyStaffCountFromBand(band);
+  }
+
+  void onBandChanged(EndOfTenancyBand? band) {
+    wasBandMatchedFromProperty.value = false;
+    selectBand(band, applyStaffCount: true);
+  }
+
+  void applyStaffCountFromBand(EndOfTenancyBand? band) {
+    if (band == null) return;
+    final value = band.staffCountValue?.toInt() ?? 1;
+    var count = value < 1 ? 1 : value;
+    if (band.staffCountMode == 'max_of_value_and_bedrooms') {
+      final bedrooms = selectedPropertyModel?.bedrooms?.toInt() ?? 0;
+      if (bedrooms > count) count = bedrooms;
+    }
+    count = count.clamp(1, 20);
+    cleanersNeeded.value = count;
+    cleanersNeededController.text = '$count';
+  }
+
+  void toggleListedAddOn(num? id) {
+    if (id == null) return;
+    if (selectedAddOnIds.contains(id)) {
+      selectedAddOnIds.remove(id);
+    } else {
+      selectedAddOnIds.add(id);
+    }
+  }
+
+  bool isListedAddOnSelected(num? id) => id != null && selectedAddOnIds.contains(id);
+
+  void addCustomExtra() {
+    customExtras.add(EotCustomExtraEntry());
+  }
+
+  void removeCustomExtra(EotCustomExtraEntry extra) {
+    customExtras.remove(extra);
+    extra.dispose();
+  }
+
+  void clearEotState() {
+    eotBands.clear();
+    selectedBand.value = null;
+    selectedAddOnIds.clear();
+    wasBandMatchedFromProperty.value = false;
+    _disposeCustomExtras();
+  }
+
+  void _disposeCustomExtras() {
+    for (final extra in customExtras) {
+      extra.dispose();
+    }
+    customExtras.clear();
+  }
+
+  void _restoreEotExtras() {
+    selectedAddOnIds.assignAll(
+      (jobDetails?.addOns ?? []).where((addon) => addon.id != null).map((addon) => addon.id!),
+    );
+
+    _disposeCustomExtras();
+    for (final extra in jobDetails?.customAddOns ?? []) {
+      final entry = EotCustomExtraEntry();
+      entry.labelController.text = extra.label ?? '';
+      entry.noteController.text = extra.note ?? '';
+      customExtras.add(entry);
+    }
+  }
+
   Future<void> submit(BuildContext context) async {
     if (!formKey.currentState!.validate()) return;
 
@@ -199,6 +375,16 @@ class CreateJobController extends GetxController {
         }
       }
 
+      if (!isEndOfTenancy.value && endTime.value == null) {
+        Notifier.info('End Time is required');
+        return;
+      }
+
+      if (isEndOfTenancy.value && selectedBand.value == null) {
+        Notifier.info('Select a property size for End of Tenancy');
+        return;
+      }
+
       if (jobStartDate.value != null && start != null) {
         // Combine selected date + TimeOfDay into DateTime
         DateTime startDateTime = DateTime(
@@ -212,13 +398,14 @@ class CreateJobController extends GetxController {
         DateTime minAllowedTime = now.add(Duration(hours: 24));
 
         if (startDateTime.isAfter(minAllowedTime)) {
-          // Valid (after 24 hours)
+          final isEot = isEndOfTenancy.value;
           final req = CreateJobRequest(
-            propertyId: properties.firstWhereOrNull((item) => item.propertyName?.toLowerCase() == selectedProperty.value?.toLowerCase())?.id,
+            propertyId: selectedPropertyModel?.id,
             date: jobStartDate.value?.toDisplayDate('yyyy-MM-dd'),
             startTime:
-                startTime.value != null ? '${startTime.value!.hour.toString().padLeft(2, '0')}:${startTime.value!.minute.toString().padLeft(2, '0')}' : null,
-            endTime: endTime.value != null ? '${endTime.value!.hour.toString().padLeft(2, '0')}:${endTime.value!.minute.toString().padLeft(2, '0')}' : null,
+                startTime.value != null ? (isEot ? CcsDateTimeX.formatTimeOfDay(startTime.value!) : CcsDateTimeX.formatTimeOfDayShort(startTime.value!)) : null,
+            endTime: isEot ? null : (endTime.value != null ? CcsDateTimeX.formatTimeOfDayShort(endTime.value!) : null),
+            omitEndTime: isEot,
             jobType: invoicePaymentSource.value.isEmpty ? null : invoicePaymentSource.value,
             numberOfCleaners: cleanersNeeded.value,
             staffPreference: staffPreference.value,
@@ -228,7 +415,20 @@ class CreateJobController extends GetxController {
             provideWashingMachine: provideWashingMachine.value,
             provideDryer: provideDryer.value,
             additionalDetails: notesController.text.isEmpty ? null : notesController.text,
-            cleaningType: cleaningTypeList.firstWhereOrNull((item) => item.name == cleaningTypeCtrl.text)?.id,
+            cleaningType: cleaningTypeList.firstWhereOrNull((item) => item.name == cleaningTypeCtrl.text)?.id ??
+                mainCleaningTypeList.firstWhereOrNull((item) => item.name == cleaningTypeCtrl.text)?.id,
+            endOfTenancyRuleId: isEot ? selectedBand.value?.id : null,
+            customAddOns: isEot
+                ? customExtras
+                    .where((e) => e.labelController.text.trim().isNotEmpty)
+                    .map(
+                      (e) => JobCustomAddOnRequest(
+                        label: e.labelController.text.trim(),
+                        note: e.noteController.text.trim().isEmpty ? null : e.noteController.text.trim(),
+                      ),
+                    )
+                    .toList()
+                : null,
           );
           log(runtimeType.toString(), jsonEncode(req));
           Loader.show();
@@ -307,6 +507,10 @@ class CreateJobController extends GetxController {
           if (properties.isNotEmpty) {
             if (isEdit) {
               selectedProperty.value = jobDetails?.property?.propertyName;
+              if (isEndOfTenancy.value || jobDetails?.hasEndOfTenancyDetails == true) {
+                isEndOfTenancy.value = true;
+                loadEotBands(restoreFromJob: true);
+              }
             }
           }
         },
@@ -348,6 +552,10 @@ class CreateJobController extends GetxController {
               var index = cleaningTypeList.indexOf(item);
               cleaningTypeList[index].isSelect = true;
               if (cleaningTypeList.length == mainCleaningTypeList.length) mainCleaningTypeList[index].isSelect = true;
+              isEndOfTenancy.value = item.isEndOfTenancyType;
+              if (isEndOfTenancy.value && selectedPropertyModel != null) {
+                loadEotBands(restoreFromJob: true);
+              }
             }
           }
         },

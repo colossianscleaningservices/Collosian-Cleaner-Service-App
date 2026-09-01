@@ -12,7 +12,7 @@ class CleanerAllJobsView extends GetView<CleanerDashboardController> {
   Widget build(BuildContext context) {
     return AppScaffold(
       appBar: const Header(
-        title: 'All jobs',
+        title: 'My jobs',
         headerLogoIcon: false,
         hasBackIcon: true,
         titleCentered: false,

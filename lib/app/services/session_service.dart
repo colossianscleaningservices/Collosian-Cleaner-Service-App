@@ -9,7 +9,49 @@ import 'onesignal_service.dart';
 class SessionService extends GetxService {
   final Prefs _prefs = Prefs.instance;
 
+  /// In-flight logout so concurrent 401s only navigate to login once.
+  bool _isLoggingOut = false;
+  Future<void>? _logoutFuture;
+
+  /// Stays true after a 401 logout until the user logs in again,
+  /// so in-flight APIs cannot show extra toasts or navigate again.
+  bool _forceLoggedOut = false;
+
   bool get isLoggedIn => (_prefs.token).isNotEmpty;
+
+  bool get isLoggingOut => _isLoggingOut;
+
+  /// True while a 401 logout is running, or after it until the next login.
+  bool get hasHandledUnauthorized {
+    if (isLoggedIn && !_isLoggingOut) {
+      _forceLoggedOut = false;
+      return false;
+    }
+    return _forceLoggedOut || _isLoggingOut;
+  }
+
+  static const _authFormTags = {
+    'login',
+    'signup',
+    'forgot_password',
+    'reset_password',
+    'send_OTP',
+  };
+
+  /// Leftover 401s after session expiry should be ignored.
+  /// Auth form errors (wrong password, etc.) must still show a toast.
+  bool shouldIgnoreUnauthorized({String? contextTag}) {
+    if (contextTag != null && _authFormTags.contains(contextTag)) return false;
+    return hasHandledUnauthorized;
+  }
+
+  /// Claims the logout slot. Returns false if another caller already started it.
+  bool beginLogout() {
+    if (hasHandledUnauthorized) return false;
+    _isLoggingOut = true;
+    _forceLoggedOut = true;
+    return true;
+  }
 
   /// Current user id (from login/register response). Empty if not logged in.
   String get userId => _prefs.getData(Prefs.id);
@@ -32,16 +74,34 @@ class SessionService extends GetxService {
     return image.isNotEmpty ? image : '';
   }
 
-  Future<void> logout() async {
-    Loader.show();
+  /// Clears the session and navigates to login.
+  /// Concurrent callers share the same in-flight future so navigation happens once.
+  /// [notifyServer] is false for 401 handling (token is already invalid).
+  Future<void> logout({bool notifyServer = true}) {
+    _isLoggingOut = true;
+    _forceLoggedOut = true;
+    return _logoutFuture ??= _performLogout(notifyServer: notifyServer);
+  }
+
+  Future<void> _performLogout({required bool notifyServer}) async {
     try {
-      await AuthRepository().logout();
-    } catch (_) {
-      // Best-effort: still clear local session and go to login
+      if (notifyServer) {
+        Loader.show();
+        try {
+          await AuthRepository().logout();
+        } catch (_) {
+          // Best-effort: still clear local session and go to login
+        }
+        Loader.hide();
+      }
+      OneSignalService.logout();
+      await _prefs.clearAll();
+      if (Get.currentRoute != Routes.LOGIN) {
+        Get.offAllNamed(Routes.LOGIN);
+      }
+    } finally {
+      _logoutFuture = null;
+      _isLoggingOut = false;
     }
-    OneSignalService.logout();
-    await _prefs.clearAll();
-    Loader.hide();
-    Get.offAllNamed(Routes.LOGIN);
   }
 }

@@ -235,7 +235,7 @@ class SupportDocumentController extends GetxController {
     if (pickedFiles.isNotEmpty) {
       final filePath = pickedFiles.first.path;
 
-// get extension (.jpg, .png, .pdf etc)
+      // get extension (.jpg, .png, .pdf etc)
       final extension = path.extension(filePath);
 
       var partFile = await dio.MultipartFile.fromFile(
@@ -247,7 +247,6 @@ class SupportDocumentController extends GetxController {
     }
 
     data["document_name"] = document.value?.toLowerCase().replaceAll(' ', '_');
-    // if(otherDocumentName != null) data["other_document_name"] = otherDocumentName;
     data["document_number"] = documentCtrl.text;
     data["expiry_date"] = jobStartDate.value?.toDisplayDate('yyyy-MM-dd');
 

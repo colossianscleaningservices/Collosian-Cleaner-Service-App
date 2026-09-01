@@ -5,7 +5,7 @@ import 'package:ccs_app/export.dart';
 import '../../../widget/common/wheel_picker_time.dart';
 import 'schedule_job_controller.dart';
 
-/// Schedule job page: start date, job times, frequency, repeat day, copy cleaners.
+/// Schedule job page: start date, optional end date, job times, frequency, repeat day, copy cleaners.
 class ScheduleJobView extends GetView<ScheduleJobController> {
   const ScheduleJobView({super.key});
 
@@ -46,6 +46,31 @@ class ScheduleJobView extends GetView<ScheduleJobController> {
                   c.isEditMode.value
                       ? 'Schedule start date. Cannot be in the past.'
                       : 'When should this schedule begin? Must be tomorrow or a future date.',
+                  size: 12,
+                  color: scheme.onSurfaceVariant,
+                ).marginOnly(bottom: 16, top: 4),
+                CommonTextField(
+                  controller: c.endDateDisplayController,
+                  label: 'End date',
+                  hint: '-- / -- / ----',
+                  isReadOnly: true,
+                  onTap: () => c.pickEndDate(context),
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (c.endDate.value != null)
+                        IconButton(
+                          icon: const Icon(IconsaxPlusLinear.close_circle, size: 18),
+                          onPressed: c.clearEndDate,
+                          constraints: const BoxConstraints(),
+                          padding: const EdgeInsets.all(4),
+                        ),
+                      Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.primary).marginOnly(right: 12),
+                    ],
+                  ),
+                ),
+                CommonText.regular(
+                  'Optional. When should this schedule stop repeating?',
                   size: 12,
                   color: scheme.onSurfaceVariant,
                 ).marginOnly(bottom: 16, top: 4),

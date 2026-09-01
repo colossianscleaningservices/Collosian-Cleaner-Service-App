@@ -148,6 +148,8 @@ class User {
     this.emailVerifiedAt,
     this.createdAt,
     this.updatedAt,
+    this.issuedItems,
+    this.issuedItemsOutstandingCount,
   });
 
   User.fromJson(dynamic json) {
@@ -207,6 +209,13 @@ class User {
     emailVerifiedAt = json['email_verified_at'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    issuedItemsOutstandingCount = json['issued_items_outstanding_count'];
+    if (json['issued_items'] != null) {
+      issuedItems = [];
+      json['issued_items'].forEach((v) {
+        issuedItems?.add(IssuedItem.fromJson(v));
+      });
+    }
   }
 
   num? id;
@@ -255,6 +264,8 @@ class User {
   String? emailVerifiedAt;
   String? createdAt;
   String? updatedAt;
+  List<IssuedItem>? issuedItems;
+  num? issuedItemsOutstandingCount;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -312,6 +323,80 @@ class User {
     map['email_verified_at'] = emailVerifiedAt;
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
+    map['issued_items_outstanding_count'] = issuedItemsOutstandingCount;
+    if (issuedItems != null) {
+      map['issued_items'] = issuedItems?.map((v) => v.toJson()).toList();
+    }
+    return map;
+  }
+}
+
+class IssuedItem {
+  IssuedItem({
+    this.id,
+    this.itemType,
+    this.itemLabel,
+    this.quantity,
+    this.issuedAt,
+    this.issuedAtValue,
+    this.issuedByName,
+    this.isReturnable,
+    this.isReturned,
+    this.statusLabel,
+    this.returnedAt,
+    this.returnedToName,
+    this.conditionOnReturn,
+    this.notes,
+  });
+
+  IssuedItem.fromJson(dynamic json) {
+    id = json['id'];
+    itemType = json['item_type'];
+    itemLabel = json['item_label'];
+    quantity = json['quantity'];
+    issuedAt = json['issued_at'];
+    issuedAtValue = json['issued_at_value'];
+    issuedByName = json['issued_by_name'];
+    isReturnable = json['is_returnable'];
+    isReturned = json['is_returned'];
+    statusLabel = json['status_label'];
+    returnedAt = json['returned_at'];
+    returnedToName = json['returned_to_name'];
+    conditionOnReturn = json['condition_on_return'];
+    notes = json['notes'];
+  }
+
+  num? id;
+  String? itemType;
+  String? itemLabel;
+  num? quantity;
+  String? issuedAt;
+  String? issuedAtValue;
+  String? issuedByName;
+  bool? isReturnable;
+  bool? isReturned;
+  String? statusLabel;
+  String? returnedAt;
+  String? returnedToName;
+  String? conditionOnReturn;
+  String? notes;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['id'] = id;
+    map['item_type'] = itemType;
+    map['item_label'] = itemLabel;
+    map['quantity'] = quantity;
+    map['issued_at'] = issuedAt;
+    map['issued_at_value'] = issuedAtValue;
+    map['issued_by_name'] = issuedByName;
+    map['is_returnable'] = isReturnable;
+    map['is_returned'] = isReturned;
+    map['status_label'] = statusLabel;
+    map['returned_at'] = returnedAt;
+    map['returned_to_name'] = returnedToName;
+    map['condition_on_return'] = conditionOnReturn;
+    map['notes'] = notes;
     return map;
   }
 }

@@ -42,10 +42,12 @@ class ScheduleJobController extends GetxController {
   num? scheduleId;
 
   final startDate = Rx<DateTime>(DateTime.now());
+  final endDate = Rxn<DateTime>();
   final startTime = Rx<TimeOfDay>(const TimeOfDay(hour: 9, minute: 0));
   final endTime = Rx<TimeOfDay>(const TimeOfDay(hour: 12, minute: 0));
 
   final startDateDisplayController = TextEditingController();
+  final endDateDisplayController = TextEditingController();
   final startTimeDisplayController = TextEditingController();
   final endTimeDisplayController = TextEditingController();
 
@@ -160,11 +162,20 @@ class ScheduleJobController extends GetxController {
     endTime.value = CcsDateTimeX.parseToTimeOfDay(scheduler?.endTime ?? details?.endTime) ?? const TimeOfDay(hour: 12, minute: 0);
 
     copyCleanersFromParent.value = scheduler?.copyCleaners ?? false;
+
+    final endDateRaw = scheduler?.endDate;
+    if (endDateRaw != null && endDateRaw.trim().isNotEmpty) {
+      try {
+        final parsed = DateTime.parse(endDateRaw);
+        endDate.value = DateTime(parsed.year, parsed.month, parsed.day);
+      } catch (_) {}
+    }
   }
 
   @override
   void onClose() {
     startDateDisplayController.dispose();
+    endDateDisplayController.dispose();
     startTimeDisplayController.dispose();
     endTimeDisplayController.dispose();
     super.onClose();
@@ -172,6 +183,7 @@ class ScheduleJobController extends GetxController {
 
   void _syncDisplayControllers() {
     startDateDisplayController.text = CcsDateUtils.forInput(startDate.value);
+    endDateDisplayController.text = endDate.value != null ? CcsDateUtils.forInput(endDate.value!) : '';
     startTimeDisplayController.text = _formatTimeWithAmPm(startTime.value);
     endTimeDisplayController.text = _formatTimeWithAmPm(endTime.value);
   }
@@ -197,8 +209,33 @@ class ScheduleJobController extends GetxController {
     );
     if (d != null && context.mounted) {
       startDate.value = DateTime(d.year, d.month, d.day);
+      final selectedEnd = endDate.value;
+      if (selectedEnd != null && selectedEnd.isBefore(startDate.value)) {
+        endDate.value = null;
+      }
       _syncDisplayControllers();
     }
+  }
+
+  Future<void> pickEndDate(BuildContext context) async {
+    final minDate = startDate.value;
+    final current = endDate.value;
+    final initial = current == null || current.isBefore(minDate) ? minDate : current;
+    final d = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: minDate,
+      lastDate: DateTime(2030, 12, 31),
+    );
+    if (d != null && context.mounted) {
+      endDate.value = DateTime(d.year, d.month, d.day);
+      _syncDisplayControllers();
+    }
+  }
+
+  void clearEndDate() {
+    endDate.value = null;
+    _syncDisplayControllers();
   }
 
   bool _isEndAfterStart() {
@@ -216,6 +253,11 @@ class ScheduleJobController extends GetxController {
       Notifier.error(isEditMode.value ? 'Start date cannot be in the past.' : 'Start date must be tomorrow or a future date.');
       return;
     }
+    final selectedEnd = endDate.value;
+    if (selectedEnd != null && selectedEnd.isBefore(startDate.value)) {
+      Notifier.error('End date cannot be before start date.');
+      return;
+    }
     if (needsRepeatOnDay && repeatOnDay.value.trim().isEmpty) {
       Notifier.error('Please select a repeat day.');
       return;
@@ -224,6 +266,7 @@ class ScheduleJobController extends GetxController {
     try {
       final detailCtrl = Get.find<ClientJobDetailController>();
       final startStr = _formatApiDate(startDate.value);
+      final endStr = selectedEnd != null ? _formatApiDate(selectedEnd) : null;
       final startTimeStr = CcsDateTimeX.formatTimeOfDay(startTime.value);
       final endTimeStr = CcsDateTimeX.formatTimeOfDay(endTime.value);
       final copyCleaners = copyCleanersFromParent.value;
@@ -236,6 +279,7 @@ class ScheduleJobController extends GetxController {
         final request = UpdateScheduleJobRequest(
           frequency: apiFrequency,
           startDate: startStr,
+          endDate: endStr,
           startTime: startTimeStr,
           endTime: endTimeStr,
           repeatOnDay: needsRepeatOnDay ? repeatOnDay.value : null,
@@ -248,6 +292,7 @@ class ScheduleJobController extends GetxController {
         final request = ScheduleJobRequest(
           frequency: apiFrequency,
           startDate: startStr,
+          endDate: endStr,
           startTime: startTimeStr,
           endTime: endTimeStr,
           repeatOnDay: needsRepeatOnDay ? repeatOnDay.value : null,

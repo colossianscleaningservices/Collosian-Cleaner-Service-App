@@ -4,7 +4,8 @@ import 'package:ccs_app/app/utils/date_utils.dart';
 class UpdateScheduleJobRequest {
   UpdateScheduleJobRequest({
       this.frequency, 
-      this.startDate, 
+      this.startDate,
+      this.endDate,
       this.startTime, 
       this.endTime, 
       this.repeatOnDay, 
@@ -14,6 +15,7 @@ class UpdateScheduleJobRequest {
   UpdateScheduleJobRequest.fromJson(dynamic json) {
     frequency = json['frequency'];
     startDate = json['start_date'];
+    endDate = json['end_date'];
     startTime = json['start_time'];
     endTime = json['end_time'];
     repeatOnDay = json['repeat_on_day'];
@@ -22,6 +24,7 @@ class UpdateScheduleJobRequest {
   }
   String? frequency;
   String? startDate;
+  String? endDate;
   String? startTime;
   String? endTime;
   String? repeatOnDay;
@@ -32,6 +35,9 @@ class UpdateScheduleJobRequest {
     final map = <String, dynamic>{};
     map['frequency'] = frequency;
     map['start_date'] = startDate;
+    if (endDate != null && endDate!.trim().isNotEmpty) {
+      map['end_date'] = endDate;
+    }
     map['start_time'] = CcsDateTimeX.normalizeApiTimeShort(startTime);
     map['end_time'] = CcsDateTimeX.normalizeApiTimeShort(endTime);
     map['repeat_on_day'] = repeatOnDay;

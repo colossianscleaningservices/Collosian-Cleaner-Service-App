@@ -1,4 +1,5 @@
 
+import 'end_of_tenancy_bands_response.dart';
 import 'jobs.dart';
 
 class GetClientJobDetailsResponse {
@@ -73,7 +74,16 @@ class ClientJobDetails {
     this.createdAt,
     this.updatedAt,
     this.isEdit,
+    this.canEdit,
+    this.canCancel,
+    this.editBlockedReason,
+    this.cancelBlockedReason,
     this.scheduler,
+    this.endOfTenancyRuleId,
+    this.addOns,
+    this.customAddOns,
+    this.endOfTenancyBand,
+    this.addOnsTotal,
   });
 
   /// True when status is Scheduled (job has been given a date/time).
@@ -104,6 +114,10 @@ class ClientJobDetails {
     additionalData = json['additional_data'];
     notified = json['notified'];
     isEdit = json['is_edit'];
+    canEdit = json['can_edit'];
+    canCancel = json['can_cancel'];
+    editBlockedReason = json['edit_blocked_reason'];
+    cancelBlockedReason = json['cancel_blocked_reason'];
     scheduleId = json['schedule_id'];
     jobSchedule = json['job_schedule'];
     jobStartDate = json['job_start_date'];
@@ -131,6 +145,21 @@ class ClientJobDetails {
     updatedAt = json['updated_at'];
     scheduler = json['scheduler'] != null ? Scheduler.fromJson(json['scheduler']) : null;
     invoice = json['invoice'] != null ? Invoice.fromJson(json['invoice']) : null;
+    endOfTenancyRuleId = json['end_of_tenancy_rule_id'];
+    if (json['add_ons'] != null) {
+      addOns = [];
+      json['add_ons'].forEach((v) {
+        addOns?.add(EndOfTenancyAddOn.fromJson(v));
+      });
+    }
+    if (json['custom_add_ons'] != null) {
+      customAddOns = [];
+      json['custom_add_ons'].forEach((v) {
+        customAddOns?.add(EndOfTenancyCustomAddOn.fromJson(v));
+      });
+    }
+    endOfTenancyBand = json['end_of_tenancy_band'] != null ? EndOfTenancyBand.fromJson(json['end_of_tenancy_band']) : null;
+    addOnsTotal = json['add_ons_total'];
   }
 
   num? id;
@@ -159,6 +188,10 @@ class ClientJobDetails {
   dynamic scheduleId;
   bool? jobSchedule;
   bool? isEdit;
+  bool? canEdit;
+  bool? canCancel;
+  String? editBlockedReason;
+  String? cancelBlockedReason;
   String? jobStartDate;
   String? jobEndDate;
   String? jobType;
@@ -174,6 +207,17 @@ class ClientJobDetails {
   List<JobCleaners>? jobCleaners;
   Scheduler? scheduler;
   Invoice? invoice;
+  num? endOfTenancyRuleId;
+  List<EndOfTenancyAddOn>? addOns;
+  List<EndOfTenancyCustomAddOn>? customAddOns;
+  EndOfTenancyBand? endOfTenancyBand;
+  dynamic addOnsTotal;
+
+  bool get hasEndOfTenancyDetails {
+    if (cleaningType?.isEndOfTenancy == true) return true;
+    final name = (cleaningType?.name ?? '').toLowerCase();
+    return name.contains('end of tenancy');
+  }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -189,6 +233,10 @@ class ClientJobDetails {
     map['after'] = after;
     map['status'] = status;
     map['is_edit'] = isEdit;
+    map['can_edit'] = canEdit;
+    map['can_cancel'] = canCancel;
+    map['edit_blocked_reason'] = editBlockedReason;
+    map['cancel_blocked_reason'] = cancelBlockedReason;
     map['is_requested'] = isRequested;
     map['property_id'] = propertyId;
     map['user_id'] = userId;
@@ -226,6 +274,17 @@ class ClientJobDetails {
     if (scheduler != null) {
       map['scheduler'] = scheduler?.toJson();
     }
+    map['end_of_tenancy_rule_id'] = endOfTenancyRuleId;
+    if (addOns != null) {
+      map['add_ons'] = addOns?.map((v) => v.toJson()).toList();
+    }
+    if (customAddOns != null) {
+      map['custom_add_ons'] = customAddOns?.map((v) => v.toJson()).toList();
+    }
+    if (endOfTenancyBand != null) {
+      map['end_of_tenancy_band'] = endOfTenancyBand?.toJson();
+    }
+    map['add_ons_total'] = addOnsTotal;
     return map;
   }
 }
@@ -460,6 +519,7 @@ class CleaningType {
     this.name,
     this.description,
     this.isActive,
+    this.isEndOfTenancy,
     this.sortOrder,
     this.createdAt,
     this.updatedAt,});
@@ -469,6 +529,7 @@ class CleaningType {
     name = json['name'];
     description = json['description'];
     isActive = json['is_active'];
+    isEndOfTenancy = json['is_end_of_tenancy'];
     sortOrder = json['sort_order'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
@@ -478,6 +539,7 @@ class CleaningType {
   String? name;
   String? description;
   bool? isActive;
+  bool? isEndOfTenancy;
   num? sortOrder;
   String? createdAt;
   String? updatedAt;
@@ -488,6 +550,7 @@ class CleaningType {
     map['name'] = name;
     map['description'] = description;
     map['is_active'] = isActive;
+    map['is_end_of_tenancy'] = isEndOfTenancy;
     map['sort_order'] = sortOrder;
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;

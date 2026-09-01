@@ -16,14 +16,30 @@ class Notifier {
   static void error(String message, {String title = 'Error'}) => _show(title: title, message: message, type: ToastificationType.error);
 
   /// Shows error toast and, when [NetworkException.requiresLogout] is true (e.g. 401)
-  /// and the user is currently logged in, calls [SessionService.logout].
+  /// and the user is currently logged in, logs out and navigates to login once.
   static Future<void> apiError(Object error, {String? contextTag}) async {
     final ex = error is NetworkException ? error : NetworkException.fromDio(error);
-    _show(title: ex.displayTitle, message: ex.message, type: ToastificationType.error);
+    final session = Get.find<SessionService>();
 
-    if (ex.requiresLogout && Get.find<SessionService>().isLoggedIn) {
-      await Get.find<SessionService>().logout();
+    if (ex.requiresLogout) {
+      if (session.shouldIgnoreUnauthorized(contextTag: contextTag)) return;
+
+      if (!session.isLoggedIn) {
+        _show(title: ex.displayTitle, message: ex.message, type: ToastificationType.error);
+        if (Get.currentRoute != Routes.LOGIN) {
+          Get.offAllNamed(Routes.LOGIN);
+        }
+        return;
+      }
+
+      if (!session.beginLogout()) return;
+      toastification.dismissAll();
+      _show(title: ex.displayTitle, message: ex.message, type: ToastificationType.error);
+      await session.logout(notifyServer: false);
+      return;
     }
+
+    _show(title: ex.displayTitle, message: ex.message, type: ToastificationType.error);
   }
 
   static void openSheet(BuildContext context,

@@ -125,12 +125,16 @@ class CcsDateUtils {
     );
   }
 
-  static String parseTimeRange(String startTime, String endTime) {
-    String? timeRange;
+  static String parseTimeRange(String startTime, [String? endTime]) {
+    final start = CcsDateTimeX.convertTime(startTime);
+    final end = (endTime == null || endTime.trim().isEmpty) ? '—' : CcsDateTimeX.convertTime(endTime);
+    return '$start – $end';
+  }
 
-    timeRange = '${CcsDateTimeX.convertTime(startTime)} – ${CcsDateTimeX.convertTime(endTime)}';
-
-    return timeRange;
+  /// Job time label. Null when there is no start time; uses `—` when end time is missing.
+  static String? formatJobTimeRange(String? startTime, String? endTime) {
+    if (startTime == null || startTime.trim().isEmpty) return null;
+    return parseTimeRange(startTime, endTime);
   }
 }
 

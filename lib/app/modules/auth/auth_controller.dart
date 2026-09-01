@@ -89,22 +89,6 @@ class AuthController extends GetxController {
       }
     }
 
-/*    _loadAgencies(isFromInit: true);
-
-    searchController.addListener(() {
-      if (searchController.text.trim().length > 2) {
-        if (searchController.text.isNotEmpty) {
-          if (prevSearch == searchController.text.trim()) return;
-        }
-        _loadAgencies(isFromSearch: true);
-      } else if (searchController.text.isEmpty) {
-        if (mainAgencyList.isNotEmpty) {
-          agencyList.clear();
-          agencyList.addAll(mainAgencyList);
-        }
-      }
-    });*/
-
     super.onInit();
   }
 
@@ -711,37 +695,6 @@ class AuthController extends GetxController {
       await Notifier.apiError(e, contextTag: 'send_OTP');
     } finally {
       Loader.hide();
-    }
-  }
-
-  Future<void> _loadAgencies({bool isFromSearch = false, bool isFromInit = false}) async {
-    isLoadingAgency.value = true;
-    try {
-      final result = await _authRepository.getAgencies(search: searchController.text);
-      result.handle(
-        success: (response) {
-          final raw = response.data;
-          agencyList.clear();
-          if (!isFromSearch) {
-            mainAgencyList.clear();
-          } else {
-            prevSearch = searchController.text.trim();
-          }
-          if (raw != null && raw.isNotEmpty) {
-            agencyList.assignAll(raw);
-            if (!isFromSearch) {
-              mainAgencyList.assignAll(agencyList);
-            }
-          }
-
-          if (searchController.text.isEmpty) {
-            agencyList.clear();
-            agencyList.addAll(mainAgencyList);
-          }
-        },
-      );
-    } finally {
-      isLoadingAgency.value = false;
     }
   }
 }

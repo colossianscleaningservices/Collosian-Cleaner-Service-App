@@ -34,9 +34,6 @@ class CleanerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusLabel = cleaner.status.capitalizeFirst ?? cleaner.status;
-    final hasCheckIn = checkInText != null && (checkInText?.trim().isNotEmpty == true);
-    final hasCheckOut = checkOutText != null && (checkOutText?.trim().isNotEmpty == true);
-    final hasAttendance = hasCheckIn || hasCheckOut;
 
     return AppCard(
       onTap: onTap,
@@ -143,47 +140,6 @@ class _StatusChip extends StatelessWidget {
         size: 11,
         color: getFgColor(label, scheme),
       ).paddingSymmetric(horizontal: 10, vertical: 4),
-    );
-  }
-}
-
-class _AttendanceCell extends StatelessWidget {
-  const _AttendanceCell({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.scheme,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 16, color: scheme.primary),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CommonText.regular(label, size: 11, color: scheme.onSurfaceVariant),
-              const SizedBox(height: 2),
-              CommonText.medium(
-                value,
-                size: 12,
-                color: scheme.onSurface,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

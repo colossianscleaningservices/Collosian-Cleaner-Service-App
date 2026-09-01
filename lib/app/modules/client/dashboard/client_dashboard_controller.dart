@@ -354,10 +354,7 @@ class ClientDashboardController extends GetxController with GetSingleTickerProvi
           final newMap = <DateTime, List<CalendarEvent>>{};
           for (final item in list) {
             final dateKey = _parseCalendarDate(item.date);
-            String? timeRange;
-            if (item.startTime != null && item.endTime != null) {
-              timeRange = '${CcsDateTimeX.convertTime(item.startTime ?? '')} – ${CcsDateTimeX.convertTime(item.endTime ?? '')}';
-            }
+            String? timeRange = CcsDateUtils.formatJobTimeRange(item.startTime, item.endTime);
             if (dateKey == null) continue;
             final event = CalendarEvent(
               title: item.cleaningType?.name ?? "",

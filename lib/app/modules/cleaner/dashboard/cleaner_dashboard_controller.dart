@@ -19,6 +19,7 @@ import '../../../network/repository/cleaner_repository.dart';
 import '../../../network/repository/common_repository.dart';
 import '../../../network/response/get_availability_response.dart' as avail_resp;
 import '../../../network/response/jobs.dart';
+import '../../../network/response/profile_response.dart';
 import '../../../network/response/staff_dashboard_response.dart';
 import '../../../services/session_service.dart';
 import 'view/cleaner_availability_view.dart';
@@ -103,6 +104,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
   var userDisplayName = ''.obs;
   var userDisplayImage = ''.obs;
+  final issuedItems = <IssuedItem>[].obs;
+  final issuedItemsOutstandingCount = 0.obs;
 
   /// From API (profile-completion, action-needed). Updated when dashboard loads.
   final actionNeededCount = 0.obs;
@@ -180,9 +183,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
     filter.clear();
     filter.add(CommonModel(type: "All Jobs", isSelected: true));
-    filter.add(CommonModel(type: "Finished"));
-    filter.add(CommonModel(type: "Approved"));
     filter.add(CommonModel(type: "Pending"));
+    filter.add(CommonModel(type: "Approved"));
+    filter.add(CommonModel(type: "Finished"));
+    filter.add(CommonModel(type: "Cancelled"));
 
     userDisplayName.value = Get.find<SessionService>().userDisplayName;
     userDisplayImage.value = Get.find<SessionService>().userDisplayImage;
@@ -224,11 +228,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     return currentScroll >= (maxScroll * 0.9);
   }
 
-  int get _activeCalendarPage =>
-      calendarJobMode.value == CalendarJobMode.available ? availableCalendarPage : assignedCalendarPage;
+  int get _activeCalendarPage => calendarJobMode.value == CalendarJobMode.available ? availableCalendarPage : assignedCalendarPage;
 
-  int get _activeCalendarTotalPages =>
-      calendarJobMode.value == CalendarJobMode.available ? availableCalendarTotalPages : assignedCalendarTotalPages;
+  int get _activeCalendarTotalPages => calendarJobMode.value == CalendarJobMode.available ? availableCalendarTotalPages : assignedCalendarTotalPages;
 
   void _resetActiveCalendarPage() {
     if (calendarJobMode.value == CalendarJobMode.available) {
@@ -607,6 +609,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     );
   }
 
+  Rx<num> totalJobs = 0.obs;
+
   Future<void> fetchJobs({bool isLoaderShown = true, String filter = ''}) async {
     if (!isJobMoreLoading.value && isLoaderShown) Loader.show();
     try {
@@ -622,6 +626,8 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           if (jobCurrentPage <= jobTotalPage) {
             jobCurrentPage++;
           }
+
+          totalJobs.value = raw?.pagination?.total ?? 0;
         },
       );
     } finally {
@@ -646,9 +652,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     _calendarFetchInFlight = true;
 
     final targetDate = forDate ?? focusedDay.value;
-    final singleDayKey = singleDay
-        ? DateTime(targetDate.year, targetDate.month, targetDate.day)
-        : null;
+    final singleDayKey = singleDay ? DateTime(targetDate.year, targetDate.month, targetDate.day) : null;
 
     if (!singleDay) {
       isSingleDayCalendarMode.value = false;
@@ -687,9 +691,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       final status = selectedStatus.value == "All" ? null : selectedStatus.value;
       final propertyName = propertyController.text.isEmpty ? null : propertyController.text;
       final isAvailable = calendarJobMode.value == CalendarJobMode.available;
-      final page = singleDay
-          ? (loadMore ? _activeCalendarPage : 1)
-          : _activeCalendarPage;
+      final page = singleDay ? (loadMore ? _activeCalendarPage : 1) : _activeCalendarPage;
       final type = isAvailable ? 'unassigned' : 'assigned';
 
       final result = await _cleanerRepository.getCleanerCalender(
@@ -835,10 +837,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       if (item.id != null && seenIds.contains(item.id)) continue;
       if (item.id != null) seenIds.add(item.id!);
 
-      String? timeRange;
-      if (item.startTime != null && item.endTime != null) {
-        timeRange = '${CcsDateTimeX.convertTime(item.startTime ?? '')} – ${CcsDateTimeX.convertTime(item.endTime ?? '')}';
-      }
+      String? timeRange = CcsDateUtils.formatJobTimeRange(item.startTime, item.endTime);
       final title = item.cleaningType?.name;
       final resolvedTitle = (title != null && title.isNotEmpty && num.tryParse(title) == null) ? title : (item.jobType ?? 'Job');
       map.putIfAbsent(dateKey, () => []).add(
@@ -1081,6 +1080,9 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
           final admins = value.data?.admins;
 
           final appSetting = value.data?.appSettings;
+
+          issuedItems.assignAll(value.data?.user?.issuedItems ?? []);
+          issuedItemsOutstandingCount.value = value.data?.user?.issuedItemsOutstandingCount?.toInt() ?? 0;
 
           if (admins?.isNotEmpty == true) {
             for (final admin in admins!) {

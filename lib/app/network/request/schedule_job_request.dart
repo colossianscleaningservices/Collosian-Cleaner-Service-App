@@ -4,6 +4,7 @@ class ScheduleJobRequest {
   ScheduleJobRequest({
     this.frequency,
     this.startDate,
+    this.endDate,
     this.startTime,
     this.endTime,
     this.repeatOnDay,
@@ -14,6 +15,7 @@ class ScheduleJobRequest {
   ScheduleJobRequest.fromJson(dynamic json) {
     frequency = json['frequency'];
     startDate = json['start_date'];
+    endDate = json['end_date'];
     startTime = json['start_time'];
     endTime = json['end_time'];
     repeatOnDay = json['repeat_on_day'];
@@ -28,6 +30,7 @@ class ScheduleJobRequest {
 
   String? frequency;
   String? startDate;
+  String? endDate;
   String? startTime;
   String? endTime;
   String? repeatOnDay;
@@ -38,6 +41,9 @@ class ScheduleJobRequest {
     final map = <String, dynamic>{};
     map['frequency'] = frequency;
     map['start_date'] = startDate;
+    if (endDate != null && endDate!.trim().isNotEmpty) {
+      map['end_date'] = endDate;
+    }
     map['start_time'] = CcsDateTimeX.normalizeApiTime(startTime);
     map['end_time'] = CcsDateTimeX.normalizeApiTime(endTime);
     if (repeatOnDay != null) {

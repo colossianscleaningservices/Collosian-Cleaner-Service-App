@@ -1,6 +1,5 @@
 class CreateJobRequest {
   CreateJobRequest({
-    // this.jobTitle,
     this.propertyId,
     this.date,
     this.startTime,
@@ -15,10 +14,12 @@ class CreateJobRequest {
     this.hoover,
     this.staffPreference,
     this.additionalDetails,
+    this.endOfTenancyRuleId,
+    this.customAddOns,
+    this.omitEndTime = false,
   });
 
   CreateJobRequest.fromJson(dynamic json) {
-    // jobTitle = json['job_title'];
     propertyId = json['property_id'];
     date = json['date'];
     startTime = json['start_time'];
@@ -33,9 +34,16 @@ class CreateJobRequest {
     hoover = json['hoover'];
     staffPreference = json['staff_preference'];
     additionalDetails = json['additional_details'];
+    endOfTenancyRuleId = json['end_of_tenancy_rule_id'];
+    omitEndTime = json['end_time'] == null && json['end_of_tenancy_rule_id'] != null;
+    if (json['custom_add_ons'] != null) {
+      customAddOns = [];
+      json['custom_add_ons'].forEach((v) {
+        customAddOns?.add(JobCustomAddOnRequest.fromJson(v));
+      });
+    }
   }
 
-  // String? jobTitle;
   num? propertyId;
   String? date;
   String? startTime;
@@ -50,14 +58,18 @@ class CreateJobRequest {
   String? hoover;
   String? staffPreference;
   String? additionalDetails;
+  num? endOfTenancyRuleId;
+  List<JobCustomAddOnRequest>? customAddOns;
+  bool omitEndTime = false;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    // map['job_title'] = jobTitle;
     map['property_id'] = propertyId;
     map['date'] = date;
     map['start_time'] = startTime;
-    map['end_time'] = endTime;
+    if (!omitEndTime) {
+      map['end_time'] = endTime;
+    }
     map['job_type'] = jobType;
     map['number_of_cleaners'] = numberOfCleaners;
     map['cleaning_type'] = cleaningType;
@@ -68,6 +80,36 @@ class CreateJobRequest {
     map['hoover'] = hoover;
     map['staff_preference'] = staffPreference;
     map['additional_details'] = additionalDetails;
+    if (endOfTenancyRuleId != null) {
+      map['end_of_tenancy_rule_id'] = endOfTenancyRuleId;
+    }
+    if (customAddOns != null) {
+      map['custom_add_ons'] = customAddOns?.map((v) => v.toJson()).toList();
+    }
+    return map;
+  }
+}
+
+class JobCustomAddOnRequest {
+  JobCustomAddOnRequest({
+    this.label,
+    this.note,
+  });
+
+  JobCustomAddOnRequest.fromJson(dynamic json) {
+    label = json['label'];
+    note = json['note'];
+  }
+
+  String? label;
+  String? note;
+
+  Map<String, dynamic> toJson() {
+    final map = <String, dynamic>{};
+    map['label'] = label;
+    if (note != null && note!.trim().isNotEmpty) {
+      map['note'] = note;
+    }
     return map;
   }
 }

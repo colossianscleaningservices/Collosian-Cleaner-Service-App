@@ -7,6 +7,7 @@ import 'package:ccs_app/export.dart';
 import 'package:flutter_html/flutter_html.dart';
 
 import 'create_job_controller.dart';
+import '../../../network/response/end_of_tenancy_bands_response.dart';
 
 /// "Create a Cleaning Job" form. Opened from Client Jobs tab.
 class CreateJobView extends GetView<CreateJobController> {
@@ -18,6 +19,7 @@ class CreateJobView extends GetView<CreateJobController> {
 
     return Obx(() {
       controller.endTime.value;
+      controller.isEndOfTenancy.value;
       return AppScaffold(
         appBar: Header(
           title: '${controller.isEdit ? "Update" : "Create"} a Cleaning Job',
@@ -54,12 +56,7 @@ class CreateJobView extends GetView<CreateJobController> {
                                   items: controller.properties.map((item) => item.propertyName ?? "").toList(),
                                   itemLabel: (v) => v,
                                   value: controller.selectedProperty.value,
-                                  onChanged: (v) {
-                                    controller.selectedProperty.value = v;
-                                    var property = controller.properties
-                                        .firstWhereOrNull((item) => item.propertyName?.toLowerCase() == controller.selectedProperty.value?.toLowerCase());
-                                    controller.applyPropertyDefaults(property);
-                                  },
+                                  onChanged: (v) => controller.onPropertySelected(v),
                                   validator: (v) => controller.validateProperty(v),
                                 ),
                               )),
@@ -100,10 +97,11 @@ class CreateJobView extends GetView<CreateJobController> {
                             Expanded(
                               child: CommonTextField(
                                 controller: controller.endTimeDisplayController,
-                                label: 'End Time',
+                                label: controller.isEndOfTenancy.value ? 'End Time (optional)' : 'End Time',
                                 hint: '--:--',
                                 isReadOnly: true,
                                 onTap: () => wheelTimePicker(context, controller, isStart: false),
+                                validator: controller.validateEndTime,
                                 suffixIcon: Icon(IconsaxPlusLinear.clock, size: 20, color: scheme.primary),
                               ),
                             ),
@@ -169,17 +167,7 @@ class CreateJobView extends GetView<CreateJobController> {
                                             borderWidth: item.isSelect ? 1.5 : 0,
                                             borderColor: item.isSelect ? scheme.secondary : Colors.transparent,
                                             onTap: () {
-                                              controller.cleaningTypeCtrl.text = item.name ?? "";
-                                              for (var cl in controller.cleaningTypeList) {
-                                                cl.isSelect = false;
-                                              }
-                                              for (var cl in controller.mainCleaningTypeList) {
-                                                cl.isSelect = false;
-                                              }
-                                              controller.mainCleaningTypeList.firstWhereOrNull((element) => element.name == item.name)?.isSelect =
-                                                  true;
-                                              item.isSelect = true;
-                                              controller.cleaningTypeList.refresh();
+                                              controller.selectCleaningType(item);
                                               Get.back();
                                             },
                                             child: Column(
@@ -219,6 +207,7 @@ class CreateJobView extends GetView<CreateJobController> {
                           },
                           validator: (v) => controller.validateRequired(v, 'Cleaning Type'),
                         ),
+                        if (controller.isEndOfTenancy.value) _EndOfTenancyOptions(controller: controller, scheme: scheme),
                       ],
                     ).paddingSymmetric(horizontal: 18, vertical: 16),
                   ),
@@ -295,10 +284,187 @@ class CreateJobView extends GetView<CreateJobController> {
         ),
         bottomNavigationBar: SingleActionBottomBar(
           label: controller.isEdit ? "Update" : "Create",
-          onPressed : () => controller.submit(context),
+          onPressed: () => controller.submit(context),
         ),
       );
     });
+  }
+}
+
+class _EndOfTenancyOptions extends StatelessWidget {
+  const _EndOfTenancyOptions({required this.controller, required this.scheme});
+
+  final CreateJobController controller;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      controller.selectedBand.value;
+      controller.customExtras.length;
+      controller.selectedAddOnIds.length;
+      final band = controller.selectedBand.value;
+      final listedAddOns = band?.addOns ?? [];
+      final sizeLabel = band?.name ?? 'this property size';
+
+      return SizedBox(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CommonText.semiBold('End of Tenancy options', size: 16, color: scheme.onSurface),
+            const SizedBox(height: 6),
+            CommonText.regular(
+              'Choose the size that matches your property and add anything extra you need. Your final price is confirmed on your invoice.',
+              size: 13,
+              color: scheme.onSurfaceVariant,
+            ),
+            const SizedBox(height: 16),
+            if (controller.isLoadingEotBands.value)
+              const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 12), child: CircularProgressIndicator()))
+            else if (controller.selectedPropertyModel == null)
+              CommonText.regular(
+                'Select a property to load End of Tenancy options.',
+                size: 13,
+                color: scheme.onSurfaceVariant,
+              )
+            else ...[
+              CommonDropDownField<EndOfTenancyBand>(
+                label: 'Property size',
+                hint: 'Select property size',
+                items: controller.eotBands.toList(),
+                itemLabel: (v) => v.displayLabel,
+                value: band,
+                onChanged: controller.onBandChanged,
+                validator: controller.validateEotBand,
+              ),
+              if (controller.wasBandMatchedFromProperty.value) ...[
+                const SizedBox(height: 6),
+                CommonText.regular(
+                  'Matched from your property details. You can change it if it is not right.',
+                  size: 12,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ],
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(child: CommonText.semiBold('Optional extras', size: 15, color: scheme.onSurface)),
+                  AppCard(
+                    color: scheme.primary,
+                    enableShadows: false,
+                    onTap: () => controller.addCustomExtra(),
+                    child: Row(
+                      children: [
+                        Icon(IconsaxPlusLinear.add, size: 16, color: scheme.onPrimary),
+                        CommonText.medium('Add extra', size: 13, color: scheme.onPrimary)
+                      ],
+                    ).paddingSymmetric(horizontal: 12, vertical: 8),
+                  )
+                ],
+              ),
+              const SizedBox(height: 4),
+              CommonText.regular(
+                "Not listed for a $sizeLabel? Use 'Add extra' and we will confirm the price before you are charged.",
+                size: 12,
+                color: scheme.onSurfaceVariant,
+              ),
+              if (listedAddOns.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                ...listedAddOns.map(
+                  (addon) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: AppCheckBox(
+                      title: addon.displayName,
+                      value: controller.isListedAddOnSelected(addon.id),
+                      onChange: (_) {
+                        controller.toggleListedAddOn(addon.id);
+                        return true;
+                      },
+                    ),
+                  ),
+                ),
+              ] else if (controller.customExtras.isEmpty) ...[
+                const SizedBox(height: 8),
+                CommonText.regular(
+                  "No optional extras for this property size — use 'Add extra' to ask for something.",
+                  size: 12,
+                  color: scheme.onSurfaceVariant,
+                ),
+              ],
+              if (controller.customExtras.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                ...controller.customExtras.map((extra) => _CustomExtraCard(
+                      key: ObjectKey(extra),
+                      controller: controller,
+                      extra: extra,
+                      scheme: scheme,
+                    )),
+              ],
+            ],
+          ],
+        ),
+      );
+    });
+  }
+}
+
+class _CustomExtraCard extends StatelessWidget {
+  const _CustomExtraCard({
+    required this.controller,
+    required this.extra,
+    required this.scheme,
+    super.key,
+  });
+
+  final CreateJobController controller;
+  final EotCustomExtraEntry extra;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: CommonTextField(
+                  controller: extra.labelController,
+                  label: 'Label',
+                  hint: 'e.g. clean the garage',
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Label is required';
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(top: 22),
+                child: IconButton(
+                  tooltip: 'Delete extra',
+                  onPressed: () => controller.removeCustomExtra(extra),
+                  icon: Icon(IconsaxPlusLinear.trash, size: 22, color: scheme.error),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          CommonTextField(
+            controller: extra.noteController,
+            label: 'Description (optional)',
+            hint: 'Anything we should know?',
+            maxLines: 3,
+            minLines: 2,
+          ),
+        ],
+      ),
+    );
   }
 }
 

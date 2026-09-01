@@ -41,6 +41,7 @@ class CleaningTypeModel {
     this.name,
     this.description,
     this.isActive,
+    this.isEndOfTenancy,
     this.sortOrder,
     this.createdAt,
     this.isSelect = false,
@@ -52,6 +53,7 @@ class CleaningTypeModel {
     name = json['name'];
     description = json['description'];
     isActive = json['is_active'];
+    isEndOfTenancy = json['is_end_of_tenancy'];
     sortOrder = json['sort_order'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
@@ -61,10 +63,16 @@ class CleaningTypeModel {
   String? name;
   String? description;
   bool? isActive;
+  bool? isEndOfTenancy;
   num? sortOrder;
   String? createdAt;
   String? updatedAt;
   bool isSelect = false;
+
+  bool get isEndOfTenancyType {
+    if (isEndOfTenancy == true) return true;
+    return (name ?? '').toLowerCase().contains('end of tenancy');
+  }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -72,6 +80,7 @@ class CleaningTypeModel {
     map['name'] = name;
     map['description'] = description;
     map['is_active'] = isActive;
+    map['is_end_of_tenancy'] = isEndOfTenancy;
     map['sort_order'] = sortOrder;
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;

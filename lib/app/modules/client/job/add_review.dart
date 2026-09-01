@@ -47,14 +47,14 @@ class AddReview extends GetView<ClientJobDetailController> {
                         Flexible(
                           child: ListTile(
                             title: CommonText.regular('Yes'),
-                            leading: Radio<UserOptions>(value: UserOptions.yes, groupValue: controller.arrive.value, onChanged: (v) => controller.arrive.value = v),
+                            leading: Radio<UserOptions>(value: UserOptions.yes),
                             contentPadding: EdgeInsets.zero,
                           ),
                         ),
                         Flexible(
                           child: ListTile(
                             title: CommonText.regular('No'),
-                            leading: Radio<UserOptions>(value: UserOptions.no, groupValue: controller.arrive.value, onChanged: (v) => controller.arrive.value = v),
+                            leading: Radio<UserOptions>(value: UserOptions.no),
                             contentPadding: EdgeInsets.zero,
                           ),
                         ),
@@ -74,14 +74,14 @@ class AddReview extends GetView<ClientJobDetailController> {
                         Flexible(
                           child: ListTile(
                             title: CommonText.regular('Yes'),
-                            leading: Radio<UserOptions>(value: UserOptions.yes, groupValue: controller.uniform.value, onChanged: (v) => controller.uniform.value = v),
+                            leading: Radio<UserOptions>(value: UserOptions.yes),
                             contentPadding: EdgeInsets.zero,
                           ),
                         ),
                         Flexible(
                           child: ListTile(
                             title: CommonText.regular('No'),
-                            leading: Radio<UserOptions>(value: UserOptions.no, groupValue: controller.uniform.value, onChanged: (v) => controller.uniform.value = v),
+                            leading: Radio<UserOptions>(value: UserOptions.no),
                             contentPadding: EdgeInsets.zero,
                           ),
                         ),
@@ -101,14 +101,14 @@ class AddReview extends GetView<ClientJobDetailController> {
                         Flexible(
                           child: ListTile(
                             title: CommonText.regular('Yes'),
-                            leading: Radio<UserOptions>(value: UserOptions.yes, groupValue: controller.completedJob.value, onChanged: (v) => controller.completedJob.value = v),
+                            leading: Radio<UserOptions>(value: UserOptions.yes),
                             contentPadding: EdgeInsets.zero,
                           ),
                         ),
                         Flexible(
                           child: ListTile(
                             title: CommonText.regular('No'),
-                            leading: Radio<UserOptions>(value: UserOptions.no, groupValue: controller.completedJob.value, onChanged: (v) => controller.completedJob.value = v),
+                            leading: Radio<UserOptions>(value: UserOptions.no),
                             contentPadding: EdgeInsets.zero,
                           ),
                         ),
@@ -128,14 +128,14 @@ class AddReview extends GetView<ClientJobDetailController> {
                         Flexible(
                           child: ListTile(
                             title: CommonText.regular('Yes'),
-                            leading: Radio<UserOptions>(value: UserOptions.yes, groupValue: controller.requestAgain.value, onChanged: (v) => controller.requestAgain.value = v),
+                            leading: Radio<UserOptions>(value: UserOptions.yes),
                             contentPadding: EdgeInsets.zero,
                           ),
                         ),
                         Flexible(
                           child: ListTile(
                             title: CommonText.regular('No'),
-                            leading: Radio<UserOptions>(value: UserOptions.no, groupValue: controller.requestAgain.value, onChanged: (v) => controller.requestAgain.value = v),
+                            leading: Radio<UserOptions>(value: UserOptions.no),
                             contentPadding: EdgeInsets.zero,
                           ),
                         ),
