@@ -76,8 +76,7 @@ class ApiHandler {
     }
   }
 
-  NetworkResult<T> handleDioException<T>({dynamic error}) =>
-      NetworkResult.error(_getDioException(error: error));
+  NetworkResult<T> handleDioException<T>({dynamic error}) => NetworkResult.error(_getDioException(error: error));
 
   NetworkException _handleResponse<T>({Response<T>? response}) {
     final dynamic errorJson = response?.data;
@@ -212,10 +211,7 @@ class ApiHandler {
                   )
                 : NoInternetConnectionException(
                     errorMessage: exceptionMessages.noInternetConnection,
-                  ),
-            DioExceptionType.transformTimeout => SendTimeoutException(
-                errorMessage: exceptionMessages.sendTimeout,
-              ),
+                  )
           };
           return networkException;
         }

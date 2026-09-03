@@ -1,6 +1,5 @@
 import 'package:ccs_app/app/modules/client/dashboard/client_dashboard_controller.dart';
 import 'package:ccs_app/app/network/response/property_list_response.dart';
-import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 import 'package:linear_progress_bar/linear_progress_bar.dart';
 import 'package:step_progress/step_progress.dart';

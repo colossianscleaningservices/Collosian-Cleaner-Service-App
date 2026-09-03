@@ -33,6 +33,7 @@ class SignupView extends GetView<AuthController> {
                         return _buildSignupForm(context, role);
                       }),
                     ),
+                    SizedBox(height: AppSpacing.lg,),
                   ],
                 ),
               ),
@@ -156,78 +157,6 @@ class SignupView extends GetView<AuthController> {
               value: controller.isStudent.value,
               onChange: (v) => controller.isStudent.value = v,
             ),
-           /* const SizedBox(height: UiConstants.gap),
-            CommonTextField(
-              controller: controller.agencyController,
-              label: 'Agency',
-              isReadOnly: true,
-              hint: 'Select Agency',
-              keyboardType: TextInputType.text,
-              onTap: () {
-                Notifier.openSheet(
-                  context,
-                  top: true,
-                  showPrimaryButton: false,
-                  showSecondaryButton: false,
-                  showIcon: false,
-                  body: Expanded(
-                    child: Column(
-                      children: [
-                        _SearchSection(controller: controller, scheme: scheme).marginOnly(bottom: 8),
-                        Obx(() {
-                          return controller.isLoadingAgency.value
-                              ? Center(child: CircularProgressIndicator())
-                              : controller.agencyList.isEmpty
-                              ? Flexible(
-                            child: Center(
-                              child: NoDataView(
-                                title: 'No Agencies Found',
-                              ),
-                            ),
-                          )
-                              : Flexible(
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: controller.agencyList.length,
-                              itemBuilder: (context, index) {
-                                final item = controller.agencyList[index];
-                                return AppCard(
-                                  color: item.isSelect ? scheme.secondaryContainer : scheme.onPrimary,
-                                  borderWidth: item.isSelect ? 1.5 : 0,
-                                  borderColor: item.isSelect ? scheme.secondary : Colors.transparent,
-                                  onTap: () {
-                                    controller.agencyController.text = item.name ?? "";
-                                    for (var cl in controller.agencyList) {
-                                      cl.isSelect = false;
-                                    }
-                                    for (var cl in controller.mainAgencyList) {
-                                      cl.isSelect = false;
-                                    }
-                                    controller.mainAgencyList.firstWhereOrNull((element) => element.name == item.name)?.isSelect =
-                                    true;
-                                    item.isSelect = true;
-                                    controller.agencyList.refresh();
-                                    Get.back();
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      CommonText.semiBold('Owner Name : ${item.owner?.name ?? ""}' ).marginOnly(bottom: 4),
-                                      CommonText.regular('Agency : ${item.name ?? ""}' ),
-                                    ],
-                                  ).paddingAll(16),
-                                ).marginAll(8);
-                              },
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                );
-              },
-              validator: (v) => controller.validateRequired(v, 'Agency'),
-            ),*/
           ],
           const SizedBox(height: 32),
           AppButton(
@@ -243,7 +172,7 @@ class SignupView extends GetView<AuthController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CommonText.regular('Already have an account? ', color: scheme.onSurfaceVariant),
-              CommonText.regular('Sign in', color: scheme.primary, onTap: () => Get.until((route) => Get.currentRoute == Routes.LOGIN)),
+              CommonText.semiBold('Sign in', color: scheme.primary, onTap: () => Get.until((route) => Get.currentRoute == Routes.LOGIN)),
             ],
           ),
         ],
@@ -251,4 +180,3 @@ class SignupView extends GetView<AuthController> {
     );
   }
 }
-

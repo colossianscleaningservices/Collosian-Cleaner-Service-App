@@ -82,17 +82,32 @@ class LoginView extends GetView<AuthController> {
                                 }
                               },
                             ),
-                            const SizedBox(height: 32),
-                            // Sign up row
+                            const SizedBox(height: 20),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                CommonText.regular("Don't have an account? ", color: scheme.onSurfaceVariant),
-                                CommonText.regular('Sign up', color: scheme.primary, onTap: () {
-                                  FocusScope.of(context).unfocus();
-                                  controller.goToRoleSelection(context);
-                                }),
+                                Expanded(child: Divider(color: scheme.outlineVariant)),
+                                SizedBox(
+                                  width: AppSpacing.sm,
+                                ),
+                                CommonText.medium(
+                                  "Or",
+                                  textAlign: TextAlign.center,
+                                  size: 15,
+                                ),
+                                SizedBox(
+                                  width: AppSpacing.sm,
+                                ),
+                                Expanded(child: Divider(color: scheme.outlineVariant)),
                               ],
+                            ),
+                            const SizedBox(height: 18),
+                            AppButton(
+                              label: 'Sign up',
+                              type: ButtonType.tonal,
+                              onPressed: () {
+                                FocusScope.of(context).unfocus();
+                                controller.goToRoleSelection(context);
+                              },
                             ),
                           ],
                         ).paddingSymmetric(horizontal: 24, vertical: 18),
