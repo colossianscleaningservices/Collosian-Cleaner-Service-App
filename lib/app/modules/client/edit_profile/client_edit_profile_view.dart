@@ -135,9 +135,8 @@ class ClientEditProfileView extends GetView<ClientEditProfileController> {
                   controller: controller.phoneCtrl,
                   label: 'Phone Number',
                   hint: 'Enter your phone number',
-                  maxLength: 10,
                   keyboardType: TextInputType.phone,
-                  validator: (v) => Validator.minLength(v, 10, fieldName: 'Phone'),
+                  validator: (v) => Validator.requiredField(v, fieldName: 'Phone'),
                 ),
                 CommonTextField(
                   controller: controller.emailCtrl,

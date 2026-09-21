@@ -187,7 +187,7 @@ class _DocumentTile extends StatelessWidget {
               const SizedBox(height: 8),
               _InfoRow(
                 label: 'Expiry',
-                value: expiry ?? '-',
+                value: _formatExpiry(expiry),
                 scheme: scheme,
                 trailing: expiryStatus != null
                     ? _ExpiryChip(status: expiryStatus, scheme: scheme)
@@ -198,6 +198,15 @@ class _DocumentTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatExpiry(String? expiry) {
+    if (expiry == null || expiry.trim().isEmpty) return '-';
+    try {
+      return CcsDateUtils.forInput(DateTime.parse(expiry));
+    } catch (_) {
+      return expiry;
+    }
   }
 
   String? _expiryStatus(String? expiry) {

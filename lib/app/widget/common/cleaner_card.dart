@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/model/client_job.dart';
+import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 
 /// Job detail cleaner row: avatar, name, status chip, check-in/out, and actions.
@@ -14,6 +15,7 @@ class CleanerCard extends StatelessWidget {
     this.showActions = true,
     this.checkInText,
     this.checkOutText,
+    this.footer,
   });
 
   final ClientJobCleaner cleaner;
@@ -25,10 +27,17 @@ class CleanerCard extends StatelessWidget {
   final bool showActions;
   final String? checkInText;
   final String? checkOutText;
+  final Widget? footer;
 
   bool get _isCompleted {
     final s = cleaner.status.toLowerCase();
     return s.contains('complete') || s.contains('finished') || s.contains('done');
+  }
+
+  bool get _showCleanerTypeBadge {
+    if (cleaner.cleanerTypeBadge == null) return false;
+    final roleId = int.tryParse(Prefs().getData(Prefs.roleId));
+    return RoleConstants.isCleaner(roleId);
   }
 
   @override
@@ -61,7 +70,19 @@ class CleanerCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 6),
-                    _StatusChip(label: statusLabel, scheme: scheme),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        _StatusChip(label: statusLabel, scheme: scheme),
+                        if (_showCleanerTypeBadge)
+                          _TypeBadge(
+                            label: cleaner.cleanerTypeBadge!,
+                            emphasize: cleaner.isTeamLeader,
+                            scheme: scheme,
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -104,6 +125,10 @@ class CleanerCard extends StatelessWidget {
               ),
             ),
           ],*/
+          if (footer != null) ...[
+            const SizedBox(height: 12),
+            footer!,
+          ],
           if (showActions && _isCompleted && isReview) ...[
             const SizedBox(height: 12),
             Align(
@@ -139,6 +164,35 @@ class _StatusChip extends StatelessWidget {
         label,
         size: 11,
         color: getFgColor(label, scheme),
+      ).paddingSymmetric(horizontal: 10, vertical: 4),
+    );
+  }
+}
+
+class _TypeBadge extends StatelessWidget {
+  const _TypeBadge({
+    required this.label,
+    required this.scheme,
+    this.emphasize = false,
+  });
+
+  final String label;
+  final ColorScheme scheme;
+  final bool emphasize;
+
+  @override
+  Widget build(BuildContext context) {
+    final bg = emphasize ? scheme.tertiaryContainer : scheme.primaryContainer.withValues(alpha: 0.7);
+    final fg = emphasize ? scheme.onTertiaryContainer : scheme.primary;
+    return Container(
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(UiConstants.radiusSmall),
+      ),
+      child: CommonText.semiBold(
+        label,
+        size: 11,
+        color: fg,
       ).paddingSymmetric(horizontal: 10, vertical: 4),
     );
   }

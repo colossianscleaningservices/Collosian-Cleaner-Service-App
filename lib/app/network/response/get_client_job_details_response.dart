@@ -459,7 +459,10 @@ class JobCleaners {
     this.checkOutTime,
     this.checkOutDate,
     this.createdAt,
-    this.updatedAt,});
+    this.updatedAt,
+    this.cleanerType,
+    this.cleanerTypeLabel,
+  });
 
   JobCleaners.fromJson(dynamic json) {
     id = json['id'];
@@ -476,6 +479,8 @@ class JobCleaners {
     checkOutDate = json['check_out_date'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    cleanerType = json['cleaner_type'];
+    cleanerTypeLabel = json['cleaner_type_label'];
   }
   num? id;
   String? status;
@@ -491,6 +496,8 @@ class JobCleaners {
   String? checkOutTime;
   String? createdAt;
   String? updatedAt;
+  String? cleanerType;
+  String? cleanerTypeLabel;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -508,6 +515,8 @@ class JobCleaners {
     map['check_out_date'] = checkOutDate;
     map['created_at'] = createdAt;
     map['updated_at'] = updatedAt;
+    map['cleaner_type'] = cleanerType;
+    map['cleaner_type_label'] = cleanerTypeLabel;
     return map;
   }
 

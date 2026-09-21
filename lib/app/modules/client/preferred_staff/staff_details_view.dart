@@ -73,7 +73,6 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                   child: _ProfileCard(staff: staff, scheme: scheme),
                 ),
                 const SizedBox(height: 20),
-
                 JobDetailSection(
                   semanticLabel: 'Contact',
                   emoji: '📞',
@@ -98,21 +97,6 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                     ).paddingAll(UiConstants.defaultPadding),
                   ),
                 ),
-
-                if (_hasRates(staff)) ...[
-                  const SizedBox(height: 20),
-                  JobDetailSection(
-                    semanticLabel: 'Rates',
-                    emoji: '💷',
-                    title: 'Hourly rates',
-                    scheme: scheme,
-                    child: AppCard(
-                      child: _RatesBlock(staff: staff!, scheme: scheme)
-                          .paddingAll(UiConstants.defaultPadding),
-                    ),
-                  ),
-                ],
-
                 if (_hasLocation(staff)) ...[
                   const SizedBox(height: 20),
                   JobDetailSection(
@@ -129,7 +113,6 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                     ),
                   ),
                 ],
-
                 if (_hasCleaningServices(staff)) ...[
                   const SizedBox(height: 20),
                   JobDetailSection(
@@ -138,12 +121,10 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                     title: 'Cleaning services',
                     scheme: scheme,
                     child: AppCard(
-                      child: _CleaningServicesChips(staff: staff!, scheme: scheme)
-                          .paddingAll(UiConstants.defaultPadding),
+                      child: _CleaningServicesChips(staff: staff!, scheme: scheme).paddingAll(UiConstants.defaultPadding),
                     ),
                   ),
                 ],
-
                 if (_hasIssuedItems(staff)) ...[
                   const SizedBox(height: 20),
                   JobDetailSection(
@@ -154,7 +135,6 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                     child: _IssuedItemsBlock(staff: staff!, scheme: scheme),
                   ),
                 ],
-
                 if (staff?.availableSlots != null && staff!.availableSlots!.isNotEmpty) ...[
                   const SizedBox(height: 20),
                   JobDetailSection(
@@ -170,7 +150,6 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                     ),
                   ),
                 ],
-
                 if (_hasAvailability(staff)) ...[
                   const SizedBox(height: 20),
                   JobDetailSection(
@@ -179,12 +158,10 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                     title: 'Availability',
                     scheme: scheme,
                     child: AppCard(
-                      child: _AvailabilityBlock(staff: staff!, scheme: scheme)
-                          .paddingAll(UiConstants.defaultPadding),
+                      child: _AvailabilityBlock(staff: staff!, scheme: scheme).paddingAll(UiConstants.defaultPadding),
                     ),
                   ),
                 ],
-
                 if (_hasAbout(staff)) ...[
                   const SizedBox(height: 20),
                   JobDetailSection(
@@ -197,7 +174,6 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                     ),
                   ),
                 ],
-
                 if (_hasNextOfKin(staff)) ...[
                   const SizedBox(height: 20),
                   JobDetailSection(
@@ -206,8 +182,7 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
                     title: 'Emergency contact',
                     scheme: scheme,
                     child: AppCard(
-                      child: _NextOfKinBlock(staff: staff!, scheme: scheme)
-                          .paddingAll(UiConstants.defaultPadding),
+                      child: _NextOfKinBlock(staff: staff!, scheme: scheme).paddingAll(UiConstants.defaultPadding),
                     ),
                   ),
                 ],
@@ -234,19 +209,6 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
   bool _hasLocation(Staff? staff) {
     if (staff == null) return false;
     return _locationAddressText(staff) != null;
-  }
-
-  bool _hasRates(Staff? staff) {
-    if (staff == null) return false;
-    return staff.hourlyRate != null ||
-        staff.residentialHourlyRate != null ||
-        staff.commercialHourlyRate != null;
-  }
-
-  static String formatRate(num? rate) {
-    if (rate == null) return '—';
-    final value = rate is int ? rate.toDouble() : rate.toDouble();
-    return '£${value.toStringAsFixed(2)}/hr';
   }
 
   bool _hasCleaningServices(Staff? staff) {
@@ -297,8 +259,7 @@ class StaffDetailsView extends GetView<PreferredStaffController> {
     for (var i = 0; i < orderedDays.length; i++) {
       final dayKey = orderedDays[i];
       final dayShifts = byDay[dayKey]!;
-      final timeRanges =
-          dayShifts.map((s) => '${CcsDateTimeX.convertTime(s.startTime ?? '')}–${CcsDateTimeX.convertTime(s.endTime ?? "")}').toSet().join(', ');
+      final timeRanges = dayShifts.map((s) => '${CcsDateTimeX.convertTime(s.startTime ?? '')}–${CcsDateTimeX.convertTime(s.endTime ?? "")}').toSet().join(', ');
       if (i > 0) {
         list.add(Divider(height: 20, color: scheme.outline.withValues(alpha: 0.1)));
       }
@@ -353,38 +314,6 @@ class _LabeledPair extends StatelessWidget {
   }
 }
 
-class _RatesBlock extends StatelessWidget {
-  const _RatesBlock({required this.staff, required this.scheme});
-
-  final Staff staff;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    final rows = <Widget>[];
-    void addPair(String label, num? rate) {
-      if (rate == null) return;
-      if (rows.isNotEmpty) {
-        rows.add(Divider(height: 20, color: scheme.outline.withValues(alpha: 0.12)));
-      }
-      rows.add(
-        _LabeledPair(
-          label: label,
-          value: StaffDetailsView.formatRate(rate),
-          scheme: scheme,
-        ),
-      );
-    }
-
-    addPair('Hourly rate', staff.hourlyRate);
-    addPair('Residential', staff.residentialHourlyRate);
-    addPair('Commercial', staff.commercialHourlyRate);
-
-    if (rows.isEmpty) return const SizedBox.shrink();
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows);
-  }
-}
-
 class _CleaningServicesChips extends StatelessWidget {
   const _CleaningServicesChips({required this.staff, required this.scheme});
 
@@ -393,12 +322,7 @@ class _CleaningServicesChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final names = staff.cleaningServicesData
-            ?.map((e) => e.name?.trim())
-            .whereType<String>()
-            .where((s) => s.isNotEmpty)
-            .toList() ??
-        [];
+    final names = staff.cleaningServicesData?.map((e) => e.name?.trim()).whereType<String>().where((s) => s.isNotEmpty).toList() ?? [];
     final count = names.isNotEmpty ? names.length : (staff.cleaningServices?.length ?? 0);
 
     if (names.isNotEmpty) {
@@ -461,19 +385,8 @@ class _ProfileCard extends StatelessWidget {
       badges.add(
         InfoChip(
           label: 'Active',
-          backgroundColor: scheme.surfaceContainerHighest,
-          foregroundColor: scheme.onSurfaceVariant,
-          leftPadding: 10,
-        ),
-      );
-    }
-    if (staff?.hourlyRate != null) {
-      if (badges.isNotEmpty) badges.add(const SizedBox(width: 8));
-      badges.add(
-        InfoChip(
-          label: StaffDetailsView.formatRate(staff!.hourlyRate),
-          backgroundColor: scheme.secondaryContainer,
-          foregroundColor: scheme.onSecondaryContainer,
+          backgroundColor: scheme.tertiaryFixed,
+          foregroundColor: scheme.onTertiaryFixed,
           leftPadding: 10,
         ),
       );
@@ -771,10 +684,8 @@ class _IssuedItemCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     CommonText.regular('Returned $returnedAt', size: 12, color: scheme.onSurfaceVariant),
                   ],
-                  if (returnedTo != null && returnedTo.isNotEmpty)
-                    CommonText.regular('Returned to $returnedTo', size: 12, color: scheme.onSurfaceVariant),
-                  if (condition != null && condition.isNotEmpty)
-                    CommonText.regular('Condition: $condition', size: 12, color: scheme.onSurfaceVariant),
+                  if (returnedTo != null && returnedTo.isNotEmpty) CommonText.regular('Returned to $returnedTo', size: 12, color: scheme.onSurfaceVariant),
+                  if (condition != null && condition.isNotEmpty) CommonText.regular('Condition: $condition', size: 12, color: scheme.onSurfaceVariant),
                 ],
               ],
             ),

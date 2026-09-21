@@ -62,6 +62,7 @@ class SupportDocumentController extends GetxController {
         showPrimaryButton: false,
         showSecondaryButton: false,
         expandBody: true,
+        top: true,
         body: SfPdfViewer.network(
           item.documentUrl ?? '',
           key: pdfViewerKey,

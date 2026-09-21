@@ -318,7 +318,6 @@ class CleanerEditProfileController extends GetxController {
   }
 
   void showProfileData() {
-    log(runtimeType.toString(), 'First Name => ${Prefs().getData(Prefs.firstName)}');
     firstNameCtrl.text = Prefs().getData(Prefs.firstName);
     lastNameCtrl.text = Prefs().getData(Prefs.lastName);
     phoneCtrl.text = Prefs().getData(Prefs.phoneNumber);

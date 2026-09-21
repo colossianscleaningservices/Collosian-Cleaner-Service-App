@@ -479,6 +479,8 @@ class JobCleaners {
     this.createdAt,
     this.user,
     this.updatedAt,
+    this.cleanerType,
+    this.cleanerTypeLabel,
   });
 
   JobCleaners.fromJson(dynamic json) {
@@ -495,6 +497,8 @@ class JobCleaners {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     user = json['user'] != null ? User.fromJson(json['user']) : null;
+    cleanerType = json['cleaner_type'];
+    cleanerTypeLabel = json['cleaner_type_label'];
   }
 
   num? id;
@@ -510,6 +514,8 @@ class JobCleaners {
   String? createdAt;
   String? updatedAt;
   User? user;
+  String? cleanerType;
+  String? cleanerTypeLabel;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -528,6 +534,8 @@ class JobCleaners {
     if (user != null) {
       map['user'] = user?.toJson();
     }
+    map['cleaner_type'] = cleanerType;
+    map['cleaner_type_label'] = cleanerTypeLabel;
     return map;
   }
 }

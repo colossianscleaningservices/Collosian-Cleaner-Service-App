@@ -228,7 +228,9 @@ class ClientJobCleaner {
     required this.name,
     required this.status,
     this.avatarUrl,
-    this.isReview = false
+    this.isReview = false,
+    this.cleanerType,
+    this.cleanerTypeLabel,
   });
 
   final String id;
@@ -236,4 +238,25 @@ class ClientJobCleaner {
   final String status; // e.g. "Assigned", "Confirmed"
   final String? avatarUrl;
   final bool isReview;
+  final String? cleanerType;
+  final String? cleanerTypeLabel;
+
+  String? get cleanerTypeBadge {
+    final label = cleanerTypeLabel?.trim();
+    if (label != null && label.isNotEmpty) return label;
+    final type = cleanerType?.trim();
+    if (type == null || type.isEmpty) return null;
+    return type
+        .replaceAll('_', ' ')
+        .split(' ')
+        .where((w) => w.isNotEmpty)
+        .map((w) => '${w[0].toUpperCase()}${w.substring(1)}')
+        .join(' ');
+  }
+
+  bool get isTeamLeader {
+    final type = cleanerType?.trim().toLowerCase() ?? '';
+    final label = cleanerTypeLabel?.trim().toLowerCase() ?? '';
+    return type == 'team_leader' || label == 'team leader';
+  }
 }

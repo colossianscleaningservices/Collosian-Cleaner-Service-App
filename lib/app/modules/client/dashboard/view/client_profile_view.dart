@@ -139,7 +139,7 @@ class ClientProfileView extends GetView<ClientDashboardController> {
                   );
                 },
               ),
-            ).marginSymmetric(vertical: 24),
+            ).marginOnly(top: 24,bottom: 16),
             Obx(() {
               return CommonText.medium(
                 "Version v${controller.appVersion.value}",

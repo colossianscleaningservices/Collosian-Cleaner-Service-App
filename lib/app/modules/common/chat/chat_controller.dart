@@ -447,7 +447,10 @@ class ChatController extends GetxController {
   }
 
   void _showSendError() {
-    Get.snackbar('Send failed', 'Could not send message. Check connection and try again.');
+    Notifier.error(
+      'Could not send message. Check connection and try again.',
+      title: 'Send failed',
+    );
   }
 
   void _updateChatList(ChatMessage lastMessage) {

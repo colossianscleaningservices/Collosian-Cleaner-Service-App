@@ -33,7 +33,9 @@ class SignupView extends GetView<AuthController> {
                         return _buildSignupForm(context, role);
                       }),
                     ),
-                    SizedBox(height: AppSpacing.lg,),
+                    SizedBox(
+                      height: AppSpacing.lg,
+                    ),
                   ],
                 ),
               ),
@@ -116,9 +118,8 @@ class SignupView extends GetView<AuthController> {
             controller: controller.signupPhoneCtrl,
             label: 'Phone',
             hint: '07...',
-            maxLength: 10,
             keyboardType: TextInputType.phone,
-            validator: (v) => Validator.minLength(v, 10, fieldName: 'Phone'),
+            validator: (v) => Validator.requiredField(v, fieldName: 'Phone'),
             autofillHints: const [AutofillHints.telephoneNumber],
             prefixIcon: Icon(IconsaxPlusLinear.call, size: 20, color: scheme.onSurfaceVariant),
           ),
