@@ -1,3 +1,4 @@
+import 'package:ccs_app/app/services/in_app_update_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 
@@ -10,6 +11,7 @@ class SplashController extends GetxController {
 
   Future<void> _route() async {
     await Future<void>.delayed(const Duration(milliseconds: 400));
+    await InAppUpdateService.check();
 
     var token = Prefs().token;
 
