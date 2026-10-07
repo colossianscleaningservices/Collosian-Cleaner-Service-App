@@ -11,6 +11,8 @@ import '../modules/auth/role_selection_view.dart';
 import '../modules/auth/signup_view.dart';
 import '../modules/cleaner/cleaner_edit_profile/cleaner_edit_profile_binding.dart';
 import '../modules/cleaner/cleaner_edit_profile/cleaner_edit_profile_view.dart';
+import '../modules/cleaner/cleaner_issued_items/cleaner_issued_items_binding.dart';
+import '../modules/cleaner/cleaner_issued_items/cleaner_issued_items_view.dart';
 import '../modules/cleaner/cleaner_payout_computation/cleaner_payout_computation_binding.dart';
 import '../modules/cleaner/cleaner_payout_computation/cleaner_payout_computation_view.dart';
 import '../modules/cleaner/cleaner_references/cleaner_references_binding.dart';
@@ -205,6 +207,11 @@ class AppPages {
       name: _Paths.ADD_DOCUMENT,
       page: () => const AddDocumentView(),
       binding: SupportDocumentBinding(),
+    ),
+    GetPage(
+      name: _Paths.CLEANER_ISSUED_ITEMS,
+      page: () => const CleanerIssuedItemsView(),
+      binding: CleanerIssuedItemsBinding(),
     ),
     GetPage(
       name: _Paths.NOTIFICATION,

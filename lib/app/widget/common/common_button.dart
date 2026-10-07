@@ -66,12 +66,16 @@ class AppButton extends StatelessWidget {
         break;
     }
 
+    final isDisabled = onPressed == null || isLoading;
+    final effectiveFg = isDisabled ? scheme.onSurface.withValues(alpha: 0.38) : fg;
+    final effectiveBg = isDisabled ? scheme.onSurface.withValues(alpha: 0.12) : bg;
+
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: baseStyle.copyWith(
-        backgroundColor: WidgetStateProperty.all(bg),
-        foregroundColor: WidgetStateProperty.all(fg),
-        side: side == null ? null : WidgetStateProperty.all(side),
+        backgroundColor: WidgetStateProperty.all(effectiveBg),
+        foregroundColor: WidgetStateProperty.all(effectiveFg),
+        side: side == null ? null : WidgetStateProperty.all(isDisabled ? BorderSide(color: scheme.onSurface.withValues(alpha: 0.12), width: 1.5) : side),
         elevation: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.disabled)) return 0.0;
           if (type == ButtonType.primary && onPressed != null && !isLoading) {
@@ -83,23 +87,23 @@ class AppButton extends StatelessWidget {
         shadowColor: WidgetStateProperty.all(Colors.transparent),
         overlayColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.pressed)) {
-            return fg.withValues(alpha: 0.12);
+            return effectiveFg.withValues(alpha: 0.12);
           }
           if (states.contains(WidgetState.hovered)) {
-            return fg.withValues(alpha: 0.08);
+            return effectiveFg.withValues(alpha: 0.08);
           }
           return null;
         }),
         maximumSize: WidgetStatePropertyAll(Size.infinite),
       ),
       child: isLoading
-          ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(fg)))
+          ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(effectiveFg)))
           : Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (icon != null) ...[Icon(icon, size: 18, color: fg), const SizedBox(width: 8)],
-                CommonText.medium(label, size: textSize, fontWeight: FontWeight.w600, color: fg),
+                if (icon != null) ...[Icon(icon, size: 18, color: effectiveFg), const SizedBox(width: 8)],
+                CommonText.medium(label, size: textSize, fontWeight: FontWeight.w600, color: effectiveFg),
               ],
             ),
     );

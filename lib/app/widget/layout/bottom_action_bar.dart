@@ -44,7 +44,7 @@ class SingleActionBottomBar extends StatelessWidget {
   });
 
   final String label;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final ButtonType buttonType;
   final Color? backgroundColor;
   final bool isLoading;

@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:ccs_app/app/modules/cleaner/dashboard/cleaner_dashboard_controller.dart';
 import 'package:ccs_app/app/network/repository/cleaner_repository.dart';
 import 'package:ccs_app/export.dart';
+import 'package:intl/intl.dart';
 
 import '../../../model/chat_message.dart';
 import '../../../network/response/get_staff_job_details_response.dart';
@@ -15,6 +18,8 @@ class CleanerJobDetailController extends GetxController {
   final job = Rx<StaffJobDetails?>(null);
   final isFetching = false.obs;
   final fetchError = RxnString();
+  final now = DateTime.now().obs;
+  Timer? _timer;
 
   String? get _jobStatus => job.value?.status;
 
@@ -66,7 +71,7 @@ class CleanerJobDetailController extends GetxController {
   VoidCallback? get bottomBarOnPressed {
     switch (bottomBarState) {
       case 1:
-        return onStartJob;
+        return isCheckInTimeValid ? onStartJob : null;
       case 2:
         return onStopJob;
       default:
@@ -93,6 +98,7 @@ class CleanerJobDetailController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _startTimer();
     final args = Get.arguments;
     if (args is Jobs) {
       jobId = args.id;
@@ -106,6 +112,89 @@ class CleanerJobDetailController extends GetxController {
         jobId = args['jobId'];
       }
     }
+  }
+
+  @override
+  void onClose() {
+    _timer?.cancel();
+    super.onClose();
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    now.value = DateTime.now();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      now.value = DateTime.now();
+    });
+  }
+
+  TimeOfDay? _parseTimeOfDayString(String? timeStr) {
+    if (timeStr == null || timeStr.trim().isEmpty) return null;
+    final trimmed = timeStr.trim();
+
+    final tod = CcsDateTimeX.parseToTimeOfDay(trimmed);
+    if (tod != null) return tod;
+
+    try {
+      final dt = DateFormat('hh:mm a').parse(trimmed);
+      return TimeOfDay(hour: dt.hour, minute: dt.minute);
+    } catch (_) {}
+
+    try {
+      final dt = DateFormat('h:mm a').parse(trimmed);
+      return TimeOfDay(hour: dt.hour, minute: dt.minute);
+    } catch (_) {}
+
+    try {
+      final dt = DateFormat('HH:mm').parse(trimmed);
+      return TimeOfDay(hour: dt.hour, minute: dt.minute);
+    } catch (_) {}
+
+    return null;
+  }
+
+  DateTime? get jobStartDateTime {
+    final j = job.value;
+    if (j == null) return null;
+
+    final dateStr = (j.jobStartDate != null && j.jobStartDate.toString().trim().isNotEmpty)
+        ? j.jobStartDate.toString().trim()
+        : (j.date?.trim() ?? '');
+
+    DateTime? baseDate;
+    if (dateStr.isNotEmpty) {
+      baseDate = DateTime.tryParse(dateStr)?.toLocal();
+      if (baseDate == null) {
+        try {
+          baseDate = DateFormat('dd-MM-yyyy').parse(dateStr);
+        } catch (_) {}
+      }
+    }
+
+    final startTimeStr = j.startTime?.trim();
+    final tod = _parseTimeOfDayString(startTimeStr);
+
+    if (baseDate != null && tod != null) {
+      return DateTime(baseDate.year, baseDate.month, baseDate.day, tod.hour, tod.minute);
+    } else if (baseDate != null) {
+      return baseDate;
+    } else if (startTimeStr != null && startTimeStr.isNotEmpty) {
+      return DateTime.tryParse(startTimeStr)?.toLocal();
+    }
+
+    return null;
+  }
+
+  /// Returns true if current time is within 15 minutes before or 30 minutes after job start time.
+  bool get isCheckInTimeValid {
+    final start = jobStartDateTime;
+    if (start == null) return true;
+
+    final current = now.value;
+    final windowStart = start.subtract(const Duration(minutes: 15));
+    final windowEnd = start.add(const Duration(minutes: 30));
+
+    return !current.isBefore(windowStart) && !current.isAfter(windowEnd);
   }
 
   @override

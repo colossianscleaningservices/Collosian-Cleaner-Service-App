@@ -70,7 +70,7 @@ class CleanerJobDetailView extends GetView<CleanerJobDetailController> {
           return controller.bottomBarState != 0
               ? SingleActionBottomBar(
                   label: controller.bottomBarLabel,
-                  onPressed: controller.bottomBarOnPressed ?? () {},
+                  onPressed: controller.bottomBarOnPressed,
                   buttonType: controller.bottomBarButtonType,
                 )
               : const SizedBox.shrink();
@@ -193,6 +193,16 @@ class _CleanerJobContent extends StatelessWidget {
             const SizedBox(height: 12),
             _InvitationBanner(scheme: scheme),
           ],
+          Obx(() {
+            return (controller.canStartJob && !controller.isCheckInTimeValid)
+                ? Column(
+                    children: [
+                      const SizedBox(height: 12),
+                      _CheckInWindowBanner(controller: controller, scheme: scheme),
+                    ],
+                  )
+                : SizedBox.shrink();
+          }),
           const SizedBox(height: 20),
           _DetailSection(
             semanticLabel: 'Property and client',
@@ -286,9 +296,7 @@ class _CleanerJobContent extends StatelessWidget {
                         onReview: () => {},
                         onTap: () => {},
                         showActions: false,
-                        footer: isCurrentCleaner && _showTraineeProgress(job)
-                            ? _TraineeProgressBlock(job: job, scheme: scheme)
-                            : null,
+                        footer: isCurrentCleaner && _showTraineeProgress(job) ? _TraineeProgressBlock(job: job, scheme: scheme) : null,
                       ),
                     ),
                   );
@@ -504,6 +512,53 @@ class _InvitationBanner extends StatelessWidget {
           Expanded(
             child: CommonText.regular(
               'This job is waiting for your response.',
+              size: 13,
+              color: scheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CheckInWindowBanner extends StatelessWidget {
+  const _CheckInWindowBanner({required this.controller, required this.scheme});
+
+  final CleanerJobDetailController controller;
+  final ColorScheme scheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final start = controller.jobStartDateTime;
+    final current = controller.now.value;
+
+    String message = 'Check-in is available 15 minutes before to 30 minutes after job start time.';
+    if (start != null) {
+      final windowStart = start.subtract(const Duration(minutes: 15));
+      final windowEnd = start.add(const Duration(minutes: 30));
+      final timeStr = CcsDateTimeX.convertTime(controller.job.value?.startTime ?? '');
+      if (current.isBefore(windowStart)) {
+        message = 'Check-in will be enabled 15 minutes before job start time${timeStr.isNotEmpty ? ' ($timeStr)' : ''}.';
+      } else if (current.isAfter(windowEnd)) {
+        message = 'Check-in window has ended (available up to 30 minutes after start time).';
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(UiConstants.radiusLarge),
+        border: Border.all(color: scheme.outline.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(IconsaxPlusLinear.clock, size: 20, color: scheme.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: CommonText.regular(
+              message,
               size: 13,
               color: scheme.onSurface,
             ),

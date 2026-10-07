@@ -83,7 +83,8 @@ class JobCheckPhotoController extends GetxController {
 
   String get timeLabel => isCheckIn ? 'Start Time' : 'Stop Time';
 
-  String get dateLabel => isCheckIn ? 'Job Start Date' : 'Job End Date';
+  // String get dateLabel => isCheckIn ? 'Job Start Date' : 'Job End Date';
+  String get dateLabel => 'Current Date';
 
   @override
   void onInit() {
@@ -251,7 +252,7 @@ class JobCheckPhotoController extends GetxController {
       return;
     }
 
-    if (job == null) {
+    if (job == null || job?.id == null) {
       Notifier.error('Invalid job');
       return;
     }
@@ -260,6 +261,41 @@ class JobCheckPhotoController extends GetxController {
     var shouldPop = false;
     String? successMessage;
     try {
+      final action = isCheckIn ? 'check_in' : 'check_out';
+      final date = scheduleValidFrom.value?.toDisplayDate('yyyy-MM-dd') ?? "";
+      final time = startTime.value != null ? CcsDateTimeX.formatTimeOfDayShort(startTime.value!) : "";
+
+      final validateResult = await _jobRepository.validateAttendance(
+        jobId: job!.id!.toInt(),
+        action: action,
+        date: date,
+        time: time,
+      );
+
+      bool isValid = false;
+      String? errorMessage;
+      validateResult.handle(
+        success: (value) {
+          final st = value.status;
+          if (st == true || st == 'true' || st == 1 || st == '1') {
+            isValid = true;
+          } else {
+            errorMessage = value.message ?? 'Validation failed';
+          }
+        },
+        showAlert: false,
+        onError: (e) {
+          errorMessage = e.message;
+        },
+        contextTag: 'attendance_validate',
+      );
+
+      if (!isValid) {
+        Loader.hide();
+        Notifier.error(errorMessage ?? 'Attendance validation failed');
+        return;
+      }
+
       final files = <dio.MultipartFile>[];
       for (var photo in photos) {
         files.add(await dio.MultipartFile.fromFile(photo.path, filename: "image_${DateTime.now()}.jpg"));

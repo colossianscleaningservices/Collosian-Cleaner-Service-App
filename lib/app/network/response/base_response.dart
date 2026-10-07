@@ -1,26 +1,28 @@
 class BaseResponse {
-  BaseResponse({this.version, this.code, this.message, this.errorType});
+  BaseResponse({this.version, this.code, this.message, this.errorType, this.status});
 
   BaseResponse.fromJson(dynamic json) {
     message = json['message'] as String?;
     version = json['version'] as String?;
     code = json['code'] as num?;
     errorType = json['error_type'] as String?;
+    status = json['status'];
   }
 
   String? version;
   num? code;
   String? message;
   String? errorType;
+  dynamic status;
 
   Map<String, dynamic> toJson() {
-    return {'status': version, 'code': code, 'message': message, 'error_type': errorType};
+    return {'status': status ?? version, 'code': code, 'message': message, 'error_type': errorType};
   }
 }
 
 /// Generic success response with a [data] payload (e.g. categories, forms, list results).
 class DataResponse extends BaseResponse {
-  DataResponse({super.version, super.code, super.message, super.errorType, this.data});
+  DataResponse({super.version, super.code, super.message, super.errorType, super.status, this.data});
 
   DataResponse.fromJson(super.json) : data = json['data'], super.fromJson();
 

@@ -29,6 +29,7 @@ class Constants {
   static const extensionRequestApproved = 'extension_request_approved';
   static const sharedShiftJob = 'shared_shift_job';
   static const invoiceIssue = 'invoice_issued';
+  static const missedCheckout = 'missed_checkout';
 
   static const jobFinished = 'Finished';
   static const jobCompleted = 'Completed';

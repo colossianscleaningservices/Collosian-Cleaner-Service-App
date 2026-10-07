@@ -33,79 +33,60 @@ class JobCheckPhotoView extends GetView<JobCheckPhotoController> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Obx(() {
+                        controller.scheduleValidFrom.value;
                         return CommonTextField(
                           controller: controller.dateDisplayController,
-                          label: controller. dateLabel,
+                          label: controller.dateLabel,
                           hint: '-- / -- / ----',
                           isReadOnly: true,
-                          onTap: () => _pickDate(context, controller),
+                          /*onTap: () => _pickDate(context, controller),*/
                           validator: (_) => controller.scheduleValidFrom.value == null ? 'Job Start Date is required' : null,
-                          suffixIcon: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (controller.scheduleValidFrom.value != null)
-                                IconButton(
-                                  icon: const Icon(IconsaxPlusLinear.close_circle, size: 18),
-                                  onPressed: () => controller.scheduleValidFrom(null),
-                                  constraints: const BoxConstraints(),
-                                  padding: const EdgeInsets.all(4),
-                                ),
-                              Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.primary).marginOnly(right: 12),
-                            ],
-                          ),
+                          suffixIcon: Icon(IconsaxPlusLinear.calendar_1, size: 20, color: scheme.primary),
                         );
                       }).marginOnly(bottom: 16),
-                       CommonTextField(
-                          controller: controller.startTimeDisplayController,
-                          label: controller.timeLabel,
-                          hint: '--:--',
-                          isReadOnly: true,
-                          onTap: () => wheelTimePicker(context, controller),
-                          suffixIcon: Icon(IconsaxPlusLinear.clock, size: 20, color: scheme.primary),
-                        ).marginOnly(bottom: 16),
+                      CommonTextField(
+                        controller: controller.startTimeDisplayController,
+                        label: controller.timeLabel,
+                        hint: '--:--',
+                        isReadOnly: true,
+                        /*onTap: () => wheelTimePicker(context, controller),*/
+                        suffixIcon: Icon(IconsaxPlusLinear.clock, size: 20, color: scheme.primary),
+                      ).marginOnly(bottom: 16),
                       Obx(() {
-                        if (controller.photos.isEmpty) {
-                          return GestureDetector(
-                            onTap: () => controller.showPhotoSourceSheet(context),
-                            child: Container(
-                              height: 160,
-                              decoration: BoxDecoration(
-                                color: scheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(UiConstants.radiusLarge),
-                                border: Border.all(color: scheme.outline.withValues(alpha: 0.5)),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(IconsaxPlusLinear.gallery_add, size: 48, color: scheme.primary),
-                                  const SizedBox(height: 8),
-                                  CommonText.regular('Tap to add photos', size: 14, color: scheme.onSurfaceVariant),
-                                ],
-                              ),
-                            ),
-                          );
-                        }
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CommonText.semiBold('Photos (${controller.photos.length})', size: 14, color: scheme.onSurfaceVariant),
                             const SizedBox(height: 8),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: [
-                                ...List.generate(
-                                    controller.photos.length, (i) => _PhotoThumbnail(file: controller.photos[i], onRemove: () => controller.removePhoto(i))),
-                                _AddPhotoChip(onTap: () => controller.showPhotoSourceSheet(context), scheme: scheme),
-                              ],
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 1.0,
+                              ),
+                              itemCount: controller.photos.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index == 0) {
+                                  return _AddPhotoChip(
+                                    onTap: () => controller.pickCameraImage(),
+                                    scheme: scheme,
+                                  );
+                                }
+                                final photoIndex = index - 1;
+                                return _PhotoThumbnail(
+                                  file: controller.photos[photoIndex],
+                                  onRemove: () => controller.removePhoto(photoIndex),
+                                );
+                              },
                             ),
                           ],
                         );
                       }),
                     ],
-                  )
-
-              ),
+                  )),
             ),
             Padding(
               padding: UiConstants.padding,
@@ -130,39 +111,35 @@ class _PhotoThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = context.colorScheme;
-    return SizedBox(
-      width: 96,
-      height: 96,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(UiConstants.radiusMedium),
       child: Stack(
         fit: StackFit.expand,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(UiConstants.radiusMedium),
-            child: GestureDetector(
-              onTap: () {
-                var multiImageProvider = MultiImageProvider(
-                  [FileImage(File(file.path))].toList(),
-                  initialIndex: 0,
-                );
-                showImageViewerPager(
-                  context,
-                  useSafeArea: true,
-                  multiImageProvider,
-                  swipeDismissible: true,
-                  backgroundColor: context.colorScheme.surface,
-                  closeButtonColor: context.colorScheme.secondary,
-                  doubleTapZoomable: true,
-                );
-              },
-              child: Image.file(
-                File(file.path),
-                key: ValueKey(file.path),
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: scheme.surfaceContainerHighest,
-                  alignment: Alignment.center,
-                  child: Icon(IconsaxPlusLinear.image, color: scheme.onSurfaceVariant),
-                ),
+          GestureDetector(
+            onTap: () {
+              var multiImageProvider = MultiImageProvider(
+                [FileImage(File(file.path))].toList(),
+                initialIndex: 0,
+              );
+              showImageViewerPager(
+                context,
+                useSafeArea: true,
+                multiImageProvider,
+                swipeDismissible: true,
+                backgroundColor: context.colorScheme.surface,
+                closeButtonColor: context.colorScheme.secondary,
+                doubleTapZoomable: true,
+              );
+            },
+            child: Image.file(
+              File(file.path),
+              key: ValueKey(file.path),
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => Container(
+                color: scheme.surfaceContainerHighest,
+                alignment: Alignment.center,
+                child: Icon(IconsaxPlusLinear.image, color: scheme.onSurfaceVariant),
               ),
             ),
           ),
@@ -195,41 +172,28 @@ class _AddPhotoChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 96,
-        height: 96,
         decoration: BoxDecoration(
           color: scheme.primaryContainer.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(UiConstants.radiusMedium),
           border: Border.all(color: scheme.primary.withValues(alpha: 0.5)),
         ),
-        child: Icon(IconsaxPlusLinear.add, size: 32, color: scheme.primary),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(IconsaxPlusLinear.add, size: 32, color: scheme.primary),
+            const SizedBox(height: 4),
+            CommonText.regular('Add Photo', size: 12, color: scheme.primary),
+          ],
+        ),
       ),
     );
   }
 }
 
-Future<void> _pickDate(BuildContext context, JobCheckPhotoController ctrl) async {
-  final d = await showDatePicker(
-    context: context,
-    initialDate: ctrl.scheduleValidFrom.value?.isBefore(DateTime.now()) == true ? DateTime.now() : ctrl.scheduleValidFrom.value ?? DateTime.now(),
-    firstDate: DateTime.now(),
-    lastDate: DateTime(DateTime.now().year + 5, 12, 31),
-  );
-  if (d != null && context.mounted) ctrl.setScheduleValidFrom(d);
-}
-
-/*Future<void> _pickTime(BuildContext context, JobCheckPhotoController ctrl) async {
-  final t = await showTimePicker(
-    context: context,
-    initialTime: const TimeOfDay(hour: 9, minute: 0),
-  );
-
-  ctrl.setStartTime(t);
-}*/
-
 Future<void> wheelTimePicker(
-    BuildContext context,
-    JobCheckPhotoController ctrl,) async {
+  BuildContext context,
+  JobCheckPhotoController ctrl,
+) async {
   return Notifier.openSheet(
     context,
     top: true,

@@ -1,4 +1,3 @@
-import 'package:ccs_app/app/network/response/profile_response.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 
@@ -81,7 +80,7 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                       maxExtent: 60,
                       child: List.generate(controller.cleanerProfileItems.length, (index) {
                         return MenuItem(controller.cleanerProfileItems[index], onTap: () {
-                          if (index == 7) {
+                          if (index == 8) {
                             Get.toNamed(Routes.SUPPORT_CHAT, arguments: {'type': ChatConstants.typeSupport});
                             return;
                           }
@@ -91,9 +90,10 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                             2 => Routes.SUPPORT_DOCUMENT,
                             3 => Routes.CLEANER_REVIEW,
                             4 => Routes.CLEANER_PAYOUT_COMPUTATION,
-                            5 => Routes.NOTIFICATION,
-                            6 => Routes.TRAINING_AND_RESOURCES,
-                            8 => Routes.HELP_SUPPORT,
+                            5 => Routes.CLEANER_ISSUED_ITEMS,
+                            6 => Routes.NOTIFICATION,
+                            7 => Routes.TRAINING_AND_RESOURCES,
+                            9 => Routes.HELP_SUPPORT,
                             _ => Routes.CHANGE_PASSWORD
                           };
 
@@ -105,7 +105,6 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
                 ),
               ),
               const SizedBox(height: 18),
-              const _IssuedItemsSection(),
               SizedBox(
                 width: double.infinity,
                 child: AppButton(
@@ -141,166 +140,4 @@ class CleanerProfileView extends GetView<CleanerDashboardController> {
       ),
     );
   }
-}
-
-class _IssuedItemsSection extends GetView<CleanerDashboardController> {
-  const _IssuedItemsSection();
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = context.colorScheme;
-
-    return Obx(() {
-      final items = controller.issuedItems;
-      final outstanding = controller.issuedItemsOutstandingCount.value;
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: CommonText.semiBold('Issued items', size: 16, color: scheme.onSurface),
-              ),
-              if (outstanding > 0)
-                InfoChip(
-                  label: outstanding == 1 ? '1 to return' : '$outstanding to return',
-                  backgroundColor: scheme.secondaryContainer,
-                  foregroundColor: scheme.secondary,
-                ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          if (items.isEmpty)
-            AppCard(
-              enableShadows: false,
-              color: scheme.surfaceContainerHighest.withValues(alpha: 0.45),
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Icon(IconsaxPlusLinear.box_1, size: 22, color: scheme.onSurfaceVariant),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: CommonText.regular(
-                      'No items have been issued to you yet.',
-                      size: 13,
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else
-            ...items.map(
-              (item) => Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _IssuedItemCard(item: item, scheme: scheme),
-              ),
-            ),
-        ],
-      );
-    });
-  }
-}
-
-class _IssuedItemCard extends StatelessWidget {
-  const _IssuedItemCard({required this.item, required this.scheme});
-
-  final IssuedItem item;
-  final ColorScheme scheme;
-
-  @override
-  Widget build(BuildContext context) {
-    final status = item.statusLabel?.trim();
-    final qty = item.quantity?.toInt();
-    final issuedBy = item.issuedByName?.trim();
-    final issuedAt = item.issuedAt?.trim();
-    final notes = item.notes?.trim();
-    final returnedAt = item.returnedAt?.trim();
-    final returnedTo = item.returnedToName?.trim();
-    final condition = item.conditionOnReturn?.trim();
-
-    final meta = <String>[
-      if (qty != null && qty > 0) 'Qty $qty',
-      if (issuedAt != null && issuedAt.isNotEmpty) 'Issued $issuedAt',
-      if (issuedBy != null && issuedBy.isNotEmpty) 'by $issuedBy',
-    ].join(' · ');
-
-    final statusColors = _issuedStatusColors(item, scheme);
-
-    return AppCard(
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: scheme.secondary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(UiConstants.radiusDefault),
-            ),
-            child: Icon(IconsaxPlusLinear.box_1, size: 22, color: scheme.secondary),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: CommonText.semiBold(
-                        item.itemLabel?.trim().isNotEmpty == true ? item.itemLabel!.trim() : 'Issued item',
-                        size: 15,
-                        color: scheme.onSurface,
-                      ),
-                    ),
-                    if (status != null && status.isNotEmpty) ...[
-                      const SizedBox(width: 8),
-                      InfoChip(
-                        label: status,
-                        backgroundColor: statusColors.$1,
-                        foregroundColor: statusColors.$2,
-                      ),
-                    ],
-                  ],
-                ),
-                if (meta.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  CommonText.regular(meta, size: 12, color: scheme.onSurfaceVariant),
-                ],
-                if (notes != null && notes.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  CommonText.regular(notes, size: 12, color: scheme.onSurfaceVariant),
-                ],
-                if (item.isReturned == true) ...[
-                  if (returnedAt != null && returnedAt.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    CommonText.regular('Returned $returnedAt', size: 12, color: scheme.onSurfaceVariant),
-                  ],
-                  if (returnedTo != null && returnedTo.isNotEmpty)
-                    CommonText.regular('Returned to $returnedTo', size: 12, color: scheme.onSurfaceVariant),
-                  if (condition != null && condition.isNotEmpty)
-                    CommonText.regular('Condition: $condition', size: 12, color: scheme.onSurfaceVariant),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-(Color, Color) _issuedStatusColors(IssuedItem item, ColorScheme scheme) {
-  final label = item.statusLabel?.toLowerCase() ?? '';
-  if (item.isReturned == true || label.contains('returned')) {
-    return (scheme.tertiaryContainer, scheme.tertiary);
-  }
-  if (item.isReturnable == false || label.contains('not returnable')) {
-    return (scheme.surfaceContainerHighest, scheme.onSurfaceVariant);
-  }
-  return (scheme.secondaryContainer, scheme.secondary);
 }

@@ -31,4 +31,22 @@ class JobRepository extends BaseRepository {
       fromJson: (j) => BaseResponse.fromJson(j),
     );
   }
+
+  /// Validate attendance before check-in or check-out.
+  Future<NetworkResult<BaseResponse>> validateAttendance({
+    required int jobId,
+    required String action, // 'check_in' or 'check_out'
+    required String date,   // 'yyyy-MM-dd'
+    required String time,   // 'HH:mm'
+  }) async {
+    return post<BaseResponse>(
+      endpoint: Endpoint.cleanerJobAttendanceValidate(jobId),
+      data: <String, dynamic>{
+        'action': action,
+        'date': date,
+        'time': time,
+      },
+      fromJson: (j) => BaseResponse.fromJson(j),
+    );
+  }
 }

@@ -63,8 +63,8 @@ class OneSignalService {
 
       final additionalData = event.notification.additionalData;
       if (additionalData == null || additionalData.isEmpty) {
-        log(_tag, 'No additional data, navigating to default');
-        _navigateToDefaultScreen();
+        log(_tag, 'No additional data, navigating to notifications');
+        _debounceNavigation(() => Get.toNamed(Routes.NOTIFICATION));
         return;
       }
 
@@ -76,7 +76,7 @@ class OneSignalService {
       });
     } catch (e) {
       log(_tag, 'Error handling notification click: $e');
-      _navigateToDefaultScreen();
+      _debounceNavigation(() => Get.toNamed(Routes.NOTIFICATION));
     }
   }
 
@@ -85,74 +85,52 @@ class OneSignalService {
     Map<String, dynamic>? data,
   }) {
     try {
-      final jobId = data?['related_id'];
+      final rawJobId = data?['related_id'] ?? data?['job_id'] ?? data?['jobId'] ?? data?['relatedId'];
+      final jobId = rawJobId is int ? rawJobId : (rawJobId is String ? int.tryParse(rawJobId) : (rawJobId is num ? rawJobId.toInt() : null));
+
       final roleIdStr = Prefs().getData(Prefs.roleId);
       final roleId = int.tryParse(roleIdStr);
 
-      // CCS-specific: e.g. job updates, general alerts. Extend as backend adds types.
-      if ((type == Constants.sharedShiftJob || type == Constants.invoiceIssue) && data != null) {
+      log(_tag, 'Routing notification type: $type, jobId: $jobId, roleId: $roleId');
+
+      if (type == Constants.jobCreated ||
+          type == Constants.jobRequestAccepted ||
+          type == Constants.cleanerAssigned ||
+          type == Constants.cleanerCheckOut ||
+          type == Constants.cleanerCheckIn ||
+          type == Constants.invoiceIssue ||
+          type == Constants.sharedShiftJob ||
+          type == Constants.missedCheckout ||
+          type == Constants.extensionRequestApproved) {
         if (jobId != null) {
-          final id = jobId is int ? jobId : (jobId is String ? int.tryParse(jobId) : null);
-          if (id != null) {
-            if (RoleConstants.isCleaner(roleId)) {
-              log(_tag, 'Navigating to cleaner job detail: $id');
-              Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
-              return;
-            } else {
-              log(_tag, 'Navigating to cleaner job detail: $id');
-              Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
-            }
+          if (RoleConstants.isCleaner(roleId)) {
+            log(_tag, 'Navigating to cleaner job detail: $jobId');
+            Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': jobId});
+          } else {
+            log(_tag, 'Navigating to client job detail: $jobId');
+            Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': jobId});
           }
+        } else {
+          Get.toNamed(Routes.NOTIFICATION);
         }
-      } else if ((type == Constants.jobCreated || type == Constants.jobRequestAccepted || type == Constants.cleanerAssigned) && data != null) {
-        if (jobId != null) {
-          final id = jobId is int ? jobId : (jobId is String ? int.tryParse(jobId) : null);
-          if (id != null) {
-            if (RoleConstants.isCleaner(roleId)) {
-              log(_tag, 'Navigating to cleaner job detail: $id');
-              Get.toNamed(Routes.CLEANER_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
-              return;
-            }else{
-              Get.toNamed(Routes.CLIENT_JOB_DETAIL, arguments: {'from': 'notification', 'jobId': id});
-              return;
-            }
-          }
+      } else if (type == Constants.jobReview) {
+        if (RoleConstants.isCleaner(roleId)) {
+          Get.toNamed(Routes.CLEANER_REVIEW);
+        } else {
+          Get.toNamed(Routes.NOTIFICATION);
         }
       } else if (type == 'chat') {
         Get.toNamed(Routes.JOB_CHAT, arguments: {
           'type': ChatConstants.typeNotification,
           'jobId': jobId,
         });
-      } else if (type == Constants.jobReview) {
-        if (RoleConstants.isCleaner(roleId)) {
-          Get.toNamed(Routes.CLEANER_REVIEW);
-        }
       } else {
-        _navigateToDefaultScreen();
+        Get.toNamed(Routes.NOTIFICATION);
       }
     } catch (e) {
       log(_tag, 'Error routing notification: $e');
-      _navigateToDefaultScreen();
+      Get.toNamed(Routes.NOTIFICATION);
     }
-  }
-
-  static void _navigateToDefaultScreen() {
-    _debounceNavigation(() {
-      if (_isUserLoggedIn()) {
-        var token = Prefs().token;
-        if (token.isNotEmpty) {
-          final roleIdStr = Prefs().getData(Prefs.roleId);
-          final roleId = int.tryParse(roleIdStr);
-          if (RoleConstants.isClient(roleId)) {
-            Get.offAllNamed(Routes.CLIENT_DASHBOARD);
-          } else {
-            Get.offAllNamed(Routes.CLEANER_DASHBOARD);
-          }
-        }
-      } else {
-        Get.offAllNamed(Routes.AUTH);
-      }
-    });
   }
 
   static void _debounceNavigation(VoidCallback navigationCallback) {
