@@ -277,6 +277,9 @@ class _CleanerJobContent extends StatelessWidget {
                 children: (job.cleaners ?? []).map((cl) {
                   final item = job.jobCleaners?.firstWhereOrNull((e) => e.userId.toString() == cl.id.toString());
                   final isCurrentCleaner = cl.id.toString() == Prefs().userId;
+                  final roleId = int.tryParse(Prefs().getData(Prefs.roleId));
+                  final phone = cl.phoneNumber?.trim() ?? '';
+                  final canCall = RoleConstants.isCleaner(roleId) && !isCurrentCleaner && phone.isNotEmpty;
                   final cardCleaner = ClientJobCleaner(
                     id: cl.id.toString(),
                     name: cl.name ?? 'N/A',
@@ -289,13 +292,14 @@ class _CleanerJobContent extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: Semantics(
-                      label: 'Cleaner ${cardCleaner.name}',
+                      label: canCall ? 'Cleaner ${cardCleaner.name}, call' : 'Cleaner ${cardCleaner.name}',
                       child: CleanerCard(
                         cleaner: cardCleaner,
                         scheme: scheme,
                         onReview: () => {},
                         onTap: () => {},
                         showActions: false,
+                        onCall: canCall ? () => controller.callTeammate(phone) : null,
                         footer: isCurrentCleaner && _showTraineeProgress(job) ? _TraineeProgressBlock(job: job, scheme: scheme) : null,
                       ),
                     ),

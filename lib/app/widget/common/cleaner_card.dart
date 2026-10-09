@@ -13,6 +13,7 @@ class CleanerCard extends StatelessWidget {
     required this.scheme,
     this.isReview = false,
     this.showActions = true,
+    this.onCall,
     this.checkInText,
     this.checkOutText,
     this.footer,
@@ -25,6 +26,9 @@ class CleanerCard extends StatelessWidget {
 
   /// When false, hides Review / chevron (e.g. cleaner-facing job detail).
   final bool showActions;
+
+  /// Opens the phone dialer for this teammate. Shown only when provided.
+  final VoidCallback? onCall;
   final String? checkInText;
   final String? checkOutText;
   final Widget? footer;
@@ -86,7 +90,15 @@ class CleanerCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (showActions) Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
+              if (onCall != null)
+                IconButton(
+                  tooltip: 'Call',
+                  onPressed: onCall,
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(IconsaxPlusLinear.call, size: 20, color: scheme.primary),
+                )
+              else if (showActions)
+                Icon(IconsaxPlusLinear.arrow_right_2, size: 18, color: scheme.onSurfaceVariant),
             ],
           ),
           /*if (hasAttendance) ...[

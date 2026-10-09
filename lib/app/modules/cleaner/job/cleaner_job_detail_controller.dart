@@ -4,6 +4,7 @@ import 'package:ccs_app/app/modules/cleaner/dashboard/cleaner_dashboard_controll
 import 'package:ccs_app/app/network/repository/cleaner_repository.dart';
 import 'package:ccs_app/export.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../model/chat_message.dart';
 import '../../../network/response/get_staff_job_details_response.dart';
@@ -227,6 +228,29 @@ class CleanerJobDetailController extends GetxController {
 
   void onDirections() {
     Notifier.info('Open in maps (coming soon)');
+  }
+
+  /// Opens the device dialer so a cleaner can call a teammate.
+  Future<void> callTeammate(String phoneNumber) async {
+    final roleId = int.tryParse(Prefs().getData(Prefs.roleId));
+    if (!RoleConstants.isCleaner(roleId)) return;
+
+    final dialable = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+    if (dialable.isEmpty) {
+      Notifier.error('No phone number available.');
+      return;
+    }
+
+    final uri = Uri(scheme: 'tel', path: dialable);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      } else {
+        Notifier.error('Could not launch dial pad.');
+      }
+    } catch (_) {
+      Notifier.error('Could not launch dial pad.');
+    }
   }
 
   void onContactClient() {
