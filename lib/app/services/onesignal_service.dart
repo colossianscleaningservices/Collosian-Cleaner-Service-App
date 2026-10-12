@@ -13,6 +13,9 @@ class OneSignalService {
   static bool _isInitialized = false;
   static Timer? _navigationDebouncer;
   static DateTime? _lastNavigationTime;
+  static _PendingNotification? _pendingNav;
+  static bool _flushScheduled = false;
+  static int _flushAttempt = 0;
 
   static OneSignalService get instance => _instance ??= OneSignalService._internal();
 
@@ -55,29 +58,104 @@ class OneSignalService {
           'Notification displayed: ${event.notification.title}\n${event.notification.notificationId}\n${event.notification.body}\n${event.notification.additionalData}'
           '\n${event.notification.rawPayload}');
 
-      if (!_isUserLoggedIn()) {
-        log(_tag, 'User not logged in, redirecting to auth');
-        _debounceNavigation(() => Get.offAllNamed(Routes.AUTH));
+      final pending = _pendingFromClick(event);
+      if (!_canNavigateNow()) {
+        log(_tag, 'App still starting, holding notification until splash finishes');
+        _pendingNav = pending;
+        _flushAttempt = 0;
+        _scheduleFlush();
         return;
       }
 
-      final additionalData = event.notification.additionalData;
-      if (additionalData == null || additionalData.isEmpty) {
-        log(_tag, 'No additional data, navigating to notifications');
-        _debounceNavigation(() => Get.toNamed(Routes.NOTIFICATION));
-        return;
-      }
-
-      final type = additionalData['flag'] as String?;
-      log(_tag, 'Notification type: $type');
-
-      _debounceNavigation(() {
-        _routeBasedOnNotificationType(type: type, data: additionalData);
-      });
+      _debounceNavigation(() => _applyPending(pending));
     } catch (e) {
       log(_tag, 'Error handling notification click: $e');
-      _debounceNavigation(() => Get.toNamed(Routes.NOTIFICATION));
+      final fallback = const _PendingNotification(openList: true);
+      if (!_canNavigateNow()) {
+        _pendingNav = fallback;
+        _flushAttempt = 0;
+        _scheduleFlush();
+        return;
+      }
+      _debounceNavigation(() => _applyPending(fallback));
     }
+  }
+
+  static _PendingNotification _pendingFromClick(OSNotificationClickEvent event) {
+    if (!_isUserLoggedIn()) {
+      log(_tag, 'User not logged in, redirecting to auth');
+      return const _PendingNotification(authRedirect: true);
+    }
+
+    final additionalData = event.notification.additionalData;
+    if (additionalData == null || additionalData.isEmpty) {
+      log(_tag, 'No additional data, navigating to notifications');
+      return const _PendingNotification(openList: true);
+    }
+
+    final data = Map<String, dynamic>.from(additionalData);
+    final type = data['flag'] as String?;
+    log(_tag, 'Notification type: $type');
+    return _PendingNotification(type: type, data: data);
+  }
+
+  /// Splash calls this after it replaces itself with home or login.
+  /// A cold-start notification tap is applied on top of that route.
+  static void onNavigationReady() {
+    _flushAttempt = 0;
+    _scheduleFlush();
+  }
+
+  static bool _canNavigateNow() {
+    try {
+      if (Get.key.currentState == null) return false;
+      final route = Get.currentRoute;
+      return route.isNotEmpty && route != Routes.SPLASH;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static void _scheduleFlush() {
+    if (_pendingNav == null || _flushScheduled) return;
+    _flushScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _flushScheduled = false;
+      _tryFlush();
+    });
+  }
+
+  static void _tryFlush() {
+    final pending = _pendingNav;
+    if (pending == null) return;
+    if (!_canNavigateNow()) {
+      _flushAttempt++;
+      if (_flushAttempt > 120) {
+        log(_tag, 'Still waiting for splash to finish before opening notification');
+        return;
+      }
+      Future<void>.delayed(const Duration(milliseconds: 100), _scheduleFlush);
+      return;
+    }
+
+    _flushAttempt = 0;
+    _pendingNav = null;
+    _debounceNavigation(() => _applyPending(pending));
+  }
+
+  static void _applyPending(_PendingNotification pending) {
+    if (pending.authRedirect) {
+      final route = Get.currentRoute;
+      if (route != Routes.AUTH && route != Routes.LOGIN) {
+        Get.offAllNamed(Routes.AUTH);
+      }
+      return;
+    }
+    if (pending.openList) {
+      Get.toNamed(Routes.NOTIFICATION);
+      return;
+    }
+    _routeBasedOnNotificationType(type: pending.type, data: pending.data);
   }
 
   static void _routeBasedOnNotificationType({
@@ -177,4 +255,18 @@ class OneSignalService {
       log(_tag, 'OneSignal logout failed: $e');
     }
   }
+}
+
+class _PendingNotification {
+  const _PendingNotification({
+    this.type,
+    this.data,
+    this.authRedirect = false,
+    this.openList = false,
+  });
+
+  final String? type;
+  final Map<String, dynamic>? data;
+  final bool authRedirect;
+  final bool openList;
 }

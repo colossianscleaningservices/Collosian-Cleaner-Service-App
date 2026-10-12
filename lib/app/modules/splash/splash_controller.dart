@@ -1,4 +1,5 @@
 import 'package:ccs_app/app/services/in_app_update_service.dart';
+import 'package:ccs_app/app/services/onesignal_service.dart';
 import 'package:ccs_app/app/services/pref.dart';
 import 'package:ccs_app/export.dart';
 
@@ -28,7 +29,8 @@ class SplashController extends GetxController {
       }
     } else {
       Get.offAllNamed(Routes.LOGIN);
-      return;
     }
+
+    OneSignalService.onNavigationReady();
   }
 }

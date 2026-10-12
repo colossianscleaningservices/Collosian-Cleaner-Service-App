@@ -31,7 +31,7 @@ class AddDocumentView extends GetView<SupportDocumentController> {
                   controller: controller.documentCtrl,
                   label: 'Document Number *',
                   hint: 'Enter document number',
-                  keyboardType: TextInputType.phone,
+                  keyboardType: TextInputType.text,
                 ).marginOnly(bottom: 18),
                 Obx(() => _DateField(
                       label: 'Expiry Date *',
@@ -136,7 +136,7 @@ class AddDocumentView extends GetView<SupportDocumentController> {
       context: context,
       initialDate: ctrl.jobStartDate.value ?? DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime(2030, 12, 31),
+      lastDate: DateTime(DateTime.now().year + 100, 12, 31),
     );
     if (d != null && context.mounted) ctrl.setJobStartDate(d);
   }
