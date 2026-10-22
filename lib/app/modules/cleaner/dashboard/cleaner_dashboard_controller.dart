@@ -153,6 +153,10 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
 
   final Rxn<StaffDashModel> staffDash = Rxn<StaffDashModel>(null);
 
+  /// Today's assigned jobs, fetched from the calendar API.
+  final todayJobs = <Jobs>[].obs;
+  final isTodayJobsLoading = false.obs;
+
   //JOBS
   var jobCurrentPage = 1;
   var jobTotalPage = 1;
@@ -310,6 +314,7 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
       OneSignal.Notifications.requestPermission(true);
     }
     fetchDashboardData(showAlert: true);
+    fetchTodayJobs();
     getProfile();
   }
 
@@ -340,6 +345,30 @@ class CleanerDashboardController extends GetxController with GetSingleTickerProv
     } catch (_) {
     } finally {
       Loader.hide();
+    }
+  }
+
+  /// Fetches all assigned jobs for today from the calendar API.
+  Future<void> fetchTodayJobs() async {
+    isTodayJobsLoading.value = true;
+    try {
+      final today = DateTime.now();
+      final dateStr = _formatDateForApi(today);
+      final result = await _cleanerRepository.getCleanerCalender(
+        date: dateStr,
+        type: 'assigned',
+        perPage: 50,
+      );
+      result.handle(
+        success: (value) {
+          todayJobs.assignAll(value.data?.jobs ?? <Jobs>[]);
+        },
+        contextTag: 'fetch-today-jobs',
+      );
+    } catch (_) {
+      // Best-effort; dashboard still works
+    } finally {
+      isTodayJobsLoading.value = false;
     }
   }
 
