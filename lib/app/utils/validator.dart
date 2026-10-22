@@ -39,10 +39,10 @@ class Validator {
     return null;
   }
 
-  /// UK NI number (example: AB123456C). SRS: required for cleaner.
-  static String? nin(String? value, {String fieldName = 'National Insurance Number'}) {
+  /// UK NI number (example: AB123456C). Empty is allowed when [required] is false.
+  static String? nin(String? value, {String fieldName = 'National Insurance Number', bool required = true}) {
     final v = (value ?? '').trim().toUpperCase();
-    if (v.isEmpty) return '$fieldName is required';
+    if (v.isEmpty) return required ? '$fieldName is required' : null;
     final ninRegex = RegExp(r'^[A-Z]{2}\d{6}[A-Z]{1}$');
     if (!ninRegex.hasMatch(v)) return 'Enter a valid NI number (e.g., AB123456C)';
     return null;

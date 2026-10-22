@@ -40,7 +40,9 @@ class AuthController extends GetxController {
   final signupPasswordCtrl = TextEditingController();
   final signupObscure = true.obs;
   final signupNiNumberCtrl = TextEditingController();
+  final signupShareCodeCtrl = TextEditingController();
   final isStudent = false.obs;
+  var signupFormSubmitted = false;
 
   // ─── Forgot / reset password ──────────────────────────────────────────────
   final forgotEmailCtrl = TextEditingController();
@@ -108,6 +110,7 @@ class AuthController extends GetxController {
     signupPhoneCtrl.dispose();
     signupPasswordCtrl.dispose();
     signupNiNumberCtrl.dispose();
+    signupShareCodeCtrl.dispose();
     forgotEmailCtrl.dispose();
     resetPasswordCtrl.dispose();
     resetConfirmPasswordCtrl.dispose();
@@ -121,6 +124,31 @@ class AuthController extends GetxController {
   String? validateRequired(String? v, [String name = 'This field']) {
     if (v == null || v.isEmpty) return '$name is required';
     return null;
+  }
+
+  static const _niOrShareMessage = 'Enter an NI number or a Share Code';
+  static const _niAndShareMessage = 'Enter either an NI number or a Share Code, not both';
+
+  /// Cleaner must provide an NI number or a Share Code, but not both.
+  String? validateSignupNi(String? value) {
+    final ni = (value ?? '').trim();
+    final share = signupShareCodeCtrl.text.trim();
+    if (ni.isEmpty && share.isEmpty) return _niOrShareMessage;
+    if (ni.isNotEmpty && share.isNotEmpty) return _niAndShareMessage;
+    if (ni.isEmpty) return null;
+    return Validator.nin(ni, required: false);
+  }
+
+  String? validateSignupShareCode(String? value) {
+    final share = (value ?? '').trim();
+    final ni = signupNiNumberCtrl.text.trim();
+    if (ni.isEmpty && share.isEmpty) return _niOrShareMessage;
+    if (ni.isNotEmpty && share.isNotEmpty) return _niAndShareMessage;
+    return null;
+  }
+
+  void onCleanerIdChanged() {
+    if (signupFormSubmitted) signupFormKey.currentState?.validate();
   }
 
   // ─── Role & navigation ───────────────────────────────────────────────────
@@ -463,6 +491,7 @@ class AuthController extends GetxController {
       final firstName = signupFirstNameCtrl.text.trim().isNotEmpty ? signupFirstNameCtrl.text.trim() : signupEmailCtrl.text.trim();
       final lastName = signupLastNameCtrl.text.trim().isNotEmpty ? signupLastNameCtrl.text.trim() : signupEmailCtrl.text.trim();
       final roleStr = role == UserRole.client ? 'client' : 'staff';
+      final niNumber = signupNiNumberCtrl.text.trim();
       final result = await _authRepository.userRegister(
           firstName: firstName,
           lastName: lastName,
@@ -471,7 +500,8 @@ class AuthController extends GetxController {
           passwordConfirmation: signupPasswordCtrl.text,
           role: roleStr,
           phoneNumber: signupPhoneCtrl.text.trim().isNotEmpty ? signupPhoneCtrl.text.trim() : null,
-          verificationCode: role == UserRole.cleaner ? signupNiNumberCtrl.text.trim() : null,
+          verificationCode: role == UserRole.cleaner && niNumber.isNotEmpty ? niNumber : null,
+          shareCode: role == UserRole.cleaner ? signupShareCodeCtrl.text.trim() : null,
           answersId: role == UserRole.cleaner ? answersId : null,
           isVerified: true,
           isStudent: isStudent.value);

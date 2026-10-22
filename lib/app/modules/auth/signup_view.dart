@@ -149,7 +149,17 @@ class SignupView extends GetView<AuthController> {
               controller: controller.signupNiNumberCtrl,
               label: 'NI number',
               hint: 'AB123456C',
-              validator: Validator.nin,
+              validator: controller.validateSignupNi,
+              onChanged: (_) => controller.onCleanerIdChanged(),
+              prefixIcon: Icon(IconsaxPlusLinear.card, size: 20, color: scheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: UiConstants.gap),
+            CommonTextField(
+              controller: controller.signupShareCodeCtrl,
+              label: 'Share Code',
+              hint: 'Share code',
+              validator: controller.validateSignupShareCode,
+              onChanged: (_) => controller.onCleanerIdChanged(),
               prefixIcon: Icon(IconsaxPlusLinear.card, size: 20, color: scheme.onSurfaceVariant),
             ),
             const SizedBox(height: UiConstants.gap),
@@ -163,6 +173,7 @@ class SignupView extends GetView<AuthController> {
           AppButton(
             label: 'Create account',
             onPressed: () {
+              controller.signupFormSubmitted = true;
               if (controller.signupFormKey.currentState?.validate() ?? false) {
                 controller.sendOTP(controller.signupEmailCtrl.text);
               }

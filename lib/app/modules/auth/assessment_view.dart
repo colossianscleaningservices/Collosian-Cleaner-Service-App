@@ -35,7 +35,9 @@ class AssessmentView extends GetView<AuthController> {
       final isLastStep = currentStep == totalSteps - 1;
       final isStepComplete = controller.isAgreementStepComplete(currentStep);
       const stepNodeSize = 32.0;
-      final stepProgressWidth = totalSteps * 1.45 * stepNodeSize;
+      const stepLabelMaxWidth = 50.0;
+      final stepSlotWidth = stepLabelMaxWidth > stepNodeSize ? stepLabelMaxWidth : stepNodeSize;
+      final stepProgressWidth = totalSteps * 1.45 * stepSlotWidth;
 
       return AppScaffold(
         backgroundColor: scheme.surface,
@@ -54,7 +56,7 @@ class AssessmentView extends GetView<AuthController> {
                 controller: controller.stepScrollController,
                 scrollDirection: Axis.horizontal,
                 child: StepProgress(
-                  width: stepProgressWidth + 40,
+                  width: stepProgressWidth,
                   stepNodeSize: stepNodeSize,
                   theme: StepProgressThemeData(
                     shape: StepNodeShape.circle,
@@ -71,7 +73,7 @@ class AssessmentView extends GetView<AuthController> {
                       defualtColor: scheme.onSurfaceVariant.withValues(alpha: 0.5),
                       activeColor: scheme.secondary,
                       margin: const EdgeInsets.only(top: 6),
-                      maxWidth: 50,
+                      maxWidth: stepLabelMaxWidth,
                     ),
                     stepNodeStyle: StepNodeStyle(
                       decoration: BoxDecoration(

@@ -35,6 +35,7 @@ class AuthRepository extends BaseRepository {
     required String role,
     String? phoneNumber,
     String? verificationCode,
+    String? shareCode,
     List<num?>? answersId,
     bool? isVerified,
     bool? isStudent,
@@ -47,7 +48,6 @@ class AuthRepository extends BaseRepository {
       'password': password,
       'password_confirmation': passwordConfirmation,
       'role': role,
-      'verification_code': verificationCode,
       'answer_ids': answersId,
       'is_verified': isVerified,
       'is_student ': isStudent
@@ -55,6 +55,12 @@ class AuthRepository extends BaseRepository {
     };
     if (phoneNumber != null && phoneNumber.trim().isNotEmpty) {
       payload['phone_number'] = phoneNumber.trim();
+    }
+    if (verificationCode != null && verificationCode.trim().isNotEmpty) {
+      payload['verification_code'] = verificationCode.trim();
+    }
+    if (shareCode != null && shareCode.trim().isNotEmpty) {
+      payload['share_code'] = shareCode.trim();
     }
     return post<LoginSignupResponse>(
       endpoint: Endpoint.authRegister,
